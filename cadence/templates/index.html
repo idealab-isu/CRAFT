@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CADence - Text to CAD Pipeline</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --surface: #16213e;
+            --surface-2: #0f3460;
+            --primary: #e94560;
+            --secondary: #00adb5;
+            --text: #eee;
+            --text-dim: #888;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--surface-2);
+        }
+        
+        .panel h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: var(--surface-2);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab:hover {
+            color: var(--text);
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Form elements */
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg);
+            border: 1px solid var(--surface-2);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+        
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        /* File upload */
+        .file-upload {
+            border: 2px dashed var(--surface-2);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--secondary);
+        }
+        
+        .file-upload.dragover {
+            border-color: var(--primary);
+            background: rgba(233, 69, 96, 0.1);
+        }
+        
+        .file-upload input {
+            display: none;
+        }
+        
+        .file-list {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+        
+        /* Output area */
+        .output-image {
+            background: var(--bg);
+            border-radius: 8px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .output-image img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+        
+        .placeholder {
+            color: var(--text-dim);
+            text-align: center;
+        }
+        
+        /* Code display */
+        .code-container {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow: auto;
+        }
+        
+        .code-container pre {
+            margin: 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        /* Validation display */
+        .validation-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .validation-result.passed {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid var(--success);
+        }
+        
+        .validation-result.failed {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid var(--error);
+        }
+        
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .score.good { color: var(--success); }
+        .score.medium { color: var(--warning); }
+        .score.bad { color: var(--error); }
+        
+        .check-list {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0;
+        }
+        
+        .check-item.pass { color: var(--success); }
+        .check-item.fail { color: var(--error); }
+        
+        /* Repair section */
+        .repair-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--surface-2);
+        }
+        
+        .repair-section input {
+            min-height: auto;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        
+        /* Loading */
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+        }
+        
+        .loading.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--surface-2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* JSON display */
+        .json-toggle {
+            cursor: pointer;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+        
+        .json-content {
+            display: none;
+            margin-top: 0.5rem;
+        }
+        
+        .json-content.show {
+            display: block;
+        }
+        
+        /* Error message */
+        .error-message {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: var(--error);
+        }
+
+        /* ===================================================================
+           3D Viewer Styles
+           =================================================================== */
+
+        .view-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: var(--surface-2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .view-btn:hover {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .view-btn:active {
+            transform: translateY(0);
+        }
+
+        #viewer-container {
+            background: #1a1a1a;
+            border: 1px solid var(--surface-2);
+        }
+
+        .viewer-help {
+            user-select: none;
+        }
+
+        /* ===================================================================
+           Parameter Customizer Styles
+           =================================================================== */
+
+        .param-control {
+            margin-bottom: 1.25rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+        }
+
+        .param-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .param-value {
+            color: var(--secondary);
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .param-slider {
+            width: 100%;
+            height: 6px;
+            background: var(--surface-2);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .param-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .param-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .param-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
+        }
+
+        .param-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .param-select {
+            width: 100%;
+            padding: 0.5rem;
+            background: var(--surface-2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .param-input {
+            width: 100%;
+            padding: 0.5rem;
+            background: var(--surface-2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .customizer-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--surface-2);
+        }
+
+        .btn-apply {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--secondary);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-apply:hover:not(:disabled) {
+            background: #00cbd5;
+            transform: translateY(-2px);
+        }
+
+        .btn-apply:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            padding: 0.75rem 1.5rem;
+            background: var(--surface-2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: var(--error);
+            border-color: var(--error);
+            transform: translateY(-2px);
+        }
+
+        .auto-update-control {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--surface-2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .auto-update-control input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .auto-update-control label {
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .no-params {
+            color: var(--text-dim);
+            font-style: italic;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* ===================================================================
+           Multi-View Display Styles
+           =================================================================== */
+
+        .multi-view-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 800px) {
+            .multi-view-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .view-item {
+            background: var(--bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--surface-2);
+        }
+
+        .view-item img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: contain;
+            background: #1a1a1a;
+        }
+
+        .view-item .view-label {
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            background: var(--surface-2);
+            text-transform: capitalize;
+        }
+
+        /* VLM Correction Status */
+        .vlm-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .vlm-status.approved {
+            border-left-color: var(--success);
+        }
+
+        .vlm-status.not-approved {
+            border-left-color: var(--warning);
+        }
+
+        .vlm-status h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--secondary);
+            font-size: 1rem;
+        }
+
+        .vlm-iteration-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--surface-2);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
+
+        .vlm-confidence {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--secondary);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .vlm-confidence.high {
+            background: var(--success);
+        }
+
+        .vlm-confidence.medium {
+            background: var(--warning);
+        }
+
+        .vlm-confidence.low {
+            background: var(--error);
+        }
+
+        .vlm-issues {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(248, 113, 113, 0.1);
+            border-radius: 6px;
+        }
+
+        .vlm-issues h5 {
+            margin: 0 0 0.5rem 0;
+            color: var(--error);
+            font-size: 0.9rem;
+        }
+
+        .vlm-issues ul {
+            margin: 0;
+            padding-left: 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .vlm-view-assessments {
+            margin-top: 0.75rem;
+        }
+
+        .vlm-view-assessments summary {
+            cursor: pointer;
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .vlm-view-assessments .assessments-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--surface-2);
+            border-radius: 6px;
+        }
+
+        .vlm-view-assessments .assessment-item {
+            font-size: 0.8rem;
+        }
+
+        .vlm-view-assessments .assessment-item strong {
+            color: var(--text);
+            text-transform: capitalize;
+        }
+
+        .vlm-view-assessments .assessment-item p {
+            margin: 0.25rem 0 0 0;
+            color: var(--text-dim);
+        }
+
+        /* Iteration History */
+        .iteration-history {
+            margin-top: 1rem;
+        }
+
+        .iteration-history summary {
+            cursor: pointer;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            background: var(--bg);
+            border-radius: 6px;
+        }
+
+        .iteration-timeline {
+            margin-top: 0.75rem;
+            border-left: 2px solid var(--surface-2);
+            padding-left: 1rem;
+        }
+
+        .iteration-item {
+            position: relative;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            background: var(--bg);
+            border-radius: 6px;
+        }
+
+        .iteration-item::before {
+            content: '';
+            position: absolute;
+            left: -1.35rem;
+            top: 1rem;
+            width: 10px;
+            height: 10px;
+            background: var(--surface-2);
+            border-radius: 50%;
+        }
+
+        .iteration-item.corrected::before {
+            background: var(--warning);
+        }
+
+        .iteration-item.approved::before {
+            background: var(--success);
+        }
+
+        .iteration-item h5 {
+            margin: 0 0 0.25rem 0;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .iteration-item p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* ===================================================================
+           Component Verification Styles
+           =================================================================== */
+
+        .component-verification-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .component-verification-status.passed {
+            border-left-color: var(--success);
+        }
+
+        .component-verification-status.failed {
+            border-left-color: var(--warning);
+        }
+
+        .component-verification-status h4 {
+            margin: 0 0 0.75rem 0;
+            color: var(--secondary);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .component-checks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .component-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--surface-2);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .component-check.pass {
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .component-check.fail {
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        .component-check .icon {
+            font-size: 1.1em;
+        }
+
+        .component-check.pass .icon {
+            color: var(--success);
+        }
+
+        .component-check.fail .icon {
+            color: var(--error);
+        }
+
+        .parts-list {
+            margin-top: 0.75rem;
+        }
+
+        .parts-list summary {
+            cursor: pointer;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            background: var(--surface-2);
+            border-radius: 6px;
+        }
+
+        .parts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--surface-2);
+            border-radius: 6px;
+        }
+
+        .part-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            padding: 0.25rem;
+        }
+
+        .part-item.present {
+            color: var(--success);
+        }
+
+        .part-item.missing {
+            color: var(--error);
+        }
+
+        .connectivity-issues {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(248, 113, 113, 0.1);
+            border-radius: 6px;
+        }
+
+        .connectivity-issues h5 {
+            margin: 0 0 0.5rem 0;
+            color: var(--error);
+            font-size: 0.9rem;
+        }
+
+        .connectivity-issues ul {
+            margin: 0;
+            padding-left: 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .component-verification-history summary {
+            cursor: pointer;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            background: var(--bg);
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 CADence</h1>
+            <p class="subtitle">Multi-Agent Text-to-CAD Pipeline</p>
+        </header>
+        
+        <div class="main-grid">
+            <!-- Input Panel -->
+            <div class="panel">
+                <h2>📝 Input</h2>
+                
+                <div class="tabs">
+                    <button class="tab active" data-tab="text">Text Input</button>
+                    <button class="tab" data-tab="single-image">Single Image</button>
+                    <button class="tab" data-tab="vision">Multi-View</button>
+                </div>
+                
+                <!-- Text Input -->
+                <div id="text-tab" class="tab-content active">
+                    <textarea id="text-input" placeholder="Describe the 3D model you want to create...
+
+Example: A coffee mug with a curved handle on the right side. The mug should be cylindrical with a hollow interior and a flat base."></textarea>
+
+                    <!-- Hybrid Model Info -->
+                    <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: var(--bg); border-radius: 8px;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">
+                            🤖 Hybrid Model Pipeline
+                        </label>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 0.3rem; padding: 0.5rem 0.6rem; background: var(--surface-2); border-radius: 6px; font-size: 0.8rem;">
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <span style="color: #a78bfa;">🧠</span>
+                                    <span style="color: var(--text); font-weight: 500;">GPT-5.2</span>
+                                </div>
+                                <div style="color: var(--text-dim); font-size: 0.7rem; line-height: 1.3;">
+                                    Understanding<br/>Planning<br/>VLM Correction
+                                </div>
+                            </div>
+                            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 0.3rem; padding: 0.5rem 0.6rem; background: var(--surface-2); border-radius: 6px; font-size: 0.8rem;">
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <span style="color: #4ade80;">⚡</span>
+                                    <span style="color: var(--text); font-weight: 500;">GPT-4o</span>
+                                </div>
+                                <div style="color: var(--text-dim); font-size: 0.7rem; line-height: 1.3;">
+                                    Vision Analysis<br/>Compilation<br/>Repair
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RAG Toggle -->
+                    <div style="margin-top: 0.5rem; padding: 0.75rem 1rem; background: var(--bg); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                        <label style="color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                            📚 Use Knowledge Base (RAG)
+                            <span style="font-size: 0.75rem; color: var(--text-dim); opacity: 0.7;" title="NopSCADlib component library for parametric patterns">ⓘ</span>
+                        </label>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                            <input type="checkbox" id="rag-toggle" checked style="opacity: 0; width: 0; height: 0;">
+                            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--surface-2); transition: .3s; border-radius: 24px;"></span>
+                            <span id="rag-slider" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--accent); transition: .3s; border-radius: 50%;"></span>
+                        </label>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="generate-btn">
+                            ⚡ Generate
+                        </button>
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <span>Generating...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Single Image Input (GPT-5.2 Only) -->
+                <div id="single-image-tab" class="tab-content">
+                    <div style="margin-bottom: 1rem; padding: 0.75rem; background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(233, 69, 96, 0.1)); border-radius: 8px; border: 1px solid rgba(167, 139, 250, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.2rem;">🧠</span>
+                            <span style="font-weight: 600; color: var(--text);">GPT-5.2 Reasoning Mode</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-dim); margin: 0;">
+                            Upload a photo of any real-world object (ice cream, coffee mug, toy, etc.) and GPT-5.2 will understand its structure and generate a CAD model.
+                        </p>
+                    </div>
+
+                    <div class="file-upload" id="single-file-upload">
+                        <input type="file" id="single-file-input" accept="image/*">
+                        <p>📸 Drop a single image here or click to upload</p>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">
+                            Supports: JPG, PNG, GIF, WebP, BMP
+                        </p>
+                    </div>
+
+                    <div id="single-image-preview" style="display: none; margin-top: 1rem; text-align: center;">
+                        <img id="single-preview-img" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid var(--surface-2);">
+                        <p id="single-file-name" style="font-size: 0.85rem; color: var(--text-dim); margin-top: 0.5rem;"></p>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="single-image-btn" disabled>
+                            🧠 Understand & Generate
+                        </button>
+                        <div class="loading" id="single-image-loading">
+                            <div class="spinner"></div>
+                            <span>GPT-5.2 analyzing...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vision Input (Multi-View) -->
+                <div id="vision-tab" class="tab-content">
+                    <div class="file-upload" id="file-upload">
+                        <input type="file" id="file-input" multiple accept="image/*">
+                        <p>📁 Drop 6-10 view images here or click to upload</p>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">
+                            6 ortho (front, back, left, right, top, bottom) + 4 iso views
+                        </p>
+                    </div>
+                    <div class="file-list" id="file-list"></div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="vision-btn" disabled>
+                            👁️ Analyze & Generate
+                        </button>
+                        <div class="loading" id="vision-loading">
+                            <div class="spinner"></div>
+                            <span>Processing views...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Design Brief Display -->
+                <div id="brief-section" style="display: none; margin-top: 1.5rem;">
+                    <h3 style="font-size: 1rem; color: var(--secondary); margin-bottom: 0.5rem;">📋 Design Brief</h3>
+                    <div id="brief-content" class="code-container">
+                        <pre></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Output Panel -->
+            <div class="panel">
+                <h2>🖼️ Output</h2>
+                
+                <div class="output-image" id="output-image">
+                    <div class="placeholder">
+                        <p>Generated model will appear here</p>
+                    </div>
+                </div>
+
+                <!-- Multi-View Display -->
+                <div id="multi-view-section" style="display: none; margin-top: 1rem;">
+                    <h3 style="font-size: 1rem; color: var(--secondary); margin-bottom: 0.5rem;">
+                        📐 Multi-View Renders
+                    </h3>
+                    <div class="multi-view-grid" id="multi-view-grid">
+                        <!-- Views will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- VLM Correction Status -->
+                <div id="vlm-status-section" style="display: none;">
+                    <div class="vlm-status" id="vlm-status">
+                        <h4>🤖 VLM Self-Correction</h4>
+                        <div>
+                            <span class="vlm-iteration-badge" id="vlm-iteration-count">0 iterations</span>
+                            <span class="vlm-confidence" id="vlm-confidence">--% confidence</span>
+                            <span id="vlm-match-status" style="margin-left: 0.5rem; font-size: 0.85rem;"></span>
+                        </div>
+
+                        <!-- Issues Found -->
+                        <div class="vlm-issues" id="vlm-issues" style="display: none;">
+                            <h5>Issues Found:</h5>
+                            <ul id="vlm-issues-list"></ul>
+                        </div>
+
+                        <!-- View Assessments (collapsible) -->
+                        <details class="vlm-view-assessments" id="vlm-view-assessments" style="display: none;">
+                            <summary>View-by-View Assessment</summary>
+                            <div class="assessments-grid" id="vlm-assessments-grid"></div>
+                        </details>
+                    </div>
+
+                    <!-- Iteration History (collapsible) -->
+                    <details class="iteration-history" id="iteration-history" style="display: none;">
+                        <summary>Correction History</summary>
+                        <div class="iteration-timeline" id="iteration-timeline"></div>
+                    </details>
+                </div>
+
+                <!-- Component Verification Status -->
+                <div id="component-verification-section" style="display: none;">
+                    <div class="component-verification-status" id="component-verification-status">
+                        <h4>
+                            <span>🔗</span>
+                            Component Verification
+                            <span class="vlm-iteration-badge" id="component-iteration-count">0 iterations</span>
+                        </h4>
+
+                        <!-- Primary Checks -->
+                        <div class="component-checks">
+                            <div class="component-check" id="parts-check">
+                                <span class="icon">○</span>
+                                <span>All Parts Present</span>
+                            </div>
+                            <div class="component-check" id="connectivity-check">
+                                <span class="icon">○</span>
+                                <span>Fully Connected</span>
+                            </div>
+                        </div>
+
+                        <!-- Parts List (collapsible) -->
+                        <details class="parts-list" id="parts-list-details" style="display: none;">
+                            <summary>Part Presence Check</summary>
+                            <div class="parts-grid" id="parts-grid"></div>
+                        </details>
+
+                        <!-- Connectivity Issues -->
+                        <div class="connectivity-issues" id="connectivity-issues" style="display: none;">
+                            <h5>Connectivity Issues:</h5>
+                            <ul id="connectivity-issues-list"></ul>
+                        </div>
+
+                        <!-- Verification History (collapsible) -->
+                        <details class="component-verification-history" id="component-verification-history" style="display: none; margin-top: 0.75rem;">
+                            <summary>Verification History</summary>
+                            <div class="iteration-timeline" id="component-verification-timeline"></div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- Validation Result -->
+                <div id="validation-section" style="display: none;">
+                    <div class="validation-result" id="validation-result">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span class="score" id="validation-score">--</span>
+                                <span style="color: var(--text-dim);">/ 100</span>
+                            </div>
+                            <span id="validation-status"></span>
+                        </div>
+                        <div class="check-list" id="check-list"></div>
+                    </div>
+                    
+                    <!-- Repair Section -->
+                    <div class="repair-section" id="repair-section" style="display: none;">
+                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔧 Manual Repair</h3>
+                        <input type="text" id="repair-hint" placeholder="Describe what needs to be fixed...">
+                        <button class="btn btn-secondary" id="repair-btn">
+                            🔄 Repair with Hint
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Stats -->
+                <div class="stats" id="stats-section" style="display: none;">
+                    <div class="stat">
+                        <div class="stat-value" id="stat-plan-attempts">-</div>
+                        <div class="stat-label">Plan Attempts</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="stat-vlm-iterations">-</div>
+                        <div class="stat-label">VLM Iterations</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="stat-parts">-</div>
+                        <div class="stat-label">Expected Parts</div>
+                    </div>
+                </div>
+                
+                <!-- Download Buttons -->
+                <div class="btn-group" id="download-section" style="display: none;">
+                    <a class="btn btn-secondary" id="download-scad" href="#">
+                        📥 Download .scad
+                    </a>
+                    <a class="btn btn-secondary" id="download-plan" href="#">
+                        📄 Download Plan
+                    </a>
+                    <button class="btn btn-primary" id="view-3d-btn" style="display: none;">
+                        🎯 View in 3D
+                    </button>
+                </div>
+
+                <!-- 3D Viewer -->
+                <div id="viewer-section" style="display: none; margin-top: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h3 style="font-size: 1rem; margin: 0;">3D Viewer</h3>
+                        <div class="view-controls" id="view-controls">
+                            <button class="view-btn" onclick="setCADView('top')">Top</button>
+                            <button class="view-btn" onclick="setCADView('front')">Front</button>
+                            <button class="view-btn" onclick="setCADView('left')">Left</button>
+                            <button class="view-btn" onclick="setCADView('right')">Right</button>
+                            <button class="view-btn" onclick="setCADView('iso')">Isometric</button>
+                        </div>
+                    </div>
+                    <div id="viewer-container" style="width: 100%; height: 400px; border-radius: 8px; overflow: hidden;"></div>
+                    <div class="viewer-help" style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem; text-align: center;">
+                        Left Click: Rotate | Right Click: Pan | Scroll: Zoom
+                    </div>
+                </div>
+
+                <!-- Parameter Customizer -->
+                <div id="customizer-section" style="display: none; margin-top: 1rem;">
+                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">⚙️ Parameters</h3>
+                    <div id="parameter-controls"></div>
+                </div>
+
+                <!-- Code Display -->
+                <div id="code-section" style="display: none; margin-top: 1rem;">
+                    <span class="json-toggle" id="code-toggle">▶ Show OpenSCAD Code</span>
+                    <div class="json-content code-container" id="code-content">
+                        <pre></pre>
+                    </div>
+                </div>
+                
+                <!-- Plan Display -->
+                <div id="plan-section" style="display: none; margin-top: 0.5rem;">
+                    <span class="json-toggle" id="plan-toggle">▶ Show JSON Plan</span>
+                    <div class="json-content code-container" id="plan-content">
+                        <pre></pre>
+                    </div>
+                </div>
+                
+                <!-- Error Display -->
+                <div class="error-message" id="error-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <!-- Viewer Script (uses ES modules for Three.js) -->
+    <script type="module" src="/static/js/viewer.js"></script>
+    <!-- Customizer Script (non-module, uses window.ParameterCustomizer) -->
+    <script src="/static/js/customizer.js"></script>
+
+    <script>
+        // State
+        let currentSessionId = null;
+        let cadViewer = null;
+        let parameterCustomizer = null;
+        let selectedFiles = [];
+
+        // RAG toggle with visual slider
+        const ragToggle = document.getElementById('rag-toggle');
+        const ragSlider = document.getElementById('rag-slider');
+        function updateRagSlider() {
+            if (ragToggle.checked) {
+                ragSlider.style.transform = 'translateX(20px)';
+                ragSlider.style.backgroundColor = 'var(--accent)';
+            } else {
+                ragSlider.style.transform = 'translateX(0)';
+                ragSlider.style.backgroundColor = '#888';
+            }
+        }
+        ragToggle.addEventListener('change', updateRagSlider);
+        updateRagSlider(); // Initialize
+
+        // Elements
+        const textInput = document.getElementById('text-input');
+        const generateBtn = document.getElementById('generate-btn');
+        const loading = document.getElementById('loading');
+        const outputImage = document.getElementById('output-image');
+        const validationSection = document.getElementById('validation-section');
+        const validationResult = document.getElementById('validation-result');
+        const validationScore = document.getElementById('validation-score');
+        const validationStatus = document.getElementById('validation-status');
+        const checkList = document.getElementById('check-list');
+        const repairSection = document.getElementById('repair-section');
+        const repairHint = document.getElementById('repair-hint');
+        const repairBtn = document.getElementById('repair-btn');
+        const statsSection = document.getElementById('stats-section');
+        const downloadSection = document.getElementById('download-section');
+        const downloadScad = document.getElementById('download-scad');
+        const downloadPlan = document.getElementById('download-plan');
+        const codeSection = document.getElementById('code-section');
+        const codeContent = document.getElementById('code-content').querySelector('pre');
+        const planSection = document.getElementById('plan-section');
+        const planContent = document.getElementById('plan-content').querySelector('pre');
+        const briefSection = document.getElementById('brief-section');
+        const briefContent = document.getElementById('brief-content').querySelector('pre');
+        const errorMessage = document.getElementById('error-message');
+        
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+            });
+        });
+        
+        // Toggle code/plan visibility
+        document.getElementById('code-toggle').addEventListener('click', function() {
+            const content = document.getElementById('code-content');
+            content.classList.toggle('show');
+            this.textContent = content.classList.contains('show') ? '▼ Hide OpenSCAD Code' : '▶ Show OpenSCAD Code';
+        });
+        
+        document.getElementById('plan-toggle').addEventListener('click', function() {
+            const content = document.getElementById('plan-content');
+            content.classList.toggle('show');
+            this.textContent = content.classList.contains('show') ? '▼ Hide JSON Plan' : '▶ Show JSON Plan';
+        });
+        
+        // File upload handling (Multi-View)
+        const fileUpload = document.getElementById('file-upload');
+        const fileInput = document.getElementById('file-input');
+        const fileList = document.getElementById('file-list');
+        const visionBtn = document.getElementById('vision-btn');
+
+        fileUpload.addEventListener('click', () => fileInput.click());
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        });
+        fileUpload.addEventListener('dragleave', () => fileUpload.classList.remove('dragover'));
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+            fileList.textContent = `${selectedFiles.length} images selected: ${selectedFiles.map(f => f.name).join(', ')}`;
+            visionBtn.disabled = selectedFiles.length < 6;
+        }
+
+        // Single Image upload handling
+        let selectedSingleFile = null;
+        const singleFileUpload = document.getElementById('single-file-upload');
+        const singleFileInput = document.getElementById('single-file-input');
+        const singleImageBtn = document.getElementById('single-image-btn');
+        const singleImagePreview = document.getElementById('single-image-preview');
+        const singlePreviewImg = document.getElementById('single-preview-img');
+        const singleFileName = document.getElementById('single-file-name');
+
+        singleFileUpload.addEventListener('click', () => singleFileInput.click());
+        singleFileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            singleFileUpload.classList.add('dragover');
+        });
+        singleFileUpload.addEventListener('dragleave', () => singleFileUpload.classList.remove('dragover'));
+        singleFileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            singleFileUpload.classList.remove('dragover');
+            handleSingleFile(e.dataTransfer.files[0]);
+        });
+        singleFileInput.addEventListener('change', (e) => handleSingleFile(e.target.files[0]));
+
+        function handleSingleFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                selectedSingleFile = null;
+                singleImageBtn.disabled = true;
+                singleImagePreview.style.display = 'none';
+                return;
+            }
+
+            selectedSingleFile = file;
+            singleImageBtn.disabled = false;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                singlePreviewImg.src = e.target.result;
+                singleFileName.textContent = file.name;
+                singleImagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Generate from single image (GPT-5.2)
+        singleImageBtn.addEventListener('click', async () => {
+            if (!selectedSingleFile) return;
+
+            setLoading(true, 'single-image');
+            hideError();
+
+            const formData = new FormData();
+            formData.append('image', selectedSingleFile);
+
+            try {
+                const response = await fetch('/vision-single', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                handleResponse(data);
+
+                // Show additional single-image specific info in console
+                if (data.captions) {
+                    console.log('[Single Image] Object identified:', data.captions.object_identified);
+                    console.log('[Single Image] Geometric breakdown:', data.captions.geometric_breakdown);
+                    console.log('[Single Image] CAD hints:', data.captions.cad_hints);
+                }
+            } catch (err) {
+                showError('Request failed: ' + err.message);
+            } finally {
+                setLoading(false, 'single-image');
+            }
+        });
+        
+        // Generate from text
+        generateBtn.addEventListener('click', async () => {
+            const text = textInput.value.trim();
+            if (!text) return;
+
+            setLoading(true);
+            hideError();
+
+            const formData = new FormData();
+            formData.append('text', text);
+            formData.append('use_rag', document.getElementById('rag-toggle').checked ? 'true' : 'false');
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                handleResponse(data);
+            } catch (err) {
+                showError('Request failed: ' + err.message);
+            } finally {
+                setLoading(false);
+            }
+        });
+        
+        // Generate from vision
+        visionBtn.addEventListener('click', async () => {
+            if (selectedFiles.length < 6) return;
+            
+            setLoading(true, 'vision');
+            hideError();
+            
+            const formData = new FormData();
+            selectedFiles.forEach(f => formData.append('images[]', f));
+            
+            try {
+                const response = await fetch('/vision', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                handleResponse(data);
+            } catch (err) {
+                showError('Request failed: ' + err.message);
+            } finally {
+                setLoading(false, 'vision');
+            }
+        });
+        
+        // Repair
+        repairBtn.addEventListener('click', async () => {
+            const hint = repairHint.value.trim();
+            if (!currentSessionId) return;
+
+            setLoading(true);
+
+            const formData = new FormData();
+            formData.append('hint', hint);
+            formData.append('session_id', currentSessionId);
+            // Use default model (server will use MODEL_PRIMARY = gpt-4o)
+
+            try {
+                const response = await fetch('/repair', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                handleResponse(data);
+                repairHint.value = '';
+            } catch (err) {
+                showError('Repair failed: ' + err.message);
+            } finally {
+                setLoading(false);
+            }
+        });
+        
+        function handleResponse(data) {
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+            
+            currentSessionId = data.session_id;
+            
+            // Update image
+            if (data.image) {
+                outputImage.innerHTML = `<img src="/${data.image}?t=${Date.now()}" alt="Generated CAD">`;
+            }
+            
+            // Update design brief
+            if (data.design_brief) {
+                briefSection.style.display = 'block';
+                briefContent.textContent = JSON.stringify(data.design_brief, null, 2);
+            }
+            
+            // Update validation
+            if (data.validation) {
+                validationSection.style.display = 'block';
+                const v = data.validation;
+                
+                validationScore.textContent = v.score;
+                validationScore.className = 'score ' + (v.score >= 80 ? 'good' : v.score >= 50 ? 'medium' : 'bad');
+                
+                validationResult.className = 'validation-result ' + (v.passed ? 'passed' : 'failed');
+                validationStatus.textContent = v.passed ? '✓ Passed' : '✗ Failed';
+                validationStatus.style.color = v.passed ? 'var(--success)' : 'var(--error)';
+                
+                // Show checks
+                checkList.innerHTML = '';
+                for (const [name, check] of Object.entries(v.checks)) {
+                    const item = document.createElement('div');
+                    item.className = 'check-item ' + (check.passed ? 'pass' : 'fail');
+                    item.innerHTML = `${check.passed ? '✓' : '✗'} ${name}: ${check.message}`;
+                    checkList.appendChild(item);
+                }
+                
+                // Always show repair section (manual repair always available)
+                repairSection.style.display = 'block';
+            }
+            
+            // Update stats
+            if (data.stats) {
+                statsSection.style.display = 'grid';
+                document.getElementById('stat-plan-attempts').textContent = data.stats.plan_attempts;
+                // Show VLM iterations if available, otherwise show repair attempts
+                const vlmIterations = data.vlm_correction?.iterations || data.stats.repair_attempts || 0;
+                document.getElementById('stat-vlm-iterations').textContent = vlmIterations;
+                document.getElementById('stat-parts').textContent = data.design_brief?.expected_parts?.length || '-';
+            }
+            
+            // Update downloads
+            if (data.filename) {
+                downloadSection.style.display = 'flex';
+                downloadScad.href = `/download/${data.filename}`;
+                downloadPlan.href = `/download_plan/${data.filename}`;
+            }
+            
+            // Update code display
+            if (data.code) {
+                codeSection.style.display = 'block';
+                codeContent.textContent = data.code;
+            }
+            
+            // Update plan display
+            if (data.plan) {
+                planSection.style.display = 'block';
+                planContent.textContent = JSON.stringify(data.plan, null, 2);
+            }
+
+            // Store filename for STL generation
+            if (data.filename) {
+                currentFilename = data.filename;
+            }
+
+            // Update VLM Correction display
+            if (data.vlm_correction && data.vlm_correction.used) {
+                updateVLMCorrectionDisplay(data.vlm_correction);
+            }
+
+            // Update Component Verification display
+            if (data.component_verification && data.component_verification.used) {
+                updateComponentVerificationDisplay(data.component_verification);
+            }
+
+            // Show View in 3D button if model was generated (even if not fully approved)
+            // Show if: VLM was used OR validation passed OR we have a filename
+            const showViewer = (data.vlm_correction && data.vlm_correction.used) ||
+                               (data.validation && data.validation.passed) ||
+                               data.filename;
+            if (showViewer) {
+                document.getElementById('view-3d-btn').style.display = 'inline-block';
+            }
+
+            // Initialize customizer if parameters are available
+            if (data.parameters) {
+                initializeCustomizer(data.parameters);
+            }
+        }
+        
+        function setLoading(isLoading, type = 'text') {
+            let btn, loadingEl;
+            if (type === 'vision') {
+                btn = visionBtn;
+                loadingEl = document.getElementById('vision-loading');
+            } else if (type === 'single-image') {
+                btn = singleImageBtn;
+                loadingEl = document.getElementById('single-image-loading');
+            } else {
+                btn = generateBtn;
+                loadingEl = loading;
+            }
+
+            btn.disabled = isLoading;
+            loadingEl.classList.toggle('active', isLoading);
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+        
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // =====================================================================
+        // VLM Correction Display Functions
+        // =====================================================================
+
+        function updateVLMCorrectionDisplay(vlmData) {
+            // Show VLM status section
+            const vlmStatusSection = document.getElementById('vlm-status-section');
+            vlmStatusSection.style.display = 'block';
+
+            const vlmStatus = document.getElementById('vlm-status');
+
+            // Update iteration count
+            document.getElementById('vlm-iteration-count').textContent =
+                `${vlmData.iterations} iteration${vlmData.iterations !== 1 ? 's' : ''}`;
+
+            // Update confidence and match status
+            if (vlmData.assessment) {
+                const confidence = Math.round(vlmData.assessment.confidence * 100);
+                const confidenceEl = document.getElementById('vlm-confidence');
+                confidenceEl.textContent = `${confidence}% confidence`;
+
+                // Set confidence color class
+                confidenceEl.className = 'vlm-confidence';
+                if (confidence >= 80) {
+                    confidenceEl.classList.add('high');
+                } else if (confidence >= 50) {
+                    confidenceEl.classList.add('medium');
+                } else {
+                    confidenceEl.classList.add('low');
+                }
+
+                // Update match status
+                const matchStatus = document.getElementById('vlm-match-status');
+                const matchLabel = vlmData.assessment.overall_match || 'unknown';
+                matchStatus.textContent = `Match: ${matchLabel}`;
+
+                // Update status bar color
+                vlmStatus.className = 'vlm-status';
+                if (vlmData.approved) {
+                    vlmStatus.classList.add('approved');
+                } else {
+                    vlmStatus.classList.add('not-approved');
+                }
+
+                // Show issues if any
+                const issuesSection = document.getElementById('vlm-issues');
+                const issuesList = document.getElementById('vlm-issues-list');
+                if (vlmData.assessment.issues && vlmData.assessment.issues.length > 0) {
+                    issuesSection.style.display = 'block';
+                    issuesList.innerHTML = vlmData.assessment.issues
+                        .map(issue => `<li>${issue}</li>`)
+                        .join('');
+                } else {
+                    issuesSection.style.display = 'none';
+                }
+
+                // Show view assessments
+                const viewAssessmentsSection = document.getElementById('vlm-view-assessments');
+                const assessmentsGrid = document.getElementById('vlm-assessments-grid');
+                if (vlmData.assessment.view_assessments && Object.keys(vlmData.assessment.view_assessments).length > 0) {
+                    viewAssessmentsSection.style.display = 'block';
+                    assessmentsGrid.innerHTML = Object.entries(vlmData.assessment.view_assessments)
+                        .map(([view, assessment]) => `
+                            <div class="assessment-item">
+                                <strong>${view}</strong>
+                                <p>${assessment}</p>
+                            </div>
+                        `).join('');
+                } else {
+                    viewAssessmentsSection.style.display = 'none';
+                }
+            }
+
+            // Show multi-view images
+            const multiViewSection = document.getElementById('multi-view-section');
+            const multiViewGrid = document.getElementById('multi-view-grid');
+            if (vlmData.multi_view_images && Object.keys(vlmData.multi_view_images).length > 0) {
+                multiViewSection.style.display = 'block';
+                const viewOrder = ['front', 'back', 'left', 'right', 'top', 'bottom'];
+                multiViewGrid.innerHTML = viewOrder
+                    .filter(view => vlmData.multi_view_images[view])
+                    .map(view => `
+                        <div class="view-item">
+                            <img src="/${vlmData.multi_view_images[view]}?t=${Date.now()}" alt="${view} view">
+                            <div class="view-label">${view}</div>
+                        </div>
+                    `).join('');
+            } else {
+                multiViewSection.style.display = 'none';
+            }
+
+            // Show iteration history
+            const iterationHistory = document.getElementById('iteration-history');
+            const iterationTimeline = document.getElementById('iteration-timeline');
+            if (vlmData.iteration_history && vlmData.iteration_history.length > 0) {
+                iterationHistory.style.display = 'block';
+                iterationTimeline.innerHTML = vlmData.iteration_history.map(iter => {
+                    let statusClass = '';
+                    let statusText = 'Evaluated';
+                    if (iter.vlm_assessment && iter.vlm_assessment.approved) {
+                        statusClass = 'approved';
+                        statusText = 'Approved';
+                    } else if (iter.corrected) {
+                        statusClass = 'corrected';
+                        statusText = 'Corrected';
+                    }
+
+                    const issues = iter.vlm_assessment?.issues || [];
+                    const issuesText = issues.length > 0
+                        ? `Issues: ${issues.slice(0, 2).join(', ')}${issues.length > 2 ? '...' : ''}`
+                        : 'No major issues';
+
+                    return `
+                        <div class="iteration-item ${statusClass}">
+                            <h5>Iteration ${iter.iteration}</h5>
+                            <p>
+                                Score: ${iter.deterministic_score} |
+                                ${statusText} |
+                                Match: ${iter.vlm_assessment?.overall_match || '-'}
+                            </p>
+                            <p style="font-size: 0.75rem; margin-top: 0.25rem;">${issuesText}</p>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                iterationHistory.style.display = 'none';
+            }
+        }
+
+        // =====================================================================
+        // Component Verification Display Functions
+        // =====================================================================
+
+        function updateComponentVerificationDisplay(compData) {
+            // Show component verification section
+            const section = document.getElementById('component-verification-section');
+            section.style.display = 'block';
+
+            const status = document.getElementById('component-verification-status');
+
+            // Update iteration count
+            document.getElementById('component-iteration-count').textContent =
+                `${compData.iterations} iteration${compData.iterations !== 1 ? 's' : ''}`;
+
+            // Update status class
+            status.className = 'component-verification-status';
+            if (compData.passed) {
+                status.classList.add('passed');
+            } else {
+                status.classList.add('failed');
+            }
+
+            // Update parts check
+            const partsCheck = document.getElementById('parts-check');
+            partsCheck.className = 'component-check ' + (compData.all_parts_present ? 'pass' : 'fail');
+            partsCheck.querySelector('.icon').textContent = compData.all_parts_present ? '✓' : '✗';
+
+            // Update connectivity check
+            const connCheck = document.getElementById('connectivity-check');
+            connCheck.className = 'component-check ' + (compData.is_fully_connected ? 'pass' : 'fail');
+            connCheck.querySelector('.icon').textContent = compData.is_fully_connected ? '✓' : '✗';
+
+            // Show parts list from the last iteration
+            const partsListDetails = document.getElementById('parts-list-details');
+            const partsGrid = document.getElementById('parts-grid');
+            if (compData.history && compData.history.length > 0) {
+                const lastIter = compData.history[compData.history.length - 1];
+                if (lastIter.parts_present && lastIter.parts_present.length > 0) {
+                    partsListDetails.style.display = 'block';
+                    partsGrid.innerHTML = lastIter.parts_present.map(part => `
+                        <div class="part-item ${part.present ? 'present' : 'missing'}">
+                            <span>${part.present ? '✓' : '✗'}</span>
+                            <span>${part.part_name}</span>
+                            <span style="font-size: 0.75rem; color: var(--text-dim);">(${Math.round(part.confidence * 100)}%)</span>
+                        </div>
+                    `).join('');
+                } else {
+                    partsListDetails.style.display = 'none';
+                }
+            } else {
+                partsListDetails.style.display = 'none';
+            }
+
+            // Show connectivity issues
+            const connIssues = document.getElementById('connectivity-issues');
+            const connIssuesList = document.getElementById('connectivity-issues-list');
+            if (compData.issues && compData.issues.length > 0) {
+                connIssues.style.display = 'block';
+                connIssuesList.innerHTML = compData.issues
+                    .map(issue => `<li>${issue}</li>`)
+                    .join('');
+            } else {
+                connIssues.style.display = 'none';
+            }
+
+            // Show verification history
+            const historyDetails = document.getElementById('component-verification-history');
+            const historyTimeline = document.getElementById('component-verification-timeline');
+            if (compData.history && compData.history.length > 0) {
+                historyDetails.style.display = 'block';
+                historyTimeline.innerHTML = compData.history.map(iter => {
+                    let statusClass = '';
+                    let statusText = 'Checked';
+                    if (iter.all_parts_found && iter.is_connected) {
+                        statusClass = 'approved';
+                        statusText = 'All checks passed';
+                    } else if (iter.corrected) {
+                        statusClass = 'corrected';
+                        statusText = 'Corrected';
+                    }
+
+                    const issues = iter.issues || [];
+                    const issuesText = issues.length > 0
+                        ? `Issues: ${issues.slice(0, 2).join(', ')}${issues.length > 2 ? '...' : ''}`
+                        : 'No issues found';
+
+                    return `
+                        <div class="iteration-item ${statusClass}">
+                            <h5>Iteration ${iter.iteration}</h5>
+                            <p>
+                                Parts: ${iter.all_parts_found ? '✓' : '✗'} |
+                                Connected: ${iter.is_connected ? '✓' : '✗'} |
+                                ${statusText}
+                            </p>
+                            <p style="font-size: 0.75rem; margin-top: 0.25rem;">${issuesText}</p>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                historyDetails.style.display = 'none';
+            }
+        }
+
+        // =====================================================================
+        // 3D Viewer and Customizer Functions
+        // =====================================================================
+
+        let currentSTLPath = null;
+        let currentFilename = null;
+
+        // Initialize View in 3D button handler
+        document.getElementById('view-3d-btn').addEventListener('click', async function() {
+            if (!currentSessionId) {
+                showError('No session available. Please generate a model first.');
+                return;
+            }
+
+            // Show loading state
+            const btn = this;
+            btn.textContent = '⏳ Generating 3D Model...';
+            btn.disabled = true;
+
+            try {
+                // Generate STL
+                const response = await fetch('/generate-stl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        filename: currentFilename
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentSTLPath = data.stl_path;
+
+                    // Show viewer section FIRST (before initializing)
+                    document.getElementById('viewer-section').style.display = 'block';
+
+                    // Wait a moment for the container to be rendered
+                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    // Initialize viewer if not already done
+                    if (!cadViewer) {
+                        cadViewer = new window.CADViewer('viewer-container');
+                    }
+
+                    // Load STL
+                    await cadViewer.loadSTL('/' + data.stl_path);
+
+                    // Update button
+                    btn.textContent = '✓ Viewing in 3D';
+                    setTimeout(() => {
+                        btn.textContent = '🎯 View in 3D';
+                        btn.disabled = false;
+                    }, 2000);
+                } else {
+                    showError('Failed to generate 3D model: ' + (data.error || 'Unknown error'));
+                    btn.textContent = '🎯 View in 3D';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error generating STL:', error);
+                showError('Error generating 3D model: ' + error.message);
+                btn.textContent = '🎯 View in 3D';
+                btn.disabled = false;
+            }
+        });
+
+        // View control functions
+        function setCADView(viewName) {
+            if (cadViewer) {
+                cadViewer.setView(viewName);
+            }
+        }
+
+        // Initialize customizer when parameters are available
+        function initializeCustomizer(parameters) {
+            if (!parameters || Object.keys(parameters).length === 0) {
+                document.getElementById('customizer-section').style.display = 'none';
+                return;
+            }
+
+            // Check if ParameterCustomizer is available
+            if (typeof window.ParameterCustomizer !== 'function') {
+                console.warn('ParameterCustomizer not loaded yet, skipping customizer initialization');
+                document.getElementById('customizer-section').style.display = 'none';
+                return;
+            }
+
+            try {
+                // Initialize customizer if not already done
+                if (!parameterCustomizer) {
+                    parameterCustomizer = new window.ParameterCustomizer('parameter-controls', {
+                        sessionId: currentSessionId,
+                        autoUpdate: false,
+                        onChange: (name, value) => {
+                            console.log(`Parameter ${name} changed to ${value}`);
+                        }
+                    });
+                }
+
+                // Load parameters
+                parameterCustomizer.setSessionId(currentSessionId);
+                parameterCustomizer.loadParameters(parameters);
+
+                // Show customizer section
+                document.getElementById('customizer-section').style.display = 'block';
+            } catch (error) {
+                console.error('Error initializing customizer:', error);
+                document.getElementById('customizer-section').style.display = 'none';
+            }
+        }
+
+        // Handle model regeneration
+        window.addEventListener('model-regenerated', function(event) {
+            const data = event.detail;
+
+            // Update image
+            if (data.image) {
+                outputImage.innerHTML = `<img src="/static/images/${data.image}?t=${Date.now()}" alt="Regenerated CAD">`;
+            }
+
+            // Update validation
+            if (data.validation) {
+                validationSection.style.display = 'block';
+                const v = data.validation;
+
+                validationScore.textContent = v.score;
+                validationScore.className = 'score ' + (v.score >= 80 ? 'good' : v.score >= 50 ? 'medium' : 'bad');
+
+                checkList.innerHTML = '';
+                v.checks.forEach(check => {
+                    const item = document.createElement('div');
+                    item.className = 'check-item ' + (check.passed ? 'passed' : 'failed');
+                    item.innerHTML = `
+                        <span>${check.passed ? '✓' : '✗'}</span>
+                        <span>${check.name} (${(check.score * 100).toFixed(0)}%)</span>
+                    `;
+                    checkList.appendChild(item);
+                });
+
+                validationStatus.textContent = v.passed ? '✓ Passed' : '✗ Failed';
+                validationStatus.className = v.passed ? 'status passed' : 'status failed';
+
+                repairSection.style.display = v.passed ? 'none' : 'block';
+            }
+
+            // Update code display
+            if (data.code) {
+                codeSection.style.display = 'block';
+                codeContent.textContent = data.code;
+            }
+
+            // Update parameters
+            if (data.parameters) {
+                initializeCustomizer(data.parameters);
+            }
+        });
+    </script>
+</body>
+</html>

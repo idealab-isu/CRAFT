@@ -1,0 +1,46 @@
+# CADence - Text to CAD Pipeline
+# Core dependencies
+
+# Web framework
+flask>=3.0.0
+werkzeug>=3.0.0
+
+# OpenAI API
+openai>=1.0.0
+
+# Image processing
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# Optional: faster image metrics
+scipy>=1.11.0
+
+# JSON schema validation
+jsonschema>=4.20.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Data processing (for evaluation)
+pandas>=2.0.0
+pyarrow>=14.0.0  # for parquet support
+
+# Progress bars
+tqdm>=4.66.0
+
+# Type hints
+typing-extensions>=4.8.0
+
+# =============================================================================
+# Knowledge Base (RAG) Dependencies
+# =============================================================================
+
+# Vector store for semantic search
+chromadb>=0.4.0
+
+# CLIP embeddings for vision-based retrieval (optional)
+# transformers>=4.35.0
+# torch>=2.0.0
+
+# Git operations for cloning NopSCADlib
+# gitpython>=3.1.0  # Optional - can use subprocess instead
