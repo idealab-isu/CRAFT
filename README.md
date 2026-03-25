@@ -3,7 +3,7 @@
 CRAFT is a multi-agent pipeline that generates parametric [OpenSCAD](https://openscad.org/) programs from natural language descriptions. Unlike direct code generation approaches, CRAFT preserves symbolic parametric relationships throughout generation, producing CAD models that are executable, editable, and reusable.
 
 <p align="center">
-  <img src="blob/main/paper/figures/png/CAD_Pipeline.png" alt="CRAFT Pipeline Overview" width="90%"/>
+  <img src="paper/figures/png/CAD_Pipeline.png" alt="CRAFT Pipeline Overview" width="90%"/>
 </p>
 
 
