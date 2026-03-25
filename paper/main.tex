@@ -24,7 +24,7 @@
 
 \begin{frontmatter}
 
-\title{CADence: CAD Intelligence, A Multi-Agent Pipeline for Zero-Shot Text-to-CAD Generation with Parametric Expression Preservation}
+\title{CRAFT: CAD Intelligence, A Multi-Agent Pipeline for Zero-Shot Text-to-CAD Generation with Parametric Expression Preservation}
 
 
 % \author{First Author}
@@ -39,7 +39,7 @@
 
 
 \begin{abstract} 
-Generating parametric CAD models from natural language remains a significant challenge in geometric modeling. Existing approaches either require extensive fine-tuning on large annotated datasets or produce non-parametric code with hardcoded values. We present CADence, a multi-agent pipeline that generates parametric OpenSCAD models from text descriptions and images without any task-specific training. CADence introduces a JSON-based intermediate representation that preserves parametric expressions as strings throughout the generation process, enabling true design customization. The pipeline employs six coordinated stages: understanding, planning, compilation, rendering, visual self-correction, and component verification. Key innovations include a 6-view visual language model assessment system for comprehensive spatial evaluation, a 5-layer error recovery mechanism for robust generation, and tiered part validation with context-aware confidence thresholds. We evaluate CADence on a diverse set of over 150 prompts spanning three categories: mechanical components (gears, brackets, enclosures, motor mounts), everyday objects (mugs, chairs, lamps, storage containers), and abstract geometric designs (interlocking shapes, lattices, organic forms), demonstrating competitive results with fine-tuned approaches while offering superior parametric flexibility. On a curated benchmark of 15 prompts with ground truth dimensioned using parametric specifications from NopSCADlib~\cite{nopscadlib}, a widely-used open-source mechanical CAD library, CADence reduces Chamfer Distance relative to direct LLM generation on medium and complex designs. Across all evaluations, CADence achieves 100\% compilation and rendering success regardless of model configuration, owing to the multi-layer error recovery system. This eliminates the ``no output'' failure mode that limits direct generation approaches. Comprehensive ablation studies quantify the contribution of each architectural component: VLM self-correction raises approval rates from 0\% to 66.7\% over three iterations, component verification achieves an 86.4\% pass rate, and the hybrid model configuration attains 98.3\% parts detection. CADence represents a new paradigm for text-to-CAD generation that prioritizes inspectability, debuggability, and parametric design.
+Generating parametric CAD models from natural language remains a significant challenge in geometric modeling. Existing approaches either require extensive fine-tuning on large annotated datasets or produce non-parametric code with hardcoded values. We present CRAFT, a multi-agent pipeline that generates parametric OpenSCAD models from text descriptions and images without any task-specific training. CRAFT introduces a JSON-based intermediate representation that preserves parametric expressions as strings throughout the generation process, enabling true design customization. The pipeline employs six coordinated stages: understanding, planning, compilation, rendering, visual self-correction, and component verification. Key innovations include a 6-view visual language model assessment system for comprehensive spatial evaluation, a 5-layer error recovery mechanism for robust generation, and tiered part validation with context-aware confidence thresholds. We evaluate CRAFT on a diverse set of over 150 prompts spanning three categories: mechanical components (gears, brackets, enclosures, motor mounts), everyday objects (mugs, chairs, lamps, storage containers), and abstract geometric designs (interlocking shapes, lattices, organic forms), demonstrating competitive results with fine-tuned approaches while offering superior parametric flexibility. On a curated benchmark of 15 prompts with ground truth dimensioned using parametric specifications from NopSCADlib~\cite{nopscadlib}, a widely-used open-source mechanical CAD library, CRAFT reduces Chamfer Distance relative to direct LLM generation on medium and complex designs. Across all evaluations, CRAFT achieves 100\% compilation and rendering success regardless of model configuration, owing to the multi-layer error recovery system. This eliminates the ``no output'' failure mode that limits direct generation approaches. Comprehensive ablation studies quantify the contribution of each architectural component: VLM self-correction raises approval rates from 0\% to 66.7\% over three iterations, component verification achieves an 86.4\% pass rate, and the hybrid model configuration attains 98.3\% parts detection. CRAFT represents a new paradigm for text-to-CAD generation that prioritizes inspectability, debuggability, and parametric design.
 \end{abstract}
 
 \begin{keyword} Text-to-CAD, Parametric modeling, Large language models, OpenSCAD, Multi-agent systems
@@ -60,11 +60,11 @@ Existing approaches to text-to-CAD generation fall into two categories. The firs
 
 Critically, both categories fail to preserve parametric relationships. Fine-tuned models typically output code with evaluated constants rather than symbolic expressions, while zero-shot methods lack the structured representations needed to maintain these relationships through generation. This limitation undermines the core proposition of parametric CAD: the ability to adjust designs without rewriting code.
 
-We propose CADence, a multi-agent pipeline that addresses these limitations through three key innovations. First, we introduce a JSON-based intermediate representation (IR) that separates design planning from code generation. This separation enables inspection and modification of the design plan before compilation, makes errors easier to localize and repair, and crucially preserves parametric expressions as strings rather than evaluating them prematurely. Second, we develop a comprehensive visual feedback system that renders models from six orthographic views and employs visual language models (VLMs) to assess geometric accuracy. This multi-view approach captures spatial relationships that single-image assessment would miss. Third, we implement a 5-layer error recovery mechanism that progressively addresses issues from schema validation through manual repair hints, ensuring robust generation even for complex designs.
+We propose CRAFT, a multi-agent pipeline that addresses these limitations through three key innovations. First, we introduce a JSON-based intermediate representation (IR) that separates design planning from code generation. This separation enables inspection and modification of the design plan before compilation, makes errors easier to localize and repair, and crucially preserves parametric expressions as strings rather than evaluating them prematurely. Second, we develop a comprehensive visual feedback system that renders models from six orthographic views and employs visual language models (VLMs) to assess geometric accuracy. This multi-view approach captures spatial relationships that single-image assessment would miss. Third, we implement a 5-layer error recovery mechanism that progressively addresses issues from schema validation through manual repair hints, ensuring robust generation even for complex designs.
 
-CADence targets OpenSCAD as its output format, a declarative language well-suited for parametric modeling. Unlike imperative CAD APIs, OpenSCAD's functional style aligns naturally with LLM generation, and its built-in customizer interface allows end users to adjust parameters without modifying code. Our pipeline preserves expressions like \texttt{W/2} and \texttt{H - wall\_t} throughout generation, producing truly parametric models that can be customized after creation. We evaluate CADence on a diverse set of over 150 prompts spanning three categories: mechanical components (gears, brackets, enclosures, motor mounts), everyday objects (mugs, chairs, lamps, storage containers), and abstract geometric designs (interlocking shapes, lattices, organic forms), demonstrating that zero-shot generation with structured planning can achieve competitive results with fine-tuned approaches while offering superior parametric flexibility. A curated benchmark with NopSCADlib-dimensioned ground truth confirms that CADence reduces Chamfer Distance relative to direct LLM generation on medium and complex designs. Across all evaluations, CADence achieves 100\% compilation and rendering success regardless of model configuration, eliminating the ``no output'' failure mode that limits direct generation approaches. Comprehensive ablation studies across multiple model configurations, VLM iteration counts, and verification strategies quantify the contribution of each pipeline stage, with VLM self-correction and component verification providing the largest gains. We release our implementation to support future research in this direction.
+CRAFT targets OpenSCAD as its output format, a declarative language well-suited for parametric modeling. Unlike imperative CAD APIs, OpenSCAD's functional style aligns naturally with LLM generation, and its built-in customizer interface allows end users to adjust parameters without modifying code. Our pipeline preserves expressions like \texttt{W/2} and \texttt{H - wall\_t} throughout generation, producing truly parametric models that can be customized after creation. We evaluate CRAFT on a diverse set of over 150 prompts spanning three categories: mechanical components (gears, brackets, enclosures, motor mounts), everyday objects (mugs, chairs, lamps, storage containers), and abstract geometric designs (interlocking shapes, lattices, organic forms), demonstrating that zero-shot generation with structured planning can achieve competitive results with fine-tuned approaches while offering superior parametric flexibility. A curated benchmark with NopSCADlib-dimensioned ground truth confirms that CRAFT reduces Chamfer Distance relative to direct LLM generation on medium and complex designs. Across all evaluations, CRAFT achieves 100\% compilation and rendering success regardless of model configuration, eliminating the ``no output'' failure mode that limits direct generation approaches. Comprehensive ablation studies across multiple model configurations, VLM iteration counts, and verification strategies quantify the contribution of each pipeline stage, with VLM self-correction and component verification providing the largest gains. We release our implementation to support future research in this direction.
 
-The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work in text-to-CAD generation and LLM-based code synthesis. Section~\ref{sec:method} describes the CADence architecture in detail. Section~\ref{sec:experiments} presents our experimental setup, and Section~\ref{sec:results} reports quantitative and qualitative results. Section~\ref{sec:discussion} discusses limitations and future directions, and Section~\ref{sec:conclusion} concludes.
+The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work in text-to-CAD generation and LLM-based code synthesis. Section~\ref{sec:method} describes the CRAFT architecture in detail. Section~\ref{sec:experiments} presents our experimental setup, and Section~\ref{sec:results} reports quantitative and qualitative results. Section~\ref{sec:discussion} discusses limitations and future directions, and Section~\ref{sec:conclusion} concludes.
 
 %% ============================================================
 \section{Prior work}
@@ -73,15 +73,15 @@ The remainder of this paper is organized as follows. Section~\ref{sec:related} r
 
 The integration of large language models with computer-aided design has emerged as a rapidly evolving research area. Zhang et al.~\cite{zhang2026llmcad} provide a comprehensive survey of this intersection, categorizing LLM applications in CAD into six key areas: data generation, CAD code generation, parametric CAD generation, image generation, model evaluation, and text generation. We focus on CAD code generation approaches, which can be divided into supervised fine-tuning methods that require large paired datasets and zero-shot methods that leverage pre-trained models. We then discuss relevant work on LLM-based code generation architectures, visual feedback systems, and parametric modeling techniques that inform our approach.
 
-% Their analysis reveals that GPT-4o and GPT-4 are the most frequently employed models, and that nearly all current approaches generate intermediate representations rather than directly outputting 3D models. This observation validates the design philosophy underlying CADence, which introduces a structured JSON intermediate representation to bridge natural language understanding and geometric code generation.
+% Their analysis reveals that GPT-4o and GPT-4 are the most frequently employed models, and that nearly all current approaches generate intermediate representations rather than directly outputting 3D models. This observation validates the design philosophy underlying CRAFT, which introduces a structured JSON intermediate representation to bridge natural language understanding and geometric code generation.
 
 \begin{table*}[t]
 \centering
-\caption{Comparison of CADence with concurrent text-to-CAD methods. CADence uniquely combines zero-shot operation with a JSON intermediate representation and multi-view VLM feedback, eliminating the need for large-scale training data while maintaining interpretability.}
+\caption{Comparison of CRAFT with concurrent text-to-CAD methods. CRAFT uniquely combines zero-shot operation with a JSON intermediate representation and multi-view VLM feedback, eliminating the need for large-scale training data while maintaining interpretability.}
 \label{tab:method-comparison}
 \begin{tabular}{lcccc}
 \toprule
-Aspect & CADence & CAD-Coder & Text-to-CadQuery & Mind-CAD \\
+Aspect & CRAFT & CAD-Coder & Text-to-CadQuery & Mind-CAD \\
 \midrule
 Training Required & None (zero-shot) & 110K pairs + RL & 170K annotations & Dataset + supervision \\
 Intermediate Representation & JSON IR & None (direct) & None (direct) & DSL \\
@@ -104,9 +104,9 @@ Text-to-CadQuery~\cite{text2cadquery2025} takes a data-centric approach, arguing
 
 Mind-CAD~\cite{mindcad2025} introduces architectural innovations for the text-to-CAD problem. The system defines a domain-specific language (DSL) that abstracts common CAD operations, reducing the complexity of the generation target. A generator-planner-executor architecture decomposes the task into subtasks handled by specialized modules. The planner produces high-level operation sequences that the executor translates into concrete code. Mind-CAD also incorporates depth and normal map supervision during training, providing geometric feedback beyond discrete rewards. The EditBench dataset introduced alongside Mind-CAD enables the evaluation of iterative refinement capabilities. While the DSL provides structure, it constrains expressiveness to predefined operations and still requires substantial training data.
 
-Our work differs from these approaches in several respects. Unlike CAD-Coder and Text-to-CadQuery, CADence operates in a zero-shot setting without task-specific training, making it immediately applicable to new domains. Unlike Mind-CAD, our intermediate representation preserves the full expressiveness of the target language (OpenSCAD) rather than constraining generation to a predefined DSL. The JSON IR enables inspection and modification of plans before compilation, a capability absent from direct code generation approaches. As noted by Zhang et al.~\cite{zhang2026llmcad}, evaluation inconsistency remains a challenge in this field; we address this by reporting multiple complementary metrics including geometric accuracy, semantic correctness, and parametric flexibility.
+Our work differs from these approaches in several respects. Unlike CAD-Coder and Text-to-CadQuery, CRAFT operates in a zero-shot setting without task-specific training, making it immediately applicable to new domains. Unlike Mind-CAD, our intermediate representation preserves the full expressiveness of the target language (OpenSCAD) rather than constraining generation to a predefined DSL. The JSON IR enables inspection and modification of plans before compilation, a capability absent from direct code generation approaches. As noted by Zhang et al.~\cite{zhang2026llmcad}, evaluation inconsistency remains a challenge in this field; we address this by reporting multiple complementary metrics including geometric accuracy, semantic correctness, and parametric flexibility.
 
-A further distinction concerns evaluation methodology. Prior supervised methods generate synthetic text prompts from existing CAD models using LLMs, creating a closed loop where the training and evaluation distributions are aligned by construction. CADence instead uses human-curated prompts drawn from real engineering documentation---specifically, the NopSCADlib component catalog---ensuring that evaluation reflects authentic design intent rather than artifacts of LLM paraphrasing.
+A further distinction concerns evaluation methodology. Prior supervised methods generate synthetic text prompts from existing CAD models using LLMs, creating a closed loop where the training and evaluation distributions are aligned by construction. CRAFT instead uses human-curated prompts drawn from real engineering documentation---specifically, the NopSCADlib component catalog---ensuring that evaluation reflects authentic design intent rather than artifacts of LLM paraphrasing.
 
 \subsection{LLM-Based Code Generation}
 
@@ -116,7 +116,7 @@ Multi-agent systems decompose complex tasks among specialized components that co
 
 Visual feedback has emerged as a powerful mechanism for code generation in domains with visual outputs. Systems that render generated code and use VLMs to assess results can identify semantic errors invisible to syntactic analysis. This approach is particularly valuable for graphics and visualization code, where correctness depends on visual appearance rather than test cases.
 
-CADence combines insights from these directions. Our multi-agent architecture separates understanding, planning, compilation, and verification into distinct stages with well-defined interfaces. Visual feedback through 6-view rendering enables comprehensive geometric assessment, and our 5-layer error recovery provides robust handling of failures at each stage.
+CRAFT combines insights from these directions. Our multi-agent architecture separates understanding, planning, compilation, and verification into distinct stages with well-defined interfaces. Visual feedback through 6-view rendering enables comprehensive geometric assessment, and our 5-layer error recovery provides robust handling of failures at each stage.
 
 \subsection{Parametric CAD and Design Customization}
 
@@ -124,14 +124,14 @@ Parametric modeling represents geometric shapes through parameters and constrain
 
 Most text-to-CAD systems produce code with hardcoded values, losing the parametric relationships implicit in the input description. A user who requests a ``cylindrical container with wall thickness proportional to diameter'' expects the output to maintain this relationship when parameters change. Achieving this requires preserving expressions throughout generation rather than evaluating them prematurely.
 
-OpenSCAD provides a natural target for parametric generation due to its declarative semantics. Parameters defined at the top of a script propagate through all expressions that reference them, and the built-in customizer interface exposes parameters for interactive adjustment. CADence exploits these features by preserving expressions as strings in its JSON IR and generating OpenSCAD code that maintains parametric relationships.
+OpenSCAD provides a natural target for parametric generation due to its declarative semantics. Parameters defined at the top of a script propagate through all expressions that reference them, and the built-in customizer interface exposes parameters for interactive adjustment. CRAFT exploits these features by preserving expressions as strings in its JSON IR and generating OpenSCAD code that maintains parametric relationships.
 
 
 %% ============================================================
 \section{Method}
 \label{sec:method}
 %% ============================================================
-CADence is a multi-agent pipeline that transforms natural language descriptions and optional images into parametric OpenSCAD code. The pipeline consists of six stages, each implemented as an independent agent with defined inputs and outputs. Figure~\ref{fig:pipeline} illustrates the overall architecture.
+CRAFT is a multi-agent pipeline that transforms natural language descriptions and optional images into parametric OpenSCAD code. The pipeline consists of six stages, each implemented as an independent agent with defined inputs and outputs. Figure~\ref{fig:pipeline} illustrates the overall architecture.
 
 \subsection{Pipeline Overview}
 
@@ -152,13 +152,13 @@ The pipeline processes inputs through the following stages:
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{figures/pdf/CAD_Pipeline.pdf}
-\caption{CADence pipeline architecture comprising two subsystems: \textbf{Planner and Code Generator} (Stages 1--3) transforms text/image inputs into parametric OpenSCAD via JSON intermediate representation with preserved expressions; \textbf{Error Handling} (Stages 5--6) ensures quality through 6-view VLM assessment and tiered component verification (Essential 85\%, Secondary 65\%, Optional 50\%). Stage 4 renders orthographic views connecting both subsystems. RAG-based NopSCADlib integration enables standard component reuse.}
+\caption{CRAFT pipeline architecture comprising two subsystems: \textbf{Planner and Code Generator} (Stages 1--3) transforms text/image inputs into parametric OpenSCAD via JSON intermediate representation with preserved expressions; \textbf{Error Handling} (Stages 5--6) ensures quality through 6-view VLM assessment and tiered component verification (Essential 85\%, Secondary 65\%, Optional 50\%). Stage 4 renders orthographic views connecting both subsystems. RAG-based NopSCADlib integration enables standard component reuse.}
 \label{fig:pipeline}
 \end{figure*}
 
 \subsection{JSON Intermediate Representation}
 
-A central innovation of CADence is the JSON-based intermediate representation that mediates between understanding and code generation. The schema defines three required sections: metadata, parameters, and geometry.
+A central innovation of CRAFT is the JSON-based intermediate representation that mediates between understanding and code generation. The schema defines three required sections: metadata, parameters, and geometry.
 
 The metadata section specifies version information, units, and a human-readable description. The parameters section defines named parameters with optional range constraints for the customizer. Crucially, parameter values can be numbers or expressions referencing other parameters.
 
@@ -170,7 +170,7 @@ This representation offers several advantages over direct code generation. Plans
 
 \subsection{Parametric Expression Preservation}
 
-Unlike prior approaches that evaluate expressions during generation, CADence preserves parametric relationships throughout the pipeline. Consider a cylindrical container defined by width $W$, height $H$, and wall thickness $t$. The JSON plan represents the outer cylinder with radius \texttt{"W/2"} and the inner cylinder with radius \texttt{"W/2 - wall\_t"}. These strings flow unchanged through compilation to produce OpenSCAD code:
+Unlike prior approaches that evaluate expressions during generation, CRAFT preserves parametric relationships throughout the pipeline. Consider a cylindrical container defined by width $W$, height $H$, and wall thickness $t$. The JSON plan represents the outer cylinder with radius \texttt{"W/2"} and the inner cylinder with radius \texttt{"W/2 - wall\_t"}. These strings flow unchanged through compilation to produce OpenSCAD code:
 
 \begin{lstlisting}[language=C,caption={Parametric OpenSCAD output}]
 W = 100; //[20:300:1]
@@ -190,14 +190,14 @@ The compiler automatically generates parameter ranges based on semantic analysis
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/pdf/Parametric_table_CAD_model.pdf}
-\caption{Parametric customization of a CADence-generated table. The original model (center, top rows) can be modified through parameter adjustments: changing table top color (red variants, bottom left) or leg color (blue variant, bottom right) while preserving geometric relationships. This demonstrates how preserved parametric expressions enable downstream design exploration without regenerating the model.}
+\caption{Parametric customization of a CRAFT-generated table. The original model (center, top rows) can be modified through parameter adjustments: changing table top color (red variants, bottom left) or leg color (blue variant, bottom right) while preserving geometric relationships. This demonstrates how preserved parametric expressions enable downstream design exploration without regenerating the model.}
 \label{fig:parametric}
 \end{figure*}
 
 \subsection{6-View VLM Assessment}
 \label{subsec:vlm}
 
-Single-image assessment can miss geometric issues visible only from specific angles. A model that appears correct from the front may have incorrect depth or missing features visible from the side. CADence addresses this by rendering six orthographic views and presenting them together for VLM assessment.
+Single-image assessment can miss geometric issues visible only from specific angles. A model that appears correct from the front may have incorrect depth or missing features visible from the side. CRAFT addresses this by rendering six orthographic views and presenting them together for VLM assessment.
 
 The views are configured with cameras at fixed distances along each axis, with appropriate up vectors for consistent orientation. The VLM receives all six images along with the original prompt and responds with a structured assessment including approval status, confidence score, identified issues, suggested fixes, and per-view feedback.
 
@@ -210,7 +210,7 @@ If the assessment identifies issues with confidence below 0.95, the system gener
 
 A persistent practical challenge in text-to-CAD generation is output fragility: systems frequently produce code that fails to compile, renders incorrectly, or omits critical components---yet offer no mechanism to recover from these failures. Among the concurrent methods surveyed in Table~\ref{tab:method-comparison}, CAD-Coder employs RL-based geometric rewards during training but provides no runtime error handling once a model is deployed; Text-to-CadQuery and Mind-CAD include no recovery mechanism at all. In practice, this means a substantial fraction of generation attempts yield no usable output---a critical limitation for any interactive design tool where users expect reliable results.
 
-CADence addresses this gap through a 5-layer error recovery architecture (Figure~\ref{fig:recovery}) that provides progressive, bounded recovery from failures at each pipeline stage. The design follows two principles. First, layers are ordered by increasing computational cost: inexpensive deterministic fixes precede LLM-based corrections, which in turn precede human-in-the-loop intervention. This ordering minimizes API cost and latency for the common case where failures are structural rather than semantic. Second, each layer targets a distinct failure category---from malformed JSON schemas to subtle geometric omissions that only a visual language model or a human observer would catch---ensuring comprehensive coverage of the failure space.
+CRAFT addresses this gap through a 5-layer error recovery architecture (Figure~\ref{fig:recovery}) that provides progressive, bounded recovery from failures at each pipeline stage. The design follows two principles. First, layers are ordered by increasing computational cost: inexpensive deterministic fixes precede LLM-based corrections, which in turn precede human-in-the-loop intervention. This ordering minimizes API cost and latency for the common case where failures are structural rather than semantic. Second, each layer targets a distinct failure category---from malformed JSON schemas to subtle geometric omissions that only a visual language model or a human observer would catch---ensuring comprehensive coverage of the failure space.
 
 \begin{figure*}[t]
 \centering
@@ -246,12 +246,12 @@ CADence addresses this gap through a 5-layer error recovery architecture (Figure
 
 \textbf{Layer 5: Manual Repair.} When automatic recovery cannot resolve an issue---typically for subjective aesthetic concerns or ambiguous prompt interpretations---users can supply natural language hints such as ``make the wheels bigger'' or ``add a handle on the right side.'' The RepairOrchestrator incorporates these hints into a repair prompt alongside the current code and the original design brief, enabling human-guided refinement without requiring users to write OpenSCAD code directly. This layer bridges the gap between fully automated generation and manual CAD authoring, providing a graceful degradation path that ensures the system always produces a usable starting point for further refinement.
 
-The total automatic iteration budget is bounded at 10 attempts (2 + 2 + 3 + 3 across Layers 1--4), providing substantial opportunity for recovery without unbounded computation or runaway API costs. This progressive architecture is, to our knowledge, unique among text-to-CAD systems: it transforms generation from a single-shot process with binary success/failure into a robust pipeline where each layer incrementally improves output quality. The practical consequence, as shown in Table~\ref{tab:model-config}, is that CADence achieves 100\% compilation success across all model configurations, even on complex multi-part assemblies---eliminating the ``no output'' failure mode that plagues direct generation approaches. Furthermore, the layered design means that the majority of recoveries are resolved in the inexpensive early layers (schema repair and auto-fix), with the costlier VLM-based layers engaged only when semantic issues persist.
+The total automatic iteration budget is bounded at 10 attempts (2 + 2 + 3 + 3 across Layers 1--4), providing substantial opportunity for recovery without unbounded computation or runaway API costs. This progressive architecture is, to our knowledge, unique among text-to-CAD systems: it transforms generation from a single-shot process with binary success/failure into a robust pipeline where each layer incrementally improves output quality. The practical consequence, as shown in Table~\ref{tab:model-config}, is that CRAFT achieves 100\% compilation success across all model configurations, even on complex multi-part assemblies---eliminating the ``no output'' failure mode that plagues direct generation approaches. Furthermore, the layered design means that the majority of recoveries are resolved in the inexpensive early layers (schema repair and auto-fix), with the costlier VLM-based layers engaged only when semantic issues persist.
 
 
 \subsection{Knowledge Base Integration}
 
-Many designs incorporate standard components like motors, sensors, and fasteners. Generating these from scratch is wasteful when high-quality implementations exist. CADence integrates with NopSCADlib, a comprehensive library of OpenSCAD modules for mechanical components.
+Many designs incorporate standard components like motors, sensors, and fasteners. Generating these from scratch is wasteful when high-quality implementations exist. CRAFT integrates with NopSCADlib, a comprehensive library of OpenSCAD modules for mechanical components.
 
 The knowledge base detector employs five strategies with decreasing confidence: exact name matching (confidence 1.0), alias matching using predefined mappings (0.9), category keyword search (0.7), fuzzy string matching with Levenshtein distance (0.5--0.8), and semantic similarity via embedding search (variable). When components are detected, their specifications are retrieved and incorporated into the design brief.
 
@@ -259,7 +259,7 @@ The integration uses graceful fallback: if KB detection fails or no components a
 
 \subsection{Model Allocation Strategy}
 
-CADence employs a hybrid model strategy that balances capability against cost and latency. Components requiring complex reasoning use GPT-5.2, a reasoning-optimized model, while components performing more deterministic tasks use GPT-4o for faster response times. Table~\ref{tab:model-allocation} details the allocation and rationale for each pipeline component.
+CRAFT employs a hybrid model strategy that balances capability against cost and latency. Components requiring complex reasoning use GPT-5.2, a reasoning-optimized model, while components performing more deterministic tasks use GPT-4o for faster response times. Table~\ref{tab:model-allocation} details the allocation and rationale for each pipeline component.
 
 \begin{table*}[t]
 \centering
@@ -294,9 +294,9 @@ This allocation reflects the observation that planning and assessment benefit fr
 
 \subsection{Evaluation Protocol}
 
-We evaluate CADence through two complementary protocols designed to assess both pipeline robustness and geometric accuracy.
+We evaluate CRAFT through two complementary protocols designed to assess both pipeline robustness and geometric accuracy.
 
-\textbf{Pipeline evaluation (150+ prompts).} We evaluate CADence on a diverse set of over 150 prompts spanning three categories: mechanical components (gears, brackets, enclosures, motor mounts), everyday objects (mugs, chairs, lamps, storage containers), and abstract geometric designs (interlocking shapes, lattices, organic forms). Prompts are distributed across three complexity levels---simple (single-primitive shapes), medium (functional objects with multiple features), and complex (multi-part assemblies requiring domain knowledge). This evaluation set exercises all pipeline stages across multiple model configurations, VLM iteration counts, and component verification strategies, providing comprehensive coverage of the design space.
+\textbf{Pipeline evaluation (150+ prompts).} We evaluate CRAFT on a diverse set of over 150 prompts spanning three categories: mechanical components (gears, brackets, enclosures, motor mounts), everyday objects (mugs, chairs, lamps, storage containers), and abstract geometric designs (interlocking shapes, lattices, organic forms). Prompts are distributed across three complexity levels---simple (single-primitive shapes), medium (functional objects with multiple features), and complex (multi-part assemblies requiring domain knowledge). This evaluation set exercises all pipeline stages across multiple model configurations, VLM iteration counts, and component verification strategies, providing comprehensive coverage of the design space.
 
 \textbf{Geometric benchmark (15 prompts).} For rigorous geometric comparison against baselines, we curate a benchmark of 15 prompts (5 per complexity level) targeting mechanical components whose parametric specifications are documented in NopSCADlib~\cite{nopscadlib}---a comprehensive, community-maintained open-source library of parametric OpenSCAD modules. Ground truth models are authored using the exact dimensions, mounting patterns, and tolerances specified in the NopSCADlib catalog (e.g., 608 bearing: 22mm OD, 8mm bore, 7mm width; NEMA~17: 42.3mm face, 31mm mounting pattern). This grounds the reference geometries in established, independently verifiable engineering specifications. \textit{Simple} prompts describe basic mechanical components (608 ball bearing, M8 flat washer, GT2 20-tooth pulley, 40mm fan mount plate, LM8UU linear bearing holder). \textit{Medium} prompts specify multi-feature designs requiring precise dimensions (NEMA~17 motor mount, MGN12 carriage mount, 608 bearing housing, SG90 servo bracket, Arduino Nano holder). \textit{Complex} prompts target multi-part assemblies requiring domain knowledge (GT2 belt tensioner with 608 idler, 5mm-to-8mm shaft coupler, Raspberry Pi~4 case, ESP32 enclosure with OLED, T8 leadscrew nut block).
 
@@ -306,7 +306,7 @@ For quantitative evaluation, we employ the following metrics. \textit{Compilatio
 
 To understand the contribution of each component, we conduct ablation studies across our evaluation set, spanning simple, medium, and complex designs:
 
-\textbf{Model Configuration.} We compare three model allocations---all GPT-4o, all GPT-5.2, and the CADence hybrid (GPT-4o for pipeline, GPT-5.2 for VLM/verification)---to quantify the trade-off between reasoning depth and generation speed.
+\textbf{Model Configuration.} We compare three model allocations---all GPT-4o, all GPT-5.2, and the CRAFT hybrid (GPT-4o for pipeline, GPT-5.2 for VLM/verification)---to quantify the trade-off between reasoning depth and generation speed.
 
 \textbf{VLM Iteration Count.} We vary the number of VLM self-correction iterations from 0 to 3 to measure the marginal benefit of each additional feedback round.
 
@@ -314,11 +314,11 @@ To understand the contribution of each component, we conduct ablation studies ac
 
 \subsection{Comparison with Prior Work}
 
-Direct comparison with fine-tuned approaches is complicated by different output formats (OpenSCAD vs.\ CadQuery) and evaluation metrics. We therefore compare CADence against direct LLM generation baselines (GPT-4o and GPT-5.2 producing OpenSCAD in a single prompt) across our 15-prompt geometric benchmark with NopSCADlib-dimensioned ground truth. This isolates the benefit of the multi-stage pipeline architecture, JSON intermediate representation, and error recovery system over raw LLM capability. We additionally compare CADence with and without NopSCADlib RAG integration to quantify the contribution of knowledge base retrieval. While output format differences preclude exact metric-level comparison with CAD-Coder~\cite{cadcoder2025} and Text-to-CadQuery~\cite{text2cadquery2025}, we note that CADence operates entirely zero-shot---without any of the 110K+ training pairs these methods require---while producing fully parametric, customizable output. Although our evaluation uses 150 human-curated prompts compared to the 660K LLM-generated prompts employed by supervised methods, our focus is on engineering accuracy and zero-shot generalization rather than data-scale training. Each of our prompts is carefully authored to reflect realistic design tasks, providing a more meaningful signal of practical utility than large-scale synthetic benchmarks where prompt quality is variable.
+Direct comparison with fine-tuned approaches is complicated by different output formats (OpenSCAD vs.\ CadQuery) and evaluation metrics. We therefore compare CRAFT against direct LLM generation baselines (GPT-4o and GPT-5.2 producing OpenSCAD in a single prompt) across our 15-prompt geometric benchmark with NopSCADlib-dimensioned ground truth. This isolates the benefit of the multi-stage pipeline architecture, JSON intermediate representation, and error recovery system over raw LLM capability. We additionally compare CRAFT with and without NopSCADlib RAG integration to quantify the contribution of knowledge base retrieval. While output format differences preclude exact metric-level comparison with CAD-Coder~\cite{cadcoder2025} and Text-to-CadQuery~\cite{text2cadquery2025}, we note that CRAFT operates entirely zero-shot---without any of the 110K+ training pairs these methods require---while producing fully parametric, customizable output. Although our evaluation uses 150 human-curated prompts compared to the 660K LLM-generated prompts employed by supervised methods, our focus is on engineering accuracy and zero-shot generalization rather than data-scale training. Each of our prompts is carefully authored to reflect realistic design tasks, providing a more meaningful signal of practical utility than large-scale synthetic benchmarks where prompt quality is variable.
 
 \subsection{Implementation Details}
 
-CADence is implemented in Python with approximately 12,000 lines across core pipeline, knowledge base, and utility modules. The system uses Flask for its web API and integrates with OpenSCAD for rendering. LLM calls use the OpenAI API with appropriate model selection per component.
+CRAFT is implemented in Python with approximately 12,000 lines across core pipeline, knowledge base, and utility modules. The system uses Flask for its web API and integrates with OpenSCAD for rendering. LLM calls use the OpenAI API with appropriate model selection per component.
 
 Key configuration parameters include VLM confidence threshold (0.95), maximum VLM iterations (3), maximum component iterations (3), essential/secondary/optional part thresholds (0.85/0.65/0.50), initial render timeout (60s), and extended timeout for complex operations (120s).
 
@@ -332,12 +332,12 @@ All experiments use default configurations without per-prompt tuning. Temperatur
 %% ============================================================
 \subsection{Overall Performance}
 
-Across all evaluations, CADence achieves 100\% compilation and rendering success regardless of model configuration, owing to the multi-layer error recovery system (Section~\ref{subsec:recovery}). This eliminates the ``no output'' failure mode that limits direct generation approaches.
+Across all evaluations, CRAFT achieves 100\% compilation and rendering success regardless of model configuration, owing to the multi-layer error recovery system (Section~\ref{subsec:recovery}). This eliminates the ``no output'' failure mode that limits direct generation approaches.
 
 Table~\ref{tab:model-config} summarizes pipeline performance under three model configurations across the evaluation set. The hybrid configuration (GPT-4o for pipeline stages, GPT-5.2 for VLM and verification) achieves the highest parts detection rate (98.3\%) with a validation score of 89.8, while the all-GPT-5.2 configuration attains the highest validation score (95.2). Table~\ref{tab:complexity-comparison} reports Chamfer Distance on the 15-prompt geometric benchmark against NopSCADlib-dimensioned reference models. The structured pipeline consistently outperforms direct LLM generation, with the benefit increasing at higher complexity levels, demonstrating that the pipeline's advantage grows precisely where it is most needed.
 
 \subsection{Ablation Results}
-\textbf{Model Configuration.} Table~\ref{tab:model-config} compares three model configurations spanning simple, medium, and complex designs across the evaluation set. The all-GPT-5.2 configuration achieves the highest validation score (95.2), confirming the benefit of reasoning models for geometric understanding. However, the CADence hybrid configuration achieves the highest parts detection rate (98.3\%), suggesting that the combination of GPT-4o's consistent code generation with GPT-5.2's thorough visual assessment catches component omissions that either model alone would miss. The latency difference reflects this thoroughness: the hybrid configuration's VLM correction stage identifies more opportunities for refinement, leading to additional iterations. For applications prioritizing output completeness over generation speed, this represents a favorable tradeoff.
+\textbf{Model Configuration.} Table~\ref{tab:model-config} compares three model configurations spanning simple, medium, and complex designs across the evaluation set. The all-GPT-5.2 configuration achieves the highest validation score (95.2), confirming the benefit of reasoning models for geometric understanding. However, the CRAFT hybrid configuration achieves the highest parts detection rate (98.3\%), suggesting that the combination of GPT-4o's consistent code generation with GPT-5.2's thorough visual assessment catches component omissions that either model alone would miss. The latency difference reflects this thoroughness: the hybrid configuration's VLM correction stage identifies more opportunities for refinement, leading to additional iterations. For applications prioritizing output completeness over generation speed, this represents a favorable tradeoff.
 
 \begin{table}[t]
 \centering
@@ -350,7 +350,7 @@ Table~\ref{tab:model-config} summarizes pipeline performance under three model c
 \midrule
 All GPT-4o & 80.9 & 85.9\% & 85.4s \\
 All GPT-5.2 & \textbf{95.2} & 92.4\% & 154.3s \\
-CADence (Hybrid) & 89.8 & \textbf{98.3\%} & 183.4s \\
+CRAFT (Hybrid) & 89.8 & \textbf{98.3\%} & 183.4s \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -390,9 +390,9 @@ After & 90.9\% & 83.3\% & 28.6\% & 86.4\% \\
 \end{tabular}
 \end{table}
 
-\textbf{Pipeline vs.\ Direct Generation.} The benefit of the JSON intermediate representation and multi-stage pipeline can be inferred from the Chamfer Distance comparison in Table~\ref{tab:complexity-comparison}. On medium-complexity prompts, the best CADence configuration achieves a CD of 5.91 compared to 8.65 for direct GPT-5.2 generation---a 32\% reduction attributable to structured planning, error recovery, and knowledge base retrieval. On complex prompts, CADence achieves 10.54 vs.\ 14.76 for GPT-5.2 (29\% reduction), demonstrating that the pipeline's advantage grows with design complexity.
+\textbf{Pipeline vs.\ Direct Generation.} The benefit of the JSON intermediate representation and multi-stage pipeline can be inferred from the Chamfer Distance comparison in Table~\ref{tab:complexity-comparison}. On medium-complexity prompts, the best CRAFT configuration achieves a CD of 5.91 compared to 8.65 for direct GPT-5.2 generation---a 32\% reduction attributable to structured planning, error recovery, and knowledge base retrieval. On complex prompts, CRAFT achieves 10.54 vs.\ 14.76 for GPT-5.2 (29\% reduction), demonstrating that the pipeline's advantage grows with design complexity.
 
-\textbf{KB Integration.} Internally, comparing CADence with and without RAG reveals that knowledge base retrieval provides the largest benefit on medium-complexity designs (CD 5.91 vs.\ 7.51, a 21\% improvement), where standard component specifications---such as bearing dimensions and mounting hole patterns---are most informative. For complex designs, the pipeline's iterative VLM correction contributes more than RAG, as these designs require spatial reasoning beyond what can be retrieved from component datasheets.
+\textbf{KB Integration.} Internally, comparing CRAFT with and without RAG reveals that knowledge base retrieval provides the largest benefit on medium-complexity designs (CD 5.91 vs.\ 7.51, a 21\% improvement), where standard component specifications---such as bearing dimensions and mounting hole patterns---are most informative. For complex designs, the pipeline's iterative VLM correction contributes more than RAG, as these designs require spatial reasoning beyond what can be retrieved from component datasheets.
 
 \subsection{Comparison Results}
 %% ============================================================
@@ -403,13 +403,13 @@ After & 90.9\% & 83.3\% & 28.6\% & 86.4\% \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/png/qualitative_comparison.png}
-\caption{Qualitative comparison across prompt complexity levels. Direct LLM generation (GPT-4o, GPT-5.2) succeeds on simple primitives but degrades on functional objects and fails on complex assemblies requiring domain knowledge. CADence maintains quality across all levels through its JSON intermediate representation and multi-view VLM feedback. CADence + RAG further improves on mechanical components by retrieving accurate specifications from NopSCADlib (e.g., correct NEMA17 mounting hole patterns, standard bearing dimensions).}
+\caption{Qualitative comparison across prompt complexity levels. Direct LLM generation (GPT-4o, GPT-5.2) succeeds on simple primitives but degrades on functional objects and fails on complex assemblies requiring domain knowledge. CRAFT maintains quality across all levels through its JSON intermediate representation and multi-view VLM feedback. CRAFT + RAG further improves on mechanical components by retrieving accurate specifications from NopSCADlib (e.g., correct NEMA17 mounting hole patterns, standard bearing dimensions).}
 \label{fig:comparison}
 \end{figure*}
 
 \begin{figure*}[t]
 \centering
-\caption{Multi-view rendering outputs from CADence. Each row shows a generated model from text prompt: the main isometric output (left) followed by the six orthographic views used for VLM assessment. This comprehensive spatial coverage enables detection of geometric issues invisible from any single viewpoint—note how internal features (mounting holes, cavities) are only visible from specific orientations.}
+\caption{Multi-view rendering outputs from CRAFT. Each row shows a generated model from text prompt: the main isometric output (left) followed by the six orthographic views used for VLM assessment. This comprehensive spatial coverage enables detection of geometric issues invisible from any single viewpoint—note how internal features (mounting holes, cavities) are only visible from specific orientations.}
 \label{fig:multiview}
 \vspace{2mm}
 
@@ -489,7 +489,7 @@ After & 90.9\% & 83.3\% & 28.6\% & 86.4\% \\
 
 \begin{table}[t]
 \centering
-\caption{Geometric and visual similarity across complexity levels. Lower CD indicates closer geometric match; higher F-score, V-IoU, and SSIM indicate better reconstruction. Ground truth models are authored using parametric specifications from NopSCADlib~\cite{nopscadlib}. We evaluate 15 prompts (5 per level). Failed renders are penalized (F-score=0, V-IoU=0, SSIM=0; CD set to $1.5\times$ the observed maximum) so all methods are compared over the same $N$ items. For each complexity tier, we report the best CADence configuration (with or without RAG).}
+\caption{Geometric and visual similarity across complexity levels. Lower CD indicates closer geometric match; higher F-score, V-IoU, and SSIM indicate better reconstruction. Ground truth models are authored using parametric specifications from NopSCADlib~\cite{nopscadlib}. We evaluate 15 prompts (5 per level). Failed renders are penalized (F-score=0, V-IoU=0, SSIM=0; CD set to $1.5\times$ the observed maximum) so all methods are compared over the same $N$ items. For each complexity tier, we report the best CRAFT configuration (with or without RAG).}
 \label{tab:complexity-comparison}
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{llcccc}
@@ -499,40 +499,40 @@ After & 90.9\% & 83.3\% & 28.6\% & 86.4\% \\
 \multirow{3}{*}{Simple (5)}
   & GPT-4o (direct)      & 6.92  & 0.413 & 0.299 & 0.915 \\
   & GPT-5.2 (direct)     & \textbf{2.28}  & 0.590 & 0.398 & \textbf{0.929} \\
-  & CADence + RAG        & 2.55  & \textbf{0.659} & \textbf{0.512} & 0.926 \\
+  & CRAFT + RAG        & 2.55  & \textbf{0.659} & \textbf{0.512} & 0.926 \\
 \midrule
 \multirow{3}{*}{Medium (5)}
   & GPT-4o (direct)      & 7.57  & 0.196 & 0.108 & 0.887 \\
   & GPT-5.2 (direct)     & 7.03  & 0.232 & 0.076 & \textbf{0.893} \\
-  & CADence              & \textbf{5.68}  & \textbf{0.282} & \textbf{0.146} & 0.876 \\
+  & CRAFT              & \textbf{5.68}  & \textbf{0.282} & \textbf{0.146} & 0.876 \\
 \midrule
 \multirow{3}{*}{Complex (5)}
   & GPT-4o (direct)      & \textbf{10.20} & 0.122 & 0.075 & \textbf{0.871} \\
   & GPT-5.2 (direct)     & 12.44 & 0.159 & \textbf{0.125} & 0.687 \\
-  & CADence + RAG        & 10.98 & \textbf{0.183} & 0.092 & 0.857 \\
+  & CRAFT + RAG        & 10.98 & \textbf{0.183} & 0.092 & 0.857 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:complexity-comparison} reports geometric and visual similarity between generated models and NopSCADlib-dimensioned reference models across three complexity levels. Since the ground truth is authored using parametric specifications from the NopSCADlib catalog---with exact bearing diameters, mounting hole patterns, and housing dimensions---the reference geometry is dimensionally accurate and independently verifiable against published component datasheets. Failed renders are penalized (F-score, V-IoU, and SSIM set to 0; CD set to $1.5\times$ the observed maximum) so that all methods are compared over the same number of items. For each tier, we report the best CADence configuration (with or without RAG). For simple prompts (basic components such as bearings, washers, and pulleys), GPT-5.2 achieves the lowest CD (2.28) while CADence + RAG leads on surface overlap (F-score 0.659) and volumetric agreement (V-IoU 0.512). The structured pipeline does not provide a meaningful CD advantage for components with basic geometry, but its multi-stage refinement already improves surface and volumetric fidelity.
+Table~\ref{tab:complexity-comparison} reports geometric and visual similarity between generated models and NopSCADlib-dimensioned reference models across three complexity levels. Since the ground truth is authored using parametric specifications from the NopSCADlib catalog---with exact bearing diameters, mounting hole patterns, and housing dimensions---the reference geometry is dimensionally accurate and independently verifiable against published component datasheets. Failed renders are penalized (F-score, V-IoU, and SSIM set to 0; CD set to $1.5\times$ the observed maximum) so that all methods are compared over the same number of items. For each tier, we report the best CRAFT configuration (with or without RAG). For simple prompts (basic components such as bearings, washers, and pulleys), GPT-5.2 achieves the lowest CD (2.28) while CRAFT + RAG leads on surface overlap (F-score 0.659) and volumetric agreement (V-IoU 0.512). The structured pipeline does not provide a meaningful CD advantage for components with basic geometry, but its multi-stage refinement already improves surface and volumetric fidelity.
 
-The benefit of the multi-stage pipeline becomes apparent at medium complexity. Here, designs feature multiple interacting geometric elements---mounting holes, bearing pockets, shaft bores, flanges---where maintaining correct spatial relationships is critical. CADence achieves the best result across three of the four metrics at this level (CD 5.68, F-score 0.282, V-IoU 0.146), as retrieval of standard component specifications (e.g., NEMA~17 mounting dimensions, 608 bearing tolerances) provides domain knowledge that direct generation must infer from parametric knowledge alone.
+The benefit of the multi-stage pipeline becomes apparent at medium complexity. Here, designs feature multiple interacting geometric elements---mounting holes, bearing pockets, shaft bores, flanges---where maintaining correct spatial relationships is critical. CRAFT achieves the best result across three of the four metrics at this level (CD 5.68, F-score 0.282, V-IoU 0.146), as retrieval of standard component specifications (e.g., NEMA~17 mounting dimensions, 608 bearing tolerances) provides domain knowledge that direct generation must infer from parametric knowledge alone.
 
-At high complexity, designs such as multi-part assemblies (belt tensioners, shaft couplers), enclosures (Raspberry Pi~4 case, ESP32 project box), and precision components (T8 leadscrew nut block) present significant geometric challenges. The reference models include detailed port cutouts, bearing pockets, and mounting patterns derived from NopSCADlib specifications. GPT-4o achieves the best CD (10.20) and SSIM (0.871) at this level, aided by its 100\% render rate---GPT-5.2's single failure incurs a steep penalty (CD 12.44, SSIM 0.687). CADence + RAG leads on F-score (0.183), while GPT-5.2 retains the best V-IoU (0.125) thanks to a strong shaft-coupler result. The observation that RAG helps more at medium complexity while the pipeline's iterative refinement drives surface-accuracy gains at high complexity suggests complementary strengths of knowledge retrieval and visual self-correction.
+At high complexity, designs such as multi-part assemblies (belt tensioners, shaft couplers), enclosures (Raspberry Pi~4 case, ESP32 project box), and precision components (T8 leadscrew nut block) present significant geometric challenges. The reference models include detailed port cutouts, bearing pockets, and mounting patterns derived from NopSCADlib specifications. GPT-4o achieves the best CD (10.20) and SSIM (0.871) at this level, aided by its 100\% render rate---GPT-5.2's single failure incurs a steep penalty (CD 12.44, SSIM 0.687). CRAFT + RAG leads on F-score (0.183), while GPT-5.2 retains the best V-IoU (0.125) thanks to a strong shaft-coupler result. The observation that RAG helps more at medium complexity while the pipeline's iterative refinement drives surface-accuracy gains at high complexity suggests complementary strengths of knowledge retrieval and visual self-correction.
 
 
 \subsection{Qualitative Examples}
 
-Figure~\ref{fig:comparison} shows representative generations across complexity levels. Direct LLM generation succeeds on simple primitives but degrades on functional objects and multi-part assemblies. CADence maintains structural coherence through its JSON intermediate representation and multi-view VLM feedback. For mechanical components, the RAG system retrieves accurate specifications from NopSCADlib, producing designs with correct mounting patterns and standard dimensions.
+Figure~\ref{fig:comparison} shows representative generations across complexity levels. Direct LLM generation succeeds on simple primitives but degrades on functional objects and multi-part assemblies. CRAFT maintains structural coherence through its JSON intermediate representation and multi-view VLM feedback. For mechanical components, the RAG system retrieves accurate specifications from NopSCADlib, producing designs with correct mounting patterns and standard dimensions.
 
 Common failure modes include incorrect relative proportions for complex assemblies, missing implicit features not mentioned in prompts, and timeout on designs requiring extensive CSG operations. The error recovery system addresses many but not all of these issues.
 
-Figure~\ref{fig:gallery} presents a broader gallery of representative CADence outputs selected from our evaluation of over 150 diverse prompts. These examples span mechanical components, everyday objects, and abstract geometric designs, illustrating the system's versatility across design categories without any task-specific training.
+Figure~\ref{fig:gallery} presents a broader gallery of representative CRAFT outputs selected from our evaluation of over 150 diverse prompts. These examples span mechanical components, everyday objects, and abstract geometric designs, illustrating the system's versatility across design categories without any task-specific training.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/png/cadence_gallery.png}
-\caption{Gallery of representative CADence outputs from our evaluation of over 150 diverse text prompts. The designs span a wide range of categories---mechanical components, everyday objects, and abstract geometric forms---demonstrating the breadth of the zero-shot generation pipeline without any task-specific fine-tuning.}
+\includegraphics[width=\textwidth]{figures/png/craft_gallery.png}
+\caption{Gallery of representative CRAFT outputs from our evaluation of over 150 diverse text prompts. The designs span a wide range of categories---mechanical components, everyday objects, and abstract geometric forms---demonstrating the breadth of the zero-shot generation pipeline without any task-specific fine-tuning.}
 \label{fig:gallery}
 \end{figure*}
 
@@ -554,19 +554,19 @@ The zero-shot paradigm offers several practical advantages. New design categorie
 
 However, zero-shot generation has limitations. Fine-tuned models can learn domain-specific conventions and preferences that are difficult to specify in prompts. For high-volume applications in narrow domains, the economics may favor task-specific training despite its upfront costs.
 
-More broadly, CADence represents a paradigm shift in text-to-CAD generation. Concurrent methods follow a \emph{data-scaling paradigm}: collect massive datasets of text-CAD pairs, then fine-tune models to learn the mapping. CADence demonstrates a \emph{knowledge-augmented zero-shot paradigm}: instead of training on hundreds of thousands of synthetic examples, we integrate real engineering knowledge at inference time via retrieval-augmented generation from established component libraries. This distinction has practical consequences---the data-scaling approach requires re-training when new component families emerge, while the knowledge-augmented approach extends to new domains simply by updating the retrieval corpus.
+More broadly, CRAFT represents a paradigm shift in text-to-CAD generation. Concurrent methods follow a \emph{data-scaling paradigm}: collect massive datasets of text-CAD pairs, then fine-tune models to learn the mapping. CRAFT demonstrates a \emph{knowledge-augmented zero-shot paradigm}: instead of training on hundreds of thousands of synthetic examples, we integrate real engineering knowledge at inference time via retrieval-augmented generation from established component libraries. This distinction has practical consequences---the data-scaling approach requires re-training when new component families emerge, while the knowledge-augmented approach extends to new domains simply by updating the retrieval corpus.
 
 \subsection{The Role of Intermediate Representations}
 
 The JSON IR proves valuable beyond error localization. It serves as documentation of design intent, can be version-controlled alongside generated code, and enables systematic analysis of generation patterns. Future work could exploit this structure for design retrieval, similarity search, and automated refactoring.
 
-The representation also opens paths to multi-backend generation as future work. Because the JSON plan is independent of any target language, it could in principle compile to CadQuery, FreeCAD, or other targets, enabling CADence to serve as a frontend for diverse CAD ecosystems. We have not yet implemented alternative backends, but the architecture supports this extension without changes to the planning stages.
+The representation also opens paths to multi-backend generation as future work. Because the JSON plan is independent of any target language, it could in principle compile to CadQuery, FreeCAD, or other targets, enabling CRAFT to serve as a frontend for diverse CAD ecosystems. We have not yet implemented alternative backends, but the architecture supports this extension without changes to the planning stages.
 
 \subsection{Modularity and Model Selection}
 
-The modular architecture of CADence extends beyond error recovery to model selection itself. Each pipeline stage can be independently configured through environment variables, enabling straightforward substitution as newer models become available. Our model configuration comparison (Table~\ref{tab:model-config}) demonstrates that no single configuration dominates across all metrics: GPT-5.2 excels at validation quality (95.2) while the hybrid configuration achieves superior parts detection (98.3\%). This suggests that optimal model allocation may vary by application requirements.
+The modular architecture of CRAFT extends beyond error recovery to model selection itself. Each pipeline stage can be independently configured through environment variables, enabling straightforward substitution as newer models become available. Our model configuration comparison (Table~\ref{tab:model-config}) demonstrates that no single configuration dominates across all metrics: GPT-5.2 excels at validation quality (95.2) while the hybrid configuration achieves superior parts detection (98.3\%). This suggests that optimal model allocation may vary by application requirements.
 
-The practical implications are significant. Organizations can balance API costs against output quality by selecting appropriate models for each stage---using faster, cheaper models for deterministic compilation while reserving reasoning models for visual assessment. Researchers can ablate individual components to study their contribution to overall performance. As foundation models continue to improve, CADence can incorporate new capabilities without architectural changes; upgrading from GPT-5.2 to a future GPT-6 requires only configuration updates rather than code modifications. This future-proofing distinguishes CADence from fine-tuned approaches that become obsolete as base models evolve.
+The practical implications are significant. Organizations can balance API costs against output quality by selecting appropriate models for each stage---using faster, cheaper models for deterministic compilation while reserving reasoning models for visual assessment. Researchers can ablate individual components to study their contribution to overall performance. As foundation models continue to improve, CRAFT can incorporate new capabilities without architectural changes; upgrading from GPT-5.2 to a future GPT-6 requires only configuration updates rather than code modifications. This future-proofing distinguishes CRAFT from fine-tuned approaches that become obsolete as base models evolve.
 
 \subsection{Limitations}
 
@@ -591,11 +591,11 @@ The modular architecture facilitates such extensions. Individual components can 
 \label{sec:conclusion}
 %% ============================================================
 
-We presented CADence, a multi-agent pipeline for zero-shot text-to-CAD generation that preserves parametric expressions throughout the generation process. Through a JSON intermediate representation, 6-view VLM assessment, and 5-layer error recovery, CADence achieves competitive results with fine-tuned approaches while offering superior parametric flexibility---without requiring any of the 110K+ training pairs that supervised methods demand.
+We presented CRAFT, a multi-agent pipeline for zero-shot text-to-CAD generation that preserves parametric expressions throughout the generation process. Through a JSON intermediate representation, 6-view VLM assessment, and 5-layer error recovery, CRAFT achieves competitive results with fine-tuned approaches while offering superior parametric flexibility---without requiring any of the 110K+ training pairs that supervised methods demand.
 
-Our evaluation across over 150 diverse prompts spanning mechanical components, everyday objects, and abstract geometric designs demonstrates the effectiveness of structured generation with comprehensive visual feedback. On a curated geometric benchmark, CADence reduces Chamfer Distance by 45--58\% relative to direct LLM generation on medium and complex designs. Across all evaluations, CADence achieves 100\% compilation and rendering success regardless of model configuration, eliminating the ``no output'' failure mode that limits direct generation approaches. Ablation studies confirm the contribution of each architectural component: VLM self-correction raises approval from 0\% to 66.7\% over three iterations, component verification achieves 86.4\% pass rate on expected parts, and the hybrid model configuration attains 98.3\% parts detection.
+Our evaluation across over 150 diverse prompts spanning mechanical components, everyday objects, and abstract geometric designs demonstrates the effectiveness of structured generation with comprehensive visual feedback. On a curated geometric benchmark, CRAFT reduces Chamfer Distance by 45--58\% relative to direct LLM generation on medium and complex designs. Across all evaluations, CRAFT achieves 100\% compilation and rendering success regardless of model configuration, eliminating the ``no output'' failure mode that limits direct generation approaches. Ablation studies confirm the contribution of each architectural component: VLM self-correction raises approval from 0\% to 66.7\% over three iterations, component verification achieves 86.4\% pass rate on expected parts, and the hybrid model configuration attains 98.3\% parts detection.
 
-CADence demonstrates that the combination of structured intermediate representations, multi-view visual feedback, and progressive error recovery can bridge the gap between zero-shot generation and task-specific fine-tuning for parametric CAD. By producing truly parametric outputs that preserve design relationships, the system enables downstream customization and integration with existing design workflows. We release our implementation to support continued research in this direction.
+CRAFT demonstrates that the combination of structured intermediate representations, multi-view visual feedback, and progressive error recovery can bridge the gap between zero-shot generation and task-specific fine-tuning for parametric CAD. By producing truly parametric outputs that preserve design relationships, the system enables downstream customization and integration with existing design workflows. We release our implementation to support continued research in this direction.
 
 \section{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
 During the preparation of this work the author(s) used ChatGPT in order to refine language. After using this tool/service, the author(s) reviewed and edited the content as needed and take(s) full responsibility for the content of the published article.

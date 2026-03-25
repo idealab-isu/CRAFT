@@ -1,4 +1,4 @@
-prompt_id,tier,family,nc_cadence,nc_gpt4o,nc_gpt52
+prompt_id,tier,family,nc_craft,nc_gpt4o,nc_gpt52
 7_segment__WT5011BSR,Simple,7_segment,0.561771,0.513941,0.503367
 antenna__ESP201_antenna,Simple,antenna,0.501194,0.752285,0.420028
 axial__DO_35,Medium,axial,0.627571,0.291784,0.693555

@@ -1,4 +1,4 @@
-prompt_id,tier,family,lpips_cadence,lpips_gpt4o,lpips_gpt52
+prompt_id,tier,family,lpips_craft,lpips_gpt4o,lpips_gpt52
 7_segment__WT5011BSR,Simple,7_segment,0.502599,0.488848,0.494321
 antenna__ESP201_antenna,Simple,antenna,0.268618,0.106296,0.121750
 axial__DO_35,Medium,axial,0.480079,0.304939,0.367931

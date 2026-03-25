@@ -6,7 +6,7 @@ Lower FID = generated renders are distributionally closer to GT renders.
 
 ## Overall Comparison
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | FID ↓ | **94.47** | 118.01 | 104.63 |
 | Matched pairs | 463 | 467 | 462 |
@@ -17,7 +17,7 @@ Lower FID = generated renders are distributionally closer to GT renders.
 
 Note: Per-tier FID is computed with ~150 samples per tier. Interpret with caution — FID is most reliable with 500+ samples.
 
-| Tier | cadence | gpt4o | gpt52 |
+| Tier | craft | gpt4o | gpt52 |
 |------|------|------|------|
 | Simple | 154.65 (n=158) | 144.85 (n=159) | **136.43** (n=159) |
 | Medium | **130.33** (n=158) | 155.06 (n=160) | 143.33 (n=158) |

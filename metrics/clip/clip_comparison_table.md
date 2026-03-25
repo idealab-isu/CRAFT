@@ -7,7 +7,7 @@ CLIP Model: ViT-L-14/openai
 
 Higher CLIP Score = better text-image alignment.
 
-| Metric | cadence | gpt4o | gpt52 | gt |
+| Metric | craft | gpt4o | gpt52 | gt |
 |--------|------|------|------|------|
 | CLIP Score (mean) ↑ | 0.2223 | 0.2033 | 0.2145 | **0.2333** |
 | CLIP Score (std) | 0.0280 | 0.0289 | 0.0276 | 0.0332 |
@@ -22,26 +22,26 @@ Higher CLIP Score = better text-image alignment.
 
 ### Simple
 
-| Metric | cadence | gpt4o | gpt52 | gt |
+| Metric | craft | gpt4o | gpt52 | gt |
 |--------|------|------|------|------|
 | CLIP Score ↑ | 0.2260 | 0.2098 | 0.2174 | **0.2279** |
 | Count | 158 | 159 | 159 | 159 |
 
 ### Medium
 
-| Metric | cadence | gpt4o | gpt52 | gt |
+| Metric | craft | gpt4o | gpt52 | gt |
 |--------|------|------|------|------|
 | CLIP Score ↑ | 0.2159 | 0.2014 | 0.2144 | **0.2317** |
 | Count | 158 | 160 | 158 | 160 |
 
 ### Complex
 
-| Metric | cadence | gpt4o | gpt52 | gt |
+| Metric | craft | gpt4o | gpt52 | gt |
 |--------|------|------|------|------|
 | CLIP Score ↑ | 0.2251 | 0.1983 | 0.2116 | **0.2409** |
 | Count | 147 | 148 | 145 | 149 |
 
-## Top 10 Highest CLIP Scores (cadence)
+## Top 10 Highest CLIP Scores (craft)
 
 | Rank | Prompt ID | Tier | CLIP Score | Prompt |
 |------|-----------|------|------------|--------|
@@ -56,7 +56,7 @@ Higher CLIP Score = better text-image alignment.
 | 9 | sheet__AL8 | Simple | 0.2819 | A sheet: Aluminium tooling plate |
 | 10 | screw__No4_screw | Complex | 0.2805 | A pan head screw with 3.0mm diameter and 5.5mm head diameter... |
 
-## Bottom 10 Lowest CLIP Scores (cadence)
+## Bottom 10 Lowest CLIP Scores (craft)
 
 | Rank | Prompt ID | Tier | CLIP Score | Prompt |
 |------|-----------|------|------------|--------|

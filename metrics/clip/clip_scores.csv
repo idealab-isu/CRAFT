@@ -1,4 +1,4 @@
-prompt_id,tier,family,prompt_text,clip_cadence,clip_gpt4o,clip_gpt52,clip_gt
+prompt_id,tier,family,prompt_text,clip_craft,clip_gpt4o,clip_gpt52,clip_gt
 7_segment__WT5011BSR,Simple,7_segment,A 7 segment: [12.7; 19; 8.2],0.177301,0.179926,0.180817,0.169343
 antenna__ESP201_antenna,Simple,antenna,A antenna,0.232944,0.229742,0.238856,0.264970
 axial__DO_35,Medium,axial,A axial: [3.4; 1.75; 0.3],0.189945,0.169620,0.157258,0.177995

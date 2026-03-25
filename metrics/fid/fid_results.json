@@ -1,6 +1,6 @@
 {
-  "cadence": {
-    "model_name": "cadence",
+  "craft": {
+    "model_name": "craft",
     "fid_score": 94.47077866552004,
     "n_gt_images": 468,
     "n_pred_images": 463,

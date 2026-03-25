@@ -6,7 +6,7 @@ Lower LPIPS = more perceptually similar to ground truth.
 
 ## Overall Comparison
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | LPIPS (mean) ↓ | 0.4021 | 0.2859 | **0.2794** |
 | LPIPS (std) | 0.0882 | 0.1189 | 0.1151 |
@@ -21,26 +21,26 @@ Lower LPIPS = more perceptually similar to ground truth.
 
 ### Simple
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | LPIPS ↓ | 0.3995 | **0.2087** | 0.2118 |
 | Count | 158 | 159 | 159 |
 
 ### Medium
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | LPIPS ↓ | 0.4072 | 0.3159 | **0.3086** |
 | Count | 158 | 160 | 158 |
 
 ### Complex
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | LPIPS ↓ | 0.3994 | 0.3365 | **0.3217** |
 | Count | 147 | 148 | 145 |
 
-## Top 10 Most Similar Pairs (cadence, lowest LPIPS)
+## Top 10 Most Similar Pairs (craft, lowest LPIPS)
 
 | Rank | Prompt ID | Tier | LPIPS |
 |------|-----------|------|-------|
@@ -55,7 +55,7 @@ Lower LPIPS = more perceptually similar to ground truth.
 | 9 | ht_pipe__HT_32_pipe_2000 | Simple | 0.2291 |
 | 10 | ht_pipe__HT_32_pipe_1000 | Simple | 0.2298 |
 
-## Top 10 Most Different Pairs (cadence, highest LPIPS)
+## Top 10 Most Different Pairs (craft, highest LPIPS)
 
 | Rank | Prompt ID | Tier | LPIPS |
 |------|-----------|------|-------|

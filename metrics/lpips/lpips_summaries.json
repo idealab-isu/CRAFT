@@ -1,6 +1,6 @@
 {
-  "cadence": {
-    "model_name": "cadence",
+  "craft": {
+    "model_name": "craft",
     "backbone": "vgg",
     "n_evaluated": 463,
     "n_skipped": 5,

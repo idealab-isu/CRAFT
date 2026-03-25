@@ -5,7 +5,7 @@ Lower Hausdorff = no catastrophic geometric errors.
 
 ## Overall Comparison
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | HD (mean) ↓ | **0.3111** | 0.3694 | 0.3410 |
 | HD (median) | **0.2985** | 0.3534 | 0.3455 |
@@ -22,7 +22,7 @@ Lower Hausdorff = no catastrophic geometric errors.
 
 ### Simple
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | HD ↓ | 0.3685 | **0.3331** | 0.4015 |
 | HD95 ↓ | 0.3116 | **0.2704** | 0.3389 |
@@ -30,7 +30,7 @@ Lower Hausdorff = no catastrophic geometric errors.
 
 ### Medium
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | HD ↓ | **0.2394** | 0.3817 | 0.2679 |
 | HD95 ↓ | **0.1825** | 0.3192 | 0.2151 |
@@ -38,13 +38,13 @@ Lower Hausdorff = no catastrophic geometric errors.
 
 ### Complex
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | HD ↓ | **0.3264** | 0.3949 | 0.3551 |
 | HD95 ↓ | **0.2485** | 0.3205 | 0.2908 |
 | Count | 147 | 148 | 147 |
 
-## Top 10 Best (Lowest HD) — cadence
+## Top 10 Best (Lowest HD) — craft
 
 | Rank | Prompt ID | Tier | HD | HD95 |
 |------|-----------|------|----|------|
@@ -59,7 +59,7 @@ Lower Hausdorff = no catastrophic geometric errors.
 | 9 | batterie__AACELL | Medium | 0.0186 | 0.0125 |
 | 10 | batterie__AAACELL | Medium | 0.0196 | 0.0123 |
 
-## Top 10 Worst (Highest HD) — cadence
+## Top 10 Worst (Highest HD) — craft
 
 | Rank | Prompt ID | Tier | HD | HD95 | Pred→GT | GT→Pred |
 |------|-----------|------|----|------|---------|---------|

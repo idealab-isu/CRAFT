@@ -1,8 +1,8 @@
 {
-  "cadence": [
+  "craft": [
     {
       "prompt_id": "0002879_partstudio_10_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.1610057977572168,
@@ -24,7 +24,7 @@
     },
     {
       "prompt_id": "0011527_partstudio_181_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.0266691488646707,
@@ -46,7 +46,7 @@
     },
     {
       "prompt_id": "0011597_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.08045685493691002,
@@ -68,7 +68,7 @@
     },
     {
       "prompt_id": "0012447_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.03195759937878781,
@@ -90,7 +90,7 @@
     },
     {
       "prompt_id": "0012749_partstudio_22_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.10073191486796909,
@@ -112,7 +112,7 @@
     },
     {
       "prompt_id": "0015915_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.031672991018462965,
@@ -134,7 +134,7 @@
     },
     {
       "prompt_id": "0016811_partstudio_04_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.18100384191392377,
@@ -156,7 +156,7 @@
     },
     {
       "prompt_id": "0022509_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.04095770382448459,
@@ -178,7 +178,7 @@
     },
     {
       "prompt_id": "0024494_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.06330506674104437,
@@ -200,7 +200,7 @@
     },
     {
       "prompt_id": "0024632_partstudio_53_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.0746193064115506,
@@ -222,7 +222,7 @@
     },
     {
       "prompt_id": "0026304_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.07165990381625209,
@@ -244,7 +244,7 @@
     },
     {
       "prompt_id": "0027634_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.04442740011480592,
@@ -266,7 +266,7 @@
     },
     {
       "prompt_id": "0027827_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.21665000934038442,
@@ -288,7 +288,7 @@
     },
     {
       "prompt_id": "0028766_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.056224745402327574,
@@ -310,7 +310,7 @@
     },
     {
       "prompt_id": "0029520_partstudio_461_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.03882600811230924,
@@ -332,7 +332,7 @@
     },
     {
       "prompt_id": "0029694_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.08970532801616296,
@@ -354,7 +354,7 @@
     },
     {
       "prompt_id": "0029746_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.0883798182769503,
@@ -376,7 +376,7 @@
     },
     {
       "prompt_id": "0036023_partstudio_15_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.07626031911739634,
@@ -398,7 +398,7 @@
     },
     {
       "prompt_id": "0042970_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.12711213227984802,
@@ -420,7 +420,7 @@
     },
     {
       "prompt_id": "0048802_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.04631196595793856,
@@ -442,7 +442,7 @@
     },
     {
       "prompt_id": "0054693_partstudio_11_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.022886899482771204,
@@ -464,7 +464,7 @@
     },
     {
       "prompt_id": "0056068_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.022099565690847676,
@@ -486,7 +486,7 @@
     },
     {
       "prompt_id": "0057285_partstudio_11_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.017093539321884114,
@@ -508,7 +508,7 @@
     },
     {
       "prompt_id": "0064050_partstudio_06_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.06618234005763544,
@@ -530,7 +530,7 @@
     },
     {
       "prompt_id": "0064783_partstudio_05_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.02541969547850132,
@@ -552,7 +552,7 @@
     },
     {
       "prompt_id": "0068093_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.07210712075659087,
@@ -574,7 +574,7 @@
     },
     {
       "prompt_id": "0068526_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.04820437835392191,
@@ -596,7 +596,7 @@
     },
     {
       "prompt_id": "0069012_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.0795702202170387,
@@ -618,7 +618,7 @@
     },
     {
       "prompt_id": "0069334_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.0388151121901775,
@@ -640,7 +640,7 @@
     },
     {
       "prompt_id": "0070304_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.06745882280945095,
@@ -662,7 +662,7 @@
     },
     {
       "prompt_id": "0073577_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.13980486941983467,
@@ -684,7 +684,7 @@
     },
     {
       "prompt_id": "0073636_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.13893999485243383,
@@ -706,7 +706,7 @@
     },
     {
       "prompt_id": "0077048_partstudio_20_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.03338048596952935,
@@ -728,7 +728,7 @@
     },
     {
       "prompt_id": "0083476_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.07855040745575823,
@@ -750,7 +750,7 @@
     },
     {
       "prompt_id": "0086395_partstudio_05_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.21241858934404187,
@@ -772,7 +772,7 @@
     },
     {
       "prompt_id": "0086960_partstudio_04_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.18103844625155896,
@@ -794,7 +794,7 @@
     },
     {
       "prompt_id": "0086962_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.11595269206463092,
@@ -816,7 +816,7 @@
     },
     {
       "prompt_id": "0086962_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.1829738494904582,
@@ -838,7 +838,7 @@
     },
     {
       "prompt_id": "0092393_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.034779397094880746,
@@ -860,7 +860,7 @@
     },
     {
       "prompt_id": "0109272_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.19110132024688486,
@@ -882,7 +882,7 @@
     },
     {
       "prompt_id": "0110335_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.14829863027539442,
@@ -904,7 +904,7 @@
     },
     {
       "prompt_id": "0110950_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.06685857951758949,
@@ -926,7 +926,7 @@
     },
     {
       "prompt_id": "0115394_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.045711873255780286,
@@ -948,7 +948,7 @@
     },
     {
       "prompt_id": "0116050_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.06855576025107522,
@@ -970,7 +970,7 @@
     },
     {
       "prompt_id": "0117273_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.050569542722448554,
@@ -992,7 +992,7 @@
     },
     {
       "prompt_id": "0119454_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.034425939836327364,
@@ -1014,7 +1014,7 @@
     },
     {
       "prompt_id": "0122682_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.17785696178782145,
@@ -1036,7 +1036,7 @@
     },
     {
       "prompt_id": "0123159_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.03498576697538338,
@@ -1058,7 +1058,7 @@
     },
     {
       "prompt_id": "0123189_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.10493629325529258,
@@ -1080,7 +1080,7 @@
     },
     {
       "prompt_id": "0135848_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.04455177438785546,
@@ -1102,7 +1102,7 @@
     },
     {
       "prompt_id": "0136602_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.07244268478554017,
@@ -1124,7 +1124,7 @@
     },
     {
       "prompt_id": "0136939_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.0824247928444388,
@@ -1146,7 +1146,7 @@
     },
     {
       "prompt_id": "0144684_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.15464257206581375,
@@ -1168,7 +1168,7 @@
     },
     {
       "prompt_id": "0146207_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.03795396855361294,
@@ -1190,7 +1190,7 @@
     },
     {
       "prompt_id": "0148100_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.022464038468774983,
@@ -1212,7 +1212,7 @@
     },
     {
       "prompt_id": "0167967_partstudio_09_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.018158913616815014,
@@ -1234,7 +1234,7 @@
     },
     {
       "prompt_id": "0182409_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": NaN,
@@ -1251,12 +1251,12 @@
       "pred_stl_exists": false,
       "gt_png_exists": true,
       "pred_png_exists": false,
-      "error": "Pred STL not found: results/ext_abc/cadence/stl/0182409_partstudio_00_model_ste_00_512.stl",
+      "error": "Pred STL not found: results/ext_abc/craft/stl/0182409_partstudio_00_model_ste_00_512.stl",
       "compute_time_s": 0.0
     },
     {
       "prompt_id": "0183839_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.045941168260457126,
@@ -1278,7 +1278,7 @@
     },
     {
       "prompt_id": "0183969_partstudio_04_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.028829385123364467,
@@ -1300,7 +1300,7 @@
     },
     {
       "prompt_id": "0185511_partstudio_13_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.13279642137751185,
@@ -1322,7 +1322,7 @@
     },
     {
       "prompt_id": "0187505_partstudio_06_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.025426751996103406,
@@ -1344,7 +1344,7 @@
     },
     {
       "prompt_id": "0192132_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.09515221260017964,
@@ -1366,7 +1366,7 @@
     },
     {
       "prompt_id": "0195741_partstudio_07_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.005635703402059352,
@@ -1388,7 +1388,7 @@
     },
     {
       "prompt_id": "0196147_partstudio_19_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.03562629282334544,
@@ -1410,7 +1410,7 @@
     },
     {
       "prompt_id": "0199264_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.18368280707494078,
@@ -1432,7 +1432,7 @@
     },
     {
       "prompt_id": "0199693_partstudio_14_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.042642017470393256,
@@ -1454,7 +1454,7 @@
     },
     {
       "prompt_id": "0205687_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.06663314651404735,
@@ -1476,7 +1476,7 @@
     },
     {
       "prompt_id": "0209928_partstudio_83_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.0622738444662379,
@@ -1498,7 +1498,7 @@
     },
     {
       "prompt_id": "0213090_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.07683048424529428,
@@ -1520,7 +1520,7 @@
     },
     {
       "prompt_id": "0215147_partstudio_22_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.10556186766957454,
@@ -1542,7 +1542,7 @@
     },
     {
       "prompt_id": "0220769_partstudio_23_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.09211502526077284,
@@ -1564,7 +1564,7 @@
     },
     {
       "prompt_id": "0224107_partstudio_85_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.06479887485985888,
@@ -1586,7 +1586,7 @@
     },
     {
       "prompt_id": "0228392_partstudio_03_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.2323447369425517,
@@ -1608,7 +1608,7 @@
     },
     {
       "prompt_id": "0239080_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.012937718886289525,
@@ -1630,7 +1630,7 @@
     },
     {
       "prompt_id": "0240869_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.04792904024917366,
@@ -1652,7 +1652,7 @@
     },
     {
       "prompt_id": "0241591_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.03389593659481974,
@@ -1674,7 +1674,7 @@
     },
     {
       "prompt_id": "0244617_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.05391317210895049,
@@ -1696,7 +1696,7 @@
     },
     {
       "prompt_id": "0249181_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.04402375640572417,
@@ -1718,7 +1718,7 @@
     },
     {
       "prompt_id": "0251186_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.14564320305751202,
@@ -1740,7 +1740,7 @@
     },
     {
       "prompt_id": "0252539_partstudio_19_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.06651839574327889,
@@ -1762,7 +1762,7 @@
     },
     {
       "prompt_id": "0252806_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.025397925993492478,
@@ -1784,7 +1784,7 @@
     },
     {
       "prompt_id": "0257920_partstudio_05_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.042989216102118186,
@@ -1806,7 +1806,7 @@
     },
     {
       "prompt_id": "0259340_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.12035442784129355,
@@ -1828,7 +1828,7 @@
     },
     {
       "prompt_id": "0261741_partstudio_04_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.009182140656768754,
@@ -1850,7 +1850,7 @@
     },
     {
       "prompt_id": "0271740_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.14303796289351212,
@@ -1872,7 +1872,7 @@
     },
     {
       "prompt_id": "0272264_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.07764848669293342,
@@ -1894,7 +1894,7 @@
     },
     {
       "prompt_id": "0273084_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.2458539477752889,
@@ -1916,7 +1916,7 @@
     },
     {
       "prompt_id": "0280514_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.03547775571749244,
@@ -1938,7 +1938,7 @@
     },
     {
       "prompt_id": "0283028_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.022881281104638333,
@@ -1960,7 +1960,7 @@
     },
     {
       "prompt_id": "0290759_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.018241997347392895,
@@ -1982,7 +1982,7 @@
     },
     {
       "prompt_id": "0292833_partstudio_02_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.20196053347436854,
@@ -2004,7 +2004,7 @@
     },
     {
       "prompt_id": "0295225_partstudio_64_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.06720299340506503,
@@ -2026,7 +2026,7 @@
     },
     {
       "prompt_id": "0297077_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.031341258238008485,
@@ -2048,7 +2048,7 @@
     },
     {
       "prompt_id": "0298023_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.12903754676257623,
@@ -2070,7 +2070,7 @@
     },
     {
       "prompt_id": "0302283_partstudio_09_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.07279403206186241,
@@ -2092,7 +2092,7 @@
     },
     {
       "prompt_id": "0303828_partstudio_79_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.20799455554415647,
@@ -2114,7 +2114,7 @@
     },
     {
       "prompt_id": "0314834_partstudio_00_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "abc",
       "chamfer_distance": 0.0421002576184569,
@@ -2136,7 +2136,7 @@
     },
     {
       "prompt_id": "0330698_partstudio_42_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.03302329115742652,
@@ -2158,7 +2158,7 @@
     },
     {
       "prompt_id": "0335372_partstudio_01_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "abc",
       "chamfer_distance": 0.06915149138960555,
@@ -2180,7 +2180,7 @@
     },
     {
       "prompt_id": "0335723_partstudio_03_model_ste_00_512",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "abc",
       "chamfer_distance": 0.08174761144474166,

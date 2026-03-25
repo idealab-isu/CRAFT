@@ -4,7 +4,7 @@ Generated: 2026-02-28 16:26:40
 
 ## Overall Comparison
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | CD ↓ | 0.0617 | 0.0743 | 0.0607 |
 | CD (std) | 0.0568 | 0.0645 | 0.0563 |
@@ -22,7 +22,7 @@ Generated: 2026-02-28 16:26:40
 
 ### Simple
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | CD ↓ | 0.0414 | 0.0601 | 0.0439 |
 | F1@1% ↑ | 0.4018 | 0.2976 | 0.3770 |
@@ -31,7 +31,7 @@ Generated: 2026-02-28 16:26:40
 
 ### Medium
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | CD ↓ | 0.0752 | 0.0783 | 0.0631 |
 | F1@1% ↑ | 0.1918 | 0.1026 | 0.2364 |
@@ -40,7 +40,7 @@ Generated: 2026-02-28 16:26:40
 
 ### Complex
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | CD ↓ | 0.0682 | 0.0837 | 0.0743 |
 | F1@1% ↑ | 0.2565 | 0.2417 | 0.2366 |
@@ -49,7 +49,7 @@ Generated: 2026-02-28 16:26:40
 
 ## Per-Prompt Results
 
-| Prompt ID | Tier | Family | CD (cadence) | F1@5% (cadence) | VoxIoU (cadence) | CD (gpt4o) | F1@5% (gpt4o) | VoxIoU (gpt4o) | CD (gpt52) | F1@5% (gpt52) | VoxIoU (gpt52) |
+| Prompt ID | Tier | Family | CD (craft) | F1@5% (craft) | VoxIoU (craft) | CD (gpt4o) | F1@5% (gpt4o) | VoxIoU (gpt4o) | CD (gpt52) | F1@5% (gpt52) | VoxIoU (gpt52) |
 |-----------|------|--------|------|-------|--------|------|-------|--------|------|-------|--------|
 | 100072 | Simple | slice100k | 0.0305 | 0.8122 | 0.0768 | 0.0626 | 0.5861 | 0.0247 | 0.0311 | 0.7898 | 0.0740 |
 | 100173 | Simple | slice100k | 0.0388 | 0.6764 | 0.0281 | 0.0884 | 0.4239 | 0.0203 | N/A | N/A | N/A |

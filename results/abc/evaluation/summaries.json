@@ -1,6 +1,6 @@
 {
-  "cadence": {
-    "model_name": "cadence",
+  "craft": {
+    "model_name": "craft",
     "n_evaluated": 99,
     "n_failed": 1,
     "cd_mean": 0.08040529668335182,

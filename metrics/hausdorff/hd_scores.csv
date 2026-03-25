@@ -1,4 +1,4 @@
-prompt_id,tier,family,hd_cadence,hd95_cadence,hd_gpt4o,hd95_gpt4o,hd_gpt52,hd95_gpt52
+prompt_id,tier,family,hd_craft,hd95_craft,hd_gpt4o,hd95_gpt4o,hd_gpt52,hd95_gpt52
 7_segment__WT5011BSR,Simple,7_segment,0.222567,0.215975,0.257647,0.216285,0.217931,0.216282
 antenna__ESP201_antenna,Simple,antenna,0.383406,0.293854,0.111681,0.028229,0.191250,0.127868
 axial__DO_35,Medium,axial,0.497019,0.469481,0.414875,0.371238,0.294159,0.251954

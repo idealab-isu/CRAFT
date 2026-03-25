@@ -1,6 +1,6 @@
 {
-  "cadence": {
-    "model_name": "cadence",
+  "craft": {
+    "model_name": "craft",
     "n_evaluated": 463,
     "n_skipped": 13,
     "nc_mean": 0.5930799964308882,

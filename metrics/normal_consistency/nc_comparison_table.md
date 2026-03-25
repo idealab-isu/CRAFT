@@ -5,7 +5,7 @@ Higher NC = predicted surface normals better match GT surface normals.
 
 ## Overall Comparison
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | NC (mean) ↑ | **0.5931** | 0.5679 | 0.5631 |
 | NC (std) | 0.2612 | 0.2684 | 0.2382 |
@@ -20,26 +20,26 @@ Higher NC = predicted surface normals better match GT surface normals.
 
 ### Simple
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | NC ↑ | 0.5088 | **0.6118** | 0.4761 |
 | Count | 158 | 158 | 158 |
 
 ### Medium
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | NC ↑ | **0.6757** | 0.5413 | 0.6218 |
 | Count | 158 | 160 | 159 |
 
 ### Complex
 
-| Metric | cadence | gpt4o | gpt52 |
+| Metric | craft | gpt4o | gpt52 |
 |--------|------|------|------|
 | NC ↑ | **0.5949** | 0.5498 | 0.5931 |
 | Count | 147 | 148 | 147 |
 
-## Top 10 Best Surface Quality (cadence)
+## Top 10 Best Surface Quality (craft)
 
 | Rank | Prompt ID | Tier | NC |
 |------|-----------|------|----|
@@ -54,7 +54,7 @@ Higher NC = predicted surface normals better match GT surface normals.
 | 9 | batterie__S25R18650 | Medium | 0.9875 |
 | 10 | ht_pipe__HT_160_pipe_1000 | Simple | 0.9867 |
 
-## Top 10 Worst Surface Quality (cadence)
+## Top 10 Worst Surface Quality (craft)
 
 | Rank | Prompt ID | Tier | NC |
 |------|-----------|------|----|

@@ -4681,10 +4681,10 @@
       "error": ""
     }
   ],
-  "cadence": [
+  "craft": [
     {
       "prompt_id": "7_segment__WT5011BSR",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 7 segment: [12.7, 19, 8.2]",
       "clip_score": 0.17730142176151276,
       "tier": "Simple",
@@ -4694,7 +4694,7 @@
     },
     {
       "prompt_id": "antenna__ESP201_antenna",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A antenna",
       "clip_score": 0.2329442799091339,
       "tier": "Simple",
@@ -4704,7 +4704,7 @@
     },
     {
       "prompt_id": "axial__DO_35",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A axial: [3.4, 1.75, 0.3]",
       "clip_score": 0.18994536995887756,
       "tier": "Medium",
@@ -4714,7 +4714,7 @@
     },
     {
       "prompt_id": "axial__DO_41",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A axial: [5.21, 2.72, 0]",
       "clip_score": 0.19212952256202698,
       "tier": "Medium",
@@ -4724,7 +4724,7 @@
     },
     {
       "prompt_id": "ball_bearing__BB608",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 8.0mm bore, 22.0mm outer diameter, and 7.0mm width",
       "clip_score": 0.22070248425006866,
       "tier": "Medium",
@@ -4734,7 +4734,7 @@
     },
     {
       "prompt_id": "ball_bearing__BB6200",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 10.0mm bore, 30.0mm outer diameter, and 9.0mm width",
       "clip_score": 0.24624475836753845,
       "tier": "Medium",
@@ -4744,7 +4744,7 @@
     },
     {
       "prompt_id": "ball_bearing__BB6201",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 12.0mm bore, 32.0mm outer diameter, and 10.0mm width",
       "clip_score": 0.23858720064163208,
       "tier": "Medium",
@@ -4754,7 +4754,7 @@
     },
     {
       "prompt_id": "ball_bearing__BB624",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 4.0mm bore, 13.0mm outer diameter, and 5.0mm width",
       "clip_score": 0.22662384808063507,
       "tier": "Medium",
@@ -4764,7 +4764,7 @@
     },
     {
       "prompt_id": "ball_bearing__BB6808",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 40.0mm bore, 52.0mm outer diameter, and 7.0mm width",
       "clip_score": 0.24468711018562317,
       "tier": "Medium",
@@ -4774,7 +4774,7 @@
     },
     {
       "prompt_id": "ball_bearing__BB686",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 6.0mm bore, 13.0mm outer diameter, and 5.0mm width",
       "clip_score": 0.2441926747560501,
       "tier": "Medium",
@@ -4784,7 +4784,7 @@
     },
     {
       "prompt_id": "ball_bearing__BB696",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 6.0mm bore, 16.0mm outer diameter, and 5.0mm width",
       "clip_score": 0.22128278017044067,
       "tier": "Medium",
@@ -4794,7 +4794,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBF623",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flanged ball bearing with 3.0mm bore, 10.0mm outer diameter, and 4.0mm width, with a 11.5mm flange diameter",
       "clip_score": 0.23979532718658447,
       "tier": "Medium",
@@ -4804,7 +4804,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBF625",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flanged ball bearing with 5.0mm bore, 16.0mm outer diameter, and 5.0mm width, with a 18.0mm flange diameter",
       "clip_score": 0.22134274244308472,
       "tier": "Medium",
@@ -4814,7 +4814,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBF693",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flanged ball bearing with 3.0mm bore, 8.0mm outer diameter, and 3.0mm width, with a 9.5mm flange diameter",
       "clip_score": 0.23652814328670502,
       "tier": "Medium",
@@ -4824,7 +4824,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBF695",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flanged ball bearing with 5.0mm bore, 13.0mm outer diameter, and 4.0mm width, with a 15.0mm flange diameter",
       "clip_score": 0.2432333081960678,
       "tier": "Medium",
@@ -4834,7 +4834,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBMR63",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 3.0mm bore, 6.0mm outer diameter, and 2.5mm width",
       "clip_score": 0.2161409705877304,
       "tier": "Medium",
@@ -4844,7 +4844,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBMR83",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 3.0mm bore, 8.0mm outer diameter, and 3.0mm width",
       "clip_score": 0.21920619904994965,
       "tier": "Medium",
@@ -4854,7 +4854,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBMR85",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 5.0mm bore, 8.0mm outer diameter, and 2.5mm width",
       "clip_score": 0.24299739301204681,
       "tier": "Medium",
@@ -4864,7 +4864,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBMR93",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 3.0mm bore, 9.0mm outer diameter, and 4.0mm width",
       "clip_score": 0.24167825281620026,
       "tier": "Medium",
@@ -4874,7 +4874,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBMR95",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 5.0mm bore, 9.0mm outer diameter, and 3.0mm width",
       "clip_score": 0.21304550766944885,
       "tier": "Medium",
@@ -4884,7 +4884,7 @@
     },
     {
       "prompt_id": "ball_bearing__BBSMR95",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ball bearing with 5.0mm bore, 9.0mm outer diameter, and 2.5mm width",
       "clip_score": 0.22021615505218506,
       "tier": "Medium",
@@ -4894,7 +4894,7 @@
     },
     {
       "prompt_id": "batterie__A23CELL",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 28.5mm tall, 10.3mm diameter",
       "clip_score": 0.27262020111083984,
       "tier": "Medium",
@@ -4904,7 +4904,7 @@
     },
     {
       "prompt_id": "batterie__AAACELL",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 44.5mm tall, 10.5mm diameter",
       "clip_score": 0.22013263404369354,
       "tier": "Medium",
@@ -4914,7 +4914,7 @@
     },
     {
       "prompt_id": "batterie__AACELL",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 50.5mm tall, 14.5mm diameter",
       "clip_score": 0.23536737263202667,
       "tier": "Medium",
@@ -4924,7 +4924,7 @@
     },
     {
       "prompt_id": "batterie__CCELL",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 50.0mm tall, 26.2mm diameter",
       "clip_score": 0.22148679196834564,
       "tier": "Medium",
@@ -4934,7 +4934,7 @@
     },
     {
       "prompt_id": "batterie__DCELL",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 61.5mm tall, 34.2mm diameter",
       "clip_score": 0.2014617621898651,
       "tier": "Medium",
@@ -4944,7 +4944,7 @@
     },
     {
       "prompt_id": "batterie__LI16340",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 35.2mm tall, 16.4mm diameter",
       "clip_score": 0.20581117272377014,
       "tier": "Medium",
@@ -4954,7 +4954,7 @@
     },
     {
       "prompt_id": "batterie__LI32700",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 70.2mm tall, 32.4mm diameter",
       "clip_score": 0.2183646410703659,
       "tier": "Medium",
@@ -4964,7 +4964,7 @@
     },
     {
       "prompt_id": "batterie__LI4680",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 80.2mm tall, 46.2mm diameter",
       "clip_score": 0.23435154557228088,
       "tier": "Medium",
@@ -4974,7 +4974,7 @@
     },
     {
       "prompt_id": "batterie__LUMINTOP",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 70.7mm tall, 18.4mm diameter",
       "clip_score": 0.2240389585494995,
       "tier": "Medium",
@@ -4984,7 +4984,7 @@
     },
     {
       "prompt_id": "batterie__S25R18650",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery cell, 65.0mm tall, 18.3mm diameter",
       "clip_score": 0.21526172757148743,
       "tier": "Medium",
@@ -4994,7 +4994,7 @@
     },
     {
       "prompt_id": "bearing_block__SCS10LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing block for 8.0mm shaft, block size 40.0mm x 68.0mm",
       "clip_score": 0.2310371994972229,
       "tier": "Complex",
@@ -5004,7 +5004,7 @@
     },
     {
       "prompt_id": "bearing_block__SCS10UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing block for 8.0mm shaft, block size 40.0mm x 35.0mm",
       "clip_score": 0.18153241276741028,
       "tier": "Complex",
@@ -5014,7 +5014,7 @@
     },
     {
       "prompt_id": "bearing_block__SCS12LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing block for 8.0mm shaft, block size 42.0mm x 70.0mm",
       "clip_score": 0.21658021211624146,
       "tier": "Complex",
@@ -5024,7 +5024,7 @@
     },
     {
       "prompt_id": "bearing_block__SCS12UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing block for 8.0mm shaft, block size 42.0mm x 36.0mm",
       "clip_score": 0.2201770395040512,
       "tier": "Complex",
@@ -5034,7 +5034,7 @@
     },
     {
       "prompt_id": "bearing_block__SCS16LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing block for 9.0mm shaft, block size 50.0mm x 85.0mm",
       "clip_score": 0.2386263906955719,
       "tier": "Complex",
@@ -5044,7 +5044,7 @@
     },
     {
       "prompt_id": "bearing_block__SCS16UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing block for 9.0mm shaft, block size 50.0mm x 44.0mm",
       "clip_score": 0.2447555661201477,
       "tier": "Complex",
@@ -5054,7 +5054,7 @@
     },
     {
       "prompt_id": "bearing_block__SCS6UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing block for 6.0mm shaft, block size 30.0mm x 25.0mm",
       "clip_score": 0.2421138733625412,
       "tier": "Complex",
@@ -5064,7 +5064,7 @@
     },
     {
       "prompt_id": "bearing_block__SCS8LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing block for 6.0mm shaft, block size 34.0mm x 58.0mm",
       "clip_score": 0.2105218917131424,
       "tier": "Complex",
@@ -5074,7 +5074,7 @@
     },
     {
       "prompt_id": "bearing_block__SCS8UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing block for 6.0mm shaft, block size 34.0mm x 30.0mm",
       "clip_score": 0.22582179307937622,
       "tier": "Complex",
@@ -5084,7 +5084,7 @@
     },
     {
       "prompt_id": "bldc_motor__BLDC0603",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A brushless DC motor with 9.0mm stator diameter and 8.0mm height",
       "clip_score": 0.2356310486793518,
       "tier": "Complex",
@@ -5094,7 +5094,7 @@
     },
     {
       "prompt_id": "bldc_motor__BLDC0802",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A brushless DC motor with 11.5mm stator diameter and 9.5mm height",
       "clip_score": 0.2193470150232315,
       "tier": "Complex",
@@ -5104,7 +5104,7 @@
     },
     {
       "prompt_id": "bldc_motor__BLDC1105",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A brushless DC motor with 14.0mm stator diameter and 11.75mm height",
       "clip_score": 0.1860157996416092,
       "tier": "Complex",
@@ -5114,7 +5114,7 @@
     },
     {
       "prompt_id": "bldc_motor__BLDC1306",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A brushless DC motor with 17.75mm stator diameter and 14.5mm height",
       "clip_score": 0.21885648369789124,
       "tier": "Complex",
@@ -5124,7 +5124,7 @@
     },
     {
       "prompt_id": "bldc_motor__BLDC1804",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A brushless DC motor with 23.0mm stator diameter and 12.0mm height",
       "clip_score": 0.2077512890100479,
       "tier": "Complex",
@@ -5134,7 +5134,7 @@
     },
     {
       "prompt_id": "bldc_motor__BLDC2205",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A brushless DC motor with 28.0mm stator diameter and 17.25mm height",
       "clip_score": 0.2251666784286499,
       "tier": "Complex",
@@ -5144,7 +5144,7 @@
     },
     {
       "prompt_id": "bldc_motor__BLDC2212",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A brushless DC motor with 28.0mm stator diameter and 27.0mm height",
       "clip_score": 0.18364614248275757,
       "tier": "Complex",
@@ -5154,7 +5154,7 @@
     },
     {
       "prompt_id": "bldc_motor__BLDC3548",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A brushless DC motor with 35.0mm stator diameter and 45.0mm height",
       "clip_score": 0.22447684407234192,
       "tier": "Complex",
@@ -5164,7 +5164,7 @@
     },
     {
       "prompt_id": "bldc_motor__BLDC4250",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A brushless DC motor with 42.5mm stator diameter and 48.0mm height",
       "clip_score": 0.2365596890449524,
       "tier": "Complex",
@@ -5174,7 +5174,7 @@
     },
     {
       "prompt_id": "blower__BL30x10",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A centrifugal blower fan, 30.0mm x 30.0mm x 10.1mm",
       "clip_score": 0.20228311419487,
       "tier": "Complex",
@@ -5184,7 +5184,7 @@
     },
     {
       "prompt_id": "blower__BL40x10",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A centrifugal blower fan, 40.0mm x 40.0mm x 9.5mm",
       "clip_score": 0.21539747714996338,
       "tier": "Complex",
@@ -5194,7 +5194,7 @@
     },
     {
       "prompt_id": "blower__PE4020",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A centrifugal blower fan, 40.0mm x 40.0mm x 20.0mm",
       "clip_score": 0.234965980052948,
       "tier": "Complex",
@@ -5204,7 +5204,7 @@
     },
     {
       "prompt_id": "blower__RB5015",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A centrifugal blower fan, 51.3mm x 51.0mm x 15.0mm",
       "clip_score": 0.2349853217601776,
       "tier": "Complex",
@@ -5214,7 +5214,7 @@
     },
     {
       "prompt_id": "box_section__AL12x8x1",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A box section: Aluminium rectangular box section 12mm x 8mm x 1mm",
       "clip_score": 0.15358565747737885,
       "tier": "Simple",
@@ -5224,7 +5224,7 @@
     },
     {
       "prompt_id": "box_section__AL20x20x2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A box section: Aluminium rectangular box section 20mm x 20mm x 2mm",
       "clip_score": 0.1921061873435974,
       "tier": "Simple",
@@ -5234,7 +5234,7 @@
     },
     {
       "prompt_id": "box_section__AL38p1x25p4x1p6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A box section: Aluminium rectangular box section 38.1mm x 25.4mm x 1.6mm",
       "clip_score": 0.18523170053958893,
       "tier": "Simple",
@@ -5244,7 +5244,7 @@
     },
     {
       "prompt_id": "box_section__AL50p8x38p1x3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A box section: Aluminium rectangular box section 50.8mm x 38.1mm x 3.0mm",
       "clip_score": 0.18007148802280426,
       "tier": "Simple",
@@ -5254,7 +5254,7 @@
     },
     {
       "prompt_id": "component__Epcos",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component: Thermistor Epcos B57560G104F 100K 1%",
       "clip_score": 0.17611420154571533,
       "tier": "Simple",
@@ -5264,7 +5264,7 @@
     },
     {
       "prompt_id": "component__EpcosBlue",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component: Thermistor Epcos B57861S104F40 100K 1%",
       "clip_score": 0.22415199875831604,
       "tier": "Simple",
@@ -5274,7 +5274,7 @@
     },
     {
       "prompt_id": "component__Honewell",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component: Thermistor Honeywell 135-104LAC-J01 100K 1%",
       "clip_score": 0.207550048828125,
       "tier": "Simple",
@@ -5284,7 +5284,7 @@
     },
     {
       "prompt_id": "component__RIE1212UB5C5R6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component: Resistor 5R6F 5R6 3W vitreous enamel",
       "clip_score": 0.22992722690105438,
       "tier": "Simple",
@@ -5294,7 +5294,7 @@
     },
     {
       "prompt_id": "component__RWM04106R80J",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component: Resistor 6R8 3W vitreous enamel",
       "clip_score": 0.22105862200260162,
       "tier": "Simple",
@@ -5304,7 +5304,7 @@
     },
     {
       "prompt_id": "component__TC",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component",
       "clip_score": 0.22487026453018188,
       "tier": "Medium",
@@ -5314,7 +5314,7 @@
     },
     {
       "prompt_id": "component__THS10",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component",
       "clip_score": 0.21442145109176636,
       "tier": "Medium",
@@ -5324,7 +5324,7 @@
     },
     {
       "prompt_id": "component__THS15",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component",
       "clip_score": 0.21485400199890137,
       "tier": "Medium",
@@ -5334,7 +5334,7 @@
     },
     {
       "prompt_id": "component__THS25",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component",
       "clip_score": 0.22394528985023499,
       "tier": "Medium",
@@ -5344,7 +5344,7 @@
     },
     {
       "prompt_id": "component__THS50",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A component",
       "clip_score": 0.21272645890712738,
       "tier": "Medium",
@@ -5354,7 +5354,7 @@
     },
     {
       "prompt_id": "d_connector__DCONN15",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A d connector",
       "clip_score": 0.2225341498851776,
       "tier": "Complex",
@@ -5364,7 +5364,7 @@
     },
     {
       "prompt_id": "d_connector__DCONN9",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A d connector",
       "clip_score": 0.22496096789836884,
       "tier": "Complex",
@@ -5374,7 +5374,7 @@
     },
     {
       "prompt_id": "display__BigTreeTech_TFT35v3_0",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A display module (v3.0), 84.5mm x 54.5mm",
       "clip_score": 0.24079330265522003,
       "tier": "Medium",
@@ -5384,7 +5384,7 @@
     },
     {
       "prompt_id": "display__HDMI5",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A display: HDMI display 5\\\"\", 121, 76, 2.85, , [0, 0, 1.9], // pcb offst [[-54, -30.225], [54, 34.575, 0.5]], // aperture [[-58.7, -34], [58.7, 36.25, 1]], // touch screen 2, // thread length [[-2.5, -39], [10.5, -33]], // clearance need for the ts ribbon",
       "clip_score": 0.14997924864292145,
       "tier": "Medium",
@@ -5394,7 +5394,7 @@
     },
     {
       "prompt_id": "display__LCD1602A",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A display module (LCD display 1602A), 71.3mm x 24.3mm",
       "clip_score": 0.16990189254283905,
       "tier": "Medium",
@@ -5404,7 +5404,7 @@
     },
     {
       "prompt_id": "display__LCD1602AI2C",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A display module (LCD display 1602A), 71.3mm x 24.3mm",
       "clip_score": 0.23306889832019806,
       "tier": "Medium",
@@ -5414,7 +5414,7 @@
     },
     {
       "prompt_id": "display__LCD2004A",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A display module (LCD display 2004A), 97.0mm x 39.5mm",
       "clip_score": 0.20486152172088623,
       "tier": "Medium",
@@ -5424,7 +5424,7 @@
     },
     {
       "prompt_id": "display__LCDS7282B",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A display module (LCD display S-7282B), 73.6mm x 28.7mm",
       "clip_score": 0.17872104048728943,
       "tier": "Medium",
@@ -5434,7 +5434,7 @@
     },
     {
       "prompt_id": "display__SSD1963_4p3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A display: LCD display 4.3\\\"\", 105.5, 67.2, 3.4, , [0, 0, 0], [[-50, -26.5], [50, 31.5, 0.5]], [[-105.5 / 2, -65 / 2 + 1], [105.5 / 2, 65 / 2 + 1, 1]], 0, [[0, -34.5], [12, -31.5]],",
       "clip_score": 0.18675053119659424,
       "tier": "Medium",
@@ -5444,7 +5444,7 @@
     },
     {
       "prompt_id": "display__TFT128x160",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A display module (LCD TFT display 128x160), 46.0mm x 34.0mm",
       "clip_score": 0.27303439378738403,
       "tier": "Medium",
@@ -5454,7 +5454,7 @@
     },
     {
       "prompt_id": "extrusion__E1515",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 15.0mm x 15.0mm cross section, 100mm long",
       "clip_score": 0.2708510756492615,
       "tier": "Simple",
@@ -5464,7 +5464,7 @@
     },
     {
       "prompt_id": "extrusion__E2020",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 20.0mm x 20.0mm cross section, 100mm long",
       "clip_score": 0.23104874789714813,
       "tier": "Simple",
@@ -5474,7 +5474,7 @@
     },
     {
       "prompt_id": "extrusion__E2020t",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 20.0mm x 20.0mm cross section, 100mm long",
       "clip_score": 0.23393304646015167,
       "tier": "Simple",
@@ -5484,7 +5484,7 @@
     },
     {
       "prompt_id": "extrusion__E2040",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 20.0mm x 40.0mm cross section, 100mm long",
       "clip_score": 0.26131999492645264,
       "tier": "Simple",
@@ -5494,7 +5494,7 @@
     },
     {
       "prompt_id": "extrusion__E2060",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 20.0mm x 60.0mm cross section, 100mm long",
       "clip_score": 0.2700725197792053,
       "tier": "Simple",
@@ -5504,7 +5504,7 @@
     },
     {
       "prompt_id": "extrusion__E2080",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 20.0mm x 80.0mm cross section, 100mm long",
       "clip_score": 0.25929775834083557,
       "tier": "Simple",
@@ -5514,7 +5514,7 @@
     },
     {
       "prompt_id": "extrusion__E3030",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 30.0mm x 30.0mm cross section, 100mm long",
       "clip_score": 0.25115764141082764,
       "tier": "Simple",
@@ -5524,7 +5524,7 @@
     },
     {
       "prompt_id": "extrusion__E3060",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 30.0mm x 60.0mm cross section, 100mm long",
       "clip_score": 0.2860145568847656,
       "tier": "Simple",
@@ -5534,7 +5534,7 @@
     },
     {
       "prompt_id": "extrusion__E4040",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 40.0mm x 40.0mm cross section, 100mm long",
       "clip_score": 0.25793448090553284,
       "tier": "Simple",
@@ -5544,7 +5544,7 @@
     },
     {
       "prompt_id": "extrusion__E4040t",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 40.0mm x 40.0mm cross section, 100mm long",
       "clip_score": 0.2720084488391876,
       "tier": "Simple",
@@ -5554,7 +5554,7 @@
     },
     {
       "prompt_id": "extrusion__E4080",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 40.0mm x 80.0mm cross section, 100mm long",
       "clip_score": 0.2678984999656677,
       "tier": "Simple",
@@ -5564,7 +5564,7 @@
     },
     {
       "prompt_id": "extrusion__Makerbeam",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 10.0mm x 10.0mm cross section, 100mm long",
       "clip_score": 0.24080368876457214,
       "tier": "Simple",
@@ -5574,7 +5574,7 @@
     },
     {
       "prompt_id": "extrusion__MakerbeamXL",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An aluminium extrusion profile, 15.0mm x 15.0mm cross section, 100mm long",
       "clip_score": 0.2754911184310913,
       "tier": "Simple",
@@ -5584,7 +5584,7 @@
     },
     {
       "prompt_id": "extrusion_bracket__E20_corner_bracket",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A extrusion bracket: [28, 28, 20]",
       "clip_score": 0.23368483781814575,
       "tier": "Medium",
@@ -5594,7 +5594,7 @@
     },
     {
       "prompt_id": "extrusion_bracket__E20_inner_corner_bracket",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A extrusion bracket: [26, 25, 4.7]",
       "clip_score": 0.2047707885503769,
       "tier": "Medium",
@@ -5604,7 +5604,7 @@
     },
     {
       "prompt_id": "extrusion_bracket__E40_corner_bracket",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A extrusion bracket: [40, 40, 35]",
       "clip_score": 0.22288893163204193,
       "tier": "Medium",
@@ -5614,7 +5614,7 @@
     },
     {
       "prompt_id": "extrusion_bracket__E40_inner_corner_bracket",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A extrusion bracket: [38, 31, 8.5]",
       "clip_score": 0.20729263126850128,
       "tier": "Medium",
@@ -5624,7 +5624,7 @@
     },
     {
       "prompt_id": "gear_motor__FIT0492_A",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A gear motor: [6, 5.5, 14.7, 12]",
       "clip_score": 0.22419780492782593,
       "tier": "Medium",
@@ -5634,7 +5634,7 @@
     },
     {
       "prompt_id": "hot_end__E3D_clone",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer hot end, 66.0mm total length, 6.8mm barrel diameter, 1.75mm filament",
       "clip_score": 0.21229636669158936,
       "tier": "Simple",
@@ -5644,7 +5644,7 @@
     },
     {
       "prompt_id": "hot_end__E3Dv5",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer hot end, 70.0mm total length, 3.7mm barrel diameter, 1.75mm filament",
       "clip_score": 0.21063737571239471,
       "tier": "Simple",
@@ -5654,7 +5654,7 @@
     },
     {
       "prompt_id": "hot_end__E3Dv6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer hot end, 62.0mm total length, 3.7mm barrel diameter, 1.75mm filament",
       "clip_score": 0.2006980925798416,
       "tier": "Simple",
@@ -5664,7 +5664,7 @@
     },
     {
       "prompt_id": "hot_end__JHeadMk5",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer hot end, 51.2mm total length, 4.75mm barrel diameter, 1.75mm filament",
       "clip_score": 0.1939428150653839,
       "tier": "Simple",
@@ -5674,7 +5674,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_110_cap",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 110 cap",
       "clip_score": 0.22218792140483856,
       "tier": "Simple",
@@ -5684,7 +5684,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_110_pipe_1000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 110 pipe 1000 mm",
       "clip_score": 0.23457501828670502,
       "tier": "Simple",
@@ -5694,7 +5694,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_110_pipe_150",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 110 pipe 150 mm",
       "clip_score": 0.2205827683210373,
       "tier": "Simple",
@@ -5704,7 +5704,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_110_pipe_1500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 110 pipe 1500 mm",
       "clip_score": 0.23726308345794678,
       "tier": "Simple",
@@ -5714,7 +5714,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_110_pipe_2000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 110 pipe 2000 mm",
       "clip_score": 0.22945977747440338,
       "tier": "Simple",
@@ -5724,7 +5724,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_110_pipe_250",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 110 pipe 250 mm",
       "clip_score": 0.22425644099712372,
       "tier": "Simple",
@@ -5734,7 +5734,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_110_pipe_500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 110 pipe 500 mm",
       "clip_score": 0.21810883283615112,
       "tier": "Simple",
@@ -5744,7 +5744,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_125_cap",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 125 cap",
       "clip_score": 0.22534812986850739,
       "tier": "Simple",
@@ -5754,7 +5754,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_125_pipe_1000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 125 pipe 1000 mm",
       "clip_score": 0.22025005519390106,
       "tier": "Simple",
@@ -5764,7 +5764,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_125_pipe_150",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 125 pipe 150 mm",
       "clip_score": 0.16666235029697418,
       "tier": "Simple",
@@ -5774,7 +5774,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_125_pipe_1500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 125 pipe 1500 mm",
       "clip_score": 0.22982627153396606,
       "tier": "Simple",
@@ -5784,7 +5784,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_125_pipe_2000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 125 pipe 2000 mm",
       "clip_score": 0.2191067337989807,
       "tier": "Simple",
@@ -5794,7 +5794,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_125_pipe_250",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 125 pipe 250 mm",
       "clip_score": 0.2284747064113617,
       "tier": "Simple",
@@ -5804,7 +5804,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_125_pipe_500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 125 pipe 500 mm",
       "clip_score": 0.23005303740501404,
       "tier": "Simple",
@@ -5814,7 +5814,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_160_cap",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 160 cap",
       "clip_score": 0.2159915566444397,
       "tier": "Simple",
@@ -5824,7 +5824,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_160_pipe_1000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 160 pipe 1000 mm",
       "clip_score": 0.23929807543754578,
       "tier": "Simple",
@@ -5834,7 +5834,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_160_pipe_150",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 160 pipe 150 mm",
       "clip_score": 0.19546176493167877,
       "tier": "Simple",
@@ -5844,7 +5844,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_160_pipe_1500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 160 pipe 1500 mm",
       "clip_score": 0.23008936643600464,
       "tier": "Simple",
@@ -5854,7 +5854,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_160_pipe_2000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 160 pipe 2000 mm",
       "clip_score": 0.2284996062517166,
       "tier": "Simple",
@@ -5864,7 +5864,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_160_pipe_250",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 160 pipe 250 mm",
       "clip_score": 0.2040850818157196,
       "tier": "Simple",
@@ -5874,7 +5874,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_160_pipe_500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 160 pipe 500 mm",
       "clip_score": 0.2419123351573944,
       "tier": "Simple",
@@ -5884,7 +5884,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_32_cap",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 32 cap",
       "clip_score": 0.21231459081172943,
       "tier": "Simple",
@@ -5894,7 +5894,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_32_pipe_1000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 32 pipe 1000 mm",
       "clip_score": 0.21377058327198029,
       "tier": "Simple",
@@ -5904,7 +5904,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_32_pipe_150",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 32 pipe 150 mm",
       "clip_score": 0.23173142969608307,
       "tier": "Simple",
@@ -5914,7 +5914,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_32_pipe_1500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 32 pipe 1500 mm",
       "clip_score": 0.20039092004299164,
       "tier": "Simple",
@@ -5924,7 +5924,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_32_pipe_2000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 32 pipe 2000 mm",
       "clip_score": 0.19215676188468933,
       "tier": "Simple",
@@ -5934,7 +5934,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_32_pipe_250",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 32 pipe 250 mm",
       "clip_score": 0.21266043186187744,
       "tier": "Simple",
@@ -5944,7 +5944,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_32_pipe_500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 32 pipe 500 mm",
       "clip_score": 0.2244580239057541,
       "tier": "Simple",
@@ -5954,7 +5954,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_40_cap",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 40 cap",
       "clip_score": 0.23637619614601135,
       "tier": "Simple",
@@ -5964,7 +5964,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_40_pipe_1000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 40 pipe 1000 mm",
       "clip_score": 0.22777453064918518,
       "tier": "Simple",
@@ -5974,7 +5974,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_40_pipe_150",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 40 pipe 150 mm",
       "clip_score": 0.24453522264957428,
       "tier": "Simple",
@@ -5984,7 +5984,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_40_pipe_1500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 40 pipe 1500 mm",
       "clip_score": 0.2093660980463028,
       "tier": "Simple",
@@ -5994,7 +5994,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_40_pipe_2000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 40 pipe 2000 mm",
       "clip_score": 0.19369259476661682,
       "tier": "Simple",
@@ -6004,7 +6004,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_40_pipe_250",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 40 pipe 250 mm",
       "clip_score": 0.2364749014377594,
       "tier": "Simple",
@@ -6014,7 +6014,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_40_pipe_500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 40 pipe 500 mm",
       "clip_score": 0.23030608892440796,
       "tier": "Simple",
@@ -6024,7 +6024,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_50_40_tpipe",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 50/40 T pipe",
       "clip_score": 0.2237658053636551,
       "tier": "Simple",
@@ -6034,7 +6034,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_50_cap",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 50 cap",
       "clip_score": 0.23266315460205078,
       "tier": "Simple",
@@ -6044,7 +6044,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_50_pipe_1000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 50 pipe 1000 mm",
       "clip_score": 0.23446092009544373,
       "tier": "Simple",
@@ -6054,7 +6054,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_50_pipe_150",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 50 pipe 150 mm",
       "clip_score": 0.2119736522436142,
       "tier": "Simple",
@@ -6064,7 +6064,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_50_pipe_1500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 50 pipe 1500 mm",
       "clip_score": 0.21340464055538177,
       "tier": "Simple",
@@ -6074,7 +6074,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_50_pipe_2000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 50 pipe 2000 mm",
       "clip_score": 0.20363004505634308,
       "tier": "Simple",
@@ -6084,7 +6084,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_50_pipe_250",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 50 pipe 250 mm",
       "clip_score": 0.23758387565612793,
       "tier": "Simple",
@@ -6094,7 +6094,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_50_pipe_500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 50 pipe 500 mm",
       "clip_score": 0.220429927110672,
       "tier": "Simple",
@@ -6104,7 +6104,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_50_tpipe",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 50 T pipe",
       "clip_score": 0.2232969105243683,
       "tier": "Simple",
@@ -6114,7 +6114,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_75_cap",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 75 cap",
       "clip_score": 0.2069849967956543,
       "tier": "Simple",
@@ -6124,7 +6124,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_75_pipe_1000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 75 pipe 1000 mm",
       "clip_score": 0.23281963169574738,
       "tier": "Simple",
@@ -6134,7 +6134,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_75_pipe_150",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 75 pipe 150 mm",
       "clip_score": 0.20471280813217163,
       "tier": "Simple",
@@ -6144,7 +6144,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_75_pipe_1500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 75 pipe 1500 mm",
       "clip_score": 0.2135699838399887,
       "tier": "Simple",
@@ -6154,7 +6154,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_75_pipe_2000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 75 pipe 2000 mm",
       "clip_score": 0.2158937007188797,
       "tier": "Simple",
@@ -6164,7 +6164,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_75_pipe_250",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 75 pipe 250 mm",
       "clip_score": 0.23730790615081787,
       "tier": "Simple",
@@ -6174,7 +6174,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_75_pipe_500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 75 pipe 500 mm",
       "clip_score": 0.22835354506969452,
       "tier": "Simple",
@@ -6184,7 +6184,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_90_cap",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 90 cap",
       "clip_score": 0.2194879949092865,
       "tier": "Simple",
@@ -6194,7 +6194,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_90_pipe_1000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 90 pipe 1000 mm",
       "clip_score": 0.2371460348367691,
       "tier": "Simple",
@@ -6204,7 +6204,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_90_pipe_150",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 90 pipe 150 mm",
       "clip_score": 0.2175494283437729,
       "tier": "Simple",
@@ -6214,7 +6214,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_90_pipe_1500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 90 pipe 1500 mm",
       "clip_score": 0.23005035519599915,
       "tier": "Simple",
@@ -6224,7 +6224,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_90_pipe_2000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 90 pipe 2000 mm",
       "clip_score": 0.2246776819229126,
       "tier": "Simple",
@@ -6234,7 +6234,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_90_pipe_250",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 90 pipe 250 mm",
       "clip_score": 0.23618733882904053,
       "tier": "Simple",
@@ -6244,7 +6244,7 @@
     },
     {
       "prompt_id": "ht_pipe__HT_90_pipe_500",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ht pipe: HT 90 pipe 500 mm",
       "clip_score": 0.2534876763820648,
       "tier": "Simple",
@@ -6254,7 +6254,7 @@
     },
     {
       "prompt_id": "iec__IEC_320_C14_switched_fused_inlet",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An IEC power inlet module (switched fused inlet module), 40.0mm x 27.0mm",
       "clip_score": 0.2425207942724228,
       "tier": "Complex",
@@ -6264,7 +6264,7 @@
     },
     {
       "prompt_id": "iec__IEC_fused_inlet",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An IEC power inlet module (IEC fused inlet JR-101-1F), 36.0mm x 27.0mm",
       "clip_score": 0.15680067241191864,
       "tier": "Complex",
@@ -6274,7 +6274,7 @@
     },
     {
       "prompt_id": "iec__IEC_fused_inlet2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An IEC power inlet module (IEC fused inlet old), 36.0mm x 27.0mm",
       "clip_score": 0.23057472705841064,
       "tier": "Complex",
@@ -6284,7 +6284,7 @@
     },
     {
       "prompt_id": "iec__IEC_inlet_atx",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An IEC power inlet module (IEC inlet for ATX), 40.0mm x 27.0mm",
       "clip_score": 0.21790744364261627,
       "tier": "Complex",
@@ -6294,7 +6294,7 @@
     },
     {
       "prompt_id": "iec__IEC_inlet_atx2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A iec: lugless",
       "clip_score": 0.16804203391075134,
       "tier": "Complex",
@@ -6304,7 +6304,7 @@
     },
     {
       "prompt_id": "iec__IEC_outlet",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An IEC power inlet module (IEC outlet RS 811-7193), 40.0mm x 32.0mm",
       "clip_score": 0.19742333889007568,
       "tier": "Complex",
@@ -6314,7 +6314,7 @@
     },
     {
       "prompt_id": "iec__IEC_yunpen",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "An IEC power inlet module (IEC inlet filtered), 40.0mm x 29.0mm",
       "clip_score": 0.21462009847164154,
       "tier": "Complex",
@@ -6324,7 +6324,7 @@
     },
     {
       "prompt_id": "insert__CNCKM2p5",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 4.0mm outer diameter, 4.6mm long, for 2.5mm screws",
       "clip_score": 0.172364741563797,
       "tier": "Simple",
@@ -6334,7 +6334,7 @@
     },
     {
       "prompt_id": "insert__CNCKM3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 3.0mm outer diameter, 4.6mm long, for 3.0mm screws",
       "clip_score": 0.15944473445415497,
       "tier": "Simple",
@@ -6344,7 +6344,7 @@
     },
     {
       "prompt_id": "insert__CNCKM4",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 4.0mm outer diameter, 6.3mm long, for 4.0mm screws",
       "clip_score": 0.20165231823921204,
       "tier": "Simple",
@@ -6354,7 +6354,7 @@
     },
     {
       "prompt_id": "insert__CNCKM5",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 5.8mm outer diameter, 7.1mm long, for 5.0mm screws",
       "clip_score": 0.17336738109588623,
       "tier": "Simple",
@@ -6364,7 +6364,7 @@
     },
     {
       "prompt_id": "insert__F1BM2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 4.0mm outer diameter, 3.6mm long, for 2.0mm screws",
       "clip_score": 0.1770540475845337,
       "tier": "Simple",
@@ -6374,7 +6374,7 @@
     },
     {
       "prompt_id": "insert__F1BM2p5",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 5.8mm outer diameter, 4.6mm long, for 2.5mm screws",
       "clip_score": 0.22320015728473663,
       "tier": "Simple",
@@ -6384,7 +6384,7 @@
     },
     {
       "prompt_id": "insert__F1BM3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 5.8mm outer diameter, 4.6mm long, for 3.0mm screws",
       "clip_score": 0.23270376026630402,
       "tier": "Simple",
@@ -6394,7 +6394,7 @@
     },
     {
       "prompt_id": "insert__F1BM4",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 8.2mm outer diameter, 6.3mm long, for 4.0mm screws",
       "clip_score": 0.22008997201919556,
       "tier": "Simple",
@@ -6404,7 +6404,7 @@
     },
     {
       "prompt_id": "insert__M10x25",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 25.0mm outer diameter, 18.5mm long, for 10.0mm screws",
       "clip_score": 0.20399196445941925,
       "tier": "Simple",
@@ -6414,7 +6414,7 @@
     },
     {
       "prompt_id": "insert__M12x30",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 30.0mm outer diameter, 22.0mm long, for 12.0mm screws",
       "clip_score": 0.17593765258789062,
       "tier": "Simple",
@@ -6424,7 +6424,7 @@
     },
     {
       "prompt_id": "insert__M16x30",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 30.0mm outer diameter, 25.0mm long, for 16.0mm screws",
       "clip_score": 0.234625905752182,
       "tier": "Simple",
@@ -6434,7 +6434,7 @@
     },
     {
       "prompt_id": "insert__M3x8",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 8.0mm outer diameter, 6.0mm long, for 3.0mm screws",
       "clip_score": 0.17671222984790802,
       "tier": "Simple",
@@ -6444,7 +6444,7 @@
     },
     {
       "prompt_id": "insert__M4x10",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 10.0mm outer diameter, 8.0mm long, for 4.0mm screws",
       "clip_score": 0.23372063040733337,
       "tier": "Simple",
@@ -6454,7 +6454,7 @@
     },
     {
       "prompt_id": "insert__M5x12",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 12.0mm outer diameter, 10.0mm long, for 5.0mm screws",
       "clip_score": 0.21254952251911163,
       "tier": "Simple",
@@ -6464,7 +6464,7 @@
     },
     {
       "prompt_id": "insert__M6x15",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 15.0mm outer diameter, 12.0mm long, for 6.0mm screws",
       "clip_score": 0.22503133118152618,
       "tier": "Simple",
@@ -6474,7 +6474,7 @@
     },
     {
       "prompt_id": "insert__M8x18",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A threaded heat-set insert, 18.0mm outer diameter, 16.0mm long, for 8.0mm screws",
       "clip_score": 0.16885745525360107,
       "tier": "Simple",
@@ -6484,7 +6484,7 @@
     },
     {
       "prompt_id": "leadnut__LNHT8x2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A leadscrew nut housing, 30.0mm x 34.0mm x 30.0mm block",
       "clip_score": 0.19577744603157043,
       "tier": "Medium",
@@ -6494,7 +6494,7 @@
     },
     {
       "prompt_id": "leadnut__LSN8x2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A leadscrew nut housing, 8.0mm x 10.2mm x 15.0mm block",
       "clip_score": 0.21029631793498993,
       "tier": "Medium",
@@ -6504,7 +6504,7 @@
     },
     {
       "prompt_id": "leadnut__LSN8x8",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A leadscrew nut housing, 8.0mm x 12.75mm x 19.0mm block",
       "clip_score": 0.18241587281227112,
       "tier": "Medium",
@@ -6514,7 +6514,7 @@
     },
     {
       "prompt_id": "leadnut__SFU1610",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A leadscrew nut housing, 16.0mm x 28.0mm x 42.5mm block",
       "clip_score": 0.21223168075084686,
       "tier": "Medium",
@@ -6524,7 +6524,7 @@
     },
     {
       "prompt_id": "led__LED10mm",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 10.0mm through-hole LED, 11.0mm body height",
       "clip_score": 0.2066207081079483,
       "tier": "Medium",
@@ -6534,7 +6534,7 @@
     },
     {
       "prompt_id": "led__LED3mm",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3.0mm through-hole LED, 3.15mm body height",
       "clip_score": 0.2521846890449524,
       "tier": "Medium",
@@ -6544,7 +6544,7 @@
     },
     {
       "prompt_id": "led__LED5mm",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 5.0mm through-hole LED, 5.9mm body height",
       "clip_score": 0.25082656741142273,
       "tier": "Medium",
@@ -6554,7 +6554,7 @@
     },
     {
       "prompt_id": "led__LED5x2mm",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A led",
       "clip_score": 0.24710145592689514,
       "tier": "Medium",
@@ -6564,7 +6564,7 @@
     },
     {
       "prompt_id": "led__LED8mm",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 8.0mm through-hole LED, 9.2mm body height",
       "clip_score": 0.22837840020656586,
       "tier": "Medium",
@@ -6574,7 +6574,7 @@
     },
     {
       "prompt_id": "led__LEDs",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A led",
       "clip_score": 0.16694888472557068,
       "tier": "Medium",
@@ -6584,7 +6584,7 @@
     },
     {
       "prompt_id": "light_strip__RIGID5050",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A light strip: rigid",
       "clip_score": 0.19605541229248047,
       "tier": "Medium",
@@ -6594,7 +6594,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM10LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing with 10.0mm bore, 19.0mm outer diameter, and 55.0mm length",
       "clip_score": 0.2218519151210785,
       "tier": "Medium",
@@ -6604,7 +6604,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM10UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing with 10.0mm bore, 19.0mm outer diameter, and 29.0mm length",
       "clip_score": 0.2150694727897644,
       "tier": "Medium",
@@ -6614,7 +6614,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM12LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing with 12.0mm bore, 21.0mm outer diameter, and 57.0mm length",
       "clip_score": 0.2288844883441925,
       "tier": "Medium",
@@ -6624,7 +6624,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM12UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing with 12.0mm bore, 21.0mm outer diameter, and 30.0mm length",
       "clip_score": 0.20510390400886536,
       "tier": "Medium",
@@ -6634,7 +6634,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM16LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing with 16.0mm bore, 28.0mm outer diameter, and 70.0mm length",
       "clip_score": 0.20794421434402466,
       "tier": "Medium",
@@ -6644,7 +6644,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM16UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing with 16.0mm bore, 28.0mm outer diameter, and 37.0mm length",
       "clip_score": 0.2084342986345291,
       "tier": "Medium",
@@ -6654,7 +6654,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM16UUOP",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing with 16.0mm bore, 28.0mm outer diameter, and 37.0mm length",
       "clip_score": 0.21424761414527893,
       "tier": "Medium",
@@ -6664,7 +6664,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM3LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing with 3.0mm bore, 7.0mm outer diameter, and 19.0mm length",
       "clip_score": 0.19640764594078064,
       "tier": "Medium",
@@ -6674,7 +6674,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM3UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing with 3.0mm bore, 7.0mm outer diameter, and 10.0mm length",
       "clip_score": 0.19750073552131653,
       "tier": "Medium",
@@ -6684,7 +6684,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM4LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing with 4.0mm bore, 8.0mm outer diameter, and 23.0mm length",
       "clip_score": 0.21854177117347717,
       "tier": "Medium",
@@ -6694,7 +6694,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM4UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing with 4.0mm bore, 8.0mm outer diameter, and 12.0mm length",
       "clip_score": 0.19712375104427338,
       "tier": "Medium",
@@ -6704,7 +6704,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM5LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing with 5.0mm bore, 10.0mm outer diameter, and 28.0mm length",
       "clip_score": 0.20763497054576874,
       "tier": "Medium",
@@ -6714,7 +6714,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM5UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing with 5.0mm bore, 10.0mm outer diameter, and 15.0mm length",
       "clip_score": 0.19568268954753876,
       "tier": "Medium",
@@ -6724,7 +6724,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM6LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing with 6.0mm bore, 12.0mm outer diameter, and 35.0mm length",
       "clip_score": 0.21073423326015472,
       "tier": "Medium",
@@ -6734,7 +6734,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM6UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing with 6.0mm bore, 12.0mm outer diameter, and 19.0mm length",
       "clip_score": 0.20042943954467773,
       "tier": "Medium",
@@ -6744,7 +6744,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM8LUU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A long linear bearing with 8.0mm bore, 15.0mm outer diameter, and 45.0mm length",
       "clip_score": 0.21179388463497162,
       "tier": "Medium",
@@ -6754,7 +6754,7 @@
     },
     {
       "prompt_id": "linear_bearing__LM8UU",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A linear bearing with 8.0mm bore, 15.0mm outer diameter, and 24.0mm length",
       "clip_score": 0.19725565612316132,
       "tier": "Medium",
@@ -6764,7 +6764,7 @@
     },
     {
       "prompt_id": "magnet__MAG484",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A magnet: Magnet",
       "clip_score": 0.21202507615089417,
       "tier": "Simple",
@@ -6774,7 +6774,7 @@
     },
     {
       "prompt_id": "magnet__MAG5x8",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A magnet: Magnet",
       "clip_score": 0.22007223963737488,
       "tier": "Simple",
@@ -6784,7 +6784,7 @@
     },
     {
       "prompt_id": "magnet__MAG8x4x4p2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A permanent magnet, 8.0mm diameter, 4.2mm tall",
       "clip_score": 0.2284976989030838,
       "tier": "Simple",
@@ -6794,7 +6794,7 @@
     },
     {
       "prompt_id": "magnet__MAGRE6x2p5",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A magnet: Radial encoder magnet",
       "clip_score": 0.18172375857830048,
       "tier": "Simple",
@@ -6804,7 +6804,7 @@
     },
     {
       "prompt_id": "mains_socket__Contactum",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A mains socket: Old and unswitched",
       "clip_score": 0.17817793786525726,
       "tier": "Medium",
@@ -6814,7 +6814,7 @@
     },
     {
       "prompt_id": "mains_socket__MKLOGIC",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A mains socket: Screwfix, switched",
       "clip_score": 0.169008269906044,
       "tier": "Medium",
@@ -6824,7 +6824,7 @@
     },
     {
       "prompt_id": "mains_socket__PMS9143A",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A mains socket: Screwfix Essential unswitched.",
       "clip_score": 0.16088904440402985,
       "tier": "Medium",
@@ -6834,7 +6834,7 @@
     },
     {
       "prompt_id": "nut__M2_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 2.0mm screws, 4.9mm across flats, and 1.6mm thick",
       "clip_score": 0.2084183394908905,
       "tier": "Medium",
@@ -6844,7 +6844,7 @@
     },
     {
       "prompt_id": "nut__M2p5_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 2.5mm screws, 5.8mm across flats, and 2.2mm thick",
       "clip_score": 0.2501891255378723,
       "tier": "Medium",
@@ -6854,7 +6854,7 @@
     },
     {
       "prompt_id": "nut__M3_hammer_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A T-slot nut for 3.0mm screws, 6.0mm across flats, and 2.75mm thick",
       "clip_score": 0.2239513099193573,
       "tier": "Medium",
@@ -6864,7 +6864,7 @@
     },
     {
       "prompt_id": "nut__M3_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 3.0mm screws, 6.4mm across flats, and 2.4mm thick",
       "clip_score": 0.23553214967250824,
       "tier": "Medium",
@@ -6874,7 +6874,7 @@
     },
     {
       "prompt_id": "nut__M3_sliding_t_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A T-slot nut for 3.0mm screws, 6.0mm across flats, and 3.0mm thick",
       "clip_score": 0.2421504557132721,
       "tier": "Medium",
@@ -6884,7 +6884,7 @@
     },
     {
       "prompt_id": "nut__M3nS_thin_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A thin hex nut for 3.0mm screws, 5.5mm across flats, and 1.8mm thick",
       "clip_score": 0.22717149555683136,
       "tier": "Medium",
@@ -6894,7 +6894,7 @@
     },
     {
       "prompt_id": "nut__M4_hammer_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A T-slot nut for 4.0mm screws, 6.0mm across flats, and 3.25mm thick",
       "clip_score": 0.22827328741550446,
       "tier": "Medium",
@@ -6904,7 +6904,7 @@
     },
     {
       "prompt_id": "nut__M4_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 4.0mm screws, 8.1mm across flats, and 3.2mm thick",
       "clip_score": 0.2428877204656601,
       "tier": "Medium",
@@ -6914,7 +6914,7 @@
     },
     {
       "prompt_id": "nut__M4_sliding_t_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A T-slot nut for 4.0mm screws, 6.0mm across flats, and 3.7mm thick",
       "clip_score": 0.17132335901260376,
       "tier": "Medium",
@@ -6924,7 +6924,7 @@
     },
     {
       "prompt_id": "nut__M4_weld_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 4.0mm screws, 5.3mm across flats, and 6.3mm thick",
       "clip_score": 0.19849243760108948,
       "tier": "Medium",
@@ -6934,7 +6934,7 @@
     },
     {
       "prompt_id": "nut__M4_wingnut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A wing nut for 4.0mm screws, 10.0mm across flats, and 3.75mm thick",
       "clip_score": 0.21702323853969574,
       "tier": "Medium",
@@ -6944,7 +6944,7 @@
     },
     {
       "prompt_id": "nut__M4nS_thin_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A thin hex nut for 4.0mm screws, 7.0mm across flats, and 2.2mm thick",
       "clip_score": 0.23274777829647064,
       "tier": "Medium",
@@ -6954,7 +6954,7 @@
     },
     {
       "prompt_id": "nut__M5_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 5.0mm screws, 9.2mm across flats, and 4.0mm thick",
       "clip_score": 0.22731967270374298,
       "tier": "Medium",
@@ -6964,7 +6964,7 @@
     },
     {
       "prompt_id": "nut__M5_sliding_t_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A T-slot nut for 5.0mm screws, 6.0mm across flats, and 3.7mm thick",
       "clip_score": 0.21907971799373627,
       "tier": "Medium",
@@ -6974,7 +6974,7 @@
     },
     {
       "prompt_id": "nut__M5nS_thin_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A thin hex nut for 5.0mm screws, 8.0mm across flats, and 2.7mm thick",
       "clip_score": 0.2416001260280609,
       "tier": "Medium",
@@ -6984,7 +6984,7 @@
     },
     {
       "prompt_id": "nut__M6_half_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 6.0mm screws, 11.5mm across flats, and 3.0mm thick",
       "clip_score": 0.2632059156894684,
       "tier": "Medium",
@@ -6994,7 +6994,7 @@
     },
     {
       "prompt_id": "nut__M6_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 6.0mm screws, 11.5mm across flats, and 5.0mm thick",
       "clip_score": 0.2223539799451828,
       "tier": "Medium",
@@ -7004,7 +7004,7 @@
     },
     {
       "prompt_id": "nut__M6_sliding_t_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A T-slot nut for 6.0mm screws, 8.0mm across flats, and 6.6mm thick",
       "clip_score": 0.18138623237609863,
       "tier": "Medium",
@@ -7014,7 +7014,7 @@
     },
     {
       "prompt_id": "nut__M6_weld_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 6.0mm screws, 7.7mm across flats, and 7.9mm thick",
       "clip_score": 0.19261574745178223,
       "tier": "Medium",
@@ -7024,7 +7024,7 @@
     },
     {
       "prompt_id": "nut__M6nS_thin_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A thin hex nut for 6.0mm screws, 10.0mm across flats, and 3.2mm thick",
       "clip_score": 0.2594447135925293,
       "tier": "Medium",
@@ -7034,7 +7034,7 @@
     },
     {
       "prompt_id": "nut__M8_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex nut for 8.0mm screws, 15.0mm across flats, and 6.5mm thick",
       "clip_score": 0.2564913034439087,
       "tier": "Medium",
@@ -7044,7 +7044,7 @@
     },
     {
       "prompt_id": "nut__M8nS_thin_nut",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A thin hex nut for 8.0mm screws, 13.0mm across flats, and 4.0mm thick",
       "clip_score": 0.2640385627746582,
       "tier": "Medium",
@@ -7054,7 +7054,7 @@
     },
     {
       "prompt_id": "panel_meter__DSN_VC288",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A panel meter: DSN- DC 100V 10A Voltmeter ammeter",
       "clip_score": 0.1782987415790558,
       "tier": "Complex",
@@ -7064,7 +7064,7 @@
     },
     {
       "prompt_id": "panel_meter__DSP5005",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A panel meter: Ruideng Power supply module",
       "clip_score": 0.19946347177028656,
       "tier": "Complex",
@@ -7074,7 +7074,7 @@
     },
     {
       "prompt_id": "panel_meter__PZEM001",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A panel meter: Peacefair PZEM-001 AC digital multi-function meter",
       "clip_score": 0.16973531246185303,
       "tier": "Complex",
@@ -7084,7 +7084,7 @@
     },
     {
       "prompt_id": "panel_meter__PZEM021",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A panel meter: Peacefair PZEM-021 AC digital multi-function meter",
       "clip_score": 0.14896447956562042,
       "tier": "Complex",
@@ -7094,7 +7094,7 @@
     },
     {
       "prompt_id": "pcb__ArduinoLeonardo",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A microcontroller development board, 68.58mm x 53.34mm, 1.6mm thick",
       "clip_score": 0.18422916531562805,
       "tier": "Complex",
@@ -7104,7 +7104,7 @@
     },
     {
       "prompt_id": "pcb__ArduinoUno3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A microcontroller development board, 68.58mm x 53.34mm, 1.6mm thick",
       "clip_score": 0.22774432599544525,
       "tier": "Complex",
@@ -7114,7 +7114,7 @@
     },
     {
       "prompt_id": "pcb__BTT_RELAY_V1_2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer mainboard, 80.4mm x 36.3mm, 1.5mm thick",
       "clip_score": 0.22934424877166748,
       "tier": "Complex",
@@ -7124,7 +7124,7 @@
     },
     {
       "prompt_id": "pcb__BTT_SKR_E3_TURBO",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer mainboard, 102.0mm x 90.25mm, 1.6mm thick",
       "clip_score": 0.23189014196395874,
       "tier": "Complex",
@@ -7134,7 +7134,7 @@
     },
     {
       "prompt_id": "pcb__BTT_SKR_MINI_E3_V2_0",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer mainboard, 100.75mm x 70.25mm, 1.6mm thick",
       "clip_score": 0.22727781534194946,
       "tier": "Complex",
@@ -7144,7 +7144,7 @@
     },
     {
       "prompt_id": "pcb__BTT_SKR_V1_4_TURBO",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer mainboard, 110.0mm x 85.0mm, 1.6mm thick",
       "clip_score": 0.21533644199371338,
       "tier": "Complex",
@@ -7154,7 +7154,7 @@
     },
     {
       "prompt_id": "pcb__Duex2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer control board, 123.0mm x 100.0mm, 1.6mm thick",
       "clip_score": 0.2351628988981247,
       "tier": "Complex",
@@ -7164,7 +7164,7 @@
     },
     {
       "prompt_id": "pcb__Duex5",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer control board, 123.0mm x 100.0mm, 1.6mm thick",
       "clip_score": 0.2511707544326782,
       "tier": "Complex",
@@ -7174,7 +7174,7 @@
     },
     {
       "prompt_id": "pcb__ESP_01",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A printed circuit board, 24.8mm x 14.6mm, 1.0mm thick",
       "clip_score": 0.22209738194942474,
       "tier": "Complex",
@@ -7184,7 +7184,7 @@
     },
     {
       "prompt_id": "pcb__ESP_01M",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A printed circuit board, 18.0mm x 18.0mm, 0.8mm thick",
       "clip_score": 0.22109100222587585,
       "tier": "Complex",
@@ -7194,7 +7194,7 @@
     },
     {
       "prompt_id": "pcb__EnviroPlus",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A environmental sensor board, 65.0mm x 30.6mm, 1.6mm thick",
       "clip_score": 0.20705418288707733,
       "tier": "Complex",
@@ -7204,7 +7204,7 @@
     },
     {
       "prompt_id": "pcb__Ethernet",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer control board, 33.8mm x 37.5mm, 1.6mm thick",
       "clip_score": 0.2294272482395172,
       "tier": "Complex",
@@ -7214,7 +7214,7 @@
     },
     {
       "prompt_id": "pcb__HW803_1WAY_RELAY",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A relay module, 50.0mm x 26.0mm, 1.6mm thick",
       "clip_score": 0.23699462413787842,
       "tier": "Complex",
@@ -7224,7 +7224,7 @@
     },
     {
       "prompt_id": "pcb__KY_040",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A rotary encoder breakout board, 26.3mm x 19.5mm, 1.6mm thick",
       "clip_score": 0.16127631068229675,
       "tier": "Complex",
@@ -7234,7 +7234,7 @@
     },
     {
       "prompt_id": "pcb__Keyes5p1",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A microcontroller development board, 68.58mm x 53.34mm, 1.6mm thick",
       "clip_score": 0.19152124226093292,
       "tier": "Complex",
@@ -7244,7 +7244,7 @@
     },
     {
       "prompt_id": "pcb__Melzi",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A 3D printer control board, 203.2mm x 49.53mm, 1.6mm thick",
       "clip_score": 0.21927312016487122,
       "tier": "Complex",
@@ -7254,7 +7254,7 @@
     },
     {
       "prompt_id": "pcb__PI_IO",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A printed circuit board, 35.56mm x 25.4mm, 1.6mm thick",
       "clip_score": 0.20216774940490723,
       "tier": "Complex",
@@ -7264,7 +7264,7 @@
     },
     {
       "prompt_id": "pcb__PSU12V1A",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A power supply board, 67.0mm x 31.0mm, 1.7mm thick",
       "clip_score": 0.2366517037153244,
       "tier": "Complex",
@@ -7274,7 +7274,7 @@
     },
     {
       "prompt_id": "pcb__RAMPSEndstop",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A printed circuit board, 40.0mm x 16.0mm, 1.6mm thick",
       "clip_score": 0.24524950981140137,
       "tier": "Complex",
@@ -7284,7 +7284,7 @@
     },
     {
       "prompt_id": "pcb__RPI0",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A single-board computer, 65.0mm x 30.0mm, 1.4mm thick",
       "clip_score": 0.20473477244377136,
       "tier": "Complex",
@@ -7294,7 +7294,7 @@
     },
     {
       "prompt_id": "pcb__RPI3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A single-board computer, 85.0mm x 56.0mm, 1.4mm thick",
       "clip_score": 0.2231275588274002,
       "tier": "Complex",
@@ -7304,7 +7304,7 @@
     },
     {
       "prompt_id": "pcb__RPI3A",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A single-board computer, 65.0mm x 56.0mm, 1.4mm thick",
       "clip_score": 0.22591382265090942,
       "tier": "Complex",
@@ -7314,7 +7314,7 @@
     },
     {
       "prompt_id": "pcb__RPI4",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A single-board computer, 85.0mm x 56.0mm, 1.4mm thick",
       "clip_score": 0.23779654502868652,
       "tier": "Complex",
@@ -7324,7 +7324,7 @@
     },
     {
       "prompt_id": "pcb__RPI_Pico",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A single-board computer, 51.0mm x 21.0mm, 1.6mm thick",
       "clip_score": 0.237202987074852,
       "tier": "Complex",
@@ -7334,7 +7334,7 @@
     },
     {
       "prompt_id": "pcb__TMC2130",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor driver board, 20.0mm x 14.0mm, 1.6mm thick",
       "clip_score": 0.2459607869386673,
       "tier": "Complex",
@@ -7344,7 +7344,7 @@
     },
     {
       "prompt_id": "pcb__TP4056",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A battery charger module, 26.2mm x 17.5mm, 1.0mm thick",
       "clip_score": 0.21234172582626343,
       "tier": "Complex",
@@ -7354,7 +7354,7 @@
     },
     {
       "prompt_id": "pcb__WD2002SJ",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A DC-DC power converter module, 78.0mm x 47.0mm, 1.6mm thick",
       "clip_score": 0.22514629364013672,
       "tier": "Complex",
@@ -7364,7 +7364,7 @@
     },
     {
       "prompt_id": "pcb__XIAO",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A printed circuit board, 21.0mm x 18.0mm, 1.2mm thick",
       "clip_score": 0.2178397923707962,
       "tier": "Complex",
@@ -7374,7 +7374,7 @@
     },
     {
       "prompt_id": "pcb__ZC_A0591",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A motor driver module, 35.0mm x 32.0mm, 1.6mm thick",
       "clip_score": 0.20201514661312103,
       "tier": "Complex",
@@ -7384,7 +7384,7 @@
     },
     {
       "prompt_id": "photo_interrupter__PH1",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A photo interrupter",
       "clip_score": 0.12832576036453247,
       "tier": "Simple",
@@ -7394,7 +7394,7 @@
     },
     {
       "prompt_id": "pillar__M2x16_brass_pillar",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A standoff pillar, 2.0mm thread, 16.0mm long, 3.17mm diameter",
       "clip_score": 0.23358973860740662,
       "tier": "Medium",
@@ -7404,7 +7404,7 @@
     },
     {
       "prompt_id": "pillar__M3x10_nylon_hex_pillar",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A standoff pillar, 3.0mm thread, 10.0mm long, Nonemm diameter",
       "clip_score": 0.21190321445465088,
       "tier": "Medium",
@@ -7414,7 +7414,7 @@
     },
     {
       "prompt_id": "pillar__M3x13_hex_pillar",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A standoff pillar, 3.0mm thread, 13.0mm long, Nonemm diameter",
       "clip_score": 0.22785788774490356,
       "tier": "Medium",
@@ -7424,7 +7424,7 @@
     },
     {
       "prompt_id": "pillar__M3x20_hex_pillar",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A standoff pillar, 3.0mm thread, 20.0mm long, Nonemm diameter",
       "clip_score": 0.23316025733947754,
       "tier": "Medium",
@@ -7434,7 +7434,7 @@
     },
     {
       "prompt_id": "pillar__M3x20_nylon_hex_pillar",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A standoff pillar, 3.0mm thread, 20.0mm long, Nonemm diameter",
       "clip_score": 0.26726430654525757,
       "tier": "Medium",
@@ -7444,7 +7444,7 @@
     },
     {
       "prompt_id": "pillar__M3x20_nylon_pillar",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A standoff pillar, 3.0mm thread, 20.0mm long, 8.0mm diameter",
       "clip_score": 0.24247309565544128,
       "tier": "Medium",
@@ -7454,7 +7454,7 @@
     },
     {
       "prompt_id": "pillar__M3x6_hex_pillar",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A standoff pillar, 3.0mm thread, 6.0mm long, Nonemm diameter",
       "clip_score": 0.19774702191352844,
       "tier": "Medium",
@@ -7464,7 +7464,7 @@
     },
     {
       "prompt_id": "pillar__M4x17_nylon_pillar",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A standoff pillar, 4.0mm thread, 20.0mm long, 8.0mm diameter",
       "clip_score": 0.23969921469688416,
       "tier": "Medium",
@@ -7474,7 +7474,7 @@
     },
     {
       "prompt_id": "pillow_block__KP000",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pillow block bearing for 10.0mm shaft, 67.0mm x 53.0mm base",
       "clip_score": 0.24686989188194275,
       "tier": "Medium",
@@ -7484,7 +7484,7 @@
     },
     {
       "prompt_id": "pillow_block__KP001",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pillow block bearing for 12.0mm shaft, 71.0mm x 56.0mm base",
       "clip_score": 0.23912012577056885,
       "tier": "Medium",
@@ -7494,7 +7494,7 @@
     },
     {
       "prompt_id": "pillow_block__KP08_18",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pillow block bearing for 8.0mm shaft, 55.0mm x 42.0mm base",
       "clip_score": 0.19664590060710907,
       "tier": "Medium",
@@ -7504,7 +7504,7 @@
     },
     {
       "prompt_id": "potentiometer__BTT_encoder",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A potentiometer: [12, 11, 6, 0.5]",
       "clip_score": 0.21075725555419922,
       "tier": "Complex",
@@ -7514,7 +7514,7 @@
     },
     {
       "prompt_id": "potentiometer__KY_040_encoder",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A potentiometer: [12, 12, 6.5, 1.0]",
       "clip_score": 0.20184242725372314,
       "tier": "Complex",
@@ -7524,7 +7524,7 @@
     },
     {
       "prompt_id": "pulley__GT2x12_pulley",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 12 teeth and 7.15mm pitch diameter",
       "clip_score": 0.20537211000919342,
       "tier": "Complex",
@@ -7534,7 +7534,7 @@
     },
     {
       "prompt_id": "pulley__GT2x16_plain_idler",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pulley",
       "clip_score": 0.2037644386291504,
       "tier": "Complex",
@@ -7544,7 +7544,7 @@
     },
     {
       "prompt_id": "pulley__GT2x16_pulley",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 16 teeth and 9.75mm pitch diameter",
       "clip_score": 0.2574147582054138,
       "tier": "Complex",
@@ -7554,7 +7554,7 @@
     },
     {
       "prompt_id": "pulley__GT2x16_pulley_9",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 16 teeth and 9.65mm pitch diameter",
       "clip_score": 0.19195516407489777,
       "tier": "Complex",
@@ -7564,7 +7564,7 @@
     },
     {
       "prompt_id": "pulley__GT2x16_toothed_idler",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 16 teeth and 9.75mm pitch diameter",
       "clip_score": 0.22506630420684814,
       "tier": "Complex",
@@ -7574,7 +7574,7 @@
     },
     {
       "prompt_id": "pulley__GT2x16_toothed_idler_9",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 16 teeth and 9.75mm pitch diameter",
       "clip_score": 0.22338524460792542,
       "tier": "Complex",
@@ -7584,7 +7584,7 @@
     },
     {
       "prompt_id": "pulley__GT2x16x7_plain_idler",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pulley",
       "clip_score": 0.21389523148536682,
       "tier": "Complex",
@@ -7594,7 +7594,7 @@
     },
     {
       "prompt_id": "pulley__GT2x20_plain_idler",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pulley",
       "clip_score": 0.22325727343559265,
       "tier": "Complex",
@@ -7604,7 +7604,7 @@
     },
     {
       "prompt_id": "pulley__GT2x20_pulley_9",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 20 teeth and 12.22mm pitch diameter",
       "clip_score": 0.20326025784015656,
       "tier": "Complex",
@@ -7614,7 +7614,7 @@
     },
     {
       "prompt_id": "pulley__GT2x20_toothed_idler",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 20 teeth and 12.22mm pitch diameter",
       "clip_score": 0.20699477195739746,
       "tier": "Complex",
@@ -7624,7 +7624,7 @@
     },
     {
       "prompt_id": "pulley__GT2x20_toothed_idler_9",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 20 teeth and 12.22mm pitch diameter",
       "clip_score": 0.21581828594207764,
       "tier": "Complex",
@@ -7634,7 +7634,7 @@
     },
     {
       "prompt_id": "pulley__GT2x20um_pulley",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 20 teeth and 12.22mm pitch diameter",
       "clip_score": 0.15165603160858154,
       "tier": "Complex",
@@ -7644,7 +7644,7 @@
     },
     {
       "prompt_id": "pulley__GT2x80_pulley",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 80 teeth and 50.42mm pitch diameter",
       "clip_score": 0.2676020860671997,
       "tier": "Complex",
@@ -7654,7 +7654,7 @@
     },
     {
       "prompt_id": "pulley__T2p5x16_pulley",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 16 teeth and 12.16mm pitch diameter",
       "clip_score": 0.236690491437912,
       "tier": "Complex",
@@ -7664,7 +7664,7 @@
     },
     {
       "prompt_id": "pulley__T5x10_pulley",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 10 teeth and 15.0mm pitch diameter",
       "clip_score": 0.23966753482818604,
       "tier": "Complex",
@@ -7674,7 +7674,7 @@
     },
     {
       "prompt_id": "radial__ACT1100",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A radial: [20.4, 10.8, 5.3, 1]",
       "clip_score": 0.21492521464824677,
       "tier": "Medium",
@@ -7684,7 +7684,7 @@
     },
     {
       "prompt_id": "radial__ACT1700",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A radial: [10.8, 10.8, 5.3, 1]",
       "clip_score": 0.2034325748682022,
       "tier": "Medium",
@@ -7694,7 +7694,7 @@
     },
     {
       "prompt_id": "radial__ATX_CM_CHOKE",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A radial: [17.4, 11.4, 9, 0.5]",
       "clip_score": 0.1971750408411026,
       "tier": "Medium",
@@ -7704,7 +7704,7 @@
     },
     {
       "prompt_id": "radial__C_002RX",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A radial: [ 2.0, 0, 6]",
       "clip_score": 0.227225661277771,
       "tier": "Medium",
@@ -7714,7 +7714,7 @@
     },
     {
       "prompt_id": "radial__HC49",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A radial: [10.5, 3.7, 13.5]",
       "clip_score": 0.1899414360523224,
       "tier": "Medium",
@@ -7724,7 +7724,7 @@
     },
     {
       "prompt_id": "radial__HC49_4H",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A radial: [10.5, 3.7, 3.5]",
       "clip_score": 0.17538736760616302,
       "tier": "Medium",
@@ -7734,7 +7734,7 @@
     },
     {
       "prompt_id": "rail__HGH15CA",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A miniature linear guide rail, 15.0mm wide, 15.0mm tall, 100mm long",
       "clip_score": 0.22762642800807953,
       "tier": "Simple",
@@ -7744,7 +7744,7 @@
     },
     {
       "prompt_id": "rail__HGH20CA",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A miniature linear guide rail, 20.0mm wide, 17.5mm tall, 100mm long",
       "clip_score": 0.19400110840797424,
       "tier": "Simple",
@@ -7754,7 +7754,7 @@
     },
     {
       "prompt_id": "rail__MGN12",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A miniature linear guide rail, 12.0mm wide, 8.0mm tall, 100mm long",
       "clip_score": 0.27127280831336975,
       "tier": "Simple",
@@ -7764,7 +7764,7 @@
     },
     {
       "prompt_id": "rail__MGN15",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A miniature linear guide rail, 15.0mm wide, 10.0mm tall, 100mm long",
       "clip_score": 0.2539932131767273,
       "tier": "Simple",
@@ -7774,7 +7774,7 @@
     },
     {
       "prompt_id": "rail__MGN5",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A miniature linear guide rail, 5.0mm wide, 3.6mm tall, 100mm long",
       "clip_score": 0.22726115584373474,
       "tier": "Simple",
@@ -7784,7 +7784,7 @@
     },
     {
       "prompt_id": "rail__MGN7",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A miniature linear guide rail, 7.0mm wide, 5.0mm tall, 100mm long",
       "clip_score": 0.2666282057762146,
       "tier": "Simple",
@@ -7794,7 +7794,7 @@
     },
     {
       "prompt_id": "rail__MGN9",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A miniature linear guide rail, 9.0mm wide, 6.0mm tall, 100mm long",
       "clip_score": 0.26115667819976807,
       "tier": "Simple",
@@ -7804,7 +7804,7 @@
     },
     {
       "prompt_id": "rail__SSR15",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A miniature linear guide rail, 15.0mm wide, 12.5mm tall, 100mm long",
       "clip_score": 0.20396143198013306,
       "tier": "Simple",
@@ -7814,7 +7814,7 @@
     },
     {
       "prompt_id": "ring_terminal__M3_ringterm",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ring terminal",
       "clip_score": 0.18129025399684906,
       "tier": "Complex",
@@ -7824,7 +7824,7 @@
     },
     {
       "prompt_id": "ring_terminal__M3_ringterm_crimp",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ring terminal",
       "clip_score": 0.2003258615732193,
       "tier": "Complex",
@@ -7834,7 +7834,7 @@
     },
     {
       "prompt_id": "ring_terminal__M3_ringterm_cs",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A ring terminal",
       "clip_score": 0.18348635733127594,
       "tier": "Complex",
@@ -7844,7 +7844,7 @@
     },
     {
       "prompt_id": "rod_end__RE_m5_bearing",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A rod end: uxcell M5x0.8 Right Hand Thread, Self-Lubricating Joint Rod Ends",
       "clip_score": 0.21304112672805786,
       "tier": "Complex",
@@ -7854,7 +7854,7 @@
     },
     {
       "prompt_id": "screw__M2_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 2.0mm diameter and 3.8mm head diameter, head height 2.0mm, 10mm long",
       "clip_score": 0.23751410841941833,
       "tier": "Complex",
@@ -7864,7 +7864,7 @@
     },
     {
       "prompt_id": "screw__M2_cs_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 2.0mm diameter and 3.8mm head diameter, 10mm long",
       "clip_score": 0.24499252438545227,
       "tier": "Complex",
@@ -7874,7 +7874,7 @@
     },
     {
       "prompt_id": "screw__M2_dome_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A dome head screw with 2.0mm diameter and 3.5mm head diameter, head height 1.3mm, 10mm long",
       "clip_score": 0.2654384672641754,
       "tier": "Complex",
@@ -7884,7 +7884,7 @@
     },
     {
       "prompt_id": "screw__M2p5_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 2.5mm diameter and 4.5mm head diameter, head height 2.5mm, 10mm long",
       "clip_score": 0.23750321567058563,
       "tier": "Complex",
@@ -7894,7 +7894,7 @@
     },
     {
       "prompt_id": "screw__M2p5_dome_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A dome head screw with 2.5mm diameter and 5.35mm head diameter, head height 1.6mm, 10mm long",
       "clip_score": 0.2864856421947479,
       "tier": "Complex",
@@ -7904,7 +7904,7 @@
     },
     {
       "prompt_id": "screw__M2p5_pan_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 2.5mm diameter and 4.7mm head diameter, head height 1.7mm, 10mm long",
       "clip_score": 0.2636403739452362,
       "tier": "Complex",
@@ -7914,7 +7914,7 @@
     },
     {
       "prompt_id": "screw__M3_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 3.0mm diameter and 5.5mm head diameter, head height 3.0mm, 10mm long",
       "clip_score": 0.24956317245960236,
       "tier": "Complex",
@@ -7924,7 +7924,7 @@
     },
     {
       "prompt_id": "screw__M3_cs_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 3.0mm diameter and 6.0mm head diameter, 10mm long",
       "clip_score": 0.292776495218277,
       "tier": "Complex",
@@ -7934,7 +7934,7 @@
     },
     {
       "prompt_id": "screw__M3_dome_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A dome head screw with 3.0mm diameter and 5.7mm head diameter, head height 1.65mm, 10mm long",
       "clip_score": 0.26973092555999756,
       "tier": "Complex",
@@ -7944,7 +7944,7 @@
     },
     {
       "prompt_id": "screw__M3_grub_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A screw: M3 grub",
       "clip_score": 0.21581721305847168,
       "tier": "Complex",
@@ -7954,7 +7954,7 @@
     },
     {
       "prompt_id": "screw__M3_hex_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex head screw with 3.0mm diameter and 6.4mm head diameter, head height 2.125mm, 10mm long",
       "clip_score": 0.2219415009021759,
       "tier": "Complex",
@@ -7964,7 +7964,7 @@
     },
     {
       "prompt_id": "screw__M3_low_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 3.0mm diameter and 5.5mm head diameter, head height 2.0mm, 10mm long",
       "clip_score": 0.23073452711105347,
       "tier": "Complex",
@@ -7974,7 +7974,7 @@
     },
     {
       "prompt_id": "screw__M3_pan_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 3.0mm diameter and 5.4mm head diameter, head height 2.0mm, 10mm long",
       "clip_score": 0.23137523233890533,
       "tier": "Complex",
@@ -7984,7 +7984,7 @@
     },
     {
       "prompt_id": "screw__M3_shoulder_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A screw with 4.0mm diameter and 7.0mm head diameter, head height 2.4mm, 10mm long",
       "clip_score": 0.2430562824010849,
       "tier": "Complex",
@@ -7994,7 +7994,7 @@
     },
     {
       "prompt_id": "screw__M4_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 4.0mm diameter and 7.0mm head diameter, head height 4.0mm, 10mm long",
       "clip_score": 0.23275279998779297,
       "tier": "Complex",
@@ -8004,7 +8004,7 @@
     },
     {
       "prompt_id": "screw__M4_cs_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 4.0mm diameter and 8.0mm head diameter, 10mm long",
       "clip_score": 0.2922404408454895,
       "tier": "Complex",
@@ -8014,7 +8014,7 @@
     },
     {
       "prompt_id": "screw__M4_dome_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A dome head screw with 4.0mm diameter and 7.6mm head diameter, head height 2.2mm, 10mm long",
       "clip_score": 0.21448901295661926,
       "tier": "Complex",
@@ -8024,7 +8024,7 @@
     },
     {
       "prompt_id": "screw__M4_grub_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A screw: M4 grub",
       "clip_score": 0.20819953083992004,
       "tier": "Complex",
@@ -8034,7 +8034,7 @@
     },
     {
       "prompt_id": "screw__M4_hex_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex head screw with 4.0mm diameter and 8.1mm head diameter, head height 2.925mm, 10mm long",
       "clip_score": 0.2435133159160614,
       "tier": "Complex",
@@ -8044,7 +8044,7 @@
     },
     {
       "prompt_id": "screw__M4_pan_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 4.0mm diameter and 7.8mm head diameter, head height 3.3mm, 10mm long",
       "clip_score": 0.26079389452934265,
       "tier": "Complex",
@@ -8054,7 +8054,7 @@
     },
     {
       "prompt_id": "screw__M4_shoulder_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A screw with 5.0mm diameter and 9.0mm head diameter, head height 2.4mm, 10mm long",
       "clip_score": 0.29803282022476196,
       "tier": "Complex",
@@ -8064,7 +8064,7 @@
     },
     {
       "prompt_id": "screw__M5_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 5.0mm diameter and 8.5mm head diameter, head height 5.0mm, 10mm long",
       "clip_score": 0.24482984840869904,
       "tier": "Complex",
@@ -8074,7 +8074,7 @@
     },
     {
       "prompt_id": "screw__M5_cs_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 5.0mm diameter and 10.0mm head diameter, 10mm long",
       "clip_score": 0.26219630241394043,
       "tier": "Complex",
@@ -8084,7 +8084,7 @@
     },
     {
       "prompt_id": "screw__M5_dome_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A dome head screw with 5.0mm diameter and 9.5mm head diameter, head height 2.75mm, 10mm long",
       "clip_score": 0.269585520029068,
       "tier": "Complex",
@@ -8094,7 +8094,7 @@
     },
     {
       "prompt_id": "screw__M5_grub_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A screw: M5 grub",
       "clip_score": 0.19309711456298828,
       "tier": "Complex",
@@ -8104,7 +8104,7 @@
     },
     {
       "prompt_id": "screw__M5_hex_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex head screw with 5.0mm diameter and 9.2mm head diameter, head height 3.65mm, 10mm long",
       "clip_score": 0.2180463969707489,
       "tier": "Complex",
@@ -8114,7 +8114,7 @@
     },
     {
       "prompt_id": "screw__M5_pan_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 5.0mm diameter and 10.0mm head diameter, head height 3.95mm, 10mm long",
       "clip_score": 0.25592562556266785,
       "tier": "Complex",
@@ -8124,7 +8124,7 @@
     },
     {
       "prompt_id": "screw__M6_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 6.0mm diameter and 10.0mm head diameter, head height 6.0mm, 10mm long",
       "clip_score": 0.25673145055770874,
       "tier": "Complex",
@@ -8134,7 +8134,7 @@
     },
     {
       "prompt_id": "screw__M6_cs_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 6.0mm diameter and 12.0mm head diameter, 10mm long",
       "clip_score": 0.2980526387691498,
       "tier": "Complex",
@@ -8144,7 +8144,7 @@
     },
     {
       "prompt_id": "screw__M6_dome_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A dome head screw with 6.0mm diameter and 10.5mm head diameter, head height 3.3mm, 10mm long",
       "clip_score": 0.1949734389781952,
       "tier": "Complex",
@@ -8154,7 +8154,7 @@
     },
     {
       "prompt_id": "screw__M6_grub_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A screw: M6 grub",
       "clip_score": 0.21164299547672272,
       "tier": "Complex",
@@ -8164,7 +8164,7 @@
     },
     {
       "prompt_id": "screw__M6_hex_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex head screw with 6.0mm diameter and 11.5mm head diameter, head height 4.15mm, 10mm long",
       "clip_score": 0.2542864680290222,
       "tier": "Complex",
@@ -8174,7 +8174,7 @@
     },
     {
       "prompt_id": "screw__M6_pan_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 6.0mm diameter and 12.0mm head diameter, head height 4.75mm, 10mm long",
       "clip_score": 0.2369907647371292,
       "tier": "Complex",
@@ -8184,7 +8184,7 @@
     },
     {
       "prompt_id": "screw__M8_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 8.0mm diameter and 13.0mm head diameter, head height 8.0mm, 10mm long",
       "clip_score": 0.24071428179740906,
       "tier": "Complex",
@@ -8194,7 +8194,7 @@
     },
     {
       "prompt_id": "screw__M8_cs_cap_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A socket head cap screw with 8.0mm diameter and 16.0mm head diameter, 10mm long",
       "clip_score": 0.26138660311698914,
       "tier": "Complex",
@@ -8204,7 +8204,7 @@
     },
     {
       "prompt_id": "screw__M8_dome_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A dome head screw with 8.0mm diameter and 14.0mm head diameter, head height 4.4mm, 10mm long",
       "clip_score": 0.1589469611644745,
       "tier": "Complex",
@@ -8214,7 +8214,7 @@
     },
     {
       "prompt_id": "screw__M8_hex_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A hex head screw with 8.0mm diameter and 15.0mm head diameter, head height 5.65mm, 10mm long",
       "clip_score": 0.2117643654346466,
       "tier": "Complex",
@@ -8224,7 +8224,7 @@
     },
     {
       "prompt_id": "screw__No2_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 2.2mm diameter and 4.2mm head diameter, head height 1.7mm, 10mm long",
       "clip_score": 0.20945914089679718,
       "tier": "Complex",
@@ -8234,7 +8234,7 @@
     },
     {
       "prompt_id": "screw__No4_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 3.0mm diameter and 5.5mm head diameter, head height 2.0mm, 10mm long",
       "clip_score": 0.2804531455039978,
       "tier": "Complex",
@@ -8244,7 +8244,7 @@
     },
     {
       "prompt_id": "screw__No632_pan_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 3.5mm diameter and 6.9mm head diameter, head height 2.5mm, 10mm long",
       "clip_score": 0.2753569483757019,
       "tier": "Complex",
@@ -8254,7 +8254,7 @@
     },
     {
       "prompt_id": "screw__No6_cs_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A screw with 3.5mm diameter and 7.0mm head diameter, 10mm long",
       "clip_score": 0.28698602318763733,
       "tier": "Complex",
@@ -8264,7 +8264,7 @@
     },
     {
       "prompt_id": "screw__No6_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 3.5mm diameter and 6.7mm head diameter, head height 2.2mm, 10mm long",
       "clip_score": 0.26822420954704285,
       "tier": "Complex",
@@ -8274,7 +8274,7 @@
     },
     {
       "prompt_id": "screw__No8_screw",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pan head screw with 4.2mm diameter and 8.2mm head diameter, head height 3.05mm, 10mm long",
       "clip_score": 0.2766929268836975,
       "tier": "Complex",
@@ -8284,7 +8284,7 @@
     },
     {
       "prompt_id": "servo_motor__Lichuan_M01330_80ST",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A servo motor: Lichuan -80M01330B",
       "clip_score": 0.18551824986934662,
       "tier": "Medium",
@@ -8294,7 +8294,7 @@
     },
     {
       "prompt_id": "servo_motor__Lichuan_M02430_80ST",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A servo motor: Lichuan -80M02430B",
       "clip_score": 0.22140911221504211,
       "tier": "Medium",
@@ -8304,7 +8304,7 @@
     },
     {
       "prompt_id": "servo_motor__Lichuan_M03530_80ST",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A servo motor: Lichuan -80M03530B",
       "clip_score": 0.22116808593273163,
       "tier": "Medium",
@@ -8314,7 +8314,7 @@
     },
     {
       "prompt_id": "servo_motor__Lichuan_M04030_80ST",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A servo motor: Lichuan -80M04030B",
       "clip_score": 0.20064184069633484,
       "tier": "Medium",
@@ -8324,7 +8324,7 @@
     },
     {
       "prompt_id": "shaft_coupling__SC_5x8_rigid",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A rigid shaft coupling, 5.0mm to 8.0mm bore, 12.5mm outer diameter, 25.0mm long",
       "clip_score": 0.26147177815437317,
       "tier": "Medium",
@@ -8334,7 +8334,7 @@
     },
     {
       "prompt_id": "shaft_coupling__SC_6x8_flex",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flexible shaft coupling, 6.0mm to 8.0mm bore, 19.0mm outer diameter, 25.0mm long",
       "clip_score": 0.22050267457962036,
       "tier": "Medium",
@@ -8344,7 +8344,7 @@
     },
     {
       "prompt_id": "sheet__AL1_6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Aluminium tooling plate",
       "clip_score": 0.27745428681373596,
       "tier": "Simple",
@@ -8354,7 +8354,7 @@
     },
     {
       "prompt_id": "sheet__AL2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Aluminium tooling plate",
       "clip_score": 0.27028030157089233,
       "tier": "Simple",
@@ -8364,7 +8364,7 @@
     },
     {
       "prompt_id": "sheet__AL3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Aluminium tooling plate",
       "clip_score": 0.27902156114578247,
       "tier": "Simple",
@@ -8374,7 +8374,7 @@
     },
     {
       "prompt_id": "sheet__AL6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Aluminium tooling plate",
       "clip_score": 0.26769912242889404,
       "tier": "Simple",
@@ -8384,7 +8384,7 @@
     },
     {
       "prompt_id": "sheet__AL8",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Aluminium tooling plate",
       "clip_score": 0.2819451689720154,
       "tier": "Simple",
@@ -8394,7 +8394,7 @@
     },
     {
       "prompt_id": "sheet__CF2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet carbon fiber",
       "clip_score": 0.22515976428985596,
       "tier": "Simple",
@@ -8404,7 +8404,7 @@
     },
     {
       "prompt_id": "sheet__CF3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet carbon fiber",
       "clip_score": 0.2157684713602066,
       "tier": "Simple",
@@ -8414,7 +8414,7 @@
     },
     {
       "prompt_id": "sheet__Cardboard",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Corrugated cardboard",
       "clip_score": 0.21465294063091278,
       "tier": "Simple",
@@ -8424,7 +8424,7 @@
     },
     {
       "prompt_id": "sheet__DiBond",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet DiBond",
       "clip_score": 0.2131505161523819,
       "tier": "Simple",
@@ -8434,7 +8434,7 @@
     },
     {
       "prompt_id": "sheet__DiBond6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet DiBond",
       "clip_score": 0.2185106724500656,
       "tier": "Simple",
@@ -8444,7 +8444,7 @@
     },
     {
       "prompt_id": "sheet__Foam20",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Foam sponge",
       "clip_score": 0.2466185986995697,
       "tier": "Simple",
@@ -8454,7 +8454,7 @@
     },
     {
       "prompt_id": "sheet__FoilTape",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Aluminium foil tape",
       "clip_score": 0.2153126448392868,
       "tier": "Simple",
@@ -8464,7 +8464,7 @@
     },
     {
       "prompt_id": "sheet__MDF10",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet",
       "clip_score": 0.2112056314945221,
       "tier": "Simple",
@@ -8474,7 +8474,7 @@
     },
     {
       "prompt_id": "sheet__MDF12",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet",
       "clip_score": 0.2182931751012802,
       "tier": "Simple",
@@ -8484,7 +8484,7 @@
     },
     {
       "prompt_id": "sheet__MDF18",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet MDF",
       "clip_score": 0.2568212151527405,
       "tier": "Simple",
@@ -8494,7 +8494,7 @@
     },
     {
       "prompt_id": "sheet__MDF19",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet",
       "clip_score": 0.2182931751012802,
       "tier": "Simple",
@@ -8504,7 +8504,7 @@
     },
     {
       "prompt_id": "sheet__MDF22",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet MDF",
       "clip_score": 0.24296998977661133,
       "tier": "Simple",
@@ -8514,7 +8514,7 @@
     },
     {
       "prompt_id": "sheet__MDF3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet MDF",
       "clip_score": 0.24762673676013947,
       "tier": "Simple",
@@ -8524,7 +8524,7 @@
     },
     {
       "prompt_id": "sheet__MDF6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet",
       "clip_score": 0.2182931751012802,
       "tier": "Simple",
@@ -8534,7 +8534,7 @@
     },
     {
       "prompt_id": "sheet__PMMA10",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet",
       "clip_score": 0.2182931751012802,
       "tier": "Simple",
@@ -8544,7 +8544,7 @@
     },
     {
       "prompt_id": "sheet__PMMA1p25",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet acrylic",
       "clip_score": 0.2369520515203476,
       "tier": "Simple",
@@ -8554,7 +8554,7 @@
     },
     {
       "prompt_id": "sheet__PMMA2",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet acrylic",
       "clip_score": 0.246034175157547,
       "tier": "Simple",
@@ -8564,7 +8564,7 @@
     },
     {
       "prompt_id": "sheet__PMMA3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet",
       "clip_score": 0.2182931751012802,
       "tier": "Simple",
@@ -8574,7 +8574,7 @@
     },
     {
       "prompt_id": "sheet__PMMA6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet",
       "clip_score": 0.21304474771022797,
       "tier": "Simple",
@@ -8584,7 +8584,7 @@
     },
     {
       "prompt_id": "sheet__PMMA8",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: ~5/16\"",
       "clip_score": 0.20649467408657074,
       "tier": "Simple",
@@ -8594,7 +8594,7 @@
     },
     {
       "prompt_id": "sheet__Sellotape",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sellotape tape",
       "clip_score": 0.20861691236495972,
       "tier": "Simple",
@@ -8604,7 +8604,7 @@
     },
     {
       "prompt_id": "sheet__Silicone3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet silicone",
       "clip_score": 0.23507900536060333,
       "tier": "Simple",
@@ -8614,7 +8614,7 @@
     },
     {
       "prompt_id": "sheet__Spring08",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Bi-metal saw blade",
       "clip_score": 0.23266521096229553,
       "tier": "Simple",
@@ -8624,7 +8624,7 @@
     },
     {
       "prompt_id": "sheet__Steel06",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet mild steel",
       "clip_score": 0.2307768017053604,
       "tier": "Simple",
@@ -8634,7 +8634,7 @@
     },
     {
       "prompt_id": "sk_bracket__SK10",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A shaft support bracket for 10.0mm rod, 20.0mm tall",
       "clip_score": 0.22709859907627106,
       "tier": "Medium",
@@ -8644,7 +8644,7 @@
     },
     {
       "prompt_id": "sk_bracket__SK12",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A shaft support bracket for 12.0mm rod, 23.0mm tall",
       "clip_score": 0.23272523283958435,
       "tier": "Medium",
@@ -8654,7 +8654,7 @@
     },
     {
       "prompt_id": "sk_bracket__SK16",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A shaft support bracket for 16.0mm rod, 27.0mm tall",
       "clip_score": 0.2241346687078476,
       "tier": "Medium",
@@ -8664,7 +8664,7 @@
     },
     {
       "prompt_id": "sk_bracket__SK8",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A shaft support bracket for 8.0mm rod, 20.0mm tall",
       "clip_score": 0.17532704770565033,
       "tier": "Medium",
@@ -8674,7 +8674,7 @@
     },
     {
       "prompt_id": "smd__SOIC14",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A smd: [8.70, 3.90, 1.25]",
       "clip_score": 0.15893828868865967,
       "tier": "Medium",
@@ -8684,7 +8684,7 @@
     },
     {
       "prompt_id": "smd__SOIC16",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A smd: [9.90, 3.90, 1.25]",
       "clip_score": 0.19266344606876373,
       "tier": "Medium",
@@ -8694,7 +8694,7 @@
     },
     {
       "prompt_id": "smd__SOIC18",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A smd: [11.40,7.50, 2.00]",
       "clip_score": 0.17787079513072968,
       "tier": "Medium",
@@ -8704,7 +8704,7 @@
     },
     {
       "prompt_id": "smd__SOIC8",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A smd: [4.90, 3.90, 1.25]",
       "clip_score": 0.18080800771713257,
       "tier": "Medium",
@@ -8714,7 +8714,7 @@
     },
     {
       "prompt_id": "smd__SOT223",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A smd: [6.5, 3.5, 1.6]",
       "clip_score": 0.18426981568336487,
       "tier": "Medium",
@@ -8724,7 +8724,7 @@
     },
     {
       "prompt_id": "smd__SOT23",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A smd: [3, 1.4, 1.0]",
       "clip_score": 0.19223394989967346,
       "tier": "Medium",
@@ -8734,7 +8734,7 @@
     },
     {
       "prompt_id": "smd__SOT23_6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A smd: [3.0, 1.6, 1.05]",
       "clip_score": 0.1836678832769394,
       "tier": "Medium",
@@ -8744,7 +8744,7 @@
     },
     {
       "prompt_id": "smd__TSOT23_8",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A smd: [3.0, 1.8, 0.9 ]",
       "clip_score": 0.16985055804252625,
       "tier": "Medium",
@@ -8754,7 +8754,7 @@
     },
     {
       "prompt_id": "ssr__SSR10DA",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A solid state relay module, 58.0mm x 45.0mm x 33.0mm",
       "clip_score": 0.21892371773719788,
       "tier": "Medium",
@@ -8764,7 +8764,7 @@
     },
     {
       "prompt_id": "ssr__SSR25DA",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A solid state relay module, 63.0mm x 45.0mm x 23.0mm",
       "clip_score": 0.1899448037147522,
       "tier": "Medium",
@@ -8774,7 +8774,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA14_36",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 35.2mm face width and 36.0mm body length, 5.0mm diameter shaft, 26.0mm mounting hole spacing",
       "clip_score": 0.24437037110328674,
       "tier": "Complex",
@@ -8784,7 +8784,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA16_19",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 39.5mm face width and 19.2mm body length, 5.0mm diameter shaft, 31.0mm mounting hole spacing",
       "clip_score": 0.23753021657466888,
       "tier": "Complex",
@@ -8794,7 +8794,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA17_27",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 42.3mm face width and 26.5mm body length, 5.0mm diameter shaft, 31.0mm mounting hole spacing",
       "clip_score": 0.1961790919303894,
       "tier": "Complex",
@@ -8804,7 +8804,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA17_34",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 42.3mm face width and 34.0mm body length, 5.0mm diameter shaft, 31.0mm mounting hole spacing",
       "clip_score": 0.23841074109077454,
       "tier": "Complex",
@@ -8814,7 +8814,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA17_40",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 42.3mm face width and 40.0mm body length, 5.0mm diameter shaft, 31.0mm mounting hole spacing",
       "clip_score": 0.20217595994472504,
       "tier": "Complex",
@@ -8824,7 +8824,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA17_40L280",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 42.3mm face width and 40.0mm body length, 8.0mm diameter shaft, 31.0mm mounting hole spacing",
       "clip_score": 0.19947612285614014,
       "tier": "Complex",
@@ -8834,7 +8834,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA17_47",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 42.3mm face width and 47.0mm body length, 5.0mm diameter shaft, 31.0mm mounting hole spacing",
       "clip_score": 0.2298569530248642,
       "tier": "Complex",
@@ -8844,7 +8844,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA17_47L80",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 42.3mm face width and 47.0mm body length, 5.0mm diameter shaft, 31.0mm mounting hole spacing",
       "clip_score": 0.24085456132888794,
       "tier": "Complex",
@@ -8854,7 +8854,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA23_51",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 56.4mm face width and 51.2mm body length, 6.35mm diameter shaft, 47.1mm mounting hole spacing",
       "clip_score": 0.2188374102115631,
       "tier": "Complex",
@@ -8864,7 +8864,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA8_30",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 20.0mm face width and 30.0mm body length, 4.0mm diameter shaft, 16.0mm mounting hole spacing",
       "clip_score": 0.18062984943389893,
       "tier": "Complex",
@@ -8874,7 +8874,7 @@
     },
     {
       "prompt_id": "stepper_motor__NEMA8_30BH",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A stepper motor with 20.0mm face width and 30.0mm body length, 5.0mm diameter shaft, 16.0mm mounting hole spacing",
       "clip_score": 0.23241382837295532,
       "tier": "Complex",
@@ -8884,7 +8884,7 @@
     },
     {
       "prompt_id": "swiss_clip__UKPFS1008_10",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A swiss clip",
       "clip_score": 0.21127444505691528,
       "tier": "Medium",
@@ -8894,7 +8894,7 @@
     },
     {
       "prompt_id": "toggle__AP5236",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A toggle switch, 7.0mm body diameter, 13.6mm tall",
       "clip_score": 0.24711541831493378,
       "tier": "Complex",
@@ -8904,7 +8904,7 @@
     },
     {
       "prompt_id": "toggle__AP5236_pin",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A toggle switch, 0.8mm body diameter, 4.7mm tall",
       "clip_score": 0.2232796847820282,
       "tier": "Complex",
@@ -8914,7 +8914,7 @@
     },
     {
       "prompt_id": "toggle__CK7000_pin",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A toggle switch, 0.76mm body diameter, 4.7mm tall",
       "clip_score": 0.21491120755672455,
       "tier": "Complex",
@@ -8924,7 +8924,7 @@
     },
     {
       "prompt_id": "toggle__CK7000_tag",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A toggle switch, 0.76mm body diameter, 4.7mm tall",
       "clip_score": 0.23402762413024902,
       "tier": "Complex",
@@ -8934,7 +8934,7 @@
     },
     {
       "prompt_id": "toggle__CK7101",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A toggle switch, 6.86mm body diameter, 12.7mm tall",
       "clip_score": 0.20321239531040192,
       "tier": "Complex",
@@ -8944,7 +8944,7 @@
     },
     {
       "prompt_id": "toggle__CK7105",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A toggle switch, 6.86mm body diameter, 12.7mm tall",
       "clip_score": 0.23060350120067596,
       "tier": "Complex",
@@ -8954,7 +8954,7 @@
     },
     {
       "prompt_id": "toggle__MS332F",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A toggle switch, 12.6mm body diameter, 13.1mm tall",
       "clip_score": 0.2078370451927185,
       "tier": "Complex",
@@ -8964,7 +8964,7 @@
     },
     {
       "prompt_id": "toggle__MS332F_pin",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A toggle switch, 1.0mm body diameter, 4.7mm tall",
       "clip_score": 0.23312537372112274,
       "tier": "Complex",
@@ -8974,7 +8974,7 @@
     },
     {
       "prompt_id": "transformer__CCM300",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A mains transformer, 120.0mm x 88.0mm x 120.0mm",
       "clip_score": 0.20984314382076263,
       "tier": "Medium",
@@ -8984,7 +8984,7 @@
     },
     {
       "prompt_id": "transformer__SMALLTX",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A mains transformer, 38.0mm x 32.0mm x 33.0mm",
       "clip_score": 0.1750878095626831,
       "tier": "Medium",
@@ -8994,7 +8994,7 @@
     },
     {
       "prompt_id": "tubing__CARBONFIBER10",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: Carbon fiber",
       "clip_score": 0.22067828476428986,
       "tier": "Medium",
@@ -9004,7 +9004,7 @@
     },
     {
       "prompt_id": "tubing__HSHRNK16",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: Heatshrink sleeving",
       "clip_score": 0.21915173530578613,
       "tier": "Medium",
@@ -9014,7 +9014,7 @@
     },
     {
       "prompt_id": "tubing__HSHRNK24",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: Heatshrink sleeving",
       "clip_score": 0.2166968584060669,
       "tier": "Medium",
@@ -9024,7 +9024,7 @@
     },
     {
       "prompt_id": "tubing__HSHRNK32",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: Heatshrink sleeving",
       "clip_score": 0.20856812596321106,
       "tier": "Medium",
@@ -9034,7 +9034,7 @@
     },
     {
       "prompt_id": "tubing__HSHRNK64",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: Heatshrink sleeving",
       "clip_score": 0.21145492792129517,
       "tier": "Medium",
@@ -9044,7 +9044,7 @@
     },
     {
       "prompt_id": "tubing__NEOP85",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: Neoprene tubing",
       "clip_score": 0.24852880835533142,
       "tier": "Medium",
@@ -9054,7 +9054,7 @@
     },
     {
       "prompt_id": "tubing__PF7",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PTFE tubing",
       "clip_score": 0.2382146567106247,
       "tier": "Medium",
@@ -9064,7 +9064,7 @@
     },
     {
       "prompt_id": "tubing__PTFE07",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PTFE sleeving",
       "clip_score": 0.22450801730155945,
       "tier": "Medium",
@@ -9074,7 +9074,7 @@
     },
     {
       "prompt_id": "tubing__PTFE20",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PTFE sleeving",
       "clip_score": 0.22450801730155945,
       "tier": "Medium",
@@ -9084,7 +9084,7 @@
     },
     {
       "prompt_id": "tubing__PTFE2_3",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PTFE tubing",
       "clip_score": 0.23819394409656525,
       "tier": "Medium",
@@ -9094,7 +9094,7 @@
     },
     {
       "prompt_id": "tubing__PTFE2_4",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PTFE tubing",
       "clip_score": 0.2382146567106247,
       "tier": "Medium",
@@ -9104,7 +9104,7 @@
     },
     {
       "prompt_id": "tubing__PTFE4_6",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PTFE tubing",
       "clip_score": 0.2381274700164795,
       "tier": "Medium",
@@ -9114,7 +9114,7 @@
     },
     {
       "prompt_id": "tubing__PVC64",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PVC aquarium tubing",
       "clip_score": 0.23777328431606293,
       "tier": "Medium",
@@ -9124,7 +9124,7 @@
     },
     {
       "prompt_id": "tubing__PVC85",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PVC aquarium tubing",
       "clip_score": 0.20490773022174835,
       "tier": "Medium",
@@ -9134,7 +9134,7 @@
     },
     {
       "prompt_id": "tubing__STFE4_3p2_CLR",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PTFE heatshrink sleeving",
       "clip_score": 0.23066896200180054,
       "tier": "Medium",
@@ -9144,7 +9144,7 @@
     },
     {
       "prompt_id": "tubing__STFE4_6p4_CLR",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: PTFE heatshrink sleeving",
       "clip_score": 0.2355269193649292,
       "tier": "Medium",
@@ -9154,7 +9154,7 @@
     },
     {
       "prompt_id": "variac__DURATRAKV5HM",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A variac: DURATRAK V5HM",
       "clip_score": 0.16545721888542175,
       "tier": "Medium",
@@ -9164,7 +9164,7 @@
     },
     {
       "prompt_id": "variac__RAVISTAT1F1",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A variac: RAVISTAT 1F-1",
       "clip_score": 0.16088594496250153,
       "tier": "Medium",
@@ -9174,7 +9174,7 @@
     },
     {
       "prompt_id": "washer__M2_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flat washer with 2.0mm inner hole, 5.0mm outer diameter, and 0.3mm thickness",
       "clip_score": 0.26718559861183167,
       "tier": "Simple",
@@ -9184,7 +9184,7 @@
     },
     {
       "prompt_id": "washer__M2p5_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flat washer with 2.5mm inner hole, 5.9mm outer diameter, and 0.5mm thickness",
       "clip_score": 0.2645566761493683,
       "tier": "Simple",
@@ -9194,7 +9194,7 @@
     },
     {
       "prompt_id": "washer__M3_penny_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A penny washer with 3.0mm inner hole, 12.0mm outer diameter, and 0.8mm thickness",
       "clip_score": 0.26846781373023987,
       "tier": "Simple",
@@ -9204,7 +9204,7 @@
     },
     {
       "prompt_id": "washer__M3_rubber_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A rubber washer with 3.0mm inner hole, 10.0mm outer diameter, and 1.5mm thickness",
       "clip_score": 0.2858130633831024,
       "tier": "Simple",
@@ -9214,7 +9214,7 @@
     },
     {
       "prompt_id": "washer__M3_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flat washer with 3.0mm inner hole, 7.0mm outer diameter, and 0.5mm thickness",
       "clip_score": 0.1838865578174591,
       "tier": "Simple",
@@ -9224,7 +9224,7 @@
     },
     {
       "prompt_id": "washer__M3p5_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flat washer with 3.5mm inner hole, 8.0mm outer diameter, and 0.5mm thickness",
       "clip_score": 0.2637779414653778,
       "tier": "Simple",
@@ -9234,7 +9234,7 @@
     },
     {
       "prompt_id": "washer__M4_penny_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A penny washer with 4.0mm inner hole, 14.0mm outer diameter, and 0.8mm thickness",
       "clip_score": 0.2637987732887268,
       "tier": "Simple",
@@ -9244,7 +9244,7 @@
     },
     {
       "prompt_id": "washer__M4_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flat washer with 4.0mm inner hole, 9.0mm outer diameter, and 0.8mm thickness",
       "clip_score": 0.264371395111084,
       "tier": "Simple",
@@ -9254,7 +9254,7 @@
     },
     {
       "prompt_id": "washer__M5_penny_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A penny washer with 5.0mm inner hole, 20.0mm outer diameter, and 1.4mm thickness",
       "clip_score": 0.2703882157802582,
       "tier": "Simple",
@@ -9264,7 +9264,7 @@
     },
     {
       "prompt_id": "washer__M5_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flat washer with 5.0mm inner hole, 10.0mm outer diameter, and 1.0mm thickness",
       "clip_score": 0.2555885910987854,
       "tier": "Simple",
@@ -9274,7 +9274,7 @@
     },
     {
       "prompt_id": "washer__M6_penny_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A penny washer with 6.0mm inner hole, 26.0mm outer diameter, and 1.5mm thickness",
       "clip_score": 0.2701340317726135,
       "tier": "Simple",
@@ -9284,7 +9284,7 @@
     },
     {
       "prompt_id": "washer__M6_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flat washer with 6.0mm inner hole, 12.5mm outer diameter, and 1.5mm thickness",
       "clip_score": 0.24799509346485138,
       "tier": "Simple",
@@ -9294,7 +9294,7 @@
     },
     {
       "prompt_id": "washer__M8_penny_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A penny washer with 8.0mm inner hole, 30.0mm outer diameter, and 1.5mm thickness",
       "clip_score": 0.21961957216262817,
       "tier": "Simple",
@@ -9304,7 +9304,7 @@
     },
     {
       "prompt_id": "washer__M8_washer",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A flat washer with 8.0mm inner hole, 17.0mm outer diameter, and 1.6mm thickness",
       "clip_score": 0.26295948028564453,
       "tier": "Simple",
@@ -9314,7 +9314,7 @@
     },
     {
       "prompt_id": "d_connector__DCONN25",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A d connector",
       "clip_score": NaN,
       "tier": "Complex",
@@ -9324,7 +9324,7 @@
     },
     {
       "prompt_id": "pillow_block__KP08_15",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A pillow block bearing for 8.0mm shaft, 55.0mm x 42.0mm base",
       "clip_score": NaN,
       "tier": "Medium",
@@ -9334,7 +9334,7 @@
     },
     {
       "prompt_id": "pulley__GT2x20ob_pulley",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A timing pulley with 20 teeth and 12.22mm pitch diameter",
       "clip_score": NaN,
       "tier": "Complex",
@@ -9344,7 +9344,7 @@
     },
     {
       "prompt_id": "sheet__CF1",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A sheet: Sheet carbon fiber",
       "clip_score": NaN,
       "tier": "Simple",
@@ -9354,7 +9354,7 @@
     },
     {
       "prompt_id": "tubing__HSHRNK100",
-      "source": "cadence",
+      "source": "craft",
       "prompt_text": "A tubing: Heatshrink sleeving",
       "clip_score": NaN,
       "tier": "Medium",

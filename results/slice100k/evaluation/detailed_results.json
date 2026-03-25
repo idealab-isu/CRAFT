@@ -1,8 +1,8 @@
 {
-  "cadence": [
+  "craft": [
     {
       "prompt_id": "100072",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.030499941976571826,
@@ -24,7 +24,7 @@
     },
     {
       "prompt_id": "100173",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.03883933181057521,
@@ -46,7 +46,7 @@
     },
     {
       "prompt_id": "100330",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.0730860647949851,
@@ -68,7 +68,7 @@
     },
     {
       "prompt_id": "100423",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.051521597266464984,
@@ -90,7 +90,7 @@
     },
     {
       "prompt_id": "1005285",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.010259678059708593,
@@ -112,7 +112,7 @@
     },
     {
       "prompt_id": "100643",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.1510419751406546,
@@ -134,7 +134,7 @@
     },
     {
       "prompt_id": "100728",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.0031019916225237826,
@@ -156,7 +156,7 @@
     },
     {
       "prompt_id": "101187",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.005281734765161047,
@@ -178,7 +178,7 @@
     },
     {
       "prompt_id": "1016856",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.0294203904669919,
@@ -200,7 +200,7 @@
     },
     {
       "prompt_id": "103085",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.07719370147735409,
@@ -222,7 +222,7 @@
     },
     {
       "prompt_id": "103086",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.05585925428113473,
@@ -244,7 +244,7 @@
     },
     {
       "prompt_id": "103087",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.21515842000900812,
@@ -266,7 +266,7 @@
     },
     {
       "prompt_id": "103143",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.02300511301019286,
@@ -288,7 +288,7 @@
     },
     {
       "prompt_id": "103145",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.025561959180377427,
@@ -310,7 +310,7 @@
     },
     {
       "prompt_id": "103284",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.05302545478870833,
@@ -332,7 +332,7 @@
     },
     {
       "prompt_id": "1036310",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.02648558900206945,
@@ -354,7 +354,7 @@
     },
     {
       "prompt_id": "1036395",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.022017496618601855,
@@ -376,7 +376,7 @@
     },
     {
       "prompt_id": "1036400",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.005630297106127006,
@@ -398,7 +398,7 @@
     },
     {
       "prompt_id": "103824",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.030272640338383575,
@@ -420,7 +420,7 @@
     },
     {
       "prompt_id": "103825",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.0611584259574843,
@@ -442,7 +442,7 @@
     },
     {
       "prompt_id": "104294",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.18779916091245108,
@@ -464,7 +464,7 @@
     },
     {
       "prompt_id": "104301",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.008049813185740206,
@@ -486,7 +486,7 @@
     },
     {
       "prompt_id": "1043461",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.15632581718450583,
@@ -508,7 +508,7 @@
     },
     {
       "prompt_id": "104403",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.0785257480725437,
@@ -530,7 +530,7 @@
     },
     {
       "prompt_id": "1044251",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": NaN,
@@ -547,12 +547,12 @@
       "pred_stl_exists": false,
       "gt_png_exists": true,
       "pred_png_exists": false,
-      "error": "Pred STL not found: results/ext_slice100k/cadence/stl/1044251.stl",
+      "error": "Pred STL not found: results/ext_slice100k/craft/stl/1044251.stl",
       "compute_time_s": 0.0
     },
     {
       "prompt_id": "104431",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.036077169563868264,
@@ -574,7 +574,7 @@
     },
     {
       "prompt_id": "104445",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.0395297774965873,
@@ -596,7 +596,7 @@
     },
     {
       "prompt_id": "104930",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.03036406650691334,
@@ -618,7 +618,7 @@
     },
     {
       "prompt_id": "105103",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": NaN,
@@ -635,12 +635,12 @@
       "pred_stl_exists": false,
       "gt_png_exists": true,
       "pred_png_exists": true,
-      "error": "Pred STL not found: results/ext_slice100k/cadence/stl/105103.stl",
+      "error": "Pred STL not found: results/ext_slice100k/craft/stl/105103.stl",
       "compute_time_s": 0.0
     },
     {
       "prompt_id": "1053374",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.11605649046352828,
@@ -662,7 +662,7 @@
     },
     {
       "prompt_id": "1054518",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.030614591630495805,
@@ -684,7 +684,7 @@
     },
     {
       "prompt_id": "105688",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.013729957647734579,
@@ -706,7 +706,7 @@
     },
     {
       "prompt_id": "105692",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.025407787084672704,
@@ -728,7 +728,7 @@
     },
     {
       "prompt_id": "1066901",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.01002911366315328,
@@ -750,7 +750,7 @@
     },
     {
       "prompt_id": "106705",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.047408466464573445,
@@ -772,7 +772,7 @@
     },
     {
       "prompt_id": "1071710",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.04832661762369932,
@@ -794,7 +794,7 @@
     },
     {
       "prompt_id": "107389",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.03481706155911175,
@@ -816,7 +816,7 @@
     },
     {
       "prompt_id": "107390",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.14125849113107714,
@@ -838,7 +838,7 @@
     },
     {
       "prompt_id": "107391",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.22534326834673296,
@@ -860,7 +860,7 @@
     },
     {
       "prompt_id": "107392",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.18911909172691696,
@@ -882,7 +882,7 @@
     },
     {
       "prompt_id": "107402",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.04252373398136605,
@@ -904,7 +904,7 @@
     },
     {
       "prompt_id": "107445",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.014603470017398494,
@@ -926,7 +926,7 @@
     },
     {
       "prompt_id": "1079828",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.013490198597005267,
@@ -948,7 +948,7 @@
     },
     {
       "prompt_id": "108321",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.023071048073467767,
@@ -970,7 +970,7 @@
     },
     {
       "prompt_id": "108328",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.018135260961411596,
@@ -992,7 +992,7 @@
     },
     {
       "prompt_id": "108329",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.04184855701413984,
@@ -1014,7 +1014,7 @@
     },
     {
       "prompt_id": "108330",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.018051277024347393,
@@ -1036,7 +1036,7 @@
     },
     {
       "prompt_id": "1083348",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.018089190288123523,
@@ -1058,7 +1058,7 @@
     },
     {
       "prompt_id": "1083353",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.005225604068037196,
@@ -1080,7 +1080,7 @@
     },
     {
       "prompt_id": "1083354",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.010118047515727036,
@@ -1102,7 +1102,7 @@
     },
     {
       "prompt_id": "108337",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.026570773040089778,
@@ -1124,7 +1124,7 @@
     },
     {
       "prompt_id": "108341",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": NaN,
@@ -1141,12 +1141,12 @@
       "pred_stl_exists": false,
       "gt_png_exists": true,
       "pred_png_exists": false,
-      "error": "Pred STL not found: results/ext_slice100k/cadence/stl/108341.stl",
+      "error": "Pred STL not found: results/ext_slice100k/craft/stl/108341.stl",
       "compute_time_s": 0.0
     },
     {
       "prompt_id": "108518",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.01815715479726245,
@@ -1168,7 +1168,7 @@
     },
     {
       "prompt_id": "108616",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.011851084840909102,
@@ -1190,7 +1190,7 @@
     },
     {
       "prompt_id": "108618",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.007383720632693344,
@@ -1212,7 +1212,7 @@
     },
     {
       "prompt_id": "108620",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.028138967244444583,
@@ -1234,7 +1234,7 @@
     },
     {
       "prompt_id": "108693",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.049156849461707466,
@@ -1256,7 +1256,7 @@
     },
     {
       "prompt_id": "109136",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.015502555363552925,
@@ -1278,7 +1278,7 @@
     },
     {
       "prompt_id": "109138",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.020131878828737182,
@@ -1300,7 +1300,7 @@
     },
     {
       "prompt_id": "1093114",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.0882111299837493,
@@ -1322,7 +1322,7 @@
     },
     {
       "prompt_id": "109375",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.01653313706814421,
@@ -1344,7 +1344,7 @@
     },
     {
       "prompt_id": "110029",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.21137632358207475,
@@ -1366,7 +1366,7 @@
     },
     {
       "prompt_id": "110030",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.09891519389252784,
@@ -1388,7 +1388,7 @@
     },
     {
       "prompt_id": "110031",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.13564811056855097,
@@ -1410,7 +1410,7 @@
     },
     {
       "prompt_id": "110173",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.02335440708607098,
@@ -1432,7 +1432,7 @@
     },
     {
       "prompt_id": "110201",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.06624319307855145,
@@ -1454,7 +1454,7 @@
     },
     {
       "prompt_id": "110202",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.056763257293309985,
@@ -1476,7 +1476,7 @@
     },
     {
       "prompt_id": "110204",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.06754781241168537,
@@ -1498,7 +1498,7 @@
     },
     {
       "prompt_id": "110207",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.09508409667296432,
@@ -1520,7 +1520,7 @@
     },
     {
       "prompt_id": "110209",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.0883418777412806,
@@ -1542,7 +1542,7 @@
     },
     {
       "prompt_id": "110211",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.03997603807562718,
@@ -1564,7 +1564,7 @@
     },
     {
       "prompt_id": "110834",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": NaN,
@@ -1581,12 +1581,12 @@
       "pred_stl_exists": false,
       "gt_png_exists": true,
       "pred_png_exists": false,
-      "error": "Pred STL not found: results/ext_slice100k/cadence/stl/110834.stl",
+      "error": "Pred STL not found: results/ext_slice100k/craft/stl/110834.stl",
       "compute_time_s": 0.0
     },
     {
       "prompt_id": "110905",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.16250698129747265,
@@ -1608,7 +1608,7 @@
     },
     {
       "prompt_id": "111008",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.08380923432745005,
@@ -1630,7 +1630,7 @@
     },
     {
       "prompt_id": "111013",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.012490176927592602,
@@ -1652,7 +1652,7 @@
     },
     {
       "prompt_id": "111021",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.05489160052291949,
@@ -1674,7 +1674,7 @@
     },
     {
       "prompt_id": "111552",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.002323480371616753,
@@ -1696,7 +1696,7 @@
     },
     {
       "prompt_id": "1120761",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.05880031149158274,
@@ -1718,7 +1718,7 @@
     },
     {
       "prompt_id": "1120762",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.060881273213443214,
@@ -1740,7 +1740,7 @@
     },
     {
       "prompt_id": "1120763",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.0035416521337695156,
@@ -1762,7 +1762,7 @@
     },
     {
       "prompt_id": "1120766",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.04604663922775026,
@@ -1784,7 +1784,7 @@
     },
     {
       "prompt_id": "1120767",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.03974154214462473,
@@ -1806,7 +1806,7 @@
     },
     {
       "prompt_id": "1120773",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": NaN,
@@ -1823,12 +1823,12 @@
       "pred_stl_exists": false,
       "gt_png_exists": true,
       "pred_png_exists": false,
-      "error": "Pred STL not found: results/ext_slice100k/cadence/stl/1120773.stl",
+      "error": "Pred STL not found: results/ext_slice100k/craft/stl/1120773.stl",
       "compute_time_s": 0.0
     },
     {
       "prompt_id": "1120775",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.030133020938254138,
@@ -1850,7 +1850,7 @@
     },
     {
       "prompt_id": "1120776",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.05625285208986173,
@@ -1872,7 +1872,7 @@
     },
     {
       "prompt_id": "1120777",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.00409485766595107,
@@ -1894,7 +1894,7 @@
     },
     {
       "prompt_id": "1120779",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": 0.04409349324920209,
@@ -1916,7 +1916,7 @@
     },
     {
       "prompt_id": "1129073",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.10215761145101909,
@@ -1938,7 +1938,7 @@
     },
     {
       "prompt_id": "1129074",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.11402931106101466,
@@ -1960,7 +1960,7 @@
     },
     {
       "prompt_id": "112998",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.19570457973604244,
@@ -1982,7 +1982,7 @@
     },
     {
       "prompt_id": "112999",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.22041454270882843,
@@ -2004,7 +2004,7 @@
     },
     {
       "prompt_id": "1130077",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.11307157294395392,
@@ -2026,7 +2026,7 @@
     },
     {
       "prompt_id": "1130078",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.12293410079156945,
@@ -2048,7 +2048,7 @@
     },
     {
       "prompt_id": "113126",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.07040243438028382,
@@ -2070,7 +2070,7 @@
     },
     {
       "prompt_id": "113127",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.06145867812281505,
@@ -2092,7 +2092,7 @@
     },
     {
       "prompt_id": "113128",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.037848273445921454,
@@ -2114,7 +2114,7 @@
     },
     {
       "prompt_id": "113340",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.055100213377410494,
@@ -2136,7 +2136,7 @@
     },
     {
       "prompt_id": "113341",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Simple",
       "family": "slice100k",
       "chamfer_distance": NaN,
@@ -2153,12 +2153,12 @@
       "pred_stl_exists": false,
       "gt_png_exists": true,
       "pred_png_exists": false,
-      "error": "Pred STL not found: results/ext_slice100k/cadence/stl/113341.stl",
+      "error": "Pred STL not found: results/ext_slice100k/craft/stl/113341.stl",
       "compute_time_s": 0.0
     },
     {
       "prompt_id": "113342",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Complex",
       "family": "slice100k",
       "chamfer_distance": 0.11045505384922558,
@@ -2180,7 +2180,7 @@
     },
     {
       "prompt_id": "113343",
-      "model_name": "cadence",
+      "model_name": "craft",
       "tier": "Medium",
       "family": "slice100k",
       "chamfer_distance": 0.1557263632739278,
