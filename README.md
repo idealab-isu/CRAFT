@@ -6,6 +6,7 @@ CRAFT is a multi-agent pipeline that generates parametric [OpenSCAD](https://ope
   <img src="paper/figures/png/CAD_Pipeline.png" alt="CRAFT Pipeline Overview" width="90%"/>
 </p>
 
+
 ## Key Idea
 
 Existing text-to-CAD methods either fine-tune on paired datasets (limiting generalization) or prompt LLMs directly (producing brittle, non-parametric code). CRAFT takes a different approach: it decomposes CAD generation into six specialized stages connected by a JSON intermediate representation that keeps dimensions as symbolic expressions rather than collapsing them into hard-coded numbers. A layered error recovery strategy handles failures at every stage, from malformed JSON to geometrically incorrect renders.
