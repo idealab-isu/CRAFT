@@ -19,7 +19,7 @@ import os
 import argparse
 from pathlib import Path
 
-# Add cadence to path
+# Add craft to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from kb.indexer import load_component_index

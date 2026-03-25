@@ -122,7 +122,7 @@ def generate_latex_table_4(metrics: dict) -> str:
     """Generate LaTeX table for Table 4."""
     return f"""\\begin{{table}}[h]
 \\centering
-\\caption{{Main Results: CADence Performance on Text-to-CAD Generation}}
+\\caption{{Main Results: CRAFT Performance on Text-to-CAD Generation}}
 \\label{{tab:main-results}}
 \\begin{{tabular}}{{lcccc}}
 \\toprule

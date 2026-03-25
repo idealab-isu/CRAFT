@@ -1,5 +1,5 @@
 """
-CADence Core Module
+CRAFT Core Module
 
 Contains the main pipeline components:
 - schema: JSON CAD Plan schema and validation

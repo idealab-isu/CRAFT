@@ -1,5 +1,5 @@
 """
-CADence Compiler
+CRAFT Compiler
 
 This module compiles JSON CAD Plans into OpenSCAD code.
 

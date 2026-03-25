@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-CADence Evaluation Runner
+CRAFT Evaluation Runner
 
-Run this script to compare CADence (gpt-5.2) vs GPT-4o baseline.
+Run this script to compare CRAFT (gpt-5.2) vs GPT-4o baseline.
 
 Usage:
     python run_evaluation.py                        # Run with 15 prompts
     python run_evaluation.py --prompts 25           # Run with 25 prompts
-    python run_evaluation.py --cadence-model gpt-5.2  # Specify CADence model
+    python run_evaluation.py --craft-model gpt-5.2  # Specify CRAFT model
     python run_evaluation.py --baseline-model gpt-4o  # Specify baseline model
     python run_evaluation.py --quick                # Quick test with 5 prompts
     python run_evaluation.py --baseline-only        # Run only baseline
-    python run_evaluation.py --cadence-only         # Run only CADence
+    python run_evaluation.py --craft-only         # Run only CRAFT
 """
 
 import os
@@ -30,11 +30,11 @@ load_dotenv()
 
 
 def main():
-    parser = argparse.ArgumentParser(description="CADence Evaluation Runner")
+    parser = argparse.ArgumentParser(description="CRAFT Evaluation Runner")
     parser.add_argument("--prompts", type=int, default=15,
                         help="Number of prompts to evaluate")
-    parser.add_argument("--cadence-model", type=str, default="gpt-5.2",
-                        help="Model for CADence pipeline (default: gpt-5.2)")
+    parser.add_argument("--craft-model", type=str, default="gpt-5.2",
+                        help="Model for CRAFT pipeline (default: gpt-5.2)")
     parser.add_argument("--baseline-model", type=str, default="gpt-4o",
                         help="Model for baseline (default: gpt-4o)")
     parser.add_argument("--output", type=str, default="./evaluation_results",
@@ -43,8 +43,8 @@ def main():
                         help="Quick test with 5 prompts")
     parser.add_argument("--baseline-only", action="store_true",
                         help="Run only baseline evaluation")
-    parser.add_argument("--cadence-only", action="store_true",
-                        help="Run only CADence evaluation")
+    parser.add_argument("--craft-only", action="store_true",
+                        help="Run only CRAFT evaluation")
     parser.add_argument("--no-repair", action="store_true",
                         help="Disable auto-repair")
     parser.add_argument("--category", type=str, default=None,
@@ -68,10 +68,10 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"\n{'='*60}")
-    print("CADence Evaluation")
+    print("CRAFT Evaluation")
     print(f"{'='*60}")
     print(f"Output: {output_dir}")
-    print(f"CADence Model: {args.cadence_model}")
+    print(f"CRAFT Model: {args.craft_model}")
     print(f"Baseline Model: {args.baseline_model}")
     print(f"Prompts: {args.prompts}")
     print(f"Auto-repair: {not args.no_repair}")
@@ -122,26 +122,26 @@ def main():
         print(f"Render Success: {render_rate:.1%}")
         print(f"Geometry Present: {geometry_rate:.1%}")
 
-    elif args.cadence_only:
-        # Run only CADence (full pipeline)
+    elif args.craft_only:
+        # Run only CRAFT (full pipeline)
         from evaluation.comparison import ComparisonRunner
 
-        print(f"Running CADence only ({args.cadence_model})...")
+        print(f"Running CRAFT only ({args.craft_model})...")
         runner = ComparisonRunner(
             output_dir=str(output_dir),
-            cadence_model=args.cadence_model,
+            craft_model=args.craft_model,
             baseline_model=args.baseline_model,
             auto_repair=not args.no_repair
         )
 
         results = []
         for prompt in prompts:
-            result = runner.run_cadence(prompt["id"], prompt["text"])
+            result = runner.run_craft(prompt["id"], prompt["text"])
             results.append(result)
             print(f"  {prompt['id']}: syntax={result.syntax_valid}, render={result.render_success}")
 
         # Save results
-        results_path = output_dir / "cadence_results.json"
+        results_path = output_dir / "craft_results.json"
         with open(results_path, "w") as f:
             json.dump([r.to_dict() for r in results], f, indent=2)
 
@@ -153,7 +153,7 @@ def main():
         geometry_rate = sum(r.has_geometry for r in results) / n
 
         print(f"\n{'='*60}")
-        print(f"CADENCE RESULTS ({args.cadence_model})")
+        print(f"craft RESULTS ({args.craft_model})")
         print(f"{'='*60}")
         print(f"Syntax Pass: {syntax_rate:.1%}")
         print(f"Render Success: {render_rate:.1%}")
@@ -161,12 +161,12 @@ def main():
         print(f"Geometry Present: {geometry_rate:.1%}")
 
     else:
-        # Run full comparison: CADence (gpt-5.2) vs Baseline (GPT-4o)
+        # Run full comparison: CRAFT (gpt-5.2) vs Baseline (GPT-4o)
         from evaluation.comparison import ComparisonRunner
 
         runner = ComparisonRunner(
             output_dir=str(output_dir),
-            cadence_model=args.cadence_model,
+            craft_model=args.craft_model,
             baseline_model=args.baseline_model,
             auto_repair=not args.no_repair
         )
@@ -184,20 +184,20 @@ def generate_latex_table(summary, output_dir: Path):
     latex = r"""
 \begin{table}[h]
 \centering
-\caption{Quantitative Comparison: CADence vs Direct GPT-4o Baseline}
+\caption{Quantitative Comparison: CRAFT vs Direct GPT-4o Baseline}
 \label{tab:comparison}
 \begin{tabular}{lcc}
 \hline
-\textbf{Metric} & \textbf{Direct GPT-4o} & \textbf{CADence (Ours)} \\
+\textbf{Metric} & \textbf{Direct GPT-4o} & \textbf{CRAFT (Ours)} \\
 \hline
-Syntax Pass Rate & """ + f"{summary.baseline_syntax_rate:.1%}" + r""" & \textbf{""" + f"{summary.cadence_syntax_rate:.1%}" + r"""} \\
-Render Success & """ + f"{summary.baseline_render_rate:.1%}" + r""" & \textbf{""" + f"{summary.cadence_render_rate:.1%}" + r"""} \\
-Geometry Present & """ + f"{summary.baseline_geometry_rate:.1%}" + r""" & \textbf{""" + f"{summary.cadence_geometry_rate:.1%}" + r"""} \\
-Validation Pass & N/A & """ + f"{summary.cadence_validation_rate:.1%}" + r""" \\
-Avg. Generation Time & """ + f"{summary.baseline_avg_time:.1f}s" + r""" & """ + f"{summary.cadence_avg_time:.1f}s" + r""" \\
-Avg. Attempts & 1.0 & """ + f"{summary.cadence_avg_plan_attempts:.1f}" + r""" \\
+Syntax Pass Rate & """ + f"{summary.baseline_syntax_rate:.1%}" + r""" & \textbf{""" + f"{summary.craft_syntax_rate:.1%}" + r"""} \\
+Render Success & """ + f"{summary.baseline_render_rate:.1%}" + r""" & \textbf{""" + f"{summary.craft_render_rate:.1%}" + r"""} \\
+Geometry Present & """ + f"{summary.baseline_geometry_rate:.1%}" + r""" & \textbf{""" + f"{summary.craft_geometry_rate:.1%}" + r"""} \\
+Validation Pass & N/A & """ + f"{summary.craft_validation_rate:.1%}" + r""" \\
+Avg. Generation Time & """ + f"{summary.baseline_avg_time:.1f}s" + r""" & """ + f"{summary.craft_avg_time:.1f}s" + r""" \\
+Avg. Attempts & 1.0 & """ + f"{summary.craft_avg_plan_attempts:.1f}" + r""" \\
 \hline
-\textbf{Head-to-Head Wins} & """ + str(summary.baseline_wins) + r""" & \textbf{""" + str(summary.cadence_wins) + r"""} \\
+\textbf{Head-to-Head Wins} & """ + str(summary.baseline_wins) + r""" & \textbf{""" + str(summary.craft_wins) + r"""} \\
 \hline
 \end{tabular}
 \end{table}

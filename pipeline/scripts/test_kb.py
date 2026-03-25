@@ -168,7 +168,7 @@ def test_full_pipeline():
 To test the full KB-augmented pipeline:
 
 1. Start the server:
-   cd llm_to_cad/cadence
+   cd llm_to_cad/craft
    python app.py
 
 2. Use the API with a KB component:

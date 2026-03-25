@@ -6,7 +6,7 @@ Prerequisites:
   - OpenSCAD installed:  sudo apt-get install openscad
   - xvfb installed:      sudo apt-get install xvfb   (Linux only, skip on macOS)
   - Pillow installed:    pip install Pillow           (for transparent PNGs)
-  - NopSCADlib present:  llm_to_cad/cadence/kb_data/nopscadlib/
+  - NopSCADlib present:  llm_to_cad/craft/kb_data/nopscadlib/
   - .scad files present: llm_to_cad/Text2CAD_SPM_2026/ground_truth/scad/
 
 Usage:
@@ -41,8 +41,8 @@ SCAD_DIR = GROUND_TRUTH_DIR / "scad"
 STL_DIR = GROUND_TRUTH_DIR / "stl"
 PNG_DIR = GROUND_TRUTH_DIR / "png"
 
-CADENCE_DIR = SCRIPT_DIR.parent / "cadence"
-NOPSCADLIB_PARENT = CADENCE_DIR / "kb_data"
+CRAFT_DIR = SCRIPT_DIR.parent / "craft"
+NOPSCADLIB_PARENT = CRAFT_DIR / "kb_data"
 
 # OpenSCAD settings
 OPENSCAD_BIN = "openscad"
@@ -397,7 +397,7 @@ Output files after all 3 scripts:
   ground_truth/stl/*.stl           — 3D mesh ground truth (for Chamfer Distance eval)
   ground_truth/png/*.png           — Visual reference (transparent background)
   benchmark_ground_truth.json      — Full metadata + scores + prompts (answer key)
-  benchmark_prompts.txt            — Anonymized prompts (given to GPT-4o / GPT-5.2 / CADence)
+  benchmark_prompts.txt            — Anonymized prompts (given to GPT-4o / GPT-5.2 / CRAFT)
 {'=' * 70}""")
 
 

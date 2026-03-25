@@ -12,14 +12,14 @@ Usage:
     # Evaluate a single model's outputs against ground truth
     python evaluate_benchmark.py \
         --gt-dir ground_truth/stl \
-        --pred-dir results/cadence/stl \
-        --model-name cadence \
+        --pred-dir results/craft/stl \
+        --model-name craft \
         --output-dir evaluation_results
 
     # Evaluate all models at once
     python evaluate_benchmark.py \
         --gt-dir ground_truth/stl \
-        --models cadence=results/cadence/stl \
+        --models craft=results/craft/stl \
                  gpt4o=results/gpt4o/stl \
                  gpt52=results/gpt52/stl \
         --output-dir evaluation_results
@@ -27,7 +27,7 @@ Usage:
     # Evaluate specific prompt IDs only
     python evaluate_benchmark.py \
         --gt-dir ground_truth/stl \
-        --pred-dir results/cadence/stl \
+        --pred-dir results/craft/stl \
         --prompt-ids ball_bearing__BB608 washer__M6_washer \
         --output-dir evaluation_results
 
@@ -963,15 +963,15 @@ def main():
         epilog="""
 Examples:
   # Single model
-  python evaluate_benchmark.py --gt-dir ground_truth/stl --pred-dir results/cadence/stl --model-name cadence
+  python evaluate_benchmark.py --gt-dir ground_truth/stl --pred-dir results/craft/stl --model-name craft
 
   # Multiple models
   python evaluate_benchmark.py --gt-dir ground_truth/stl \\
-    --models cadence=results/cadence/stl gpt4o=results/gpt4o/stl gpt52=results/gpt52/stl
+    --models craft=results/craft/stl gpt4o=results/gpt4o/stl gpt52=results/gpt52/stl
 
   # With images for SSIM
-  python evaluate_benchmark.py --gt-dir ground_truth/stl --pred-dir results/cadence/stl \\
-    --gt-png-dir ground_truth/png --pred-png-dir results/cadence/png
+  python evaluate_benchmark.py --gt-dir ground_truth/stl --pred-dir results/craft/stl \\
+    --gt-png-dir ground_truth/png --pred-png-dir results/craft/png
         """
     )
 
@@ -982,7 +982,7 @@ Examples:
     parser.add_argument("--model-name", type=str, default="model",
                         help="Name of the model (for single model)")
     parser.add_argument("--models", nargs="+", default=None,
-                        help="Multiple models as name=dir pairs (e.g., cadence=results/cadence/stl)")
+                        help="Multiple models as name=dir pairs (e.g., craft=results/craft/stl)")
     parser.add_argument("--benchmark-json", type=str,
                         default=str(SCRIPT_DIR / "benchmark_ground_truth.json"),
                         help="Path to benchmark_ground_truth.json")

@@ -5,7 +5,7 @@ Quick test script for evaluation framework.
 Run this to quickly verify the evaluation works with 3 prompts.
 
 Usage:
-    cd llm_to_cad/cadence
+    cd llm_to_cad/craft
     python -m evaluation.quick_test
 """
 
@@ -31,7 +31,7 @@ def quick_test():
         return
 
     print("="*60)
-    print("CADence Quick Evaluation Test")
+    print("CRAFT Quick Evaluation Test")
     print("="*60)
 
     # Import after path setup
@@ -48,10 +48,10 @@ def quick_test():
     print(f"\nTesting {len(test_prompts)} prompts...")
 
     # Run comparison
-    # CADence uses gpt-5.2, Baseline uses GPT-4o
+    # CRAFT uses gpt-5.2, Baseline uses GPT-4o
     runner = ComparisonRunner(
         output_dir="./quick_test_results",
-        cadence_model="gpt-5.2",
+        craft_model="gpt-5.2",
         baseline_model="gpt-4o",
         auto_repair=True
     )
@@ -64,12 +64,12 @@ def quick_test():
 
     print("\nPer-Prompt Results:")
     for r in results:
-        winner = "CADence" if r.cadence_wins else ("Baseline" if r.baseline_wins else "Tie")
+        winner = "CRAFT" if r.craft_wins else ("Baseline" if r.baseline_wins else "Tie")
         print(f"  {r.prompt_id}: {winner}")
-        print(f"    CADence:  syntax={r.cadence_syntax_valid}, render={r.cadence_render_success}, geometry={r.cadence_has_geometry}")
+        print(f"    CRAFT:  syntax={r.craft_syntax_valid}, render={r.craft_render_success}, geometry={r.craft_has_geometry}")
         print(f"    Baseline: syntax={r.baseline_syntax_valid}, render={r.baseline_render_success}, geometry={r.baseline_has_geometry}")
 
-    print(f"\nOverall: CADence {summary.cadence_wins} wins, Baseline {summary.baseline_wins} wins, {summary.ties} ties")
+    print(f"\nOverall: CRAFT {summary.craft_wins} wins, Baseline {summary.baseline_wins} wins, {summary.ties} ties")
 
     return results, summary
 

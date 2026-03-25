@@ -1,5 +1,5 @@
 """
-CADence SCAD Auto-Fixer
+CRAFT SCAD Auto-Fixer
 
 This module provides LLM-based auto-fixing for OpenSCAD code that causes
 rendering issues (timeouts, hangs, broken geometry).

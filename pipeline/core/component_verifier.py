@@ -1,5 +1,5 @@
 """
-CADence Component Verifier
+CRAFT Component Verifier
 
 This module provides targeted connectivity and component verification after VLM correction.
 

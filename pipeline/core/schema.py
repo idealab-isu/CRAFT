@@ -1,5 +1,5 @@
 """
-CADence JSON Schema Definition
+CRAFT JSON Schema Definition
 
 This module defines the parametric intermediate representation (IR) for CAD models.
 The schema captures primitives, operations, and parameters before compilation to OpenSCAD.

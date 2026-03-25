@@ -30,7 +30,7 @@ Usage:
     python ext_step4_evaluate.py \
         --benchmark-json slice100k_ground_truth.json \
         --results-dir results/ext_slice100k \
-        --models cadence gpt4o
+        --models craft gpt4o
 
     # Use GPU for Chamfer Distance
     python ext_step4_evaluate.py \
@@ -102,7 +102,7 @@ def discover_models(results_dir: Path) -> Dict[str, Path]:
     Discover model result directories.
 
     Expected structure:
-        results_dir/cadence/stl/
+        results_dir/craft/stl/
         results_dir/gpt4o/stl/
         results_dir/gpt52/stl/
     """
@@ -192,7 +192,7 @@ Examples:
   python ext_step4_evaluate.py \\
       --benchmark-json abc_ground_truth.json \\
       --results-dir results/ext_abc \\
-      --models cadence gpt52
+      --models craft gpt52
         """,
     )
     parser.add_argument("--benchmark-json", type=str, required=True,

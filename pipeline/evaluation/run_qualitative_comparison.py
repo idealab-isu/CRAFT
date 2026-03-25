@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-CADence Qualitative Comparison Evaluation
+CRAFT Qualitative Comparison Evaluation
 
 Generates comparison figure for paper showing:
 - GPT-4o (No Pipeline): Direct single API call
 - GPT-5.2 (No Pipeline): Direct single API call
-- CADence (No RAG): Full pipeline without knowledge base
-- CADence (With RAG): Full pipeline with knowledge base
+- CRAFT (No RAG): Full pipeline without knowledge base
+- CRAFT (With RAG): Full pipeline with knowledge base
 
 For each prompt:
 - SCAD file
@@ -17,7 +17,7 @@ For each prompt:
 Usage:
     python run_qualitative_comparison.py                    # Full run
     python run_qualitative_comparison.py --quick            # Quick test (1 per category)
-    python run_qualitative_comparison.py --methods cadence  # Only CADence methods
+    python run_qualitative_comparison.py --methods craft  # Only CRAFT methods
     python run_qualitative_comparison.py --category complex # Only complex prompts
 """
 
@@ -315,9 +315,9 @@ class DirectBaseline:
         return result
 
 
-class CADencePipeline:
+class CRAFTPipeline:
     """
-    Full CADence pipeline for generation.
+    Full CRAFT pipeline for generation.
     Supports RAG toggle via use_kb parameter.
     """
 
@@ -380,10 +380,10 @@ class CADencePipeline:
         self._initialized = True
 
     def generate(self, prompt: ComparisonPrompt) -> GenerationResult:
-        """Generate using full CADence pipeline."""
+        """Generate using full CRAFT pipeline."""
         self._init_components()
 
-        method_name = "cadence_with_rag" if self.use_kb else "cadence_no_rag"
+        method_name = "craft_with_rag" if self.use_kb else "craft_no_rag"
         result = GenerationResult(
             prompt_id=prompt.id,
             method=method_name
@@ -500,7 +500,7 @@ class QualitativeComparisonRunner:
         self.output_dir = Path(output_dir) / self.timestamp
 
         # Default: all 4 methods
-        self.methods = methods or ["gpt4o_baseline", "gpt52_baseline", "cadence_no_rag", "cadence_with_rag"]
+        self.methods = methods or ["gpt4o_baseline", "gpt52_baseline", "craft_no_rag", "craft_with_rag"]
 
         # Create directory structure
         self._setup_directories()
@@ -537,16 +537,16 @@ class QualitativeComparisonRunner:
                 output_dir=self.output_dir / "gpt52_baseline"
             )
 
-        if "cadence_no_rag" in self.methods:
-            self.generators["cadence_no_rag"] = CADencePipeline(
+        if "craft_no_rag" in self.methods:
+            self.generators["craft_no_rag"] = CRAFTPipeline(
                 use_kb=False,
-                output_dir=self.output_dir / "cadence_no_rag"
+                output_dir=self.output_dir / "craft_no_rag"
             )
 
-        if "cadence_with_rag" in self.methods:
-            self.generators["cadence_with_rag"] = CADencePipeline(
+        if "craft_with_rag" in self.methods:
+            self.generators["craft_with_rag"] = CRAFTPipeline(
                 use_kb=True,
-                output_dir=self.output_dir / "cadence_with_rag"
+                output_dir=self.output_dir / "craft_with_rag"
             )
 
     def _save_scad(self, result: GenerationResult, method: str) -> str:
@@ -680,7 +680,7 @@ class QualitativeComparisonRunner:
         all_results = {}
 
         print(f"\n{'='*70}")
-        print("CADence Qualitative Comparison Evaluation")
+        print("CRAFT Qualitative Comparison Evaluation")
         print(f"{'='*70}")
         print(f"Output directory: {self.output_dir}")
         print(f"Methods: {', '.join(self.methods)}")
@@ -767,8 +767,8 @@ class QualitativeComparisonRunner:
         method_labels = {
             "gpt4o_baseline": "GPT-4o",
             "gpt52_baseline": "GPT-5.2",
-            "cadence_no_rag": "CADence (No RAG)",
-            "cadence_with_rag": "CADence (With RAG)"
+            "craft_no_rag": "CRAFT (No RAG)",
+            "craft_with_rag": "CRAFT (With RAG)"
         }
 
         for col, method in enumerate(self.methods):
@@ -853,13 +853,13 @@ class QualitativeComparisonRunner:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="CADence Qualitative Comparison Evaluation",
+        description="CRAFT Qualitative Comparison Evaluation",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
     python run_qualitative_comparison.py                      # Full run (15 prompts x 4 methods)
     python run_qualitative_comparison.py --quick              # Quick test (3 prompts x 4 methods)
-    python run_qualitative_comparison.py --methods cadence    # Only CADence methods
+    python run_qualitative_comparison.py --methods craft    # Only CRAFT methods
     python run_qualitative_comparison.py --category complex   # Only complex prompts
     python run_qualitative_comparison.py --output ./my_results  # Custom output directory
         """
@@ -870,7 +870,7 @@ Examples:
     parser.add_argument("--category", type=str, choices=["easy", "medium", "complex"],
                         help="Run only prompts from this category")
     parser.add_argument("--methods", type=str, default="all",
-                        choices=["all", "baseline", "cadence", "gpt4o", "gpt52", "cadence_rag", "cadence_no_rag"],
+                        choices=["all", "baseline", "craft", "gpt4o", "gpt52", "craft_rag", "craft_no_rag"],
                         help="Which methods to run")
     parser.add_argument("--output", type=str, default="./comparison_results",
                         help="Output directory")
@@ -900,21 +900,21 @@ Examples:
 
     # Determine methods
     if args.methods == "all":
-        methods = ["gpt4o_baseline", "gpt52_baseline", "cadence_no_rag", "cadence_with_rag"]
+        methods = ["gpt4o_baseline", "gpt52_baseline", "craft_no_rag", "craft_with_rag"]
     elif args.methods == "baseline":
         methods = ["gpt4o_baseline", "gpt52_baseline"]
-    elif args.methods == "cadence":
-        methods = ["cadence_no_rag", "cadence_with_rag"]
+    elif args.methods == "craft":
+        methods = ["craft_no_rag", "craft_with_rag"]
     elif args.methods == "gpt4o":
         methods = ["gpt4o_baseline"]
     elif args.methods == "gpt52":
         methods = ["gpt52_baseline"]
-    elif args.methods == "cadence_rag":
-        methods = ["cadence_with_rag"]
-    elif args.methods == "cadence_no_rag":
-        methods = ["cadence_no_rag"]
+    elif args.methods == "craft_rag":
+        methods = ["craft_with_rag"]
+    elif args.methods == "craft_no_rag":
+        methods = ["craft_no_rag"]
     else:
-        methods = ["gpt4o_baseline", "gpt52_baseline", "cadence_no_rag", "cadence_with_rag"]
+        methods = ["gpt4o_baseline", "gpt52_baseline", "craft_no_rag", "craft_with_rag"]
 
     # Run comparison
     runner = QualitativeComparisonRunner(

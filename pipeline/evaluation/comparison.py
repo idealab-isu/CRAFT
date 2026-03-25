@@ -1,7 +1,7 @@
 """
-CADence vs Baseline Comparison Runner
+CRAFT vs Baseline Comparison Runner
 
-Runs both CADence pipeline and GPT-4o baseline on the same prompts,
+Runs both CRAFT pipeline and GPT-4o baseline on the same prompts,
 computes metrics, and generates comparison tables.
 """
 
@@ -38,7 +38,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Import CADence components
+# Import CRAFT components
 from core import TextReasoner, Planner, Compiler, Validator, RepairOrchestrator
 from core.llm_client import create_unified_client
 from utils.openscad_runner import OpenScadRunner, RenderMode
@@ -49,8 +49,8 @@ from .test_prompts import get_all_prompts, get_prompts_subset
 
 
 @dataclass
-class CADenceResult:
-    """Result from CADence pipeline."""
+class CRAFTResult:
+    """Result from CRAFT pipeline."""
     prompt_id: str
     prompt_text: str
 
@@ -98,14 +98,14 @@ class ComparisonResult:
     prompt_text: str
     category: str
 
-    # CADence results
-    cadence_syntax_valid: bool = False
-    cadence_render_success: bool = False
-    cadence_validation_passed: bool = False
-    cadence_has_geometry: bool = False
-    cadence_plan_attempts: int = 0
-    cadence_repair_attempts: int = 0
-    cadence_time: float = 0.0
+    # CRAFT results
+    craft_syntax_valid: bool = False
+    craft_render_success: bool = False
+    craft_validation_passed: bool = False
+    craft_has_geometry: bool = False
+    craft_plan_attempts: int = 0
+    craft_repair_attempts: int = 0
+    craft_time: float = 0.0
 
     # Baseline results
     baseline_syntax_valid: bool = False
@@ -114,7 +114,7 @@ class ComparisonResult:
     baseline_time: float = 0.0
 
     # Winner determination
-    cadence_wins: bool = False
+    craft_wins: bool = False
     baseline_wins: bool = False
     tie: bool = False
 
@@ -127,14 +127,14 @@ class ComparisonSummary:
     """Summary statistics for comparison."""
     total_prompts: int = 0
 
-    # CADence stats
-    cadence_syntax_rate: float = 0.0
-    cadence_render_rate: float = 0.0
-    cadence_validation_rate: float = 0.0
-    cadence_geometry_rate: float = 0.0
-    cadence_avg_time: float = 0.0
-    cadence_avg_plan_attempts: float = 0.0
-    cadence_avg_repair_attempts: float = 0.0
+    # CRAFT stats
+    craft_syntax_rate: float = 0.0
+    craft_render_rate: float = 0.0
+    craft_validation_rate: float = 0.0
+    craft_geometry_rate: float = 0.0
+    craft_avg_time: float = 0.0
+    craft_avg_plan_attempts: float = 0.0
+    craft_avg_repair_attempts: float = 0.0
 
     # Baseline stats
     baseline_syntax_rate: float = 0.0
@@ -143,7 +143,7 @@ class ComparisonSummary:
     baseline_avg_time: float = 0.0
 
     # Comparison
-    cadence_wins: int = 0
+    craft_wins: int = 0
     baseline_wins: int = 0
     ties: int = 0
 
@@ -153,38 +153,38 @@ class ComparisonSummary:
 
 class ComparisonRunner:
     """
-    Runs CADence pipeline and baseline on the same prompts.
+    Runs CRAFT pipeline and baseline on the same prompts.
     """
 
     def __init__(
         self,
         output_dir: str = "./evaluation/comparison_results",
-        cadence_model: str = "gpt-5.2",
+        craft_model: str = "gpt-5.2",
         baseline_model: str = "gpt-4o",
         auto_repair: bool = True,
         max_repair_attempts: int = 2
     ):
         self.output_dir = Path(output_dir)
-        self.cadence_model = cadence_model
+        self.craft_model = craft_model
         self.baseline_model = baseline_model
         self.auto_repair = auto_repair
         self.max_repair_attempts = max_repair_attempts
 
         # Create directories
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        (self.output_dir / "cadence").mkdir(exist_ok=True)
-        (self.output_dir / "cadence" / "scad").mkdir(exist_ok=True)
-        (self.output_dir / "cadence" / "images").mkdir(exist_ok=True)
+        (self.output_dir / "craft").mkdir(exist_ok=True)
+        (self.output_dir / "craft" / "scad").mkdir(exist_ok=True)
+        (self.output_dir / "craft" / "images").mkdir(exist_ok=True)
         (self.output_dir / "baseline").mkdir(exist_ok=True)
 
         # Initialize clients
         self.openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.client = create_unified_client(openai_client=self.openai_client)
 
-        # Initialize CADence components (using cadence_model)
-        self.reasoner = TextReasoner(self.client, cadence_model)
-        self.planner = Planner(self.client, cadence_model)
-        self.compiler = Compiler(self.client, cadence_model)
+        # Initialize CRAFT components (using craft_model)
+        self.reasoner = TextReasoner(self.client, craft_model)
+        self.planner = Planner(self.client, craft_model)
+        self.compiler = Compiler(self.client, craft_model)
         self.validator = Validator(0.80)
 
         # Initialize baseline (using baseline_model - GPT-4o)
@@ -194,12 +194,12 @@ class ComparisonRunner:
             output_dir=str(self.output_dir / "baseline")
         )
 
-        print(f"[Config] CADence model: {cadence_model}")
+        print(f"[Config] CRAFT model: {craft_model}")
         print(f"[Config] Baseline model: {baseline_model}")
 
-    def run_cadence(self, prompt_id: str, prompt_text: str) -> CADenceResult:
-        """Run CADence pipeline on a single prompt."""
-        result = CADenceResult(
+    def run_craft(self, prompt_id: str, prompt_text: str) -> CRAFTResult:
+        """Run CRAFT pipeline on a single prompt."""
+        result = CRAFTResult(
             prompt_id=prompt_id,
             prompt_text=prompt_text
         )
@@ -229,12 +229,12 @@ class ComparisonRunner:
             result.code_generated = True
 
             # Stage 4: Save and render
-            scad_path = self.output_dir / "cadence" / "scad" / f"{prompt_id}.scad"
+            scad_path = self.output_dir / "craft" / "scad" / f"{prompt_id}.scad"
             with open(scad_path, "w") as f:
                 f.write(code)
             result.scad_path = str(scad_path)
 
-            image_path = self.output_dir / "cadence" / "images" / f"{prompt_id}.png"
+            image_path = self.output_dir / "craft" / "images" / f"{prompt_id}.png"
 
             runner = OpenScadRunner(
                 str(scad_path),
@@ -275,15 +275,15 @@ class ComparisonRunner:
 
     def _try_repair(
         self,
-        result: CADenceResult,
+        result: CRAFTResult,
         design_brief,
         plan: Dict,
         validation
-    ) -> CADenceResult:
+    ) -> CRAFTResult:
         """Try to repair the code."""
         from core.repair import CodeRepairer
 
-        repairer = CodeRepairer(self.client, self.cadence_model)
+        repairer = CodeRepairer(self.client, self.craft_model)
         original_score = validation.score
 
         for attempt in range(self.max_repair_attempts):
@@ -371,7 +371,7 @@ class ComparisonRunner:
         prompt: Dict[str, Any]
     ) -> ComparisonResult:
         """
-        Run both CADence and baseline on a single prompt.
+        Run both CRAFT and baseline on a single prompt.
 
         Args:
             prompt: Dict with 'id', 'text', 'category' keys
@@ -385,9 +385,9 @@ class ComparisonRunner:
 
         print(f"\n[Compare] {prompt_id}: {prompt_text[:50]}...")
 
-        # Run CADence
-        print(f"  [CADence] Running...")
-        cadence_result = self.run_cadence(prompt_id, prompt_text)
+        # Run CRAFT
+        print(f"  [CRAFT] Running...")
+        craft_result = self.run_craft(prompt_id, prompt_text)
 
         # Run baseline
         print(f"  [Baseline] Running...")
@@ -398,14 +398,14 @@ class ComparisonRunner:
             prompt_id=prompt_id,
             prompt_text=prompt_text,
             category=category,
-            # CADence
-            cadence_syntax_valid=cadence_result.syntax_valid,
-            cadence_render_success=cadence_result.render_success,
-            cadence_validation_passed=cadence_result.validation_passed,
-            cadence_has_geometry=cadence_result.has_geometry,
-            cadence_plan_attempts=cadence_result.plan_attempts,
-            cadence_repair_attempts=cadence_result.repair_attempts,
-            cadence_time=cadence_result.total_time,
+            # CRAFT
+            craft_syntax_valid=craft_result.syntax_valid,
+            craft_render_success=craft_result.render_success,
+            craft_validation_passed=craft_result.validation_passed,
+            craft_has_geometry=craft_result.has_geometry,
+            craft_plan_attempts=craft_result.plan_attempts,
+            craft_repair_attempts=craft_result.repair_attempts,
+            craft_time=craft_result.total_time,
             # Baseline
             baseline_syntax_valid=baseline_result.syntax_valid,
             baseline_render_success=baseline_result.render_success,
@@ -414,10 +414,10 @@ class ComparisonRunner:
         )
 
         # Determine winner
-        cadence_score = sum([
-            cadence_result.syntax_valid,
-            cadence_result.render_success,
-            cadence_result.has_geometry
+        craft_score = sum([
+            craft_result.syntax_valid,
+            craft_result.render_success,
+            craft_result.has_geometry
         ])
         baseline_score = sum([
             baseline_result.syntax_valid,
@@ -425,14 +425,14 @@ class ComparisonRunner:
             baseline_result.has_geometry
         ])
 
-        if cadence_score > baseline_score:
-            comparison.cadence_wins = True
-        elif baseline_score > cadence_score:
+        if craft_score > baseline_score:
+            comparison.craft_wins = True
+        elif baseline_score > craft_score:
             comparison.baseline_wins = True
         else:
             comparison.tie = True
 
-        print(f"  [Result] CADence: {cadence_score}/3, Baseline: {baseline_score}/3")
+        print(f"  [Result] CRAFT: {craft_score}/3, Baseline: {baseline_score}/3")
 
         return comparison
 
@@ -455,8 +455,8 @@ class ComparisonRunner:
             prompts = get_prompts_subset(n_prompts)
 
         print(f"\n{'='*60}")
-        print(f"CADence vs Baseline Comparison")
-        print(f"Prompts: {len(prompts)}, CADence: {self.cadence_model}, Baseline: {self.baseline_model}")
+        print(f"CRAFT vs Baseline Comparison")
+        print(f"Prompts: {len(prompts)}, CRAFT: {self.craft_model}, Baseline: {self.baseline_model}")
         print(f"{'='*60}")
 
         results = []
@@ -489,14 +489,14 @@ class ComparisonRunner:
 
         summary = ComparisonSummary(total_prompts=n)
 
-        # CADence stats
-        summary.cadence_syntax_rate = sum(r.cadence_syntax_valid for r in results) / n
-        summary.cadence_render_rate = sum(r.cadence_render_success for r in results) / n
-        summary.cadence_validation_rate = sum(r.cadence_validation_passed for r in results) / n
-        summary.cadence_geometry_rate = sum(r.cadence_has_geometry for r in results) / n
-        summary.cadence_avg_time = sum(r.cadence_time for r in results) / n
-        summary.cadence_avg_plan_attempts = sum(r.cadence_plan_attempts for r in results) / n
-        summary.cadence_avg_repair_attempts = sum(r.cadence_repair_attempts for r in results) / n
+        # CRAFT stats
+        summary.craft_syntax_rate = sum(r.craft_syntax_valid for r in results) / n
+        summary.craft_render_rate = sum(r.craft_render_success for r in results) / n
+        summary.craft_validation_rate = sum(r.craft_validation_passed for r in results) / n
+        summary.craft_geometry_rate = sum(r.craft_has_geometry for r in results) / n
+        summary.craft_avg_time = sum(r.craft_time for r in results) / n
+        summary.craft_avg_plan_attempts = sum(r.craft_plan_attempts for r in results) / n
+        summary.craft_avg_repair_attempts = sum(r.craft_repair_attempts for r in results) / n
 
         # Baseline stats
         summary.baseline_syntax_rate = sum(r.baseline_syntax_valid for r in results) / n
@@ -505,7 +505,7 @@ class ComparisonRunner:
         summary.baseline_avg_time = sum(r.baseline_time for r in results) / n
 
         # Wins
-        summary.cadence_wins = sum(r.cadence_wins for r in results)
+        summary.craft_wins = sum(r.craft_wins for r in results)
         summary.baseline_wins = sum(r.baseline_wins for r in results)
         summary.ties = sum(r.tie for r in results)
 
@@ -517,11 +517,11 @@ class ComparisonRunner:
             if cat_n > 0:
                 summary.category_stats[cat] = {
                     "count": cat_n,
-                    "cadence_syntax": sum(r.cadence_syntax_valid for r in cat_results) / cat_n,
-                    "cadence_render": sum(r.cadence_render_success for r in cat_results) / cat_n,
+                    "craft_syntax": sum(r.craft_syntax_valid for r in cat_results) / cat_n,
+                    "craft_render": sum(r.craft_render_success for r in cat_results) / cat_n,
                     "baseline_syntax": sum(r.baseline_syntax_valid for r in cat_results) / cat_n,
                     "baseline_render": sum(r.baseline_render_success for r in cat_results) / cat_n,
-                    "cadence_wins": sum(r.cadence_wins for r in cat_results),
+                    "craft_wins": sum(r.craft_wins for r in cat_results),
                     "baseline_wins": sum(r.baseline_wins for r in cat_results),
                 }
 
@@ -552,14 +552,14 @@ class ComparisonRunner:
 
         print(f"\nTotal Prompts: {summary.total_prompts}")
 
-        print(f"\n--- CADence ---")
-        print(f"  Syntax Pass Rate:     {summary.cadence_syntax_rate:.1%}")
-        print(f"  Render Success Rate:  {summary.cadence_render_rate:.1%}")
-        print(f"  Validation Pass Rate: {summary.cadence_validation_rate:.1%}")
-        print(f"  Geometry Present:     {summary.cadence_geometry_rate:.1%}")
-        print(f"  Avg Time:             {summary.cadence_avg_time:.2f}s")
-        print(f"  Avg Plan Attempts:    {summary.cadence_avg_plan_attempts:.2f}")
-        print(f"  Avg Repair Attempts:  {summary.cadence_avg_repair_attempts:.2f}")
+        print(f"\n--- CRAFT ---")
+        print(f"  Syntax Pass Rate:     {summary.craft_syntax_rate:.1%}")
+        print(f"  Render Success Rate:  {summary.craft_render_rate:.1%}")
+        print(f"  Validation Pass Rate: {summary.craft_validation_rate:.1%}")
+        print(f"  Geometry Present:     {summary.craft_geometry_rate:.1%}")
+        print(f"  Avg Time:             {summary.craft_avg_time:.2f}s")
+        print(f"  Avg Plan Attempts:    {summary.craft_avg_plan_attempts:.2f}")
+        print(f"  Avg Repair Attempts:  {summary.craft_avg_repair_attempts:.2f}")
 
         print(f"\n--- Direct GPT-4o Baseline ---")
         print(f"  Syntax Pass Rate:     {summary.baseline_syntax_rate:.1%}")
@@ -568,14 +568,14 @@ class ComparisonRunner:
         print(f"  Avg Time:             {summary.baseline_avg_time:.2f}s")
 
         print(f"\n--- Head-to-Head ---")
-        print(f"  CADence Wins:  {summary.cadence_wins}")
+        print(f"  CRAFT Wins:  {summary.craft_wins}")
         print(f"  Baseline Wins: {summary.baseline_wins}")
         print(f"  Ties:          {summary.ties}")
 
         if summary.category_stats:
             print(f"\n--- Per Category ---")
             for cat, stats in summary.category_stats.items():
-                print(f"  {cat}: CADence {stats['cadence_wins']} / Baseline {stats['baseline_wins']}")
+                print(f"  {cat}: CRAFT {stats['craft_wins']} / Baseline {stats['baseline_wins']}")
 
 
 def run_full_comparison(

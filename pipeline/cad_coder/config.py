@@ -15,7 +15,7 @@ class Config:
     """Pipeline configuration."""
 
     # Paths
-    dataset_path: str = "GenCAD-Code/data"  # Relative to cadence dir or absolute
+    dataset_path: str = "GenCAD-Code/data"  # Relative to craft dir or absolute
     output_dir: str = "cad_coder_output"
 
     # LLM Settings
@@ -94,7 +94,7 @@ Output ONLY the corrected OpenSCAD code.""")
             return Path(base_dir) / self.dataset_path
 
         # Default: relative to this file's directory
-        return Path(__file__).parent.parent.parent / "Cadence" / self.dataset_path
+        return Path(__file__).parent.parent.parent / "craft" / self.dataset_path
 
     def get_output_path(self, base_dir: Optional[str] = None) -> Path:
         """Get absolute path to output directory."""

@@ -2,7 +2,7 @@
 """
 NopSCADlib Ground Truth Benchmark Evaluation
 
-Compares CADence pipeline vs GPT baselines using NopSCADlib components as ground truth.
+Compares CRAFT pipeline vs GPT baselines using NopSCADlib components as ground truth.
 Ground truth models are authored using parametric specifications sourced from the
 NopSCADlib library (https://github.com/nophead/NopSCADlib). Reference dimensions
 (bearing diameters, mounting hole patterns, motor face widths) follow NopSCADlib's
@@ -11,8 +11,8 @@ catalog to ensure dimensional accuracy and reproducibility.
 Methods evaluated:
 1. GPT-4o (direct) - Simple prompt -> code, NO pipeline/VLM/verification
 2. GPT-5.2 (direct) - Simple prompt -> code, NO pipeline/VLM/verification
-3. CADence (no RAG) - Full pipeline WITH VLM correction + component verification
-4. CADence + RAG - Full pipeline WITH VLM + verification + NopSCADlib KB
+3. CRAFT (no RAG) - Full pipeline WITH VLM correction + component verification
+4. CRAFT + RAG - Full pipeline WITH VLM + verification + NopSCADlib KB
 
 Prompts are specifically designed to trigger NopSCADlib RAG retrieval using
 known aliases and keywords from kb/config.py.
@@ -20,7 +20,7 @@ known aliases and keywords from kb/config.py.
 Usage:
     python run_nopscadlib_benchmark.py
     python run_nopscadlib_benchmark.py --quick  # Run only 3 prompts
-    python run_nopscadlib_benchmark.py --methods gpt4o cadence_rag
+    python run_nopscadlib_benchmark.py --methods gpt4o craft_rag
 """
 
 import os
@@ -789,7 +789,7 @@ class MethodResult:
     syntax_valid: bool = False
     render_success: bool = False
 
-    # VLM/Verification (only for CADence)
+    # VLM/Verification (only for CRAFT)
     vlm_iterations: int = 0
     vlm_approved: bool = False
     verification_iterations: int = 0
@@ -1002,8 +1002,8 @@ class DirectBaseline:
             return "", time.time() - start, extra_info
 
 
-class CADencePipeline:
-    """Full CADence pipeline WITH VLM correction and component verification."""
+class CRAFTPipeline:
+    """Full CRAFT pipeline WITH VLM correction and component verification."""
 
     def __init__(
         self,
@@ -1082,7 +1082,7 @@ class CADencePipeline:
         scad_path: str,
         image_path: str
     ) -> Tuple[str, float, dict]:
-        """Generate OpenSCAD via full CADence pipeline with VLM and verification."""
+        """Generate OpenSCAD via full CRAFT pipeline with VLM and verification."""
         self._init()
 
         start = time.time()
@@ -1173,7 +1173,7 @@ class CADencePipeline:
             return code, time.time() - start, extra_info
 
         except Exception as e:
-            print(f"  Error in CADence pipeline: {e}")
+            print(f"  Error in CRAFT pipeline: {e}")
             import traceback
             traceback.print_exc()
             return "", time.time() - start, extra_info
@@ -1192,12 +1192,12 @@ class NopSCADlibBenchmark:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Create subdirectories
-        for subdir in ["ground_truth", "gpt4o", "gpt52", "cadence", "cadence_rag",
+        for subdir in ["ground_truth", "gpt4o", "gpt52", "craft", "craft_rag",
                        "stl", "images"]:
             (self.output_dir / subdir).mkdir(exist_ok=True)
 
         # Methods to run
-        self.methods = methods or ["gpt4o", "gpt52", "cadence", "cadence_rag"]
+        self.methods = methods or ["gpt4o", "gpt52", "craft", "craft_rag"]
 
         # Initialize OpenAI client
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -1209,8 +1209,8 @@ class NopSCADlibBenchmark:
             self.runners["gpt4o"] = DirectBaseline(self.client, "gpt-4o")
         if "gpt52" in self.methods:
             self.runners["gpt52"] = DirectBaseline(self.client, "gpt-5.2")
-        if "cadence" in self.methods:
-            self.runners["cadence"] = CADencePipeline(
+        if "craft" in self.methods:
+            self.runners["craft"] = CRAFTPipeline(
                 self.client,
                 pipeline_model="gpt-4o",
                 vlm_model="gpt-5.2",
@@ -1218,8 +1218,8 @@ class NopSCADlibBenchmark:
                 use_vlm=True,
                 use_verification=True
             )
-        if "cadence_rag" in self.methods:
-            self.runners["cadence_rag"] = CADencePipeline(
+        if "craft_rag" in self.methods:
+            self.runners["craft_rag"] = CRAFTPipeline(
                 self.client,
                 pipeline_model="gpt-4o",
                 vlm_model="gpt-5.2",
@@ -1230,7 +1230,7 @@ class NopSCADlibBenchmark:
 
         print(f"[Benchmark] Output: {self.output_dir}")
         print(f"[Benchmark] Methods: {self.methods}")
-        print(f"[Benchmark] CADence features: VLM correction=True, Verification=True")
+        print(f"[Benchmark] CRAFT features: VLM correction=True, Verification=True")
 
     def run(self, prompts: List[BenchmarkPrompt] = None) -> Dict[str, Any]:
         """Run the complete benchmark."""
@@ -1241,7 +1241,7 @@ class NopSCADlibBenchmark:
         print(f"{'='*70}")
         print(f"Prompts: {len(prompts)}")
         print(f"Methods: {', '.join(self.methods)}")
-        print(f"CADence: VLM + Verification enabled")
+        print(f"CRAFT: VLM + Verification enabled")
         print(f"Baselines: Direct generation only (no pipeline)")
         print(f"{'='*70}\n")
 
@@ -1507,8 +1507,8 @@ class NopSCADlibBenchmark:
     def _generate_latex_table(self, summary: Dict[str, Any]):
         """Generate LaTeX table for paper with all 4 metrics.
 
-        Shows 3 methods per complexity tier: GPT-4o, GPT-5.2, and CADence (best).
-        CADence (best) picks the better of CADence (no RAG) vs CADence + RAG
+        Shows 3 methods per complexity tier: GPT-4o, GPT-5.2, and CRAFT (best).
+        CRAFT (best) picks the better of CRAFT (no RAG) vs CRAFT + RAG
         for each complexity tier based on lower mean CD.
         """
         lines = []
@@ -1545,39 +1545,39 @@ class NopSCADlibBenchmark:
             for method in display_methods:
                 all_methods_data[method] = cat_data.get(method, {})
 
-            # Determine best CADence variant.
+            # Determine best CRAFT variant.
             # Prefer higher render rate first; break ties with lower CD.
-            cadence_data = cat_data.get("cadence", {})
-            cadence_rag_data = cat_data.get("cadence_rag", {})
-            cadence_cd = cadence_data.get("avg_chamfer")
-            cadence_rag_cd = cadence_rag_data.get("avg_chamfer")
-            cadence_rr = cadence_data.get("render_rate", 0)
-            cadence_rag_rr = cadence_rag_data.get("render_rate", 0)
+            craft_data = cat_data.get("craft", {})
+            craft_rag_data = cat_data.get("craft_rag", {})
+            craft_cd = craft_data.get("avg_chamfer")
+            craft_rag_cd = craft_rag_data.get("avg_chamfer")
+            craft_rr = craft_data.get("render_rate", 0)
+            craft_rag_rr = craft_rag_data.get("render_rate", 0)
 
-            if cadence_cd is not None and cadence_rag_cd is not None:
-                if cadence_rag_rr > cadence_rr:
-                    best_cadence = cadence_rag_data
-                    best_label = "CADence + RAG"
-                elif cadence_rr > cadence_rag_rr:
-                    best_cadence = cadence_data
-                    best_label = "CADence"
-                elif cadence_rag_cd <= cadence_cd:
-                    best_cadence = cadence_rag_data
-                    best_label = "CADence + RAG"
+            if craft_cd is not None and craft_rag_cd is not None:
+                if craft_rag_rr > craft_rr:
+                    best_craft = craft_rag_data
+                    best_label = "CRAFT + RAG"
+                elif craft_rr > craft_rag_rr:
+                    best_craft = craft_data
+                    best_label = "CRAFT"
+                elif craft_rag_cd <= craft_cd:
+                    best_craft = craft_rag_data
+                    best_label = "CRAFT + RAG"
                 else:
-                    best_cadence = cadence_data
-                    best_label = "CADence"
-            elif cadence_rag_cd is not None:
-                best_cadence = cadence_rag_data
-                best_label = "CADence + RAG"
-            elif cadence_cd is not None:
-                best_cadence = cadence_data
-                best_label = "CADence"
+                    best_craft = craft_data
+                    best_label = "CRAFT"
+            elif craft_rag_cd is not None:
+                best_craft = craft_rag_data
+                best_label = "CRAFT + RAG"
+            elif craft_cd is not None:
+                best_craft = craft_data
+                best_label = "CRAFT"
             else:
-                best_cadence = {}
-                best_label = "CADence"
+                best_craft = {}
+                best_label = "CRAFT"
 
-            all_methods_data["cadence_best"] = best_cadence
+            all_methods_data["craft_best"] = best_craft
 
             # Find best value per metric for bolding
             def _best(metric, higher_better=True):
@@ -1625,8 +1625,8 @@ class NopSCADlibBenchmark:
                 prefix = "  & " if i > 0 else "  "
                 lines.append(f"{prefix}{label} & {rr_s} & {cd_s} & {fs_s} & {vi_s} & {ss_s} \\\\")
 
-            # CADence (best) row
-            d = best_cadence
+            # CRAFT (best) row
+            d = best_craft
             rr = d.get("render_rate", 0)
             rr_s = f"{rr:.0f}\\%"
             cd_s = _fmt(d.get("avg_chamfer"), best_cd, False)
@@ -1701,29 +1701,29 @@ class NopSCADlibBenchmark:
                 cat_label = category if method == "gpt4o" else ""
                 print(f"{cat_label:<10} | {label:<18} | {rr_s:>5} | {cd_s:>6} | {fs_s:>7} | {vi_s:>6} | {ss_s:>6}")
 
-            # Best CADence: prefer higher render rate, then lower CD
-            cadence_cd = cat_data.get("cadence", {}).get("avg_chamfer")
-            cadence_rag_cd = cat_data.get("cadence_rag", {}).get("avg_chamfer")
-            cadence_rr = cat_data.get("cadence", {}).get("render_rate", 0)
-            cadence_rag_rr = cat_data.get("cadence_rag", {}).get("render_rate", 0)
-            if cadence_cd is not None and cadence_rag_cd is not None:
-                if cadence_rag_rr > cadence_rr:
-                    best_key, best_label = "cadence_rag", "CADence + RAG"
-                elif cadence_rr > cadence_rag_rr:
-                    best_key, best_label = "cadence", "CADence"
-                elif cadence_rag_cd <= cadence_cd:
-                    best_key, best_label = "cadence_rag", "CADence + RAG"
+            # Best CRAFT: prefer higher render rate, then lower CD
+            craft_cd = cat_data.get("craft", {}).get("avg_chamfer")
+            craft_rag_cd = cat_data.get("craft_rag", {}).get("avg_chamfer")
+            craft_rr = cat_data.get("craft", {}).get("render_rate", 0)
+            craft_rag_rr = cat_data.get("craft_rag", {}).get("render_rate", 0)
+            if craft_cd is not None and craft_rag_cd is not None:
+                if craft_rag_rr > craft_rr:
+                    best_key, best_label = "craft_rag", "CRAFT + RAG"
+                elif craft_rr > craft_rag_rr:
+                    best_key, best_label = "craft", "CRAFT"
+                elif craft_rag_cd <= craft_cd:
+                    best_key, best_label = "craft_rag", "CRAFT + RAG"
                 else:
-                    best_key, best_label = "cadence", "CADence"
-            elif cadence_rag_cd is not None:
-                best_key = "cadence_rag"
-                best_label = "CADence + RAG"
-            elif cadence_cd is not None:
-                best_key = "cadence"
-                best_label = "CADence"
+                    best_key, best_label = "craft", "CRAFT"
+            elif craft_rag_cd is not None:
+                best_key = "craft_rag"
+                best_label = "CRAFT + RAG"
+            elif craft_cd is not None:
+                best_key = "craft"
+                best_label = "CRAFT"
             else:
                 best_key = None
-                best_label = "CADence"
+                best_label = "CRAFT"
 
             if best_key:
                 d = cat_data.get(best_key, {})
@@ -1757,7 +1757,7 @@ def main():
     parser.add_argument("--quick", action="store_true",
                         help="Quick test with only 3 prompts")
     parser.add_argument("--methods", nargs="+",
-                        choices=["gpt4o", "gpt52", "cadence", "cadence_rag"],
+                        choices=["gpt4o", "gpt52", "craft", "craft_rag"],
                         help="Methods to run (default: all)")
     parser.add_argument("--output-dir", type=str,
                         help="Output directory (auto-generated if not specified)")

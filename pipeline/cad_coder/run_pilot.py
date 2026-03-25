@@ -17,8 +17,8 @@ from pathlib import Path
 # Add parent directories to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from cadence.cad_coder.config import Config
-from cadence.cad_coder.pipeline import TranslationPipeline
+from pipeline.cad_coder.config import Config
+from pipeline.cad_coder.pipeline import TranslationPipeline
 
 
 def main():
@@ -149,8 +149,8 @@ Examples:
     if dataset_path is None:
         # Try default locations
         default_paths = [
-            Path(__file__).parent.parent.parent / "Cadence" / "GenCAD-Code" / "data",
-            Path(__file__).parent.parent / "Cadence" / "GenCAD-Code" / "data",
+            Path(__file__).parent.parent.parent / "craft" / "GenCAD-Code" / "data",
+            Path(__file__).parent.parent / "craft" / "GenCAD-Code" / "data",
             Path("./GenCAD-Code/data"),
             Path("../GenCAD-Code/data"),
         ]

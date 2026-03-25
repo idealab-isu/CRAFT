@@ -1,5 +1,5 @@
 """
-CADence Metrics Module
+CRAFT Metrics Module
 
 Provides image comparison metrics for evaluation:
 - SSIM (Structural Similarity Index)

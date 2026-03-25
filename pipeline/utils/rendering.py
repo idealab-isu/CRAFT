@@ -1,5 +1,5 @@
 """
-CADence Rendering Utilities
+CRAFT Rendering Utilities
 
 This module provides utilities for:
 - Standard camera setups (10 views: 6 ortho + 4 iso)

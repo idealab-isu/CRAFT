@@ -1,5 +1,5 @@
 """
-CADence Planner
+CRAFT Planner
 
 This module converts Design Briefs into JSON CAD Plans following the schema.
 It also handles plan validation and repair.

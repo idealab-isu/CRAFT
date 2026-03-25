@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Step 3: Run CADence + GPT baselines on external dataset prompts.
+Step 3: Run CRAFT + GPT baselines on external dataset prompts.
 
 Runs three models on the prompts from the ground truth JSON:
-  - CADence (KB disabled, no component verification)
+  - CRAFT (KB disabled, no component verification)
   - GPT-4o baseline (single API call)
   - GPT-5.2 baseline (single API call)
 
@@ -25,7 +25,7 @@ Usage:
     python ext_step3_run_benchmark.py \
         --benchmark-json abc_ground_truth.json \
         --dataset-name abc \
-        --models cadence gpt4o
+        --models craft gpt4o
 
     # Resume from checkpoint
     python ext_step3_run_benchmark.py \
@@ -64,8 +64,8 @@ from dataclasses import dataclass, asdict
 from typing import List, Optional
 
 SCRIPT_DIR = Path(__file__).parent
-CADENCE_DIR = SCRIPT_DIR.parent / "cadence"
-sys.path.insert(0, str(CADENCE_DIR))
+CRAFT_DIR = SCRIPT_DIR.parent / "craft"
+sys.path.insert(0, str(CRAFT_DIR))
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -118,7 +118,7 @@ class BenchmarkResult:
     stl_time: float = 0.0
     total_time: float = 0.0
     error: Optional[str] = None
-    # CADence-specific
+    # CRAFT-specific
     reasoner_ok: bool = False
     planner_ok: bool = False
     compiler_ok: bool = False
@@ -305,11 +305,11 @@ class GPTBaselineRunner:
         return result
 
 
-# ─── CADence Runner (No KB) ──────────────────────────────────────────────────
+# ─── CRAFT Runner (No KB) ──────────────────────────────────────────────────
 
-class CADenceExternalRunner:
+class CRAFTExternalRunner:
     """
-    Runs CADence pipeline with KB DISABLED for external datasets.
+    Runs CRAFT pipeline with KB DISABLED for external datasets.
 
     Pipeline: Reasoner (no KB) -> Planner -> Compiler -> VLM Correction
               -> Component Verification -> STL
@@ -339,7 +339,7 @@ class CADenceExternalRunner:
         if self._initialized:
             return
 
-        print("  Initializing CADence pipeline (KB disabled)...")
+        print("  Initializing CRAFT pipeline (KB disabled)...")
 
         from openai import OpenAI
         from core.llm_client import create_unified_client
@@ -387,7 +387,7 @@ class CADenceExternalRunner:
         """
         Inject hard geometric constraints into the prompt for the Reasoner.
 
-        CADence's structured pipeline can exploit explicit dimensional
+        CRAFT's structured pipeline can exploit explicit dimensional
         constraints much better than single-shot GPT baselines, giving it
         a genuine advantage on Chamfer Distance.
         """
@@ -535,13 +535,13 @@ class CADenceExternalRunner:
     ) -> BenchmarkResult:
         self._init_pipeline()
 
-        # Augment prompt with hard geometric constraints (CADence advantage)
+        # Augment prompt with hard geometric constraints (CRAFT advantage)
         augmented_prompt = self._augment_prompt(prompt_text, target_bbox, hull_ratio)
 
         result = BenchmarkResult(
             prompt_id=prompt_id,
             prompt_text=prompt_text,
-            model="cadence",
+            model="craft",
         )
         t_start = time.time()
 
@@ -726,8 +726,8 @@ def run_batch(
 
         print(f"  [{i+1:3d}/{total}] {pid[:50]}...", end=" ", flush=True)
 
-        # Pass target_bbox and hull_ratio to CADence for dimension calibration
-        if isinstance(runner, CADenceExternalRunner):
+        # Pass target_bbox and hull_ratio to CRAFT for dimension calibration
+        if isinstance(runner, CRAFTExternalRunner):
             result = runner.run_single(
                 pid, p["prompt"],
                 target_bbox=p.get("target_bbox"),
@@ -768,7 +768,7 @@ def _save_results(results: List[BenchmarkResult], model_label: str, path: Path):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Run CADence + GPT baselines on external dataset prompts",
+        description="Run CRAFT + GPT baselines on external dataset prompts",
         epilog="Next: python ext_step4_evaluate.py --benchmark-json <...> --results-dir <...>",
     )
     parser.add_argument("--benchmark-json", type=str, required=True,
@@ -776,19 +776,19 @@ def main():
     parser.add_argument("--dataset-name", type=str, required=True,
                         help="Dataset name (for output directory naming)")
     parser.add_argument("--models", nargs="+",
-                        default=["cadence", "gpt4o", "gpt52"],
-                        choices=["cadence", "gpt4o", "gpt52"],
+                        default=["craft", "gpt4o", "gpt52"],
+                        choices=["craft", "gpt4o", "gpt52"],
                         help="Models to run (default: all three)")
     parser.add_argument("--ids", nargs="+", default=None,
                         help="Specific sample IDs to run")
     parser.add_argument("--resume", action="store_true",
                         help="Resume from checkpoint")
     parser.add_argument("--no-vlm", action="store_true",
-                        help="Skip VLM self-correction for CADence")
+                        help="Skip VLM self-correction for CRAFT")
     parser.add_argument("--no-verify", action="store_true",
-                        help="Skip component verification for CADence")
+                        help="Skip component verification for CRAFT")
     parser.add_argument("--max-vlm-iter", type=int, default=3,
-                        help="Max VLM iterations for CADence")
+                        help="Max VLM iterations for CRAFT")
     parser.add_argument("--prompt-type", type=str, default="descriptive",
                         choices=["descriptive", "reconstructable", "program_hint"],
                         help="Which prompt variant to use (default: descriptive)")
@@ -821,8 +821,8 @@ def main():
 
         output_dir = base_dir / model_key
 
-        if model_key == "cadence":
-            runner = CADenceExternalRunner(
+        if model_key == "craft":
+            runner = CRAFTExternalRunner(
                 output_dir=output_dir,
                 use_vlm=not args.no_vlm,
                 use_verify=not args.no_verify,

@@ -13,13 +13,13 @@ Usage:
     # Single model
     python evaluate_fid.py \
         --gt-png-dir ground_truth/png \
-        --pred-png-dir results/cadence/png \
-        --model-name cadence
+        --pred-png-dir results/craft/png \
+        --model-name craft
 
     # Multiple models at once
     python evaluate_fid.py \
         --gt-png-dir ground_truth/png \
-        --models cadence=results/cadence/png \
+        --models craft=results/craft/png \
                  gpt4o=results/gpt4o/png \
                  gpt52=results/gpt52/png
 
@@ -616,11 +616,11 @@ def main():
 Examples:
   # Single model
   python evaluate_fid.py --gt-png-dir ground_truth/png \\
-    --pred-png-dir results/cadence/png --model-name cadence
+    --pred-png-dir results/craft/png --model-name craft
 
   # Multiple models (GT features are extracted once and reused)
   python evaluate_fid.py --gt-png-dir ground_truth/png \\
-    --models cadence=results/cadence/png gpt4o=results/gpt4o/png gpt52=results/gpt52/png
+    --models craft=results/craft/png gpt4o=results/gpt4o/png gpt52=results/gpt52/png
         """
     )
 
@@ -632,7 +632,7 @@ Examples:
                         help="Name of the model (for single model mode)")
     parser.add_argument("--models", nargs="+", default=None,
                         help="Multiple models as name=dir pairs "
-                             "(e.g., cadence=results/cadence/png)")
+                             "(e.g., craft=results/craft/png)")
     parser.add_argument("--benchmark-json", type=str,
                         default=str(SCRIPT_DIR / "benchmark_ground_truth.json"),
                         help="Path to benchmark_ground_truth.json")

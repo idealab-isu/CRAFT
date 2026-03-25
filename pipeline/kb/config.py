@@ -11,9 +11,9 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 
 # Base paths
-CADENCE_DIR = Path(__file__).parent.parent
-KB_DIR = CADENCE_DIR / "kb"
-KB_DATA_DIR = CADENCE_DIR / "kb_data"
+CRAFT_DIR = Path(__file__).parent.parent
+KB_DIR = CRAFT_DIR / "kb"
+KB_DATA_DIR = CRAFT_DIR / "kb_data"
 DOCUMENTATION_PATH = KB_DATA_DIR / "documentation.json"
 
 # NopSCADlib paths

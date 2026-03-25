@@ -17,13 +17,13 @@ Usage:
     # Evaluate a single model
     python evaluate_clip_score.py \
         --gt-png-dir ground_truth/png \
-        --pred-png-dir results/cadence/png \
-        --model-name cadence
+        --pred-png-dir results/craft/png \
+        --model-name craft
 
     # Evaluate all models at once
     python evaluate_clip_score.py \
         --gt-png-dir ground_truth/png \
-        --models cadence=results/cadence/png \
+        --models craft=results/craft/png \
                  gpt4o=results/gpt4o/png \
                  gpt52=results/gpt52/png
 
@@ -80,7 +80,7 @@ SCRIPT_DIR = Path(__file__).parent
 class CLIPResult:
     """CLIP Score for a single prompt-image pair."""
     prompt_id: str
-    source: str          # "gt", "cadence", "gpt4o", etc.
+    source: str          # "gt", "craft", "gpt4o", etc.
     prompt_text: str
     clip_score: float = float('nan')   # Cosine similarity (higher is better)
     tier: str = ""
@@ -268,7 +268,7 @@ def evaluate_source(
     Args:
         components: List of component metadata dicts
         png_dir: Directory containing rendered PNGs
-        source_name: "gt", "cadence", "gpt4o", etc.
+        source_name: "gt", "craft", "gpt4o", etc.
         model, preprocess, tokenizer, device: CLIP model components
         prompt_ids: Optional subset of IDs to evaluate
         batch_size: Batch size for CLIP inference
@@ -633,11 +633,11 @@ Examples:
 
   # Single model
   python evaluate_clip_score.py --gt-png-dir ground_truth/png \\
-    --pred-png-dir results/cadence/png --model-name cadence
+    --pred-png-dir results/craft/png --model-name craft
 
   # Multiple models
   python evaluate_clip_score.py --gt-png-dir ground_truth/png \\
-    --models cadence=results/cadence/png gpt4o=results/gpt4o/png gpt52=results/gpt52/png
+    --models craft=results/craft/png gpt4o=results/gpt4o/png gpt52=results/gpt52/png
 
   # Different CLIP backbone
   python evaluate_clip_score.py --gt-png-dir ground_truth/png \\
@@ -653,7 +653,7 @@ Examples:
                         help="Name of the model (for single model mode)")
     parser.add_argument("--models", nargs="+", default=None,
                         help="Multiple models as name=dir pairs "
-                             "(e.g., cadence=results/cadence/png)")
+                             "(e.g., craft=results/craft/png)")
     parser.add_argument("--benchmark-json", type=str,
                         default=str(SCRIPT_DIR / "benchmark_ground_truth.json"),
                         help="Path to benchmark_ground_truth.json")

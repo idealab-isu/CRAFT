@@ -1,5 +1,5 @@
 """
-CADence - Unified Text-to-CAD Pipeline
+CRAFT - Unified Text-to-CAD Pipeline
 
 Main Flask application providing:
 - Text input → CAD generation
@@ -30,7 +30,7 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Import CADence modules
+# Import CRAFT modules
 from core.schema import validate_plan, postprocess_plan
 from core.reasoner import TextReasoner, DesignBrief, KBComponentContext
 from core.vision import (
@@ -301,7 +301,7 @@ class PipelineState:
 # PIPELINE ORCHESTRATOR
 # =============================================================================
 
-class CADencePipeline:
+class CRAFTPipeline:
     """
     Main pipeline orchestrator.
 
@@ -960,13 +960,13 @@ app.secret_key = secrets.token_hex(16)
 # In production, use Redis or database
 current_states: Dict[str, PipelineState] = {}
 
-def get_pipeline(use_kb: bool = True, model_pipeline: Optional[str] = None) -> CADencePipeline:
+def get_pipeline(use_kb: bool = True, model_pipeline: Optional[str] = None) -> CRAFTPipeline:
     """Get a pipeline instance with hybrid model configuration.
 
     Uses GPT-5.2 for critical reasoning (Understanding, Planning, VLM correction)
     and GPT-4o for deterministic tasks (Vision Analysis, Compilation, Repair).
     """
-    return CADencePipeline(
+    return CRAFTPipeline(
         client,
         model_pipeline=model_pipeline or MODEL_PIPELINE,
         model_vlm=MODEL_VLM,
@@ -1135,7 +1135,7 @@ def vision_single():
 
     Takes a single concept image (e.g., ice cream, coffee mug, toy car) and uses
     GPT-5.2 (best reasoning model) to understand the object and generate
-    OpenSCAD code through the CADence pipeline.
+    OpenSCAD code through the CRAFT pipeline.
 
     Form data:
         image: Single image file (JPEG, PNG, etc.)

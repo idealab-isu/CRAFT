@@ -28,7 +28,7 @@ except ImportError:
 
 from .config import Config
 
-# Import from existing cadence utilities
+# Import from existing craft utilities
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.openscad_runner import render_scad_code, export_stl_from_code

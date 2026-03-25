@@ -1,5 +1,5 @@
 """
-CADence Test Prompts
+CRAFT Test Prompts
 
 Categorized test prompts for evaluation.
 Categories: Simple, Medium, Complex, With Dimensions, RAG (mechanical parts)

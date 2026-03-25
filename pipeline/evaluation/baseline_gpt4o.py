@@ -1,7 +1,7 @@
 """
 GPT-4o Direct Baseline
 
-Direct OpenSCAD generation using GPT-4o without the CADence pipeline.
+Direct OpenSCAD generation using GPT-4o without the CRAFT pipeline.
 This serves as the baseline for comparison.
 """
 

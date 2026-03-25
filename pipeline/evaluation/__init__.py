@@ -1,7 +1,7 @@
 """
-CADence Evaluation Module
+CRAFT Evaluation Module
 
-Provides comparison framework for CADence vs baselines.
+Provides comparison framework for CRAFT vs baselines.
 """
 
 from .test_prompts import TEST_PROMPTS, get_prompts_by_category, get_all_prompts

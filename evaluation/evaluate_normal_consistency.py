@@ -13,13 +13,13 @@ Usage:
     # Single model
     python evaluate_normal_consistency.py \
         --gt-dir ground_truth/stl \
-        --pred-dir results/cadence/stl \
-        --model-name cadence
+        --pred-dir results/craft/stl \
+        --model-name craft
 
     # Multiple models at once
     python evaluate_normal_consistency.py \
         --gt-dir ground_truth/stl \
-        --models cadence=results/cadence/stl \
+        --models craft=results/craft/stl \
                  gpt4o=results/gpt4o/stl \
                  gpt52=results/gpt52/stl
 
@@ -680,11 +680,11 @@ def main():
 Examples:
   # Single model
   python evaluate_normal_consistency.py --gt-dir ground_truth/stl \\
-    --pred-dir results/cadence/stl --model-name cadence
+    --pred-dir results/craft/stl --model-name craft
 
   # Multiple models
   python evaluate_normal_consistency.py --gt-dir ground_truth/stl \\
-    --models cadence=results/cadence/stl gpt4o=results/gpt4o/stl gpt52=results/gpt52/stl
+    --models craft=results/craft/stl gpt4o=results/gpt4o/stl gpt52=results/gpt52/stl
         """
     )
 
@@ -696,7 +696,7 @@ Examples:
                         help="Name of the model (for single model mode)")
     parser.add_argument("--models", nargs="+", default=None,
                         help="Multiple models as name=dir pairs "
-                             "(e.g., cadence=results/cadence/stl)")
+                             "(e.g., craft=results/craft/stl)")
     parser.add_argument("--benchmark-json", type=str,
                         default=str(SCRIPT_DIR / "benchmark_ground_truth.json"),
                         help="Path to benchmark_ground_truth.json")

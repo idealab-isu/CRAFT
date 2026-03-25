@@ -29,8 +29,8 @@ CATALOG_PATH = SCRIPT_DIR / "nopscadlib_component_catalog.json"
 RENDER_RESULTS_PATH = SCRIPT_DIR / "ground_truth" / "render_results.json"
 OUTPUT_PATH = SCRIPT_DIR / "benchmark_ground_truth.json"
 
-CADENCE_DIR = SCRIPT_DIR.parent / "cadence"
-NOPSCADLIB_DIR = CADENCE_DIR / "kb_data" / "nopscadlib"
+CRAFT_DIR = SCRIPT_DIR.parent / "craft"
+NOPSCADLIB_DIR = CRAFT_DIR / "kb_data" / "nopscadlib"
 VITAMINS_DIR = NOPSCADLIB_DIR / "vitamins"
 
 # ── primitives and operations to count ─────────────────────────────

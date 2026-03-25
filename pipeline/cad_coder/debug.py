@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 def test_loader(dataset_path: str):
     """Test loading samples from dataset."""
     print("\n=== Testing Loader ===")
-    from cadence.cad_coder.loader import GenCADLoader
+    from pipeline.cad_coder.loader import GenCADLoader
 
     try:
         loader = GenCADLoader(dataset_path)
@@ -44,8 +44,8 @@ def test_translator(cadquery_code: str):
         print("OPENAI_API_KEY not set, skipping translator test")
         return None
 
-    from cadence.cad_coder.llm_translator import LLMTranslator
-    from cadence.cad_coder.config import Config
+    from pipeline.cad_coder.llm_translator import LLMTranslator
+    from pipeline.cad_coder.config import Config
 
     try:
         config = Config()
@@ -81,7 +81,7 @@ def test_render(openscad_code: str):
         print("ERROR: OpenSCAD not found! Please install it.")
         return None
 
-    from cadence.utils.openscad_runner import render_scad_code, export_stl_from_code
+    from pipeline.utils.openscad_runner import render_scad_code, export_stl_from_code
 
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -134,7 +134,7 @@ def test_image_comparison(original_image, render_path: str):
         print("No original image to compare")
         return
 
-    from cadence.utils.metrics import compute_ssim, compute_silhouette_iou
+    from pipeline.utils.metrics import compute_ssim, compute_silhouette_iou
     import tempfile
     from PIL import Image
 
@@ -207,7 +207,7 @@ cube([10, 10, 10], center=true);
     with tempfile.TemporaryDirectory() as tmpdir:
         render_path = f"{tmpdir}/render.png"
 
-        from cadence.utils.openscad_runner import render_scad_code
+        from pipeline.utils.openscad_runner import render_scad_code
         success, _ = render_scad_code(openscad_code, render_path, imgsize=(448, 448))
 
         if success:

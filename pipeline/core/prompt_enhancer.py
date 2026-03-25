@@ -1,5 +1,5 @@
 """
-Prompt Enhancer for CADence Pipeline
+Prompt Enhancer for CRAFT Pipeline
 
 Enhances vague user prompts with specific details from the Knowledge Base:
 - Specific component variants (e.g., "servo motor" → "SG90 micro servo")

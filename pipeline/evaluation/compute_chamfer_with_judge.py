@@ -214,8 +214,8 @@ def judge_with_gemini(
     method_labels = {
         "gpt4o_baseline": "A",
         "gpt52_baseline": "B",
-        "cadence_no_rag": "C",
-        "cadence_with_rag": "D"
+        "craft_no_rag": "C",
+        "craft_with_rag": "D"
     }
 
     # Prepare images
@@ -337,8 +337,8 @@ def judge_with_openai(
     method_labels = {
         "gpt4o_baseline": "A",
         "gpt52_baseline": "B",
-        "cadence_no_rag": "C",
-        "cadence_with_rag": "D"
+        "craft_no_rag": "C",
+        "craft_with_rag": "D"
     }
 
     # Build messages with images
@@ -468,7 +468,7 @@ class ChamferEvaluator:
         self.gemini_key = os.getenv("GEMINI_API_KEY")
         self.openai_key = os.getenv("OPENAI_API_KEY")
 
-        self.methods = ["gpt4o_baseline", "gpt52_baseline", "cadence_no_rag", "cadence_with_rag"]
+        self.methods = ["gpt4o_baseline", "gpt52_baseline", "craft_no_rag", "craft_with_rag"]
 
     def _load_prompts(self) -> List[Dict]:
         """Load prompts from results directory."""

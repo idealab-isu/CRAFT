@@ -1,5 +1,5 @@
 """
-CADence Validator
+CRAFT Validator
 
 This module performs deterministic, local validation of OpenSCAD code and renders.
 

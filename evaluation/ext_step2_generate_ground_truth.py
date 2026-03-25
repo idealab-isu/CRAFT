@@ -59,8 +59,8 @@ from typing import Dict, List, Any, Optional
 import numpy as np
 
 SCRIPT_DIR = Path(__file__).parent
-CADENCE_DIR = SCRIPT_DIR.parent / "cadence"
-sys.path.insert(0, str(CADENCE_DIR))
+CRAFT_DIR = SCRIPT_DIR.parent / "craft"
+sys.path.insert(0, str(CRAFT_DIR))
 
 from dotenv import load_dotenv
 load_dotenv()

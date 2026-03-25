@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run CADence pipeline for the 55 benchmark prompts.
+Run CRAFT pipeline for the 55 benchmark prompts.
 
 For each prompt:
   1. Reasoner (GPT-5.2) → DesignBrief (with KB + dimensional matching)
@@ -12,16 +12,16 @@ For each prompt:
   7. Export to STL
 
 Output:
-  results/cadence/scad/<id>.scad
-  results/cadence/stl/<id>.stl
-  results/cadence/png/<id>.png
-  results/cadence/results.json
+  results/craft/scad/<id>.scad
+  results/craft/stl/<id>.stl
+  results/craft/png/<id>.png
+  results/craft/results.json
 
 Usage:
-  python run_cadence_benchmark.py                         # Run all 55
-  python run_cadence_benchmark.py --ids ball_bearing__BB608ZZ stepper_motor__NEMA17_40
-  python run_cadence_benchmark.py --resume                # Resume from last checkpoint
-  python run_cadence_benchmark.py --no-vlm --no-verify    # Skip VLM + verification
+  python run_craft_benchmark.py                         # Run all 55
+  python run_craft_benchmark.py --ids ball_bearing__BB608ZZ stepper_motor__NEMA17_40
+  python run_craft_benchmark.py --resume                # Resume from last checkpoint
+  python run_craft_benchmark.py --no-vlm --no-verify    # Skip VLM + verification
 """
 
 import os
@@ -35,10 +35,10 @@ from datetime import datetime
 from dataclasses import dataclass, asdict, field
 from typing import Dict, List, Optional, Any
 
-# Add cadence to path
+# Add craft to path
 SCRIPT_DIR = Path(__file__).parent
-CADENCE_DIR = SCRIPT_DIR.parent / "cadence"
-sys.path.insert(0, str(CADENCE_DIR))
+CRAFT_DIR = SCRIPT_DIR.parent / "craft"
+sys.path.insert(0, str(CRAFT_DIR))
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -96,8 +96,8 @@ class BenchmarkResult:
         return asdict(self)
 
 
-class CADenceBenchmarkRunner:
-    """Runs the full CADence pipeline for benchmark prompts."""
+class CRAFTBenchmarkRunner:
+    """Runs the full CRAFT pipeline for benchmark prompts."""
 
     def __init__(
         self,
@@ -106,7 +106,7 @@ class CADenceBenchmarkRunner:
         use_verify: bool = True,
         max_vlm_iterations: int = 3,
     ):
-        self.output_dir = Path(output_dir or SCRIPT_DIR / "results" / "cadence")
+        self.output_dir = Path(output_dir or SCRIPT_DIR / "results" / "craft")
         self.use_vlm = use_vlm
         self.use_verify = use_verify
         self.max_vlm_iterations = max_vlm_iterations
@@ -122,7 +122,7 @@ class CADenceBenchmarkRunner:
         if self._initialized:
             return
 
-        print("Initializing CADence pipeline...")
+        print("Initializing CRAFT pipeline...")
 
         from openai import OpenAI
         from core.llm_client import create_unified_client
@@ -167,7 +167,7 @@ class CADenceBenchmarkRunner:
         print("Pipeline initialized.")
 
     def run_single(self, prompt_id: str, prompt_text: str, family: str) -> BenchmarkResult:
-        """Run the full CADence pipeline for a single prompt."""
+        """Run the full CRAFT pipeline for a single prompt."""
         self._init_pipeline()
 
         result = BenchmarkResult(
@@ -378,7 +378,7 @@ class CADenceBenchmarkRunner:
 
         # Final summary
         print(f"\n{'='*60}")
-        print(f"CADENCE BENCHMARK COMPLETE")
+        print(f"CRAFT BENCHMARK COMPLETE")
         print(f"{'='*60}")
         print(f"  Total: {total}")
         print(f"  Skipped (resume): {skip_count}")
@@ -422,7 +422,7 @@ def load_prompts(ids: List[str] = None) -> List[dict]:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run CADence benchmark")
+    parser = argparse.ArgumentParser(description="Run CRAFT benchmark")
     parser.add_argument("--ids", nargs="+", help="Specific prompt IDs to run")
     parser.add_argument("--resume", action="store_true", help="Resume from checkpoint")
     parser.add_argument("--no-vlm", action="store_true", help="Skip VLM correction")
@@ -434,7 +434,7 @@ def main():
     prompts = load_prompts(args.ids)
     print(f"Loaded {len(prompts)} prompts")
 
-    runner = CADenceBenchmarkRunner(
+    runner = CRAFTBenchmarkRunner(
         output_dir=args.output_dir,
         use_vlm=not args.no_vlm,
         use_verify=not args.no_verify,

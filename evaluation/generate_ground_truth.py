@@ -29,8 +29,8 @@ SCAD_DIR = GROUND_TRUTH_DIR / "scad"
 STL_DIR = GROUND_TRUTH_DIR / "stl"
 PNG_DIR = GROUND_TRUTH_DIR / "png"
 
-CADENCE_DIR = SCRIPT_DIR.parent / "cadence"
-NOPSCADLIB_PARENT = CADENCE_DIR / "kb_data"
+CRAFT_DIR = SCRIPT_DIR.parent / "craft"
+NOPSCADLIB_PARENT = CRAFT_DIR / "kb_data"
 
 # OpenSCAD settings
 OPENSCAD_BIN = "openscad"

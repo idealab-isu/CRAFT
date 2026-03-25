@@ -1,5 +1,5 @@
 """
-CADence Repair Module
+CRAFT Repair Module
 
 This module handles targeted repair of OpenSCAD code based on validation issues.
 

@@ -1,5 +1,5 @@
 """
-CADence Text Reasoner
+CRAFT Text Reasoner
 
 This module analyzes text prompts to extract:
 - Design brief (clear description of what to build)
@@ -41,7 +41,7 @@ try:
     DIMENSIONAL_MATCHER_AVAILABLE = True
 except ImportError:
     try:
-        # Fallback to absolute import (when running from cadence directory)
+        # Fallback to absolute import (when running from craft directory)
         from kb import (
             detect_components,
             get_kb_context,

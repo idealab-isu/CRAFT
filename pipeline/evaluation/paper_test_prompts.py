@@ -1,5 +1,5 @@
 """
-Extended Test Prompts for CADence Paper Evaluation
+Extended Test Prompts for CRAFT Paper Evaluation
 
 Based on NopSCADlib components and common CAD objects.
 Categories: Simple, Medium, Complex (for Table 8 single image performance)
@@ -480,7 +480,7 @@ TEST_PROMPTS = {
 
 
 if __name__ == "__main__":
-    print("CADence Paper Test Prompts")
+    print("CRAFT Paper Test Prompts")
     print("=" * 60)
     print(f"Total prompts: {len(ALL_PROMPTS)}")
     print(f"  Simple:  {len(SIMPLE_PROMPTS)}")

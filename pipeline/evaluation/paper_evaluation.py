@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CADence Paper Evaluation Framework
+CRAFT Paper Evaluation Framework
 
 Comprehensive evaluation runner for generating paper tables:
 - Table 4: Main Results (Compile %, Render %, Val Score, Parts %, Human Eval)
@@ -182,7 +182,7 @@ class PaperEvaluationRunner:
         self._initialized = False
 
     def _init_pipeline(self):
-        """Lazily initialize the CADence pipeline."""
+        """Lazily initialize the CRAFT pipeline."""
         if self._initialized:
             return
 
@@ -439,7 +439,7 @@ class PaperEvaluationRunner:
         results = []
 
         print(f"\n{'='*60}")
-        print(f"CADence Paper Evaluation")
+        print(f"CRAFT Paper Evaluation")
         print(f"{'='*60}")
         print(f"Prompts: {len(prompts)}")
         print(f"Reasoning Model: {self.vlm_model} (understanding, planning, VLM, verification)")
@@ -689,7 +689,7 @@ def generate_table_8_single_image_performance(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="CADence Paper Evaluation Framework",
+        description="CRAFT Paper Evaluation Framework",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

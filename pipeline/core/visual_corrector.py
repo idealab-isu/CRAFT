@@ -1,5 +1,5 @@
 """
-CADence Visual Self-Corrector
+CRAFT Visual Self-Corrector
 
 This module provides VLM-based self-correction for generated OpenSCAD code.
 

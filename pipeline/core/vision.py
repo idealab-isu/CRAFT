@@ -1,5 +1,5 @@
 """
-CADence Vision Analyzer
+CRAFT Vision Analyzer
 
 This module analyzes multi-view images (6 orthographic + 4 isometric) to:
 - Generate a best caption describing the object

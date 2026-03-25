@@ -7,7 +7,7 @@ This version uses generic CAD prompts without NopSCADlib-specific keywords.
 The prompts describe common mechanical/engineering parts using plain language
 rather than referencing specific NopSCADlib component names or aliases.
 
-The CADence pipeline methods use the basic pipeline only:
+The CRAFT pipeline methods use the basic pipeline only:
   reasoner -> planner -> compiler -> save/render
 No VLM self-correction or component verification is performed.
 This establishes a baseline for how well the core pipeline performs
@@ -16,13 +16,13 @@ before adding visual feedback loops or structural verification.
 Methods evaluated:
 1. GPT-4o (direct) - Simple prompt -> code, NO pipeline
 2. GPT-5.2 (direct) - Simple prompt -> code, NO pipeline
-3. CADence (no RAG) - Basic pipeline (reasoner+planner+compiler), NO VLM, NO verification
-4. CADence + RAG - Basic pipeline + NopSCADlib KB, NO VLM, NO verification
+3. CRAFT (no RAG) - Basic pipeline (reasoner+planner+compiler), NO VLM, NO verification
+4. CRAFT + RAG - Basic pipeline + NopSCADlib KB, NO VLM, NO verification
 
 Usage:
     python run_nopscadlib_benchmark_v1.py
     python run_nopscadlib_benchmark_v1.py --quick  # Run only 3 prompts
-    python run_nopscadlib_benchmark_v1.py --methods gpt4o cadence_rag
+    python run_nopscadlib_benchmark_v1.py --methods gpt4o craft_rag
 """
 
 import os
@@ -901,8 +901,8 @@ class DirectBaseline:
             return "", time.time() - start, extra_info
 
 
-class CADencePipeline:
-    """Basic CADence pipeline: reasoner -> planner -> compiler -> save/render.
+class CRAFTPipeline:
+    """Basic CRAFT pipeline: reasoner -> planner -> compiler -> save/render.
 
     No VLM self-correction, no component verification.
     This is the V1 basic pipeline for establishing baseline performance.
@@ -959,7 +959,7 @@ class CADencePipeline:
         scad_path: str,
         image_path: str
     ) -> Tuple[str, float, dict]:
-        """Generate OpenSCAD via basic CADence pipeline (no VLM, no verification)."""
+        """Generate OpenSCAD via basic CRAFT pipeline (no VLM, no verification)."""
         self._init()
 
         start = time.time()
@@ -994,7 +994,7 @@ class CADencePipeline:
             return code, time.time() - start, extra_info
 
         except Exception as e:
-            print(f"  Error in CADence pipeline: {e}")
+            print(f"  Error in CRAFT pipeline: {e}")
             import traceback
             traceback.print_exc()
             return "", time.time() - start, extra_info
@@ -1013,12 +1013,12 @@ class NopSCADlibBenchmark:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Create subdirectories
-        for subdir in ["ground_truth", "gpt4o", "gpt52", "cadence", "cadence_rag",
+        for subdir in ["ground_truth", "gpt4o", "gpt52", "craft", "craft_rag",
                        "stl", "images"]:
             (self.output_dir / subdir).mkdir(exist_ok=True)
 
         # Methods to run
-        self.methods = methods or ["gpt4o", "gpt52", "cadence", "cadence_rag"]
+        self.methods = methods or ["gpt4o", "gpt52", "craft", "craft_rag"]
 
         # Initialize OpenAI client
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -1030,15 +1030,15 @@ class NopSCADlibBenchmark:
             self.runners["gpt4o"] = DirectBaseline(self.client, "gpt-4o")
         if "gpt52" in self.methods:
             self.runners["gpt52"] = DirectBaseline(self.client, "gpt-5.2")
-        if "cadence" in self.methods:
-            self.runners["cadence"] = CADencePipeline(
+        if "craft" in self.methods:
+            self.runners["craft"] = CRAFTPipeline(
                 self.client,
                 pipeline_model="gpt-4o",
                 reasoning_model="gpt-5.2",
                 use_rag=False,
             )
-        if "cadence_rag" in self.methods:
-            self.runners["cadence_rag"] = CADencePipeline(
+        if "craft_rag" in self.methods:
+            self.runners["craft_rag"] = CRAFTPipeline(
                 self.client,
                 pipeline_model="gpt-4o",
                 reasoning_model="gpt-5.2",
@@ -1059,7 +1059,7 @@ class NopSCADlibBenchmark:
         print(f"{'='*70}")
         print(f"Prompts: {len(prompts)}")
         print(f"Methods: {', '.join(self.methods)}")
-        print(f"CADence: Basic pipeline only (reasoner+planner+compiler)")
+        print(f"CRAFT: Basic pipeline only (reasoner+planner+compiler)")
         print(f"Baselines: Direct generation only (no pipeline)")
         print(f"{'='*70}\n")
 
@@ -1233,7 +1233,7 @@ class NopSCADlibBenchmark:
         lines.append("% Auto-generated from NopSCADlib benchmark V1 (basic pipeline)")
         lines.append("\\begin{table}[t]")
         lines.append("\\centering")
-        lines.append("\\caption{V1 Benchmark: Chamfer Distance (CD) to ground truth. Lower CD = better geometric fidelity. CADence methods use basic pipeline (no VLM/verification); baselines use direct generation only.}")
+        lines.append("\\caption{V1 Benchmark: Chamfer Distance (CD) to ground truth. Lower CD = better geometric fidelity. CRAFT methods use basic pipeline (no VLM/verification); baselines use direct generation only.}")
         lines.append("\\label{tab:nopscadlib-benchmark-v1}")
         lines.append("\\setlength{\\tabcolsep}{3pt}")
         lines.append("\\begin{tabular}{llccc}")
@@ -1244,8 +1244,8 @@ class NopSCADlibBenchmark:
         method_labels = {
             "gpt4o": "GPT-4o (direct)",
             "gpt52": "GPT-5.2 (direct)",
-            "cadence": "CADence (basic)",
-            "cadence_rag": "CADence + RAG (basic)"
+            "craft": "CRAFT (basic)",
+            "craft_rag": "CRAFT + RAG (basic)"
         }
 
         for category in ["simple", "medium", "complex"]:
@@ -1329,7 +1329,7 @@ def main():
     parser.add_argument("--quick", action="store_true",
                         help="Quick test with only 3 prompts")
     parser.add_argument("--methods", nargs="+",
-                        choices=["gpt4o", "gpt52", "cadence", "cadence_rag"],
+                        choices=["gpt4o", "gpt52", "craft", "craft_rag"],
                         help="Methods to run (default: all)")
     parser.add_argument("--output-dir", type=str,
                         help="Output directory (auto-generated if not specified)")

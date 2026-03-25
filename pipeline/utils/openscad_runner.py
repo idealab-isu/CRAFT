@@ -1,5 +1,5 @@
 """
-CADence OpenSCAD Runner
+CRAFT OpenSCAD Runner
 
 Wrapper for executing OpenSCAD to render .scad files to images.
 """

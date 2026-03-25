@@ -1,5 +1,5 @@
 """
-CADence Parameter Parser
+CRAFT Parameter Parser
 
 Utility to parse OpenSCAD parameter definitions with range annotations.
 Supports OpenSCAD Customizer syntax for ranges and constraints.

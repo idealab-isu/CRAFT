@@ -32,7 +32,7 @@ try:
     from dotenv import load_dotenv
     # Look for .env in multiple locations
     env_paths = [
-        Path(__file__).parent.parent / ".env",  # cadence/.env
+        Path(__file__).parent.parent / ".env",  # craft/.env
         Path(__file__).parent.parent.parent / ".env",  # llm_to_cad/.env
         Path.cwd() / ".env",  # current directory
     ]
@@ -58,7 +58,7 @@ from kb import (
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Build NopSCADlib Knowledge Base for CADence"
+        description="Build NopSCADlib Knowledge Base for CRAFT"
     )
     parser.add_argument(
         "--skip-images",

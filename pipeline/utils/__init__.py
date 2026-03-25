@@ -1,5 +1,5 @@
 """
-CADence Utilities
+CRAFT Utilities
 
 Contains helper modules:
 - openscad_runner: Execute OpenSCAD rendering
