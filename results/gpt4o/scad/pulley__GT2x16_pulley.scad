@@ -1,0 +1,34 @@
+module timing_pulley(teeth=16, pitch_diameter=9.75, belt_width=5, hub_diameter=12, hub_height=10) {
+    tooth_height = 2;
+    tooth_width = pitch_diameter * PI / teeth;
+    pulley_height = belt_width + hub_height;
+    
+    module tooth() {
+        translate([0, pitch_diameter / 2, 0])
+        rotate([0, 0, 90])
+        linear_extrude(height=belt_width)
+        polygon(points=[[0, 0], [tooth_width / 2, tooth_height], [-tooth_width / 2, tooth_height]]);
+    }
+    
+    difference() {
+        union() {
+            // Main pulley body
+            cylinder(d=pitch_diameter, h=belt_width, $fn=64);
+            
+            // Hub
+            translate([0, 0, -hub_height])
+            cylinder(d=hub_diameter, h=hub_height, $fn=64);
+            
+            // Teeth
+            for (i = [0:teeth-1]) {
+                rotate([0, 0, i * 360 / teeth])
+                tooth();
+            }
+        }
+        
+        // Bore hole
+        cylinder(d=5, h=pulley_height, $fn=64);
+    }
+}
+
+timing_pulley();
