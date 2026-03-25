@@ -1,0 +1,39 @@
+# Environment
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+
+# macOS
+.DS_Store
+._*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Intermediate pipeline artifacts
+pipeline/plans/
+pipeline/scad_scripts/
+pipeline/tmp_views/
+pipeline/quick_test_results/
+
+# Large data (regenerate via pipeline/kb/indexer.py)
+pipeline/kb_data/
+nopscadlib_component_catalog.json
+
+# Temporary build artifacts inside results
+results/**/temp/
+
+# Ground truth STL (too large, regenerate with evaluation scripts)
+evaluation/ground_truth/stl/
