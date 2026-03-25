@@ -1,0 +1,80 @@
+{
+  "cadence": {
+    "model_name": "cadence",
+    "backbone": "vgg",
+    "n_evaluated": 463,
+    "n_skipped": 5,
+    "lpips_mean": 0.4020953096336731,
+    "lpips_std": 0.0882498093068572,
+    "lpips_median": 0.4103640913963318,
+    "lpips_min": 0.2194569706916809,
+    "lpips_max": 0.7279424071311951,
+    "lpips_by_tier": {
+      "Simple": 0.3995348719667785,
+      "Medium": 0.4071650090096872,
+      "Complex": 0.3993982800415584
+    },
+    "lpips_std_by_tier": {
+      "Simple": 0.12088117026433506,
+      "Medium": 0.07170459390509001,
+      "Complex": 0.05705886682718402
+    },
+    "lpips_count_by_tier": {
+      "Simple": 158,
+      "Medium": 158,
+      "Complex": 147
+    }
+  },
+  "gpt4o": {
+    "model_name": "gpt4o",
+    "backbone": "vgg",
+    "n_evaluated": 467,
+    "n_skipped": 1,
+    "lpips_mean": 0.28594020492451094,
+    "lpips_std": 0.11894612796352266,
+    "lpips_median": 0.3032257854938507,
+    "lpips_min": 0.007935966365039349,
+    "lpips_max": 0.52883380651474,
+    "lpips_by_tier": {
+      "Simple": 0.20868649380574436,
+      "Medium": 0.31594455437734725,
+      "Complex": 0.3364986113801196
+    },
+    "lpips_std_by_tier": {
+      "Simple": 0.12175305338866013,
+      "Medium": 0.09025125572306357,
+      "Complex": 0.09985406058261115
+    },
+    "lpips_count_by_tier": {
+      "Simple": 159,
+      "Medium": 160,
+      "Complex": 148
+    }
+  },
+  "gpt52": {
+    "model_name": "gpt52",
+    "backbone": "vgg",
+    "n_evaluated": 462,
+    "n_skipped": 6,
+    "lpips_mean": 0.27939072191852315,
+    "lpips_std": 0.11513369825989898,
+    "lpips_median": 0.29220208525657654,
+    "lpips_min": 0.009051162749528885,
+    "lpips_max": 0.5236768126487732,
+    "lpips_by_tier": {
+      "Simple": 0.21176694029555568,
+      "Medium": 0.308609852355115,
+      "Complex": 0.32170491963624953
+    },
+    "lpips_std_by_tier": {
+      "Simple": 0.12516302720952371,
+      "Medium": 0.08441162831083578,
+      "Complex": 0.09776419009402089
+    },
+    "lpips_count_by_tier": {
+      "Simple": 159,
+      "Medium": 158,
+      "Complex": 145
+    }
+  }
+}

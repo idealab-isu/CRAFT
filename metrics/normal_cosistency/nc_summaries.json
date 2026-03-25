@@ -1,0 +1,77 @@
+{
+  "cadence": {
+    "model_name": "cadence",
+    "n_evaluated": 463,
+    "n_skipped": 13,
+    "nc_mean": 0.5930799964308882,
+    "nc_std": 0.2612146260337029,
+    "nc_median": 0.5801041752633296,
+    "nc_min": 0.005857046282222409,
+    "nc_max": 0.9944087131776598,
+    "nc_by_tier": {
+      "Simple": 0.5087526673585281,
+      "Medium": 0.6756700280248381,
+      "Complex": 0.5949472957614245
+    },
+    "nc_std_by_tier": {
+      "Simple": 0.331336823829786,
+      "Medium": 0.21313145278840326,
+      "Complex": 0.18195976818123002
+    },
+    "nc_count_by_tier": {
+      "Simple": 158,
+      "Medium": 158,
+      "Complex": 147
+    }
+  },
+  "gpt4o": {
+    "model_name": "gpt4o",
+    "n_evaluated": 466,
+    "n_skipped": 10,
+    "nc_mean": 0.5678724839252173,
+    "nc_std": 0.2683749658438326,
+    "nc_median": 0.5435369023322829,
+    "nc_min": 0.002,
+    "nc_max": 0.9929496223255934,
+    "nc_by_tier": {
+      "Simple": 0.6117979255720838,
+      "Medium": 0.5412585686418672,
+      "Complex": 0.5497509073382654
+    },
+    "nc_std_by_tier": {
+      "Simple": 0.3397123976193941,
+      "Medium": 0.20907227566986447,
+      "Complex": 0.23058704520511467
+    },
+    "nc_count_by_tier": {
+      "Simple": 158,
+      "Medium": 160,
+      "Complex": 148
+    }
+  },
+  "gpt52": {
+    "model_name": "gpt52",
+    "n_evaluated": 464,
+    "n_skipped": 12,
+    "nc_mean": 0.5631029167011554,
+    "nc_std": 0.23815852809834762,
+    "nc_median": 0.5623856474695806,
+    "nc_min": 0.0028,
+    "nc_max": 0.9876508207997973,
+    "nc_by_tier": {
+      "Simple": 0.4761168638851213,
+      "Medium": 0.6217800268228382,
+      "Complex": 0.5931310516371135
+    },
+    "nc_std_by_tier": {
+      "Simple": 0.2546945604949188,
+      "Medium": 0.23443937022203068,
+      "Complex": 0.19261986984501367
+    },
+    "nc_count_by_tier": {
+      "Simple": 158,
+      "Medium": 159,
+      "Complex": 147
+    }
+  }
+}
