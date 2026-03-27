@@ -176,7 +176,7 @@ python evaluation/evaluate_normal_consistency.py
 @inproceedings{craft2026,
   title     = {CRAFT: Corrective and Robust Multi-Agent Framework for Text-to-Parametric CAD},
   author    = {Anonymous},
-  booktitle = {IEEE International Conference on Learning and Automated Design (LAD)},
+  booktitle = {IEEE International Conference on LLM-Aided Design (LAD)},
   year      = {2026}
 }
 ```
