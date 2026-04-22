@@ -38,3 +38,8 @@ results/**/temp/
 
 # Ground truth STL (too large, regenerate with evaluation scripts)
 evaluation/ground_truth/stl/
+
+AESCAPE2026_abstract_submission.md
+CRAFT_v2_research_plan.md
+
+pipeline/static/stl/
