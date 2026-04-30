@@ -1,0 +1,41 @@
+{
+  "method": "craft_no_kb",
+  "n": 2,
+  "use_kb": false,
+  "use_sketch": true,
+  "items": [
+    {
+      "id": "7_segment__WT5011BSR",
+      "tier": "Medium",
+      "pipeline_seconds": 151.04721927642822,
+      "timestamp": "20260424-033912",
+      "plan_valid": true,
+      "prompt_enhanced": false,
+      "sketch_used": true,
+      "vlm_correction_used": true,
+      "vlm_iterations": 1,
+      "component_verification_used": true,
+      "kb_augmented": false,
+      "export_seconds": 8.562493801116943,
+      "export_ok": true,
+      "final_stl": "stls/craft_no_kb/7_segment__WT5011BSR.stl"
+    },
+    {
+      "id": "antenna__ESP201_antenna",
+      "tier": "Complex",
+      "pipeline_seconds": 115.79796385765076,
+      "timestamp": "20260424-034151",
+      "plan_valid": true,
+      "prompt_enhanced": false,
+      "sketch_used": true,
+      "vlm_correction_used": true,
+      "vlm_iterations": 1,
+      "component_verification_used": true,
+      "kb_augmented": false,
+      "export_seconds": 3.3291592597961426,
+      "export_ok": true,
+      "final_stl": "stls/craft_no_kb/antenna__ESP201_antenna.stl"
+    }
+  ],
+  "ok": 2
+}

@@ -36,13 +36,26 @@ SYNTAX_CHECK_TIMEOUT = 10  # seconds for syntax check
 
 @dataclass
 class AutoFixResult:
-    """Result of SCAD auto-fix attempt."""
+    """Result of SCAD auto-fix attempt.
+
+    ``fix_source`` identifies which path actually produced the fix so the
+    v2 ablation tables can separate LLM-driven fixes from the rule-based
+    fallback (see §2.3 "Rule-based fallback in scad_autofix masks LLM
+    weakness" in CRAFT_v2_research_plan.md).
+    """
     success: bool
     original_code: str
     fixed_code: str
     issues_found: list
     changes_made: list
     error: Optional[str] = None
+    # v2: attribution — "llm", "rule_based", or "none"
+    fix_source: str = "none"
+    # Number of LLM attempts that occurred (0 if the rule-based fallback
+    # ran without any LLM call at all)
+    llm_attempts: int = 0
+    # Whether the rule-based fallback was exercised (even if it failed)
+    rule_based_tried: bool = False
 
 
 class SCADAutoFixer:
@@ -96,7 +109,10 @@ class SCADAutoFixer:
                 fixed_code=scad_code,
                 issues_found=[],
                 changes_made=[],
-                error="No issues detected"
+                error="No issues detected",
+                fix_source="none",
+                llm_attempts=0,
+                rule_based_tried=False,
             )
 
         # Build the fix prompt
@@ -111,6 +127,7 @@ class SCADAutoFixer:
         # Call LLM to fix (with syntax validation and retry)
         max_fix_attempts = 3
         last_syntax_error = None
+        llm_attempts_made = 0  # v2: attribution counter
 
         for attempt in range(max_fix_attempts):
             try:
@@ -120,6 +137,7 @@ class SCADAutoFixer:
                         scad_code, original_prompt, issues_found, last_syntax_error
                     )
 
+                llm_attempts_made += 1
                 fixed_code = self._call_llm(prompt)
 
                 if fixed_code and fixed_code.strip() != scad_code.strip():
@@ -134,12 +152,19 @@ class SCADAutoFixer:
                             if issue not in remaining_issues
                         ]
 
+                        print(
+                            f"[SCADAutoFixer] Fix attributed to LLM "
+                            f"(attempts={llm_attempts_made}, changes={changes_made})"
+                        )
                         return AutoFixResult(
                             success=True,
                             original_code=scad_code,
                             fixed_code=fixed_code,
                             issues_found=issues_found,
-                            changes_made=changes_made
+                            changes_made=changes_made,
+                            fix_source="llm",
+                            llm_attempts=llm_attempts_made,
+                            rule_based_tried=False,
                         )
                     else:
                         # Syntax error - try again
@@ -161,12 +186,19 @@ class SCADAutoFixer:
         if fallback_code != scad_code:
             is_valid, _ = self._validate_syntax(fallback_code)
             if is_valid:
+                print(
+                    f"[SCADAutoFixer] Fix attributed to RULE-BASED fallback "
+                    f"(llm_attempts={llm_attempts_made})"
+                )
                 return AutoFixResult(
                     success=True,
                     original_code=scad_code,
                     fixed_code=fallback_code,
                     issues_found=issues_found,
-                    changes_made=["rule_based_fix"]
+                    changes_made=["rule_based_fix"],
+                    fix_source="rule_based",
+                    llm_attempts=llm_attempts_made,
+                    rule_based_tried=True,
                 )
 
         return AutoFixResult(
@@ -175,7 +207,10 @@ class SCADAutoFixer:
             fixed_code=scad_code,
             issues_found=issues_found,
             changes_made=[],
-            error=f"All fix attempts failed. Last error: {last_syntax_error}"
+            error=f"All fix attempts failed. Last error: {last_syntax_error}",
+            fix_source="none",
+            llm_attempts=llm_attempts_made,
+            rule_based_tried=(fallback_code != scad_code),
         )
 
     def _validate_syntax(self, code: str) -> Tuple[bool, Optional[str]]:
@@ -582,6 +617,102 @@ FIXED CODE:"""
             text = text[:-3]
 
         return text.strip()
+
+
+@dataclass
+class PreemptiveFixResult:
+    """
+    Result of a preemptive (no-LLM) render-safety scan.
+
+    Used by the pipeline BEFORE the first render to strip patterns we know
+    timeout or crash OpenSCAD, without burning a full 60s × 6-view render
+    cycle just to discover the problem.
+    """
+    fixed_code: str
+    issues_found: list
+    changes_made: list
+    changed: bool
+
+
+# Regexes compiled once at module import for the preemptive scan.
+_FN_PATTERN = re.compile(r'\$fn\s*=\s*(\d+)')
+_MAX_PREEMPTIVE_FN = 32  # planner prompt caps at 32; enforce at compile time
+
+
+def preemptive_render_safety_fix(scad_code: str) -> PreemptiveFixResult:
+    """
+    Apply rule-based render-safety fixes BEFORE the first render attempt.
+
+    This is a lightweight, LLM-free scan that strips patterns we know cause
+    OpenSCAD to timeout or crash:
+
+    - ``minkowski()`` blocks  → replaced with their first child shape
+      (these cost 60s+ per view on anything non-trivial)
+    - ``$fn`` > 32           → clamped to 32
+    - ``rotate(a=360)``      → flagged (not auto-rewritten — too risky
+      without design context; LLM-based ``SCADAutoFixer`` handles this
+      path if it comes up)
+
+    This complements the upstream planner prompt (which tells the planner
+    not to emit minkowski in the first place). It exists to catch cases
+    where the planner slips up, so we don't waste ~6 minutes of render time
+    on code we already know will fail.
+
+    Args:
+        scad_code: Compiled OpenSCAD source.
+
+    Returns:
+        PreemptiveFixResult with ``fixed_code`` (possibly unchanged) and
+        the list of changes applied.
+    """
+    if not scad_code or not scad_code.strip():
+        return PreemptiveFixResult(
+            fixed_code=scad_code,
+            issues_found=[],
+            changes_made=[],
+            changed=False,
+        )
+
+    # Re-use the existing detector so our issue taxonomy stays consistent
+    # with the post-render autofix path.
+    dummy = SCADAutoFixer.__new__(SCADAutoFixer)
+    issues = SCADAutoFixer._detect_issues(dummy, scad_code)
+
+    fixed = scad_code
+    changes: list = []
+
+    # 1) Strip minkowski() blocks entirely — these are the #1 timeout cause.
+    if "minkowski_operation" in issues or "nested_minkowski" in issues:
+        stripped = SCADAutoFixer._remove_minkowski_blocks(dummy, fixed)
+        if stripped != fixed:
+            fixed = stripped
+            changes.append("stripped_minkowski")
+
+    # 2) Clamp any $fn = N where N > 32 down to 32. The planner prompt caps
+    #    at 32 but the compiler and KB templates may still embed larger
+    #    values. Silently clamp rather than fail the render.
+    def _clamp_fn(match: "re.Match[str]") -> str:
+        value = int(match.group(1))
+        if value > _MAX_PREEMPTIVE_FN:
+            return f"$fn={_MAX_PREEMPTIVE_FN}"
+        return match.group(0)
+
+    clamped = _FN_PATTERN.sub(_clamp_fn, fixed)
+    if clamped != fixed:
+        fixed = clamped
+        changes.append(f"clamped_fn_to_{_MAX_PREEMPTIVE_FN}")
+
+    # 3) Log excessive boolean depth. We don't auto-rewrite this (it would
+    #    destroy geometry) but surfacing it helps the feedback loop.
+    if "excessive_boolean_operations" in issues:
+        changes.append("warning_excessive_booleans")
+
+    return PreemptiveFixResult(
+        fixed_code=fixed,
+        issues_found=issues,
+        changes_made=changes,
+        changed=(fixed != scad_code),
+    )
 
 
 def fix_scad_for_rendering(

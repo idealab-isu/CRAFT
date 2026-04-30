@@ -1,0 +1,4 @@
+id   : photo_interrupter__PH1
+tier : Medium
+
+An optical slotted photo-interrupter: 25.9 mm x 6.4 mm x 3.5 mm base, 5.9 mm x 8.6 mm optical gap, 3 mm mounting-hole diameter.

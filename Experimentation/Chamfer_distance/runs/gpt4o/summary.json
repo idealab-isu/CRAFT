@@ -1,0 +1,401 @@
+{
+  "model": "gpt-4o",
+  "method": "gpt4o",
+  "n": 30,
+  "items": [
+    {
+      "id": "7_segment__WT5011BSR",
+      "tier": "Medium",
+      "model": "gpt-4o",
+      "seconds": 9.09895396232605,
+      "usage": {
+        "prompt_tokens": 246,
+        "completion_tokens": 392,
+        "total_tokens": 638
+      },
+      "export_seconds": 6.685365915298462,
+      "export_ok": true
+    },
+    {
+      "id": "antenna__ESP201_antenna",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 2.8138442039489746,
+      "usage": {
+        "prompt_tokens": 251,
+        "completion_tokens": 191,
+        "total_tokens": 442
+      },
+      "export_seconds": 1.8793401718139648,
+      "export_ok": true
+    },
+    {
+      "id": "axial__DO_35",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 1.825214147567749,
+      "usage": {
+        "prompt_tokens": 204,
+        "completion_tokens": 136,
+        "total_tokens": 340
+      },
+      "export_seconds": 1.8617362976074219,
+      "export_ok": true
+    },
+    {
+      "id": "ball_bearing__BB608",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 2.8199291229248047,
+      "usage": {
+        "prompt_tokens": 209,
+        "completion_tokens": 76,
+        "total_tokens": 285
+      },
+      "export_seconds": 1.7108428478240967,
+      "export_ok": true
+    },
+    {
+      "id": "batterie__A23CELL",
+      "tier": "Medium",
+      "model": "gpt-4o",
+      "seconds": 0.949678897857666,
+      "usage": {
+        "prompt_tokens": 209,
+        "completion_tokens": 22,
+        "total_tokens": 231
+      },
+      "export_seconds": 0.1251380443572998,
+      "export_ok": true
+    },
+    {
+      "id": "bearing_block__SCS10LUU",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 4.538787126541138,
+      "usage": {
+        "prompt_tokens": 236,
+        "completion_tokens": 235,
+        "total_tokens": 471
+      },
+      "export_seconds": 6.6801981925964355,
+      "export_ok": true
+    },
+    {
+      "id": "bldc_motor__BLDC0603",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 2.6124649047851562,
+      "usage": {
+        "prompt_tokens": 230,
+        "completion_tokens": 156,
+        "total_tokens": 386
+      },
+      "export_seconds": 2.030791997909546,
+      "export_ok": true
+    },
+    {
+      "id": "blower__BL30x10",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 3.361693859100342,
+      "usage": {
+        "prompt_tokens": 232,
+        "completion_tokens": 156,
+        "total_tokens": 388
+      },
+      "export_seconds": 1.3487627506256104,
+      "export_ok": true
+    },
+    {
+      "id": "box_section__AL12x8x1",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 2.57361102104187,
+      "usage": {
+        "prompt_tokens": 222,
+        "completion_tokens": 223,
+        "total_tokens": 445
+      },
+      "export_seconds": 0.1379239559173584,
+      "export_ok": false,
+      "export_error": "ERROR: Parser error: syntax error in file runs/gpt4o/box_section__AL12x8x1/model.scad, line 11\nCan't parse file '/Users/mohd7/Local/CRAFT/Experimentation/Chamfer_distance/runs/gpt4o/box_section__AL12x8x1/model.scad'!\n\n"
+    },
+    {
+      "id": "camera__ESP32_CAM",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 2.79658579826355,
+      "usage": {
+        "prompt_tokens": 220,
+        "completion_tokens": 172,
+        "total_tokens": 392
+      },
+      "export_seconds": 0.3357279300689697,
+      "export_ok": true
+    },
+    {
+      "id": "component__Epcos",
+      "tier": "Medium",
+      "model": "gpt-4o",
+      "seconds": 1.880195140838623,
+      "usage": {
+        "prompt_tokens": 218,
+        "completion_tokens": 84,
+        "total_tokens": 302
+      },
+      "export_seconds": 0.31412625312805176,
+      "export_ok": true
+    },
+    {
+      "id": "d_connector__DCONN15",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 2.6932339668273926,
+      "usage": {
+        "prompt_tokens": 230,
+        "completion_tokens": 215,
+        "total_tokens": 445
+      },
+      "export_seconds": 0.5038928985595703,
+      "export_ok": true
+    },
+    {
+      "id": "display__BigTreeTech_TFT35v3_0",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 1.4289767742156982,
+      "usage": {
+        "prompt_tokens": 215,
+        "completion_tokens": 110,
+        "total_tokens": 325
+      },
+      "export_seconds": 0.09963417053222656,
+      "export_ok": false,
+      "export_error": "ERROR: Parser error: syntax error in file runs/gpt4o/display__BigTreeTech_TFT35v3_0/model.scad, line 13\nCan't parse file '/Users/mohd7/Local/CRAFT/Experimentation/Chamfer_distance/runs/gpt4o/display__BigTreeTech_TFT35v3_0/model.scad'!\n\n"
+    },
+    {
+      "id": "extrusion__E1515",
+      "tier": "Medium",
+      "model": "gpt-4o",
+      "seconds": 3.586977958679199,
+      "usage": {
+        "prompt_tokens": 273,
+        "completion_tokens": 280,
+        "total_tokens": 553
+      },
+      "export_seconds": 0.09377479553222656,
+      "export_ok": false,
+      "export_error": "WARNING: Mixing 2D and 3D objects is not supported in file model.scad, line 10\nWARNING: Ignoring 3D child object for 2D operation in file model.scad, line 10\nWARNING: Ignoring 3D child object for 2D operation in file model.scad, line 13\nGeometries in cache: 19\nGeometry cache size in bytes: 27024\nCGAL Polyhedrons in cache: 0\nCGAL cache size in bytes: 0\nTotal rendering time: 0:00:00.002\n   Top level object is a 2D object:\n   Contours:        5\nCurrent top level object is not a 3D object.\n"
+    },
+    {
+      "id": "extrusion_bracket__E20_corner_bracket",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 1.753216028213501,
+      "usage": {
+        "prompt_tokens": 210,
+        "completion_tokens": 122,
+        "total_tokens": 332
+      },
+      "export_seconds": 1.6558048725128174,
+      "export_ok": true
+    },
+    {
+      "id": "gear_motor__FIT0492_A",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 1.6195063591003418,
+      "usage": {
+        "prompt_tokens": 239,
+        "completion_tokens": 139,
+        "total_tokens": 378
+      },
+      "export_seconds": 1.2191009521484375,
+      "export_ok": true
+    },
+    {
+      "id": "hot_end__E3D_clone",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 1.9528119564056396,
+      "usage": {
+        "prompt_tokens": 239,
+        "completion_tokens": 115,
+        "total_tokens": 354
+      },
+      "export_seconds": 0.4608778953552246,
+      "export_ok": true
+    },
+    {
+      "id": "ht_pipe__HT_110_cap",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 0.6232099533081055,
+      "usage": {
+        "prompt_tokens": 203,
+        "completion_tokens": 15,
+        "total_tokens": 218
+      },
+      "export_seconds": 0.12749886512756348,
+      "export_ok": true
+    },
+    {
+      "id": "iec__IEC_320_C14_switched_fused_inlet",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 2.1598260402679443,
+      "usage": {
+        "prompt_tokens": 236,
+        "completion_tokens": 202,
+        "total_tokens": 438
+      },
+      "export_seconds": 0.6317617893218994,
+      "export_ok": true
+    },
+    {
+      "id": "insert__CNCKM2p5",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 1.024095058441162,
+      "usage": {
+        "prompt_tokens": 217,
+        "completion_tokens": 50,
+        "total_tokens": 267
+      },
+      "export_seconds": 0.39691805839538574,
+      "export_ok": true
+    },
+    {
+      "id": "leadnut__LNHT8x2",
+      "tier": "Medium",
+      "model": "gpt-4o",
+      "seconds": 3.6533288955688477,
+      "usage": {
+        "prompt_tokens": 223,
+        "completion_tokens": 42,
+        "total_tokens": 265
+      },
+      "export_seconds": 0.96197509765625,
+      "export_ok": true
+    },
+    {
+      "id": "led__LED10mm",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 1.5189387798309326,
+      "usage": {
+        "prompt_tokens": 200,
+        "completion_tokens": 137,
+        "total_tokens": 337
+      },
+      "export_seconds": 2.123753786087036,
+      "export_ok": true
+    },
+    {
+      "id": "light_strip__RIGID5050",
+      "tier": "Medium",
+      "model": "gpt-4o",
+      "seconds": 2.7923872470855713,
+      "usage": {
+        "prompt_tokens": 250,
+        "completion_tokens": 262,
+        "total_tokens": 512
+      },
+      "export_seconds": 0.26073217391967773,
+      "export_ok": true
+    },
+    {
+      "id": "linear_bearing__LM10LUU",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 1.252742052078247,
+      "usage": {
+        "prompt_tokens": 211,
+        "completion_tokens": 88,
+        "total_tokens": 299
+      },
+      "export_seconds": 1.6825668811798096,
+      "export_ok": true
+    },
+    {
+      "id": "magnet__MAG484",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 3.654265880584717,
+      "usage": {
+        "prompt_tokens": 227,
+        "completion_tokens": 177,
+        "total_tokens": 404
+      },
+      "export_seconds": 4.1057658195495605,
+      "export_ok": true
+    },
+    {
+      "id": "mains_socket__Contactum",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 1.8453009128570557,
+      "usage": {
+        "prompt_tokens": 231,
+        "completion_tokens": 169,
+        "total_tokens": 400
+      },
+      "export_seconds": 0.4200451374053955,
+      "export_ok": true
+    },
+    {
+      "id": "nut__M2_nut",
+      "tier": "Simple",
+      "model": "gpt-4o",
+      "seconds": 1.7212550640106201,
+      "usage": {
+        "prompt_tokens": 206,
+        "completion_tokens": 113,
+        "total_tokens": 319
+      },
+      "export_seconds": 0.8756847381591797,
+      "export_ok": true
+    },
+    {
+      "id": "panel_meter__DSN_VC288",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 2.099231004714966,
+      "usage": {
+        "prompt_tokens": 237,
+        "completion_tokens": 166,
+        "total_tokens": 403
+      },
+      "export_seconds": 0.17304396629333496,
+      "export_ok": true
+    },
+    {
+      "id": "pcb__ArduinoLeonardo",
+      "tier": "Complex",
+      "model": "gpt-4o",
+      "seconds": 1.7646868228912354,
+      "usage": {
+        "prompt_tokens": 223,
+        "completion_tokens": 123,
+        "total_tokens": 346
+      },
+      "export_seconds": 1.018131971359253,
+      "export_ok": true
+    },
+    {
+      "id": "photo_interrupter__PH1",
+      "tier": "Medium",
+      "model": "gpt-4o",
+      "seconds": 2.110171318054199,
+      "usage": {
+        "prompt_tokens": 238,
+        "completion_tokens": 122,
+        "total_tokens": 360
+      },
+      "export_seconds": 0.4218170642852783,
+      "export_ok": true
+    }
+  ],
+  "ok": 27
+}

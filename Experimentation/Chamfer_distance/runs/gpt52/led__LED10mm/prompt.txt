@@ -1,0 +1,4 @@
+id   : led__LED10mm
+tier : Simple
+
+A through-hole LED: 10 mm lens diameter.

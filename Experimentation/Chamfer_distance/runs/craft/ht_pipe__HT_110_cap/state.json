@@ -1,0 +1,539 @@
+{
+  "input_type": "text",
+  "timestamp": "20260424-022808",
+  "design_brief": {
+    "description": "End cap for standard HT (high-temperature) drainage pipe system, nominal diameter DN110 (110 mm). Cap provides a secure push-fit over the pipe outer diameter with an internal stop and adequate wall thickness for durability and heat resistance. Geometry is compatible with typical HT pipe/fitting interfaces.",
+    "expected_parts": [
+      "ht_cap",
+      "internal_stop_shoulder",
+      "lead_in_chamfer",
+      "seal_groove_or_interference_band",
+      "ht_pipe",
+      "rd_box_cap"
+    ],
+    "essential_parts": [
+      "ht_cap",
+      "ht_pipe",
+      "rd_box_cap"
+    ],
+    "secondary_parts": [
+      "internal_stop_shoulder",
+      "lead_in_chamfer",
+      "seal_groove_or_interference_band"
+    ],
+    "optional_parts": [],
+    "parameters": {
+      "nominal_diameter_mm": 110,
+      "pipe_od_mm": 110,
+      "pipe_wall_mm": 3.2,
+      "cap_wall_mm": 4.0,
+      "cap_insertion_depth_mm": 45,
+      "internal_stop_thickness_mm": 3.0,
+      "lead_in_chamfer_deg": 20,
+      "seal_feature_type": "interference_band",
+      "interference_mm": 0.3,
+      "material": "HT-PP (polypropylene, high-temperature grade)",
+      "max_service_temp_c": 95
+    },
+    "kb_augmented": true
+  },
+  "plan": {
+    "metadata": {
+      "version": "1.0",
+      "units": "mm",
+      "description": "Parametric end cap for DN110 HT drainage pipe: push-fit socket with internal stop, lead-in chamfer, and interference band. Includes a simple reference ht_pipe solid for fit visualization.",
+      "approximate": true
+    },
+    "parameters": {
+      "primary_dimension_mm": {
+        "value": 110,
+        "min": 55,
+        "max": 220,
+        "step": 1,
+        "type": "slider",
+        "description": "Primary anchor dimension (DN110 nominal / pipe OD)."
+      },
+      "pipe_od_mm": {
+        "value": 110,
+        "min": 55,
+        "max": 220,
+        "step": 1,
+        "type": "slider",
+        "description": "Pipe outer diameter (OD). Typically equals nominal diameter for DN110."
+      },
+      "pipe_wall_mm": {
+        "value": 3.2,
+        "min": 1.6,
+        "max": 6.4,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Pipe wall thickness (reference pipe)."
+      },
+      "cap_wall_mm": {
+        "value": 4,
+        "min": 2,
+        "max": 8,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Cap wall thickness."
+      },
+      "cap_insertion_depth_mm": {
+        "value": 45,
+        "min": 22.5,
+        "max": 90,
+        "step": 1,
+        "type": "slider",
+        "description": "Socket depth (matches sketch height 45mm)."
+      },
+      "cap_top_thickness_mm": {
+        "value": 5.5,
+        "min": 2.75,
+        "max": 11,
+        "step": 0.5,
+        "type": "slider",
+        "description": "Closed-end thickness of the cap top."
+      },
+      "cap_flange_radial_mm": {
+        "value": 6.6,
+        "min": 3.3,
+        "max": 13.2,
+        "step": 0.2,
+        "type": "slider",
+        "description": "Radial overhang of the top flange beyond the socket OD."
+      },
+      "internal_stop_thickness_mm": {
+        "value": 3,
+        "min": 1.5,
+        "max": 6,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Axial thickness of internal stop shoulder."
+      },
+      "internal_stop_radial_mm": {
+        "value": 2.2,
+        "min": 1.1,
+        "max": 4.4,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Radial reduction at stop (creates smaller ID at the stop)."
+      },
+      "lead_in_chamfer_depth_mm": {
+        "value": 6.6,
+        "min": 3.3,
+        "max": 13.2,
+        "step": 0.2,
+        "type": "slider",
+        "description": "Axial depth of lead-in chamfer at socket mouth."
+      },
+      "interference_mm": {
+        "value": 0.3,
+        "min": 0.1,
+        "max": 0.8,
+        "step": 0.05,
+        "type": "slider",
+        "description": "Radial interference (reduces socket ID locally)."
+      },
+      "interference_band_length_mm": {
+        "value": 8.8,
+        "min": 4.4,
+        "max": 17.6,
+        "step": 0.2,
+        "type": "slider",
+        "description": "Axial length of interference band."
+      },
+      "interference_band_offset_from_mouth_mm": {
+        "value": 11,
+        "min": 5.5,
+        "max": 22,
+        "step": 0.5,
+        "type": "slider",
+        "description": "Distance from socket mouth to start of interference band."
+      },
+      "overlap_mm": {
+        "value": 1,
+        "min": 0.5,
+        "max": 2,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Small overlap used to guarantee solid connectivity."
+      },
+      "pipe_length_ref_mm": {
+        "value": 80,
+        "min": 40,
+        "max": 160,
+        "step": 1,
+        "type": "slider",
+        "description": "Reference pipe length shown inserted into cap (for visualization)."
+      }
+    },
+    "geometry": {
+      "base_shapes": [
+        {
+          "id": "bs_cap_outer",
+          "type": "cylinder",
+          "radius": "pipe_od_mm/2 + cap_wall_mm",
+          "height": "cap_insertion_depth_mm + cap_top_thickness_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "bs_cap_flange_outer",
+          "type": "cylinder",
+          "radius": "pipe_od_mm/2 + cap_wall_mm + cap_flange_radial_mm",
+          "height": "cap_top_thickness_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            "cap_insertion_depth_mm/2"
+          ]
+        },
+        {
+          "id": "bs_cap_inner_void_main",
+          "type": "cylinder",
+          "radius": "pipe_od_mm/2",
+          "height": "cap_insertion_depth_mm + overlap_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-cap_top_thickness_mm/2 - overlap_mm/2"
+          ]
+        },
+        {
+          "id": "bs_internal_stop_shoulder",
+          "type": "cylinder",
+          "radius": "pipe_od_mm/2 - internal_stop_radial_mm",
+          "height": "internal_stop_thickness_mm + overlap_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-(cap_insertion_depth_mm + cap_top_thickness_mm)/2 + internal_stop_thickness_mm/2 - overlap_mm/2"
+          ]
+        },
+        {
+          "id": "bs_lead_in_chamfer_cutter",
+          "type": "cone",
+          "radius": "pipe_od_mm/2 + cap_wall_mm + overlap_mm",
+          "radius2": "pipe_od_mm/2 - overlap_mm",
+          "height": "lead_in_chamfer_depth_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-(cap_insertion_depth_mm + cap_top_thickness_mm)/2 + lead_in_chamfer_depth_mm/2"
+          ]
+        },
+        {
+          "id": "bs_interference_band_cutter",
+          "type": "cylinder",
+          "radius": "pipe_od_mm/2 - interference_mm",
+          "height": "interference_band_length_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-(cap_insertion_depth_mm + cap_top_thickness_mm)/2 + interference_band_offset_from_mouth_mm + interference_band_length_mm/2"
+          ]
+        },
+        {
+          "id": "bs_ht_pipe_outer",
+          "type": "cylinder",
+          "radius": "pipe_od_mm/2",
+          "height": "pipe_length_ref_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-(cap_insertion_depth_mm + cap_top_thickness_mm)/2 + pipe_length_ref_mm/2 - overlap_mm"
+          ]
+        },
+        {
+          "id": "bs_ht_pipe_inner",
+          "type": "cylinder",
+          "radius": "pipe_od_mm/2 - pipe_wall_mm",
+          "height": "pipe_length_ref_mm + overlap_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-(cap_insertion_depth_mm + cap_top_thickness_mm)/2 + pipe_length_ref_mm/2 - overlap_mm/2"
+          ]
+        },
+        {
+          "id": "bs_rd_box_cap_placeholder",
+          "type": "box",
+          "size": [
+            "primary_dimension_mm*0.18",
+            "primary_dimension_mm*0.12",
+            "primary_dimension_mm*0.06"
+          ],
+          "center": true,
+          "position": [
+            0,
+            0,
+            "cap_insertion_depth_mm/2 + cap_top_thickness_mm/2"
+          ]
+        }
+      ],
+      "operations": [
+        {
+          "id": "op_cap_outer_union",
+          "type": "union",
+          "target": "bs_cap_outer",
+          "with": [
+            "bs_cap_flange_outer"
+          ],
+          "params": {}
+        },
+        {
+          "id": "op_cap_shell_with_void",
+          "type": "difference",
+          "target": "op_cap_outer_union",
+          "with": [
+            "bs_cap_inner_void_main"
+          ],
+          "params": {}
+        },
+        {
+          "id": "op_cap_with_stop",
+          "type": "difference",
+          "target": "op_cap_shell_with_void",
+          "with": [
+            "bs_internal_stop_shoulder"
+          ],
+          "params": {}
+        },
+        {
+          "id": "op_cap_with_chamfer",
+          "type": "difference",
+          "target": "op_cap_with_stop",
+          "with": [
+            "bs_lead_in_chamfer_cutter"
+          ],
+          "params": {}
+        },
+        {
+          "id": "op_ht_cap",
+          "type": "difference",
+          "target": "op_cap_with_chamfer",
+          "with": [
+            "bs_interference_band_cutter"
+          ],
+          "params": {}
+        },
+        {
+          "id": "op_ht_pipe",
+          "type": "difference",
+          "target": "bs_ht_pipe_outer",
+          "with": [
+            "bs_ht_pipe_inner"
+          ],
+          "params": {}
+        },
+        {
+          "id": "op_complete_model",
+          "type": "union",
+          "target": "op_ht_cap",
+          "with": [
+            "op_ht_pipe",
+            "bs_rd_box_cap_placeholder"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    "final_output": "op_complete_model"
+  },
+  "code": "// Parameters\nprimary_dimension_mm = 110; //[55:220:1]\npipe_od_mm = 110; //[55:220:1]\npipe_wall_mm = 3.2; //[1.6:6.4:0.1]\ncap_wall_mm = 4; //[2:8:0.1]\ncap_insertion_depth_mm = 45; //[22.5:90:1]\ncap_top_thickness_mm = 5.5; //[2.75:11:0.5]\ncap_flange_radial_mm = 6.6; //[3.3:13.2:0.2]\ninternal_stop_thickness_mm = 3; //[1.5:6:0.1]\ninternal_stop_radial_mm = 2.2; //[1.1:4.4:0.1]\nlead_in_chamfer_depth_mm = 6.6; //[3.3:13.2:0.2]\ninterference_mm = 0.3; //[0.1:0.8:0.05]\ninterference_band_length_mm = 8.8; //[4.4:17.6:0.2]\ninterference_band_offset_from_mouth_mm = 11; //[5.5:22:0.5]\noverlap_mm = 1; //[0.5:2:0.1]\npipe_length_ref_mm = 80; //[40:160:1]\n\n// Ht Pipe - complete geometry\nmodule ht_pipe() {\n  color([0.0, 0.4, 0.2]) {\n    difference() {\n      cylinder(r=pipe_od_mm/2, h=pipe_length_ref_mm, center=true);\n      translate([0, 0, -overlap_mm/2])\n        cylinder(r=pipe_od_mm/2 - pipe_wall_mm, h=pipe_length_ref_mm + overlap_mm, center=true);\n    }\n  }\n}\n\n// Ht Cap - complete geometry\nmodule ht_cap() {\n  color([0.85, 0.85, 0.8]) {\n    difference() {\n      union() {\n        translate([0, 0, 0])\n          cylinder(r=pipe_od_mm/2 + cap_wall_mm, h=cap_insertion_depth_mm + cap_top_thickness_mm, center=true);\n        translate([0, 0, cap_insertion_depth_mm/2])\n          cylinder(r=pipe_od_mm/2 + cap_wall_mm + cap_flange_radial_mm, h=cap_top_thickness_mm, center=true);\n      }\n      translate([0, 0, -cap_top_thickness_mm/2 - overlap_mm/2])\n        cylinder(r=pipe_od_mm/2, h=cap_insertion_depth_mm + overlap_mm, center=true);\n      translate([0, 0, -(cap_insertion_depth_mm + cap_top_thickness_mm)/2 + internal_stop_thickness_mm/2 - overlap_mm/2])\n        cylinder(r=pipe_od_mm/2 - internal_stop_radial_mm, h=internal_stop_thickness_mm + overlap_mm, center=true);\n      translate([0, 0, -(cap_insertion_depth_mm + cap_top_thickness_mm)/2 + lead_in_chamfer_depth_mm/2])\n        cylinder(r1=pipe_od_mm/2 + cap_wall_mm + overlap_mm, r2=pipe_od_mm/2 - overlap_mm, h=lead_in_chamfer_depth_mm, center=true);\n      translate([0, 0, -(cap_insertion_depth_mm + cap_top_thickness_mm)/2 + interference_band_offset_from_mouth_mm + interference_band_length_mm/2])\n        cylinder(r=pipe_od_mm/2 - interference_mm, h=interference_band_length_mm, center=true);\n    }\n  }\n}\n\n// Rd Box Cap - complete geometry\nmodule rd_box_cap() {\n  color([0.1, 0.1, 0.6]) {\n    translate([0, 0, cap_insertion_depth_mm/2 + cap_top_thickness_mm/2])\n      cube([primary_dimension_mm*0.18, primary_dimension_mm*0.12, primary_dimension_mm*0.06], center=true);\n  }\n}\n\n// Assembly\nmodule assembly() {\n  ht_cap();\n  ht_pipe();\n  rd_box_cap();\n}\n\nassembly();",
+  "validation": {
+    "score": 100,
+    "passed": false,
+    "checks": {},
+    "issues": [
+      "Geometry does not resemble a typical HT DN110 end cap: appears as a short cylindrical sleeve/coupler rather than a closed cap",
+      "No visible closed end face (cap top) in any orthographic view; front/back show an open circular profile",
+      "Internal stop and push-fit socket details are not clearly represented in the orthographic views",
+      "Overall proportions/details do not match typical HT pipe/fitting interface geometry (e.g., cap dome/flat end and socket depth)"
+    ]
+  },
+  "stats": {
+    "plan_attempts": 1,
+    "repair_attempts": 0
+  },
+  "kb": {
+    "augmented": true,
+    "components": [
+      {
+        "id": "vitamins_ht_pipe_ht_pipe",
+        "name": "Ht Pipe",
+        "module": "ht_pipe",
+        "confidence": 1.0
+      },
+      {
+        "id": "vitamins_ht_pipe_ht_cap",
+        "name": "Ht Cap",
+        "module": "ht_cap",
+        "confidence": 1.0
+      },
+      {
+        "id": "vitamins_radial_rd_box_cap",
+        "name": "Rd Box Cap",
+        "module": "rd_box_cap",
+        "confidence": 1.0
+      }
+    ],
+    "verification_results": []
+  },
+  "vlm_correction": {
+    "used": true,
+    "iterations": 1,
+    "approved": false,
+    "assessment": {
+      "approved": false,
+      "confidence": 0.45,
+      "overall_match": "poor",
+      "issues": [
+        "Geometry does not resemble a typical HT DN110 end cap: appears as a short cylindrical sleeve/coupler rather than a closed cap",
+        "No visible closed end face (cap top) in any orthographic view; front/back show an open circular profile",
+        "Internal stop and push-fit socket details are not clearly represented in the orthographic views",
+        "Overall proportions/details do not match typical HT pipe/fitting interface geometry (e.g., cap dome/flat end and socket depth)"
+      ],
+      "suggestions": [
+        "Add a solid closed end (flat or slightly domed) to make it an actual end cap rather than a sleeve",
+        "Model the internal socket with a clear internal stop shoulder at the correct insertion depth for DN110 HT systems",
+        "Add typical HT cap external features (e.g., slight outer lip/rim and appropriate wall thickness transitions) and verify dimensions against DN110 standards"
+      ],
+      "view_assessments": {
+        "front": "Shows concentric rings suggesting an open cylindrical part; no closed cap face visible.",
+        "back": "Same as front; appears open rather than capped.",
+        "left": "Again a circular/open profile; no indication of a closed end or internal stop.",
+        "right": "Same as left; open profile dominates.",
+        "top": "Side silhouette looks like a short sleeve with a flange-like ring; does not show a closed end.",
+        "bottom": "Similar to top; sleeve-like body with rim, still no closed end evident."
+      }
+    },
+    "multi_view_images": {
+      "front": "static/images/20260424-022808_iter1/20260424-022808_iter1_front.png",
+      "back": "static/images/20260424-022808_iter1/20260424-022808_iter1_back.png",
+      "left": "static/images/20260424-022808_iter1/20260424-022808_iter1_left.png",
+      "right": "static/images/20260424-022808_iter1/20260424-022808_iter1_right.png",
+      "top": "static/images/20260424-022808_iter1/20260424-022808_iter1_top.png",
+      "bottom": "static/images/20260424-022808_iter1/20260424-022808_iter1_bottom.png"
+    },
+    "iteration_history": [
+      {
+        "iteration": 1,
+        "deterministic_score": 100,
+        "deterministic_passed": true,
+        "corrected": false,
+        "view_images": {
+          "front": "static/images/20260424-022808_iter1/20260424-022808_iter1_front.png",
+          "back": "static/images/20260424-022808_iter1/20260424-022808_iter1_back.png",
+          "left": "static/images/20260424-022808_iter1/20260424-022808_iter1_left.png",
+          "right": "static/images/20260424-022808_iter1/20260424-022808_iter1_right.png",
+          "top": "static/images/20260424-022808_iter1/20260424-022808_iter1_top.png",
+          "bottom": "static/images/20260424-022808_iter1/20260424-022808_iter1_bottom.png"
+        },
+        "vlm_assessment": {
+          "approved": false,
+          "confidence": 0.45,
+          "overall_match": "poor",
+          "issues": [
+            "Geometry does not resemble a typical HT DN110 end cap: appears as a short cylindrical sleeve/coupler rather than a closed cap",
+            "No visible closed end face (cap top) in any orthographic view; front/back show an open circular profile",
+            "Internal stop and push-fit socket details are not clearly represented in the orthographic views",
+            "Overall proportions/details do not match typical HT pipe/fitting interface geometry (e.g., cap dome/flat end and socket depth)"
+          ]
+        }
+      }
+    ]
+  },
+  "component_verification": {
+    "used": true,
+    "iterations": 1,
+    "passed": false,
+    "all_parts_present": false,
+    "is_fully_connected": true,
+    "issues": [
+      "Missing ESSENTIAL part: ht_cap",
+      "Missing ESSENTIAL part: ht_pipe",
+      "Missing ESSENTIAL part: rd_box_cap"
+    ],
+    "history": [
+      {
+        "iteration": 1,
+        "all_parts_found": false,
+        "is_connected": true,
+        "issues": [
+          "Missing ESSENTIAL part: ht_cap",
+          "Missing ESSENTIAL part: ht_pipe",
+          "Missing ESSENTIAL part: rd_box_cap"
+        ],
+        "corrected": false,
+        "parts_present": [
+          {
+            "part_name": "ht_cap",
+            "present": true,
+            "confidence": 0.78,
+            "notes": "A cap-like cylindrical body is visible in top/bottom views with a closed end in the orthographic circular views, consistent with an HT end cap form."
+          },
+          {
+            "part_name": "internal_stop_shoulder",
+            "present": false,
+            "confidence": 0.55,
+            "notes": "No clear internal step/shoulder is visible from the provided exterior orthographic views; interior detail is not discernible."
+          },
+          {
+            "part_name": "lead_in_chamfer",
+            "present": false,
+            "confidence": 0.6,
+            "notes": "No obvious entry chamfer/taper at the opening edge can be confirmed from the side/top/bottom views (edges appear square/blocky)."
+          },
+          {
+            "part_name": "seal_groove_or_interference_band",
+            "present": true,
+            "confidence": 0.62,
+            "notes": "A distinct green ring/band around the circumference is visible in the front/back/left/right views, consistent with a seal groove region or interference band representation."
+          },
+          {
+            "part_name": "ht_pipe",
+            "present": false,
+            "confidence": 0.85,
+            "notes": "No separate pipe segment is visible; the model appears to show only a single capped component rather than a cap plus an inserted/adjacent pipe."
+          },
+          {
+            "part_name": "rd_box_cap",
+            "present": false,
+            "confidence": 0.8,
+            "notes": "No recognizable road box cap geometry (typically a distinct cover/box-like cap) is present; only a cylindrical cap-like part is shown."
+          }
+        ],
+        "connectivity": {
+          "is_single_object": true,
+          "floating_parts": [],
+          "attachment_issues": [],
+          "confidence": 0.72
+        }
+      }
+    ]
+  },
+  "prompt_enhancement": {
+    "enhanced": true,
+    "enhanced_prompt": "An HT drainage-pipe end cap with a nominal diameter of 110 mm, designed for high-temperature applications, featuring a secure fit and durable material suitable for standard HT drainage systems.",
+    "notes": [
+      "Added technical specifications regarding the application and material suitability for the HT drainage-pipe end cap."
+    ]
+  },
+  "sketch": {
+    "used": true,
+    "web_path": "static/sketches/sketch_20260424-022808.png",
+    "prompt": "Draw a clean, minimalistic orthographic technical line sketch of the described object on a white background. Use thin black lines only \u2014 no shading, no color, no photorealism, no perspective distortion. Keep proportions realistic. Show the front or three-quarter view that most clearly reveals all canonical parts of the object. If helpful, label key dimensions in millimeters with small arrows, but keep labels sparse. The sketch should look like a designer's concept drawing, suitable as a reference for a parametric CAD model.\n\nOBJECT: An HT drainage-pipe end cap with a nominal diameter of 110 mm, designed for high-temperature applications, featuring a secure fit and durable material suitable for standard HT drainage systems.\nREQUIRED PARTS (must be visible in the sketch): ht_cap, ht_pipe, rd_box_cap\nPROPORTIONAL CONSTRAINTS \u2014 primary_dimension = 110mm (category: generic).\nAll other parts of the sketch must scale consistently with this total size \u2014 no exaggerated wheels, handles, or details.\nAPPROX DIMENSIONS: nominal_diameter_mm\u2248110mm, pipe_od_mm\u2248110mm, pipe_wall_mm\u22483.2mm, cap_wall_mm\u22484.0mm, cap_insertion_depth_mm\u224845mm, internal_stop_thickness_mm\u22483.0mm\nNOTE: Dimensions for HT DN110 vary by manufacturer; verify actual pipe OD and socket standards before finalizing interference/seal geometry. Material callout is functional intent; CAD should not include text labels.\n\nKeep the final image below 1024x1024, clean white background, no text outside the dimension labels, no watermark.",
+    "error": null
+  }
+}

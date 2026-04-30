@@ -1,0 +1,4 @@
+id   : leadnut__LNHT8x2
+tier : Medium
+
+A lead-screw nut: 30 mm lead-screw bore, 34 mm shank outer diameter, 30 mm total height, 20 mm flange thickness.

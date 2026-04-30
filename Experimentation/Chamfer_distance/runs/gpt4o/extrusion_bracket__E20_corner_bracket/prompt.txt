@@ -1,0 +1,4 @@
+id   : extrusion_bracket__E20_corner_bracket
+tier : Simple
+
+An aluminium-extrusion corner bracket: 28 mm x 28 mm x 20 mm envelope.

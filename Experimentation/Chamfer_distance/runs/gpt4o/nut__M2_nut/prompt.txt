@@ -1,0 +1,4 @@
+id   : nut__M2_nut
+tier : Simple
+
+A hex nut: 2 mm thread bore, 1.6 mm thick.

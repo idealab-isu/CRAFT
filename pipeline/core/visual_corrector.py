@@ -25,7 +25,7 @@ from datetime import datetime
 
 from utils.openscad_runner import OpenScadRunner, RenderMode
 from utils.rendering import STANDARD_VIEWS, ORTHO_VIEWS, MultiViewRenderer
-from core.validator import Validator, ValidationResult, check_syntax, check_renders_non_blank
+from core.render_checks import Validator, ValidationResult, check_renders_non_blank
 from core.scad_autofix import SCADAutoFixer
 
 
@@ -33,7 +33,7 @@ from core.scad_autofix import SCADAutoFixer
 # CONFIGURATION
 # =============================================================================
 
-MAX_VLM_ITERATIONS = int(os.getenv("MAX_VLM_ITERATIONS", "3"))
+MAX_VLM_ITERATIONS = int(os.getenv("MAX_VLM_ITERATIONS", "1"))
 ORTHO_VIEW_NAMES = ["front", "back", "left", "right", "top", "bottom"]
 
 # Early stopping confidence threshold (0.95 = 95%)
@@ -64,6 +64,11 @@ REASONING_MODEL_ASSESS_PROMPT = """Evaluate if this 3D CAD model matches the req
 REQUEST: {original_prompt}
 
 The 6 images show orthographic views (front, back, left, right, top, bottom).
+
+SCOPE: Model only what the user asked for. Put in "issues" if you see:
+- Unrequested extras: display stands, mounting bases, PCBs, blocks under the part, or "scene" geometry not named in the request (common mistake for single parts like antennas, connectors, sensors).
+- Broken shape: main object clearly incomplete, sheared off, or essential structure missing.
+- Disconnected main pieces: essential parts not joined when they should be one object.
 
 CRITICAL: If the images appear BLANK, EMPTY, or show NO visible 3D object, you MUST:
 - Set "approved": false
@@ -173,6 +178,8 @@ difference() {{
 - Radial: rotate + translate([radius-1, 0, 0]) to place AT edge
 - Handles: must LOOP back (hull or rotate_extrude), not single peg
 - Hollow: use difference() with inner shape slightly smaller
+- Do NOT add stands, bases, fixtures, or PCBs unless the user explicitly asked. For a single-component request, output ONLY that component.
+- If unrequested extras exist, remove them (delete modules or difference them out) while keeping the rest connected.
 
 Current code:
 ```openscad
@@ -263,19 +270,27 @@ class VisualSelfCorrector:
         self.image_dir = image_dir
         self.pass_threshold = pass_threshold
 
+        # CRAFT v2.1 two-pass rendering: VLM iteration loops use a low
+        # ``$fn`` (32) for fast previews. The final user-facing render
+        # (driven separately, outside this loop) leaves ``$fn`` to the
+        # SCAD code so output quality is preserved.
+        ITER_FN = 32
+
         # Multi-view renderer with initial shorter timeout
         # We start with a shorter timeout and extend after auto-fix if needed
         self.renderer = MultiViewRenderer(
             imgsize=(400, 400),
             distance=200,
-            timeout=INITIAL_RENDER_TIMEOUT  # Start with 60s, extend if auto-fix applied
+            timeout=INITIAL_RENDER_TIMEOUT,  # Start with 60s, extend if auto-fix applied
+            fn_override=ITER_FN,
         )
 
         # Extended timeout renderer (used after auto-fix)
         self.extended_renderer = MultiViewRenderer(
             imgsize=(400, 400),
             distance=200,
-            timeout=EXTENDED_RENDER_TIMEOUT  # 120s after auto-fix
+            timeout=EXTENDED_RENDER_TIMEOUT,  # 120s after auto-fix
+            fn_override=ITER_FN,
         )
 
         # Deterministic validator (for basic checks)
@@ -303,7 +318,8 @@ class VisualSelfCorrector:
         max_tokens: int,
         temperature: float,
         json_response: bool,
-        reference_images: Dict[str, Dict[str, str]] = None
+        reference_images: Dict[str, Dict[str, str]] = None,
+        sketch_image_path: Optional[str] = None,
     ) -> str:
         """
         Call the appropriate vision API based on model.
@@ -312,9 +328,11 @@ class VisualSelfCorrector:
         - GPT-4o/GPT-5.1: Uses Chat Completions API with image_url format
 
         Includes retry logic with exponential backoff.
-        
+
         Args:
             reference_images: Optional dict of {component_id: {view_name: image_path}}
+            sketch_image_path: Optional early-stage design sketch shown to the
+                VLM as a visual intent target (CRAFT v2.1 sketch integration).
         """
         last_error = None
 
@@ -324,13 +342,15 @@ class VisualSelfCorrector:
                     return self._call_responses_api(
                         text_prompt, view_images, view_names,
                         max_tokens, temperature, json_response,
-                        reference_images=reference_images
+                        reference_images=reference_images,
+                        sketch_image_path=sketch_image_path,
                     )
                 else:
                     return self._call_chat_completions_api(
                         text_prompt, view_images, view_names,
                         max_tokens, temperature, json_response,
-                        reference_images=reference_images
+                        reference_images=reference_images,
+                        sketch_image_path=sketch_image_path,
                     )
             except Exception as e:
                 last_error = e
@@ -357,7 +377,8 @@ class VisualSelfCorrector:
         max_tokens: int,
         temperature: float,
         json_response: bool,
-        reference_images: Dict[str, Dict[str, str]] = None
+        reference_images: Dict[str, Dict[str, str]] = None,
+        sketch_image_path: Optional[str] = None,
     ) -> str:
         """
         Call OpenAI Responses API for GPT-5.2 vision.
@@ -371,6 +392,27 @@ class VisualSelfCorrector:
             "type": "input_text",
             "text": text_prompt
         })
+
+        # Add early-stage design sketch BEFORE KB references so the VLM sees
+        # the user-intent target first. Sketches are a cheap, high-signal
+        # anchor for "what does the user want this thing to look like" — the
+        # VLM should reconcile the renders against the sketch when correcting.
+        if sketch_image_path and os.path.exists(sketch_image_path):
+            content_parts.append({
+                "type": "input_text",
+                "text": (
+                    "\n\n=== DESIGN INTENT SKETCH ===\n"
+                    "This is an early concept sketch representing the target "
+                    "silhouette and major components. Use it as a VISUAL "
+                    "REFERENCE for what the final 3D model should resemble. "
+                    "Do NOT copy the sketch literally — it is a stylised guide, "
+                    "not a specification."
+                ),
+            })
+            content_parts.append({
+                "type": "input_image",
+                "image_url": self._image_to_base64(sketch_image_path),
+            })
 
         # Add KB reference images first (if available)
         if reference_images:
@@ -438,7 +480,8 @@ class VisualSelfCorrector:
         max_tokens: int,
         temperature: float,
         json_response: bool,
-        reference_images: Dict[str, Dict[str, str]] = None
+        reference_images: Dict[str, Dict[str, str]] = None,
+        sketch_image_path: Optional[str] = None,
     ) -> str:
         """
         Call OpenAI Chat Completions API for GPT-4o/GPT-5.1 vision.
@@ -452,6 +495,28 @@ class VisualSelfCorrector:
             "type": "text",
             "text": text_prompt
         })
+
+        # Add design intent sketch BEFORE KB refs (see Responses API version
+        # for the rationale). Sketch sits between the text prompt and the
+        # six rendered views to frame the visual comparison.
+        if sketch_image_path and os.path.exists(sketch_image_path):
+            content_parts.append({
+                "type": "text",
+                "text": (
+                    "\n\n=== DESIGN INTENT SKETCH ===\n"
+                    "This is an early concept sketch representing the target "
+                    "silhouette and major components. Use it as a VISUAL "
+                    "REFERENCE for what the final 3D model should resemble. "
+                    "Do NOT copy the sketch literally — it is a stylised guide, "
+                    "not a specification."
+                ),
+            })
+            content_parts.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": self._image_to_base64(sketch_image_path),
+                },
+            })
 
         # Add KB reference images first (if available)
         if reference_images:
@@ -510,6 +575,47 @@ class VisualSelfCorrector:
         response = self.client.chat.completions.create(**kwargs)
         return response.choices[0].message.content
 
+    def _composite_score(
+        self,
+        vlm_assessment: Optional["VLMAssessment"],
+        non_blank_count: int,
+        total_views: int,
+    ) -> float:
+        """
+        CRAFT v2.1 — composite quality score used for cross-iteration rollback.
+
+        We intentionally combine two signals so a single VLM hallucination
+        (confident approval of a blank render, or pessimistic rejection of a
+        good one) cannot move the needle on its own:
+
+          1. ``render_health`` — fraction of the 6 views that are non-blank.
+             Derived from the same cheap deterministic check the corrector
+             already uses to veto blank-image approvals.
+          2. ``vlm_quality`` — the VLM's own confidence, rescaled so that
+             ``approved`` acts as a hard floor and ``overall_match`` nudges
+             up/down.
+
+        The two are blended at 0.5/0.5 so even a "perfect" VLM score on
+        mostly-blank renders ends up near 0.5, well below any healthy
+        candidate.
+
+        Returns a float in [0, 1]. Higher is better.
+        """
+        render_health = (
+            non_blank_count / max(total_views, 1) if total_views else 0.0
+        )
+
+        vlm_quality = 0.0
+        if vlm_assessment is not None:
+            conf = max(0.0, min(1.0, float(vlm_assessment.confidence or 0.0)))
+            match_bonus = {"good": 0.10, "partial": 0.0, "poor": -0.15}.get(
+                (vlm_assessment.overall_match or "").lower(), 0.0
+            )
+            approved_floor = 0.80 if vlm_assessment.approved else 0.0
+            vlm_quality = max(0.0, min(1.0, max(approved_floor, conf + match_bonus)))
+
+        return 0.5 * render_health + 0.5 * vlm_quality
+
     def run_correction_loop(
         self,
         scad_code: str,
@@ -517,10 +623,18 @@ class VisualSelfCorrector:
         expected_parts: List[str],
         scad_path: str,
         timestamp: str,
-        kb_components: List[Any] = None
+        kb_components: List[Any] = None,
+        reference_sketch_path: Optional[str] = None,
     ) -> VisualCorrectionResult:
         """
-        Run the full visual correction loop.
+        Run the full visual correction loop with cross-iteration rollback.
+
+        CRAFT v2.1: we track a ``best_so_far`` candidate across iterations.
+        If an iteration produces a worse score than the best seen, that
+        iteration's edits are DISCARDED — the next iteration restarts from
+        the best candidate, and the function ultimately returns that best.
+        Extra iterations cannot regress the final output relative to the best
+        candidate seen (rollback semantics).
 
         Args:
             scad_code: Initial OpenSCAD code
@@ -531,11 +645,23 @@ class VisualSelfCorrector:
             kb_components: Optional list of KBComponentContext objects for reference images
 
         Returns:
-            VisualCorrectionResult with final code and history
+            VisualCorrectionResult with best code seen and full iteration history
         """
         iteration_history = []
         current_code = scad_code
         current_scad_path = scad_path
+
+        # Rollback bookkeeping. ``best`` always reflects the highest-scoring
+        # candidate seen so far; iterations that regress are thrown away.
+        best = {
+            "code": scad_code,
+            "score": -1.0,  # any real iteration will beat this
+            "view_images": {},
+            "assessment": None,
+            "det_score": 0,
+            "det_passed": False,
+            "iteration": 0,
+        }
 
         for iteration in range(1, self.max_iterations + 1):
             print(f"[VLM Correction] Iteration {iteration}/{self.max_iterations}")
@@ -633,13 +759,15 @@ class VisualSelfCorrector:
                 for issue in blank_render_issues[:3]:  # Show first 3 issues
                     print(f"  - {issue}")
 
-            # Step 4: VLM assessment (send all 6 images + KB reference images)
+            # Step 4: VLM assessment (send all 6 images + KB reference images
+            # + optional design-intent sketch)
             vlm_assessment = self._vlm_assess(
                 view_images,
                 original_prompt,
                 current_code,
                 iteration,
-                kb_components=kb_components
+                kb_components=kb_components,
+                reference_sketch_path=reference_sketch_path,
             )
 
             # Step 4.5: Override VLM assessment if renders are blank
@@ -663,6 +791,38 @@ class VisualSelfCorrector:
                 corrected=False
             )
 
+            # Step 4.6 — CRAFT v2.1 rollback bookkeeping.
+            # Score this candidate on the composite metric and keep the best
+            # seen so far. This is the core of "extra iterations can only
+            # help, never regress the final output".
+            iteration_score = self._composite_score(
+                vlm_assessment,
+                non_blank_count=non_blank_count,
+                total_views=len(view_images),
+            )
+            improved = iteration_score > best["score"]
+            if improved:
+                best = {
+                    "code": current_code,
+                    "score": iteration_score,
+                    "view_images": view_images,
+                    "assessment": vlm_assessment,
+                    "det_score": det_result.score,
+                    "det_passed": det_result.passed,
+                    "iteration": iteration,
+                }
+                print(
+                    f"[VLM Correction] Iter {iteration} is new best "
+                    f"(score={iteration_score:.3f})"
+                )
+            else:
+                print(
+                    f"[VLM Correction] Iter {iteration} score "
+                    f"{iteration_score:.3f} did not beat best "
+                    f"{best['score']:.3f} (from iter {best['iteration']}) — "
+                    f"will roll back before next correction"
+                )
+
             # Step 5: Check if we should stop (smarter early stopping)
             # Stop if:
             # 1. VLM approved explicitly
@@ -684,6 +844,26 @@ class VisualSelfCorrector:
 
             if should_stop:
                 iteration_history.append(correction_result)
+                # On approval we return the approved candidate. If this
+                # iteration somehow scored lower than a prior best despite
+                # being "approved", prefer the best candidate — it's the
+                # safer answer to hand to the user.
+                if not improved and best["assessment"] is not None and best["score"] >= iteration_score:
+                    print(
+                        f"[VLM Correction] Approval arrived on a regressed "
+                        f"iteration — returning best candidate from iter "
+                        f"{best['iteration']} instead."
+                    )
+                    return VisualCorrectionResult(
+                        success=True,
+                        final_code=best["code"],
+                        iterations=iteration,
+                        final_score=best["det_score"],
+                        final_passed=True,
+                        iteration_history=iteration_history,
+                        final_view_images=best["view_images"],
+                        final_assessment=best["assessment"],
+                    )
                 return VisualCorrectionResult(
                     success=True,
                     final_code=current_code,
@@ -695,6 +875,60 @@ class VisualSelfCorrector:
                     final_assessment=vlm_assessment
                 )
 
+            # Step 5.5: If renders are blank and we already have history, don't
+            # keep "correcting" on top of blanks — the LLM can't see anything
+            # useful and will hallucinate edits that grow the file without
+            # recovering the output. Abort now and return what we have.
+            if renders_are_blank and len(iteration_history) >= 1:
+                prev = iteration_history[-1]
+                prev_blank = sum(
+                    1 for vp in prev.view_images.values()
+                    if not check_renders_non_blank(vp).passed
+                ) >= max(1, len(prev.view_images) - 1)
+                if prev_blank:
+                    print(
+                        "[VLM Correction] Two consecutive blank-render "
+                        "iterations — aborting correction loop to avoid "
+                        "hallucinated fixes. Returning best candidate."
+                    )
+                    iteration_history.append(correction_result)
+                    # Hand back whichever candidate scored higher — best
+                    # (possibly a pre-blank iteration) is usually correct.
+                    if best["score"] > iteration_score:
+                        return VisualCorrectionResult(
+                            success=False,
+                            final_code=best["code"],
+                            iterations=iteration,
+                            final_score=best["det_score"],
+                            final_passed=best["det_passed"],
+                            iteration_history=iteration_history,
+                            final_view_images=best["view_images"],
+                            final_assessment=best["assessment"],
+                        )
+                    return VisualCorrectionResult(
+                        success=False,
+                        final_code=current_code,
+                        iterations=iteration,
+                        final_score=det_result.score,
+                        final_passed=False,
+                        iteration_history=iteration_history,
+                        final_view_images=view_images,
+                        final_assessment=vlm_assessment,
+                    )
+
+            # Step 5.75 — rollback before next correction.
+            # If this iteration regressed, correct FROM the best candidate
+            # rather than from the worse one. Otherwise repeated "fixes"
+            # compound on top of already-bad code.
+            if not improved and best["score"] >= 0:
+                print(
+                    f"[VLM Correction] Rolling back current_code to best "
+                    f"candidate (iter {best['iteration']}) before correcting."
+                )
+                current_code = best["code"]
+                with open(current_scad_path, "w", encoding="utf-8") as f:
+                    f.write(current_code)
+
             # Step 6: If not approved and below confidence threshold, attempt correction
             if iteration < self.max_iterations:
                 print(f"[VLM Correction] Attempting correction based on {len(vlm_assessment.issues)} issues...")
@@ -703,7 +937,8 @@ class VisualSelfCorrector:
                     original_prompt,
                     view_images,
                     vlm_assessment,
-                    det_result
+                    det_result,
+                    reference_sketch_path=reference_sketch_path,
                 )
 
                 if corrected_code and corrected_code.strip() != current_code.strip():
@@ -721,7 +956,24 @@ class VisualSelfCorrector:
 
             iteration_history.append(correction_result)
 
-        # Reached max iterations
+        # Reached max iterations — return the best candidate seen.
+        # CRAFT v2.1: we no longer return `current_code`, because the last
+        # iteration isn't guaranteed to be the best one. Returning the
+        # high-water mark is what makes "more iterations never hurt" true.
+        if best["score"] >= 0:
+            final_assessment = best["assessment"]
+            return VisualCorrectionResult(
+                success=final_assessment.approved if final_assessment else False,
+                final_code=best["code"],
+                iterations=len(iteration_history),
+                final_score=best["det_score"],
+                final_passed=final_assessment.approved if final_assessment else False,
+                iteration_history=iteration_history,
+                final_view_images=best["view_images"],
+                final_assessment=final_assessment,
+            )
+
+        # Fallback: no candidate was ever scored (e.g. every render failed).
         final_view_images = iteration_history[-1].view_images if iteration_history else {}
         final_assessment = iteration_history[-1].vlm_assessment if iteration_history else None
         final_score = iteration_history[-1].deterministic_score if iteration_history else 0
@@ -953,7 +1205,8 @@ class VisualSelfCorrector:
         original_prompt: str,
         current_code: str,
         iteration: int,
-        kb_components: List[Any] = None
+        kb_components: List[Any] = None,
+        reference_sketch_path: Optional[str] = None,
     ) -> Optional[VLMAssessment]:
         """
         Use VLM to assess the rendered views.
@@ -999,6 +1252,10 @@ Then you MUST respond with:
 - issues: ["Images appear blank or empty - no visible 3D geometry rendered"]
 
 Do NOT approve blank or empty renders under any circumstances.
+
+## SCOPE — NO UNREQUESTED EXTRAS:
+- If the user asked for a single part (e.g. antenna, resistor, simple sensor), a separate base, stand, PCB, or mounting block is usually WRONG unless explicitly requested. Flag that in "issues" and do not approve if such extras dominate the model.
+- Flag disconnected essential pieces or missing chunks of the main object.
 
 ## EVALUATION PRIORITY (only if images show visible geometry):
 
@@ -1047,7 +1304,16 @@ IMPORTANT:
 
             # Get KB reference images for vision API
             kb_reference_images = self._get_kb_reference_images(kb_components) if kb_components else {}
-            
+
+            # If we have an early-stage sketch, let the prompt explicitly
+            # mention it so the VLM knows to consult it as a visual anchor.
+            if reference_sketch_path and os.path.exists(reference_sketch_path):
+                text_prompt += (
+                    "\n\nA design-intent sketch is also attached. Use it as a "
+                    "loose reference for silhouette and major components, not "
+                    "as a literal specification."
+                )
+
             # Call vision API (handles both Responses API and Chat Completions API)
             result_text = self._call_vision_api(
                 text_prompt=text_prompt,
@@ -1056,7 +1322,8 @@ IMPORTANT:
                 max_tokens=2000,
                 temperature=0.2,
                 json_response=True,
-                reference_images=kb_reference_images
+                reference_images=kb_reference_images,
+                sketch_image_path=reference_sketch_path,
             )
 
             result = self._extract_json(result_text)
@@ -1089,7 +1356,8 @@ IMPORTANT:
         original_prompt: str,
         view_images: Dict[str, str],
         vlm_assessment: Optional[VLMAssessment],
-        det_result: ValidationResult
+        det_result: ValidationResult,
+        reference_sketch_path: Optional[str] = None,
     ) -> Optional[str]:
         """
         Use VLM to generate corrected SCAD code.
@@ -1228,6 +1496,8 @@ CRITICAL REQUIREMENTS:
 6. Output ONLY valid OpenSCAD code, no explanations
 7. Ensure model is RECOGNIZABLE as the requested object
 8. NEVER add text, labels, logos, or branding - only pure geometric shapes
+9. Do NOT add stands, bases, PCBs, or scene extras unless the user asked; remove unrequested large additions
+10. For single-part requests, keep ONLY that part as the visible solid
 
 If views appear blank:
 - Use larger dimensions (50-100mm minimum)
@@ -1236,6 +1506,15 @@ If views appear blank:
 
 CORRECTED CODE:"""
 
+            # If a design sketch is available, remind the model to consult it
+            # as a visual anchor when deciding what to fix.
+            if reference_sketch_path and os.path.exists(reference_sketch_path):
+                text_prompt += (
+                    "\n\nA design-intent sketch is attached as a visual "
+                    "reference. Lean on it for silhouette/structure but do "
+                    "not copy it literally."
+                )
+
             # Call vision API (handles both Responses API and Chat Completions API)
             corrected_code = self._call_vision_api(
                 text_prompt=text_prompt,
@@ -1243,7 +1522,8 @@ CORRECTED CODE:"""
                 view_names=ORTHO_VIEW_NAMES,
                 max_tokens=4000,
                 temperature=0.1,
-                json_response=False  # We want code, not JSON
+                json_response=False,  # We want code, not JSON
+                sketch_image_path=reference_sketch_path,
             )
 
             # Clean up the response (remove markdown code blocks if present)

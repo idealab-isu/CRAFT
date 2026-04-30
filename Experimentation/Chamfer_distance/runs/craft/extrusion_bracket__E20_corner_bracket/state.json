@@ -1,0 +1,607 @@
+{
+  "input_type": "text",
+  "timestamp": "20260424-022204",
+  "design_brief": {
+    "description": "Aluminium-extrusion corner bracket sized to fit within a 28 x 28 x 20 mm envelope, forming an L-shaped right-angle bracket with two perpendicular mounting faces and integrated grub-screw clamping features for secure attachment to extrusion slots.",
+    "expected_parts": [
+      "l_bracket_body",
+      "perpendicular_mounting_legs",
+      "grub_screw_bosses",
+      "grub_screw_tapped_holes",
+      "extrusion_contact_faces",
+      "edge_fillet_or_chamfer",
+      "extrusion",
+      "corner",
+      "extrusion_corner_bracket",
+      "extrusion_corner_bracket_3D",
+      "extrusion_inner_corner_bracket"
+    ],
+    "essential_parts": [
+      "l_bracket_body",
+      "perpendicular_mounting_legs",
+      "extrusion",
+      "corner",
+      "extrusion_corner_bracket",
+      "extrusion_corner_bracket_3D",
+      "extrusion_inner_corner_bracket"
+    ],
+    "secondary_parts": [
+      "grub_screw_bosses",
+      "grub_screw_tapped_holes",
+      "extrusion_contact_faces",
+      "edge_fillet_or_chamfer"
+    ],
+    "optional_parts": [],
+    "parameters": {
+      "envelope_x": 28,
+      "envelope_y": 28,
+      "envelope_z": 20,
+      "leg_thickness": 4,
+      "base_plate_thickness": 4,
+      "side_wall_thickness": 4,
+      "internal_corner_radius": 2,
+      "external_edge_chamfer": 0.5,
+      "grub_screw_count": 2,
+      "grub_screw_thread": "M4",
+      "grub_screw_hole_depth": 8,
+      "grub_screw_axis_offset_from_edges": 10,
+      "grub_screw_tip_clearance": 0.5,
+      "mounting_face_flatness_target": 0.1
+    },
+    "kb_augmented": true
+  },
+  "plan": {
+    "metadata": {
+      "version": "1.0",
+      "units": "mm",
+      "description": "Aluminium-extrusion inner corner bracket within 28x28x20mm envelope: L-shaped right-angle bracket with two perpendicular mounting faces and two grub-screw clamping holes.",
+      "approximate": true
+    },
+    "parameters": {
+      "total_length": {
+        "value": 28,
+        "min": 14,
+        "max": 56,
+        "step": 1,
+        "type": "slider",
+        "description": "Primary size anchor; corresponds to envelope_x and envelope_y."
+      },
+      "envelope_x": {
+        "value": 28,
+        "min": 14,
+        "max": 56,
+        "step": 1,
+        "type": "input",
+        "description": "Overall X size; kept equal to total_length."
+      },
+      "envelope_y": {
+        "value": 28,
+        "min": 14,
+        "max": 56,
+        "step": 1,
+        "type": "input",
+        "description": "Overall Y size; kept equal to total_length."
+      },
+      "envelope_z": {
+        "value": 20,
+        "min": 10,
+        "max": 40,
+        "step": 1,
+        "type": "slider",
+        "description": "Overall height (Z) from sketch."
+      },
+      "leg_thickness": {
+        "value": 4,
+        "min": 2,
+        "max": 8,
+        "step": 1,
+        "type": "slider",
+        "description": "Thickness of each mounting leg; ~total_length/7."
+      },
+      "base_plate_thickness": {
+        "value": 4,
+        "min": 2,
+        "max": 8,
+        "step": 1,
+        "type": "slider",
+        "description": "Bottom plate thickness; ~total_length/7."
+      },
+      "internal_corner_radius": {
+        "value": 2,
+        "min": 1,
+        "max": 4,
+        "step": 0.5,
+        "type": "slider",
+        "description": "Approx internal corner relief radius (implemented as a cylindrical cut)."
+      },
+      "external_edge_chamfer": {
+        "value": 0.5,
+        "min": 0,
+        "max": 2,
+        "step": 0.5,
+        "type": "slider",
+        "description": "Not explicitly modeled (kept boxy for render safety)."
+      },
+      "grub_screw_count": {
+        "value": 2,
+        "min": 1,
+        "max": 4,
+        "step": 1,
+        "type": "input",
+        "description": "Two clamping grub screws as shown."
+      },
+      "grub_screw_hole_diameter": {
+        "value": 3.3,
+        "min": 2.5,
+        "max": 5,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Pilot/tap diameter for M4 (approx)."
+      },
+      "grub_screw_hole_depth": {
+        "value": 8,
+        "min": 4,
+        "max": 16,
+        "step": 1,
+        "type": "slider",
+        "description": "Depth of each grub screw hole into the leg."
+      },
+      "grub_screw_axis_offset_from_edges": {
+        "value": 10,
+        "min": 5,
+        "max": 20,
+        "step": 1,
+        "type": "slider",
+        "description": "Offset of hole axis from the outer edges along the leg."
+      },
+      "grub_screw_boss_diameter": {
+        "value": 10,
+        "min": 6,
+        "max": 16,
+        "step": 0.5,
+        "type": "slider",
+        "description": "Boss diameter around each grub screw hole."
+      },
+      "grub_screw_boss_height": {
+        "value": 2,
+        "min": 1,
+        "max": 6,
+        "step": 0.5,
+        "type": "slider",
+        "description": "Boss protrusion height on the outside of the leg."
+      },
+      "overlap": {
+        "value": 1,
+        "min": 0.5,
+        "max": 2,
+        "step": 0.5,
+        "type": "input",
+        "description": "Small overlap to guarantee solid connectivity."
+      }
+    },
+    "geometry": {
+      "base_shapes": [
+        {
+          "id": "l_bracket_body_outer",
+          "type": "box",
+          "size": [
+            "envelope_x",
+            "envelope_y",
+            "envelope_z"
+          ],
+          "center": true,
+          "position": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "l_bracket_body_inner_void",
+          "type": "box",
+          "size": [
+            "envelope_x - leg_thickness",
+            "envelope_y - leg_thickness",
+            "envelope_z - base_plate_thickness"
+          ],
+          "center": true,
+          "position": [
+            "leg_thickness/2",
+            "leg_thickness/2",
+            "base_plate_thickness/2"
+          ]
+        },
+        {
+          "id": "internal_corner_relief_cyl",
+          "type": "cylinder",
+          "radius": "internal_corner_radius",
+          "height": "envelope_z + 2*overlap",
+          "center": true,
+          "position": [
+            "leg_thickness/2",
+            "leg_thickness/2",
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "grub_screw_boss_x",
+          "type": "cylinder",
+          "radius": "grub_screw_boss_diameter/2",
+          "height": "grub_screw_boss_height",
+          "center": true,
+          "position": [
+            "envelope_x/2 - grub_screw_boss_height/2 + overlap",
+            "envelope_y/2 - grub_screw_axis_offset_from_edges",
+            "base_plate_thickness + (envelope_z - base_plate_thickness)/2"
+          ],
+          "rotation": [
+            0,
+            90,
+            0
+          ]
+        },
+        {
+          "id": "grub_screw_boss_y",
+          "type": "cylinder",
+          "radius": "grub_screw_boss_diameter/2",
+          "height": "grub_screw_boss_height",
+          "center": true,
+          "position": [
+            "envelope_x/2 - grub_screw_axis_offset_from_edges",
+            "envelope_y/2 - grub_screw_boss_height/2 + overlap",
+            "base_plate_thickness + (envelope_z - base_plate_thickness)/2"
+          ],
+          "rotation": [
+            90,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "grub_screw_hole_x",
+          "type": "cylinder",
+          "radius": "grub_screw_hole_diameter/2",
+          "height": "grub_screw_hole_depth + 2*overlap",
+          "center": true,
+          "position": [
+            "envelope_x/2 - grub_screw_hole_depth/2 + overlap",
+            "envelope_y/2 - grub_screw_axis_offset_from_edges",
+            "base_plate_thickness + (envelope_z - base_plate_thickness)/2"
+          ],
+          "rotation": [
+            0,
+            90,
+            0
+          ]
+        },
+        {
+          "id": "grub_screw_hole_y",
+          "type": "cylinder",
+          "radius": "grub_screw_hole_diameter/2",
+          "height": "grub_screw_hole_depth + 2*overlap",
+          "center": true,
+          "position": [
+            "envelope_x/2 - grub_screw_axis_offset_from_edges",
+            "envelope_y/2 - grub_screw_hole_depth/2 + overlap",
+            "base_plate_thickness + (envelope_z - base_plate_thickness)/2"
+          ],
+          "rotation": [
+            90,
+            0,
+            0
+          ]
+        }
+      ],
+      "operations": [
+        {
+          "id": "l_bracket_body",
+          "type": "difference",
+          "target": "l_bracket_body_outer",
+          "with": [
+            "l_bracket_body_inner_void",
+            "internal_corner_relief_cyl"
+          ]
+        },
+        {
+          "id": "grub_screw_bosses",
+          "type": "union",
+          "target": "grub_screw_boss_x",
+          "with": [
+            "grub_screw_boss_y"
+          ]
+        },
+        {
+          "id": "perpendicular_mounting_legs",
+          "type": "union",
+          "target": "l_bracket_body",
+          "with": [
+            "grub_screw_bosses"
+          ]
+        },
+        {
+          "id": "grub_screw_tapped_holes",
+          "type": "union",
+          "target": "grub_screw_hole_x",
+          "with": [
+            "grub_screw_hole_y"
+          ]
+        },
+        {
+          "id": "extrusion_corner_bracket_3D",
+          "type": "difference",
+          "target": "perpendicular_mounting_legs",
+          "with": [
+            "grub_screw_tapped_holes"
+          ]
+        },
+        {
+          "id": "extrusion_inner_corner_bracket",
+          "type": "union",
+          "target": "extrusion_corner_bracket_3D",
+          "with": [
+            "extrusion_corner_bracket_3D"
+          ]
+        }
+      ]
+    },
+    "final_output": "extrusion_inner_corner_bracket"
+  },
+  "code": "// Parameters\ntotal_length = 28; //[14:56:1]\nenvelope_x = 28; //[14:56:1]\nenvelope_y = 28; //[14:56:1]\nenvelope_z = 20; //[10:40:1]\nleg_thickness = 4; //[2:8:1]\nbase_plate_thickness = 4; //[2:8:1]\ninternal_corner_radius = 2; //[1:4:0.5]\nexternal_edge_chamfer = 0.5; //[0:2:0.5]\ngrub_screw_count = 2; //[1:4:1]\ngrub_screw_hole_diameter = 3.3; //[2.5:5:0.1]\ngrub_screw_hole_depth = 8; //[4:16:1]\ngrub_screw_axis_offset_from_edges = 10; //[5:20:1]\ngrub_screw_boss_diameter = 10; //[6:16:0.5]\ngrub_screw_boss_height = 2; //[1:6:0.5]\noverlap = 1; //[0.5:2:0.5]\n\n// Extrusion - complete geometry\nmodule extrusion() {\n  color(\"Silver\") {\n    cube([envelope_x, envelope_y, envelope_z], center=true);\n  }\n}\n\n// Corner - complete geometry\nmodule corner() {\n  color(\"DimGray\") {\n    cube([envelope_x/2, envelope_y/2, envelope_z], center=true);\n  }\n}\n\n// Extrusion Corner Bracket - complete geometry\nmodule extrusion_corner_bracket() {\n  color(\"Silver\") {\n    difference() {\n      cube([envelope_x, envelope_y, envelope_z], center=true);\n      translate([leg_thickness/2, leg_thickness/2, base_plate_thickness/2])\n        cube([envelope_x - leg_thickness, envelope_y - leg_thickness, envelope_z - base_plate_thickness], center=true);\n      translate([leg_thickness/2, leg_thickness/2, 0])\n        cylinder(r=internal_corner_radius, h=envelope_z + 2*overlap, center=true);\n    }\n  }\n}\n\n// Extrusion Corner Bracket 3D - complete geometry\nmodule extrusion_corner_bracket_3D() {\n  color(\"Silver\") {\n    union() {\n      translate([envelope_x/2 - grub_screw_boss_height/2 + overlap, envelope_y/2 - grub_screw_axis_offset_from_edges, base_plate_thickness + (envelope_z - base_plate_thickness)/2])\n        rotate([0, 90, 0])\n        cylinder(r=grub_screw_boss_diameter/2, h=grub_screw_boss_height, center=true);\n      translate([envelope_x/2 - grub_screw_axis_offset_from_edges, envelope_y/2 - grub_screw_boss_height/2 + overlap, base_plate_thickness + (envelope_z - base_plate_thickness)/2])\n        rotate([90, 0, 0])\n        cylinder(r=grub_screw_boss_diameter/2, h=grub_screw_boss_height, center=true);\n    }\n  }\n}\n\n// Extrusion Inner Corner Bracket - complete geometry\nmodule extrusion_inner_corner_bracket() {\n  color(\"Silver\") {\n    difference() {\n      extrusion_corner_bracket();\n      union() {\n        translate([envelope_x/2 - grub_screw_hole_depth/2 + overlap, envelope_y/2 - grub_screw_axis_offset_from_edges, base_plate_thickness + (envelope_z - base_plate_thickness)/2])\n          rotate([0, 90, 0])\n          cylinder(r=grub_screw_hole_diameter/2, h=grub_screw_hole_depth + 2*overlap, center=true);\n        translate([envelope_x/2 - grub_screw_axis_offset_from_edges, envelope_y/2 - grub_screw_hole_depth/2 + overlap, base_plate_thickness + (envelope_z - base_plate_thickness)/2])\n          rotate([90, 0, 0])\n          cylinder(r=grub_screw_hole_diameter/2, h=grub_screw_hole_depth + 2*overlap, center=true);\n      }\n    }\n  }\n}\n\n// Assembly\nmodule assembly() {\n  translate([0, 0, 0]) extrusion();\n  translate([0, 0, envelope_z/2]) corner();\n  translate([0, 0, -envelope_z/2]) extrusion_inner_corner_bracket();\n}\n\nassembly();",
+  "validation": {
+    "score": 50,
+    "passed": false,
+    "checks": {},
+    "issues": [
+      "CRITICAL: Rendered images appear blank or empty - no visible 3D geometry",
+      "Model does not clearly depict an L-shaped right-angle corner bracket with two perpendicular mounting faces",
+      "No recognizable aluminium-extrusion slot interface geometry or integrated grub-screw clamping features are visible in the orthographic views",
+      "Views mostly show simple square/rectangular silhouettes with minimal detail, inconsistent with expected corner bracket form"
+    ]
+  },
+  "stats": {
+    "plan_attempts": 1,
+    "repair_attempts": 0
+  },
+  "kb": {
+    "augmented": true,
+    "components": [
+      {
+        "id": "vitamins_extrusion_extrusion",
+        "name": "Extrusion",
+        "module": "extrusion",
+        "confidence": 1.0
+      },
+      {
+        "id": "vitamins_sheet_corner",
+        "name": "Corner",
+        "module": "corner",
+        "confidence": 1.0
+      },
+      {
+        "id": "vitamins_extrusion_bracket_extrusion_corner_bracket",
+        "name": "Extrusion Corner Bracket",
+        "module": "extrusion_corner_bracket",
+        "confidence": 1.0
+      },
+      {
+        "id": "vitamins_extrusion_bracket_extrusion_corner_bracket_3d",
+        "name": "Extrusion Corner Bracket 3D",
+        "module": "extrusion_corner_bracket_3D",
+        "confidence": 1.0
+      },
+      {
+        "id": "vitamins_extrusion_bracket_extrusion_inner_corner_bracket",
+        "name": "Extrusion Inner Corner Bracket",
+        "module": "extrusion_inner_corner_bracket",
+        "confidence": 1.0
+      }
+    ],
+    "verification_results": []
+  },
+  "vlm_correction": {
+    "used": true,
+    "iterations": 1,
+    "approved": false,
+    "assessment": {
+      "approved": false,
+      "confidence": 0.25,
+      "overall_match": "poor",
+      "issues": [
+        "CRITICAL: Rendered images appear blank or empty - no visible 3D geometry",
+        "Model does not clearly depict an L-shaped right-angle corner bracket with two perpendicular mounting faces",
+        "No recognizable aluminium-extrusion slot interface geometry or integrated grub-screw clamping features are visible in the orthographic views",
+        "Views mostly show simple square/rectangular silhouettes with minimal detail, inconsistent with expected corner bracket form"
+      ],
+      "suggestions": [
+        "Check OpenSCAD code for errors causing empty renders",
+        "Simplify geometry to ensure it renders",
+        "Redesign to a clear L-bracket profile with two perpendicular faces visible in side/left/right views",
+        "Add extrusion-slot engagement features (e.g., tongues/lips sized for T-slot) on both legs of the bracket",
+        "Add and clearly show grub-screw holes (tapped) oriented to clamp into the extrusion slots; include counterbores/clearances as appropriate",
+        "Provide renders with clearer edge definition/contrast so holes and slot features are visible in orthographic views"
+      ],
+      "view_assessments": {
+        "front": "Appears as a square plate with a smaller centered square; no L-shape or mounting features visible.",
+        "back": "Same as front; lacks identifiable bracket geometry or screw/clamp features.",
+        "left": "Same square silhouette; does not show perpendicular faces expected for a corner bracket.",
+        "right": "Same as left; no visible slot interface or grub-screw holes.",
+        "top": "Shows a large rectangle with a smaller protruding rectangle; still not a clear L-bracket with two mounting faces.",
+        "bottom": "Shows a large rectangle with a notch and a small mark; does not clearly indicate grub-screw clamping or extrusion-slot engagement."
+      }
+    },
+    "multi_view_images": {
+      "front": "static/images/20260424-022204_iter1/20260424-022204_iter1_front.png",
+      "back": "static/images/20260424-022204_iter1/20260424-022204_iter1_back.png",
+      "left": "static/images/20260424-022204_iter1/20260424-022204_iter1_left.png",
+      "right": "static/images/20260424-022204_iter1/20260424-022204_iter1_right.png",
+      "top": "static/images/20260424-022204_iter1/20260424-022204_iter1_top.png",
+      "bottom": "static/images/20260424-022204_iter1/20260424-022204_iter1_bottom.png"
+    },
+    "iteration_history": [
+      {
+        "iteration": 1,
+        "deterministic_score": 50,
+        "deterministic_passed": false,
+        "corrected": false,
+        "view_images": {
+          "front": "static/images/20260424-022204_iter1/20260424-022204_iter1_front.png",
+          "back": "static/images/20260424-022204_iter1/20260424-022204_iter1_back.png",
+          "left": "static/images/20260424-022204_iter1/20260424-022204_iter1_left.png",
+          "right": "static/images/20260424-022204_iter1/20260424-022204_iter1_right.png",
+          "top": "static/images/20260424-022204_iter1/20260424-022204_iter1_top.png",
+          "bottom": "static/images/20260424-022204_iter1/20260424-022204_iter1_bottom.png"
+        },
+        "vlm_assessment": {
+          "approved": false,
+          "confidence": 0.25,
+          "overall_match": "poor",
+          "issues": [
+            "CRITICAL: Rendered images appear blank or empty - no visible 3D geometry",
+            "Model does not clearly depict an L-shaped right-angle corner bracket with two perpendicular mounting faces",
+            "No recognizable aluminium-extrusion slot interface geometry or integrated grub-screw clamping features are visible in the orthographic views",
+            "Views mostly show simple square/rectangular silhouettes with minimal detail, inconsistent with expected corner bracket form"
+          ]
+        }
+      }
+    ]
+  },
+  "component_verification": {
+    "used": true,
+    "iterations": 1,
+    "passed": false,
+    "all_parts_present": false,
+    "is_fully_connected": false,
+    "issues": [
+      "Missing ESSENTIAL part: l_bracket_body",
+      "Missing ESSENTIAL part: perpendicular_mounting_legs",
+      "Missing secondary part: grub_screw_bosses",
+      "Missing secondary part: grub_screw_tapped_holes",
+      "Missing secondary part: extrusion_contact_faces",
+      "Missing ESSENTIAL part: extrusion",
+      "Missing ESSENTIAL part: corner",
+      "Missing ESSENTIAL part: extrusion_corner_bracket",
+      "Missing ESSENTIAL part: extrusion_corner_bracket_3D",
+      "Missing ESSENTIAL part: extrusion_inner_corner_bracket",
+      "Model has disconnected/floating parts",
+      "Attachment issue: The dark gray protruding block appears as a separate piece and does not show a clear physical connection/merge to the main light gray bracket body in the top and bottom views (looks like it is intersecting/overlapping rather than a continuous joined solid)."
+    ],
+    "history": [
+      {
+        "iteration": 1,
+        "all_parts_found": false,
+        "is_connected": false,
+        "issues": [
+          "Missing ESSENTIAL part: l_bracket_body",
+          "Missing ESSENTIAL part: perpendicular_mounting_legs",
+          "Missing secondary part: grub_screw_bosses",
+          "Missing secondary part: grub_screw_tapped_holes",
+          "Missing secondary part: extrusion_contact_faces",
+          "Missing ESSENTIAL part: extrusion",
+          "Missing ESSENTIAL part: corner",
+          "Missing ESSENTIAL part: extrusion_corner_bracket",
+          "Missing ESSENTIAL part: extrusion_corner_bracket_3D",
+          "Missing ESSENTIAL part: extrusion_inner_corner_bracket",
+          "Model has disconnected/floating parts",
+          "Attachment issue: The dark gray protruding block appears as a separate piece and does not show a clear physical connection/merge to the main light gray bracket body in the top and bottom views (looks like it is intersecting/overlapping rather than a continuous joined solid)."
+        ],
+        "corrected": false,
+        "parts_present": [
+          {
+            "part_name": "l_bracket_body",
+            "present": false,
+            "confidence": 0.15,
+            "notes": "Views show mostly a solid rectangular block; no clear L-shaped right-angle bracket body is visible."
+          },
+          {
+            "part_name": "perpendicular_mounting_legs",
+            "present": false,
+            "confidence": 0.1,
+            "notes": "No distinct two-leg perpendicular geometry is identifiable in any orthographic view."
+          },
+          {
+            "part_name": "grub_screw_bosses",
+            "present": false,
+            "confidence": 0.2,
+            "notes": "No protruding bosses or cylindrical/raised features consistent with grub-screw housings are visible."
+          },
+          {
+            "part_name": "grub_screw_tapped_holes",
+            "present": false,
+            "confidence": 0.2,
+            "notes": "No clear circular holes/threads; only a tiny mark in bottom view that does not read as a tapped hole."
+          },
+          {
+            "part_name": "extrusion_contact_faces",
+            "present": false,
+            "confidence": 0.25,
+            "notes": "Contact faces specific to extrusion slot engagement are not distinguishable; model appears as a plain block."
+          },
+          {
+            "part_name": "edge_fillet_or_chamfer",
+            "present": false,
+            "confidence": 0.3,
+            "notes": "Edges appear sharp/orthogonal; no obvious fillets or chamfers shown."
+          },
+          {
+            "part_name": "extrusion",
+            "present": false,
+            "confidence": 0.1,
+            "notes": "No recognizable aluminum extrusion profile (T-slots/voids) is visible in any view."
+          },
+          {
+            "part_name": "corner",
+            "present": false,
+            "confidence": 0.2,
+            "notes": "A corner joint between two extrusions is not depicted; geometry does not show a corner assembly."
+          },
+          {
+            "part_name": "extrusion_corner_bracket",
+            "present": false,
+            "confidence": 0.15,
+            "notes": "The expected corner bracket form (L-bracket fitting extrusion corner) is not recognizable."
+          },
+          {
+            "part_name": "extrusion_corner_bracket_3D",
+            "present": false,
+            "confidence": 0.15,
+            "notes": "No 3D corner bracket features (two perpendicular mounting faces, slot interfaces) are visible."
+          },
+          {
+            "part_name": "extrusion_inner_corner_bracket",
+            "present": false,
+            "confidence": 0.15,
+            "notes": "Inner-corner bracket geometry that nests into extrusion slots is not evident; model reads as a simple block."
+          }
+        ],
+        "connectivity": {
+          "is_single_object": false,
+          "floating_parts": [
+            "perpendicular_mounting_legs (dark gray protruding block)"
+          ],
+          "attachment_issues": [
+            "The dark gray protruding block appears as a separate piece and does not show a clear physical connection/merge to the main light gray bracket body in the top and bottom views (looks like it is intersecting/overlapping rather than a continuous joined solid)."
+          ],
+          "confidence": 0.62
+        }
+      }
+    ]
+  },
+  "prompt_enhancement": {
+    "enhanced": true,
+    "enhanced_prompt": "An aluminium-extrusion corner bracket with an envelope of 28 mm x 28 mm x 20 mm, featuring grub screws for secure attachment.",
+    "notes": [
+      "Added technical specification about grub screws for secure attachment."
+    ]
+  },
+  "sketch": {
+    "used": true,
+    "web_path": "static/sketches/sketch_20260424-022204.png",
+    "prompt": "Draw a clean, minimalistic orthographic technical line sketch of the described object on a white background. Use thin black lines only \u2014 no shading, no color, no photorealism, no perspective distortion. Keep proportions realistic. Show the front or three-quarter view that most clearly reveals all canonical parts of the object. If helpful, label key dimensions in millimeters with small arrows, but keep labels sparse. The sketch should look like a designer's concept drawing, suitable as a reference for a parametric CAD model.\n\nOBJECT: An aluminium-extrusion corner bracket with an envelope of 28 mm x 28 mm x 20 mm, featuring grub screws for secure attachment.\nREQUIRED PARTS (must be visible in the sketch): l_bracket_body, perpendicular_mounting_legs, extrusion, corner, extrusion_corner_bracket, extrusion_corner_bracket_3D, extrusion_inner_corner_bracket\nPROPORTIONAL CONSTRAINTS \u2014 total_length = 28mm (category: bracket).\nAll other parts of the sketch must scale consistently with this total size \u2014 no exaggerated wheels, handles, or details.\nAPPROX DIMENSIONS: envelope_x\u224828mm, envelope_y\u224828mm, envelope_z\u224820mm, leg_thickness\u22484mm, base_plate_thickness\u22484mm, side_wall_thickness\u22484mm\nNOTE: Extrusion series/slot geometry is unspecified; grub-screw placement is parameterized and should be adjusted to match the target extrusion slot location and wall thickness. Thread is specified nominally as M4; modeling may represent tapped holes as pilot holes if thread geometry is not required.\n\nKeep the final image below 1024x1024, clean white background, no text outside the dimension labels, no watermark.",
+    "error": null
+  }
+}

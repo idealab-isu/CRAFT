@@ -1,0 +1,4 @@
+id   : blower__BL30x10
+tier : Complex
+
+A radial blower fan: 30 mm x 30 mm envelope, 10.1 mm depth, 25 mm intake diameter, 21.2 mm exit port width, 16 mm rotor hub diameter.

@@ -1,0 +1,16 @@
+Fontconfig warning: "/Applications/OpenSCAD-2021.01.app/Contents/Resources/fonts/fonts.conf", line 84: unknown element "blank"
+Geometries in cache: 434
+Geometry cache size in bytes: 2638448
+CGAL Polyhedrons in cache: 124
+CGAL cache size in bytes: 97923200
+Total rendering time: 0:01:25.571
+   Top level object is a 3D object:
+   Simple:         no
+   Vertices:    10211
+   Halfedges:   32260
+   Edges:       16130
+   Halffacets:  11940
+   Facets:       5970
+   Volumes:        16
+WARNING: Object may not be a valid 2-manifold and may need repair!
+EXPORT-WARNING: Exported object may not be a valid 2-manifold and may need repair

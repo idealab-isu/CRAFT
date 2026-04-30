@@ -1,0 +1,4 @@
+id   : panel_meter__DSN_VC288
+tier : Complex
+
+A panel-mount electrical meter: 45.3 mm x 26 mm body, 17.4 mm depth, 47.8 mm x 28.8 mm bezel, 36 mm x 18 mm display aperture.

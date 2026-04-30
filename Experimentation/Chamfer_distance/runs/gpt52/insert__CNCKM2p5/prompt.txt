@@ -1,0 +1,4 @@
+id   : insert__CNCKM2p5
+tier : Simple
+
+A heat-set brass threaded insert: 2.5 mm thread bore, 4.6 mm outer diameter, 4 mm length.

@@ -1,0 +1,4 @@
+id   : iec__IEC_320_C14_switched_fused_inlet
+tier : Complex
+
+An IEC mains-power inlet: 27 mm x 46.8 mm body, 33 mm x 57 mm flange, 3 mm flange thickness, 16.5 mm depth, 40 mm mounting-screw pitch.

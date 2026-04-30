@@ -1,0 +1,4 @@
+id   : pcb__ArduinoLeonardo
+tier : Complex
+
+A printed-circuit board: 68.58 mm x 53.34 mm, 1.6 mm thick, 3.3 mm mounting-hole diameter.

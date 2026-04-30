@@ -1,0 +1,27 @@
+% Auto-generated from NopSCADlib benchmark
+\begin{table*}[t]
+\centering
+\caption{Quantitative evaluation against NopSCADlib ground truth across 15 benchmark prompts. CD = Chamfer Distance (lower is better), F = F-score at $\tau{=}1$\,mm (higher is better), V-IoU = Voxel IoU (higher is better), SSIM = Structural Similarity (higher is better). Best results per tier in \textbf{bold}. Failed renders are penalized (CD=66.3, F=0, V-IoU=0, SSIM=0) so all methods are compared over the same $N$ items.}
+\label{tab:nopscadlib-benchmark}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Complexity} & \textbf{Method} & \textbf{Render} & \textbf{CD}$\downarrow$ & \textbf{F-score}$\uparrow$ & \textbf{V-IoU}$\uparrow$ & \textbf{SSIM}$\uparrow$ \\
+\midrule
+\multirow{3}{*}{Simple (5)}
+  GPT-4o (direct) & 80\% & 15.94 & 0.40 & 0.16 & \textbf{0.00} \\
+  & GPT-5.2 (direct) & 100\% & \textbf{2.54} & \textbf{0.62} & \textbf{0.38} & \textbf{0.00} \\
+  & CRAFT & 100\% & 4.69 & 0.50 & 0.22 & \textbf{0.00} \\
+\midrule
+\multirow{3}{*}{Medium (5)}
+  GPT-4o (direct) & 100\% & 6.44 & 0.26 & 0.20 & \textbf{0.00} \\
+  & GPT-5.2 (direct) & 100\% & \textbf{5.08} & \textbf{0.33} & \textbf{0.21} & \textbf{0.00} \\
+  & CRAFT & 100\% & 6.21 & 0.23 & 0.07 & \textbf{0.00} \\
+\midrule
+\multirow{3}{*}{Complex (5)}
+  GPT-4o (direct) & 100\% & \textbf{10.59} & \textbf{0.20} & \textbf{0.15} & \textbf{0.00} \\
+  & GPT-5.2 (direct) & 100\% & 11.68 & 0.13 & 0.05 & \textbf{0.00} \\
+  & CRAFT & 100\% & 23.91 & 0.16 & 0.07 & \textbf{0.00} \\
+\bottomrule
+\end{tabular}
+\end{table*}

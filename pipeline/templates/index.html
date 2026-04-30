@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CADence - Text to CAD Pipeline</title>
+    <title>CRAFT - Text to CAD Pipeline</title>
     <style>
         :root {
             --bg: #1a1a2e;
@@ -222,10 +222,48 @@
             max-height: 400px;
             object-fit: contain;
         }
-        
+
         .placeholder {
             color: var(--text-dim);
             text-align: center;
+        }
+
+        /* Input reference (user-provided sketch / image) */
+        .input-ref-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 720px) {
+            .input-ref-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .input-ref-card {
+            background: var(--bg);
+            border: 1px solid var(--surface-2);
+            border-radius: 8px;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+        }
+        .input-ref-card img {
+            max-width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        .input-ref-card .input-ref-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+            align-self: flex-start;
         }
         
         /* Code display */
@@ -928,7 +966,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>🔧 CADence</h1>
+            <h1>🔧 CRAFT</h1>
             <p class="subtitle">Multi-Agent Text-to-CAD Pipeline</p>
         </header>
         
@@ -986,6 +1024,19 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
                             <input type="checkbox" id="rag-toggle" checked style="opacity: 0; width: 0; height: 0;">
                             <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--surface-2); transition: .3s; border-radius: 24px;"></span>
                             <span id="rag-slider" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--accent); transition: .3s; border-radius: 50%;"></span>
+                        </label>
+                    </div>
+
+                    <!-- Sketch Toggle -->
+                    <div style="margin-top: 0.5rem; padding: 0.75rem 1rem; background: var(--bg); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                        <label style="color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                            ✏️ Generate Concept Sketch
+                            <span style="font-size: 0.75rem; color: var(--text-dim); opacity: 0.7;" title="Draw an orthographic line sketch from the refined prompt and feed it to the planner for visual grounding. Adds ~one image-gen call per request.">ⓘ</span>
+                        </label>
+                        <label class="toggle-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                            <input type="checkbox" id="sketch-toggle" checked style="opacity: 0; width: 0; height: 0;">
+                            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--surface-2); transition: .3s; border-radius: 24px;"></span>
+                            <span id="sketch-slider" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--accent); transition: .3s; border-radius: 50%;"></span>
                         </label>
                     </div>
 
@@ -1070,7 +1121,21 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
             <!-- Output Panel -->
             <div class="panel">
                 <h2>🖼️ Output</h2>
-                
+
+                <!-- Input Reference (sketch / concept image) shown alongside the generated output -->
+                <div id="input-ref-section" style="display: none;">
+                    <div class="input-ref-grid">
+                        <div class="input-ref-card">
+                            <span class="input-ref-label">📥 Input Sketch</span>
+                            <img id="input-ref-img" alt="Input sketch / reference">
+                        </div>
+                        <div class="input-ref-card">
+                            <span class="input-ref-label">🧩 Generated Model</span>
+                            <img id="input-ref-output-img" alt="Generated preview">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="output-image" id="output-image">
                     <div class="placeholder">
                         <p>Generated model will appear here</p>
@@ -1277,6 +1342,36 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
         let cadViewer = null;
         let parameterCustomizer = null;
         let selectedFiles = [];
+        // Cached data URL of the user's input sketch / reference image (single-image or
+        // first multi-view file). Used to display the input alongside the generated model.
+        let pendingInputSketch = null;
+
+        function setInputSketchFromFile(file) {
+            if (!file) { pendingInputSketch = null; return; }
+            const reader = new FileReader();
+            reader.onload = (e) => { pendingInputSketch = e.target.result; };
+            reader.readAsDataURL(file);
+        }
+
+        function clearInputSketch() {
+            pendingInputSketch = null;
+            const sec = document.getElementById('input-ref-section');
+            if (sec) sec.style.display = 'none';
+            // Restore the default label so a later uploaded sketch isn't
+            // mislabeled as "Generated Sketch".
+            const label = document.querySelector('#input-ref-section .input-ref-label');
+            if (label) label.textContent = '📥 Input Sketch';
+        }
+
+        function showInputSketchAlongsideOutput(outputSrc) {
+            const sec = document.getElementById('input-ref-section');
+            const inImg = document.getElementById('input-ref-img');
+            const outImg = document.getElementById('input-ref-output-img');
+            if (!sec || !pendingInputSketch) return;
+            inImg.src = pendingInputSketch;
+            if (outputSrc) outImg.src = outputSrc;
+            sec.style.display = 'block';
+        }
 
         // RAG toggle with visual slider
         const ragToggle = document.getElementById('rag-toggle');
@@ -1292,6 +1387,33 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
         }
         ragToggle.addEventListener('change', updateRagSlider);
         updateRagSlider(); // Initialize
+
+        // Sketch toggle with visual slider (persisted across sessions)
+        const sketchToggle = document.getElementById('sketch-toggle');
+        const sketchSlider = document.getElementById('sketch-slider');
+        function updateSketchSlider() {
+            if (!sketchToggle || !sketchSlider) return;
+            if (sketchToggle.checked) {
+                sketchSlider.style.transform = 'translateX(20px)';
+                sketchSlider.style.backgroundColor = 'var(--accent)';
+            } else {
+                sketchSlider.style.transform = 'translateX(0)';
+                sketchSlider.style.backgroundColor = '#888';
+            }
+        }
+        if (sketchToggle) {
+            // Restore last choice from localStorage (default: checked)
+            try {
+                const stored = localStorage.getItem('craft.use_sketch');
+                if (stored === 'false') sketchToggle.checked = false;
+                if (stored === 'true')  sketchToggle.checked = true;
+            } catch (_) { /* storage may be disabled */ }
+            sketchToggle.addEventListener('change', () => {
+                updateSketchSlider();
+                try { localStorage.setItem('craft.use_sketch', sketchToggle.checked ? 'true' : 'false'); } catch (_) {}
+            });
+            updateSketchSlider(); // Initialize
+        }
 
         // Elements
         const textInput = document.getElementById('text-input');
@@ -1364,6 +1486,12 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
             selectedFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
             fileList.textContent = `${selectedFiles.length} images selected: ${selectedFiles.map(f => f.name).join(', ')}`;
             visionBtn.disabled = selectedFiles.length < 6;
+            // Use first uploaded view as the sketch reference for the output panel
+            if (selectedFiles.length > 0) {
+                setInputSketchFromFile(selectedFiles[0]);
+            } else {
+                pendingInputSketch = null;
+            }
         }
 
         // Single Image upload handling
@@ -1399,12 +1527,13 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
             selectedSingleFile = file;
             singleImageBtn.disabled = false;
 
-            // Show preview
+            // Show preview + cache as pending input sketch for the output panel
             const reader = new FileReader();
             reader.onload = (e) => {
                 singlePreviewImg.src = e.target.result;
                 singleFileName.textContent = file.name;
                 singleImagePreview.style.display = 'block';
+                pendingInputSketch = e.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -1447,10 +1576,14 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
 
             setLoading(true);
             hideError();
+            // Text-only mode has no sketch input — make sure we don't show a stale one.
+            clearInputSketch();
 
             const formData = new FormData();
             formData.append('text', text);
             formData.append('use_rag', document.getElementById('rag-toggle').checked ? 'true' : 'false');
+            const sketchEl = document.getElementById('sketch-toggle');
+            formData.append('use_sketch', (sketchEl && sketchEl.checked) ? 'true' : 'false');
 
             try {
                 const response = await fetch('/generate', {
@@ -1524,10 +1657,34 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
             }
             
             currentSessionId = data.session_id;
-            
+
             // Update image
             if (data.image) {
-                outputImage.innerHTML = `<img src="/${data.image}?t=${Date.now()}" alt="Generated CAD">`;
+                const outputSrc = `/${data.image}?t=${Date.now()}`;
+                outputImage.innerHTML = `<img src="${outputSrc}" alt="Generated CAD">`;
+
+                // Pick the "input reference" image:
+                //  1. User-uploaded sketch (single-image / multi-view mode), OR
+                //  2. Pipeline-generated concept sketch (text mode, v2 Stage 1.5)
+                // Either way we get to show what the planner was looking at
+                // right next to the final render.
+                const pipelineSketch = data.sketch && data.sketch.used && data.sketch.web_path
+                    ? '/' + data.sketch.web_path + '?t=' + Date.now()
+                    : null;
+                if (pendingInputSketch) {
+                    showInputSketchAlongsideOutput(outputSrc);
+                } else if (pipelineSketch) {
+                    const sec = document.getElementById('input-ref-section');
+                    const inImg = document.getElementById('input-ref-img');
+                    const outImg = document.getElementById('input-ref-output-img');
+                    const label = document.querySelector('#input-ref-section .input-ref-label');
+                    if (sec && inImg && outImg) {
+                        inImg.src = pipelineSketch;
+                        outImg.src = outputSrc;
+                        if (label) label.textContent = '✏️ Generated Sketch';
+                        sec.style.display = 'block';
+                    }
+                }
             }
             
             // Update design brief

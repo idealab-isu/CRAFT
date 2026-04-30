@@ -1,0 +1,4 @@
+id   : hot_end__E3D_clone
+tier : Complex
+
+A 3D-printer hot-end assembly: 66 mm overall length, 6.8 mm mount inset, 16 mm insulator diameter, 46 mm insulator length, 12 mm mounting groove over 5.6 mm.

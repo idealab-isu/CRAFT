@@ -1,0 +1,399 @@
+{
+  "model": "gpt-5.2",
+  "method": "gpt52",
+  "n": 30,
+  "items": [
+    {
+      "id": "7_segment__WT5011BSR",
+      "tier": "Medium",
+      "model": "gpt-5.2",
+      "seconds": 16.332398891448975,
+      "usage": {
+        "prompt_tokens": 245,
+        "completion_tokens": 1281,
+        "total_tokens": 1526
+      },
+      "export_seconds": 17.500659227371216,
+      "export_ok": true
+    },
+    {
+      "id": "antenna__ESP201_antenna",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 19.69416117668152,
+      "usage": {
+        "prompt_tokens": 250,
+        "completion_tokens": 1129,
+        "total_tokens": 1379
+      },
+      "export_seconds": 11.010496854782104,
+      "export_ok": true
+    },
+    {
+      "id": "axial__DO_35",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 2.7986598014831543,
+      "usage": {
+        "prompt_tokens": 203,
+        "completion_tokens": 186,
+        "total_tokens": 389
+      },
+      "export_seconds": 1.4071040153503418,
+      "export_ok": true
+    },
+    {
+      "id": "ball_bearing__BB608",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 6.222851037979126,
+      "usage": {
+        "prompt_tokens": 208,
+        "completion_tokens": 436,
+        "total_tokens": 644
+      },
+      "export_seconds": 180.0643711090088,
+      "export_ok": false,
+      "export_error": "STL export timed out after 180 seconds"
+    },
+    {
+      "id": "batterie__A23CELL",
+      "tier": "Medium",
+      "model": "gpt-5.2",
+      "seconds": 2.6643598079681396,
+      "usage": {
+        "prompt_tokens": 208,
+        "completion_tokens": 81,
+        "total_tokens": 289
+      },
+      "export_seconds": 1.4932701587677002,
+      "export_ok": true
+    },
+    {
+      "id": "bearing_block__SCS10LUU",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 16.52868890762329,
+      "usage": {
+        "prompt_tokens": 235,
+        "completion_tokens": 1086,
+        "total_tokens": 1321
+      },
+      "export_seconds": 13.695760011672974,
+      "export_ok": true
+    },
+    {
+      "id": "bldc_motor__BLDC0603",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 5.9631781578063965,
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 405,
+        "total_tokens": 634
+      },
+      "export_seconds": 6.465233087539673,
+      "export_ok": true
+    },
+    {
+      "id": "blower__BL30x10",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 13.920577049255371,
+      "usage": {
+        "prompt_tokens": 231,
+        "completion_tokens": 953,
+        "total_tokens": 1184
+      },
+      "export_seconds": 8.809063911437988,
+      "export_ok": true
+    },
+    {
+      "id": "box_section__AL12x8x1",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 3.311069965362549,
+      "usage": {
+        "prompt_tokens": 221,
+        "completion_tokens": 199,
+        "total_tokens": 420
+      },
+      "export_seconds": 0.39333081245422363,
+      "export_ok": true
+    },
+    {
+      "id": "camera__ESP32_CAM",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 8.542179107666016,
+      "usage": {
+        "prompt_tokens": 219,
+        "completion_tokens": 654,
+        "total_tokens": 873
+      },
+      "export_seconds": 1.9297730922698975,
+      "export_ok": true
+    },
+    {
+      "id": "component__Epcos",
+      "tier": "Medium",
+      "model": "gpt-5.2",
+      "seconds": 3.658967971801758,
+      "usage": {
+        "prompt_tokens": 217,
+        "completion_tokens": 247,
+        "total_tokens": 464
+      },
+      "export_seconds": 1.2808501720428467,
+      "export_ok": true
+    },
+    {
+      "id": "d_connector__DCONN15",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 11.365172863006592,
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 832,
+        "total_tokens": 1061
+      },
+      "export_seconds": 15.913918018341064,
+      "export_ok": true
+    },
+    {
+      "id": "display__BigTreeTech_TFT35v3_0",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 2.0802338123321533,
+      "usage": {
+        "prompt_tokens": 214,
+        "completion_tokens": 90,
+        "total_tokens": 304
+      },
+      "export_seconds": 0.12120699882507324,
+      "export_ok": true
+    },
+    {
+      "id": "extrusion__E1515",
+      "tier": "Medium",
+      "model": "gpt-5.2",
+      "seconds": 7.185592889785767,
+      "usage": {
+        "prompt_tokens": 272,
+        "completion_tokens": 449,
+        "total_tokens": 721
+      },
+      "export_seconds": 0.12444806098937988,
+      "export_ok": true
+    },
+    {
+      "id": "extrusion_bracket__E20_corner_bracket",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 5.504555940628052,
+      "usage": {
+        "prompt_tokens": 209,
+        "completion_tokens": 354,
+        "total_tokens": 563
+      },
+      "export_seconds": 2.0551228523254395,
+      "export_ok": true
+    },
+    {
+      "id": "gear_motor__FIT0492_A",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 3.5444939136505127,
+      "usage": {
+        "prompt_tokens": 238,
+        "completion_tokens": 211,
+        "total_tokens": 449
+      },
+      "export_seconds": 2.942781925201416,
+      "export_ok": true
+    },
+    {
+      "id": "hot_end__E3D_clone",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 5.589355945587158,
+      "usage": {
+        "prompt_tokens": 238,
+        "completion_tokens": 286,
+        "total_tokens": 524
+      },
+      "export_seconds": 4.250576972961426,
+      "export_ok": true
+    },
+    {
+      "id": "ht_pipe__HT_110_cap",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 8.639465808868408,
+      "usage": {
+        "prompt_tokens": 202,
+        "completion_tokens": 437,
+        "total_tokens": 639
+      },
+      "export_seconds": 6.019816875457764,
+      "export_ok": true
+    },
+    {
+      "id": "iec__IEC_320_C14_switched_fused_inlet",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 7.299551010131836,
+      "usage": {
+        "prompt_tokens": 235,
+        "completion_tokens": 484,
+        "total_tokens": 719
+      },
+      "export_seconds": 4.577770948410034,
+      "export_ok": true
+    },
+    {
+      "id": "insert__CNCKM2p5",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 1.629235029220581,
+      "usage": {
+        "prompt_tokens": 216,
+        "completion_tokens": 77,
+        "total_tokens": 293
+      },
+      "export_seconds": 0.5485091209411621,
+      "export_ok": true
+    },
+    {
+      "id": "leadnut__LNHT8x2",
+      "tier": "Medium",
+      "model": "gpt-5.2",
+      "seconds": 2.8058559894561768,
+      "usage": {
+        "prompt_tokens": 222,
+        "completion_tokens": 177,
+        "total_tokens": 399
+      },
+      "export_seconds": 2.093606948852539,
+      "export_ok": true
+    },
+    {
+      "id": "led__LED10mm",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 8.048310041427612,
+      "usage": {
+        "prompt_tokens": 199,
+        "completion_tokens": 528,
+        "total_tokens": 727
+      },
+      "export_seconds": 9.598918914794922,
+      "export_ok": true
+    },
+    {
+      "id": "light_strip__RIGID5050",
+      "tier": "Medium",
+      "model": "gpt-5.2",
+      "seconds": 12.470702886581421,
+      "usage": {
+        "prompt_tokens": 249,
+        "completion_tokens": 902,
+        "total_tokens": 1151
+      },
+      "export_seconds": 46.10391306877136,
+      "export_ok": true
+    },
+    {
+      "id": "linear_bearing__LM10LUU",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 2.0971620082855225,
+      "usage": {
+        "prompt_tokens": 210,
+        "completion_tokens": 80,
+        "total_tokens": 290
+      },
+      "export_seconds": 0.5532050132751465,
+      "export_ok": true
+    },
+    {
+      "id": "magnet__MAG484",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 2.953119993209839,
+      "usage": {
+        "prompt_tokens": 226,
+        "completion_tokens": 147,
+        "total_tokens": 373
+      },
+      "export_seconds": 10.970930099487305,
+      "export_ok": true
+    },
+    {
+      "id": "mains_socket__Contactum",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 7.896507978439331,
+      "usage": {
+        "prompt_tokens": 230,
+        "completion_tokens": 512,
+        "total_tokens": 742
+      },
+      "export_seconds": 11.72525691986084,
+      "export_ok": true
+    },
+    {
+      "id": "nut__M2_nut",
+      "tier": "Simple",
+      "model": "gpt-5.2",
+      "seconds": 4.373975038528442,
+      "usage": {
+        "prompt_tokens": 205,
+        "completion_tokens": 260,
+        "total_tokens": 465
+      },
+      "export_seconds": 0.5126128196716309,
+      "export_ok": true
+    },
+    {
+      "id": "panel_meter__DSN_VC288",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 5.024405002593994,
+      "usage": {
+        "prompt_tokens": 236,
+        "completion_tokens": 341,
+        "total_tokens": 577
+      },
+      "export_seconds": 2.2607920169830322,
+      "export_ok": true
+    },
+    {
+      "id": "pcb__ArduinoLeonardo",
+      "tier": "Complex",
+      "model": "gpt-5.2",
+      "seconds": 2.845278024673462,
+      "usage": {
+        "prompt_tokens": 222,
+        "completion_tokens": 190,
+        "total_tokens": 412
+      },
+      "export_seconds": 1.3098609447479248,
+      "export_ok": true
+    },
+    {
+      "id": "photo_interrupter__PH1",
+      "tier": "Medium",
+      "model": "gpt-5.2",
+      "seconds": 10.105461120605469,
+      "usage": {
+        "prompt_tokens": 237,
+        "completion_tokens": 624,
+        "total_tokens": 861
+      },
+      "export_seconds": 0.9443037509918213,
+      "export_ok": true
+    }
+  ],
+  "ok": 29
+}

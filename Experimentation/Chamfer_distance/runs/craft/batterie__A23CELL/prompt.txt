@@ -1,0 +1,4 @@
+id   : batterie__A23CELL
+tier : Medium
+
+A cylindrical dry-cell battery: 10.3 mm diameter, 28.5 mm length.

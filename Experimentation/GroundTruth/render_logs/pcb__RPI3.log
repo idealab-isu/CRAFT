@@ -1,0 +1,14 @@
+ERROR: The given mesh is not closed! Unable to convert to CGAL_Nef_Polyhedron.
+Geometries in cache: 330
+Geometry cache size in bytes: 2870032
+CGAL Polyhedrons in cache: 45
+CGAL cache size in bytes: 27265648
+Total rendering time: 0:00:36.185
+   Top level object is a 3D object:
+   Simple:        yes
+   Vertices:     8600
+   Halfedges:   26140
+   Edges:       13070
+   Halffacets:   9370
+   Facets:       4685
+   Volumes:        16

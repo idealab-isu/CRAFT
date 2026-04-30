@@ -1,0 +1,4 @@
+id   : bearing_block__SCS10LUU
+tier : Complex
+
+A linear-shaft bearing block: 8 mm shaft bore, 13 mm centre-line offset, 26 mm height to shaft centre, 21 mm base flange height, 28 mm x 45 mm mounting-screw pattern.
