@@ -1,0 +1,4 @@
+id   : box_section__AL12x8x1
+tier : Simple
+
+An aluminium rectangular box-section tube: 12 mm x 8 mm cross-section, 1 mm wall thickness, 0.5 mm internal corner fillet.

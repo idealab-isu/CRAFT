@@ -1,0 +1,821 @@
+{
+  "config": {
+    "n_points": 10000,
+    "use_icp": true,
+    "seed": 42,
+    "methods": [
+      "craft",
+      "gpt52",
+      "gpt4o",
+      "v4"
+    ],
+    "examples": [
+      "7_segment__WT5011BSR",
+      "antenna__ESP201_antenna",
+      "axial__DO_35",
+      "ball_bearing__BB608",
+      "batterie__A23CELL",
+      "bearing_block__SCS10LUU",
+      "bldc_motor__BLDC0603",
+      "blower__BL30x10",
+      "box_section__AL12x8x1",
+      "camera__ESP32_CAM",
+      "component__Epcos",
+      "d_connector__DCONN15",
+      "display__BigTreeTech_TFT35v3_0",
+      "extrusion__E1515",
+      "extrusion_bracket__E20_corner_bracket",
+      "gear_motor__FIT0492_A",
+      "hot_end__E3D_clone",
+      "ht_pipe__HT_110_cap",
+      "iec__IEC_320_C14_switched_fused_inlet",
+      "insert__CNCKM2p5",
+      "leadnut__LNHT8x2",
+      "led__LED10mm",
+      "light_strip__RIGID5050",
+      "linear_bearing__LM10LUU",
+      "magnet__MAG484",
+      "mains_socket__Contactum",
+      "nut__M2_nut",
+      "panel_meter__DSN_VC288",
+      "pcb__ArduinoLeonardo",
+      "photo_interrupter__PH1"
+    ]
+  },
+  "per_example": {
+    "7_segment__WT5011BSR": {
+      "craft": {
+        "chamfer": 0.06364781831470522,
+        "chamfer_raw": 1.9484188392777568,
+        "best_init_index": 0,
+        "seconds": 11.505618810653687
+      },
+      "gpt52": {
+        "chamfer": 0.06149109616006826,
+        "chamfer_raw": 1.680959721668428,
+        "best_init_index": 0,
+        "seconds": 12.372014999389648
+      },
+      "gpt4o": {
+        "chamfer": 0.06124373780663413,
+        "chamfer_raw": 1.8724817409162196,
+        "best_init_index": 0,
+        "seconds": 10.903554916381836
+      },
+      "v4": {
+        "chamfer": 0.05880487065553952,
+        "chamfer_raw": 1.9789111173674012,
+        "best_init_index": 0,
+        "seconds": 12.77283501625061
+      }
+    },
+    "antenna__ESP201_antenna": {
+      "craft": {
+        "chamfer": 0.01573360072361469,
+        "chamfer_raw": 1.770749786449766,
+        "best_init_index": 0,
+        "seconds": 3.2655937671661377
+      },
+      "gpt52": {
+        "chamfer": 0.023674160476014533,
+        "chamfer_raw": 25.228075611216333,
+        "best_init_index": 17,
+        "seconds": 3.6877660751342773
+      },
+      "gpt4o": {
+        "chamfer": 0.04350218196667965,
+        "chamfer_raw": 33.50694109954506,
+        "best_init_index": 13,
+        "seconds": 3.9677491188049316
+      },
+      "v4": {
+        "chamfer": 0.024056060572391697,
+        "chamfer_raw": 5.388375852909046,
+        "best_init_index": 9,
+        "seconds": 3.4501609802246094
+      }
+    },
+    "axial__DO_35": {
+      "craft": {
+        "chamfer": 0.23607563161555647,
+        "chamfer_raw": 1.2796401097981214,
+        "best_init_index": 17,
+        "seconds": 9.209734201431274
+      },
+      "gpt52": {
+        "chamfer": 0.24122804178393947,
+        "chamfer_raw": 1.9498945573659672,
+        "best_init_index": 16,
+        "seconds": 8.483851194381714
+      },
+      "gpt4o": {
+        "chamfer": 0.23865464442368992,
+        "chamfer_raw": 1.517473187689259,
+        "best_init_index": 18,
+        "seconds": 11.550657749176025
+      },
+      "v4": {
+        "chamfer": 0.23926264864131458,
+        "chamfer_raw": 1.2852923540491752,
+        "best_init_index": 16,
+        "seconds": 8.489590167999268
+      }
+    },
+    "ball_bearing__BB608": {
+      "craft": {
+        "chamfer": 0.04291041823824039,
+        "chamfer_raw": 0.4962191403644467,
+        "best_init_index": 16,
+        "seconds": 4.658747911453247
+      },
+      "gpt52": {
+        "error": "missing_stl"
+      },
+      "gpt4o": {
+        "chamfer": 0.04817787839620974,
+        "chamfer_raw": 0.5644084138304035,
+        "best_init_index": 10,
+        "seconds": 3.642759084701538
+      },
+      "v4": {
+        "chamfer": 0.0418171323123969,
+        "chamfer_raw": 0.4790880320758535,
+        "best_init_index": 0,
+        "seconds": 3.0387320518493652
+      }
+    },
+    "batterie__A23CELL": {
+      "craft": {
+        "chamfer": 0.015637655903269064,
+        "chamfer_raw": 0.22180792751515926,
+        "best_init_index": 1,
+        "seconds": 6.133432865142822
+      },
+      "gpt52": {
+        "chamfer": 0.014179485908362224,
+        "chamfer_raw": 0.21672616489737068,
+        "best_init_index": 0,
+        "seconds": 6.521715879440308
+      },
+      "gpt4o": {
+        "chamfer": 0.014101701679846429,
+        "chamfer_raw": 4.4522117947524364,
+        "best_init_index": 4,
+        "seconds": 6.434988975524902
+      },
+      "v4": {
+        "chamfer": 0.014101701679847038,
+        "chamfer_raw": 0.21072586076932565,
+        "best_init_index": 4,
+        "seconds": 6.468047142028809
+      }
+    },
+    "bearing_block__SCS10LUU": {
+      "craft": {
+        "chamfer": 0.18704494858319742,
+        "chamfer_raw": 14.582268432764213,
+        "best_init_index": 14,
+        "seconds": 12.195399284362793
+      },
+      "gpt52": {
+        "chamfer": 0.14737430482972447,
+        "chamfer_raw": 10.488477741553094,
+        "best_init_index": 21,
+        "seconds": 11.537195920944214
+      },
+      "gpt4o": {
+        "chamfer": 0.134594720598469,
+        "chamfer_raw": 7.3437142574914205,
+        "best_init_index": 6,
+        "seconds": 4.946045160293579
+      },
+      "v4": {
+        "chamfer": 0.15482502800391285,
+        "chamfer_raw": 15.617587482614953,
+        "best_init_index": 23,
+        "seconds": 4.281114816665649
+      }
+    },
+    "bldc_motor__BLDC0603": {
+      "craft": {
+        "chamfer": 0.09263363219381794,
+        "chamfer_raw": 2.1100925280488108,
+        "best_init_index": 1,
+        "seconds": 11.45451807975769
+      },
+      "gpt52": {
+        "chamfer": 0.18354551945159334,
+        "chamfer_raw": 0.6409572109174826,
+        "best_init_index": 3,
+        "seconds": 14.138234853744507
+      },
+      "gpt4o": {
+        "chamfer": 0.0624796165457439,
+        "chamfer_raw": 2.9730208851559796,
+        "best_init_index": 0,
+        "seconds": 8.44693899154663
+      },
+      "v4": {
+        "chamfer": 0.10436334782589361,
+        "chamfer_raw": 1.7293887012225346,
+        "best_init_index": 1,
+        "seconds": 9.30906081199646
+      }
+    },
+    "blower__BL30x10": {
+      "craft": {
+        "chamfer": 0.034165633271571016,
+        "chamfer_raw": 8.183033977087678,
+        "best_init_index": 0,
+        "seconds": 7.277385950088501
+      },
+      "gpt52": {
+        "chamfer": 0.040717277658460886,
+        "chamfer_raw": 8.032841842293275,
+        "best_init_index": 1,
+        "seconds": 6.60286283493042
+      },
+      "gpt4o": {
+        "chamfer": 0.0583910437834393,
+        "chamfer_raw": 8.183276511277665,
+        "best_init_index": 20,
+        "seconds": 6.8290629386901855
+      },
+      "v4": {
+        "chamfer": 0.03409619939036754,
+        "chamfer_raw": 8.174647917056738,
+        "best_init_index": 10,
+        "seconds": 7.273954153060913
+      }
+    },
+    "box_section__AL12x8x1": {
+      "craft": {
+        "chamfer": 0.00863974816776937,
+        "chamfer_raw": 11.609739603412073,
+        "best_init_index": 3,
+        "seconds": 3.8389527797698975
+      },
+      "gpt52": {
+        "chamfer": 0.0979239707445269,
+        "chamfer_raw": 4.7567721644622765,
+        "best_init_index": 4,
+        "seconds": 2.697462797164917
+      },
+      "gpt4o": {
+        "error": "missing_stl"
+      },
+      "v4": {
+        "chamfer": 0.06581193831856777,
+        "chamfer_raw": 3.4208176343809757,
+        "best_init_index": 19,
+        "seconds": 3.1155970096588135
+      }
+    },
+    "camera__ESP32_CAM": {
+      "craft": {
+        "chamfer": 0.07556963232894234,
+        "chamfer_raw": 3.3717877431308607,
+        "best_init_index": 21,
+        "seconds": 12.945029020309448
+      },
+      "gpt52": {
+        "chamfer": 0.11677016745680992,
+        "chamfer_raw": 6.33871149938362,
+        "best_init_index": 4,
+        "seconds": 17.844418048858643
+      },
+      "gpt4o": {
+        "chamfer": 0.1173610165910428,
+        "chamfer_raw": 2.250575199650302,
+        "best_init_index": 0,
+        "seconds": 16.702259063720703
+      },
+      "v4": {
+        "chamfer": 0.13200579140817206,
+        "chamfer_raw": 3.3005072407631353,
+        "best_init_index": 7,
+        "seconds": 18.453389167785645
+      }
+    },
+    "component__Epcos": {
+      "craft": {
+        "chamfer": 0.32682035960714745,
+        "chamfer_raw": 13.882385594379251,
+        "best_init_index": 6,
+        "seconds": 53.00980615615845
+      },
+      "gpt52": {
+        "chamfer": 0.20040219759654027,
+        "chamfer_raw": 14.304174704710146,
+        "best_init_index": 1,
+        "seconds": 40.33456993103027
+      },
+      "gpt4o": {
+        "chamfer": 0.25922646422602413,
+        "chamfer_raw": 14.259278598983826,
+        "best_init_index": 22,
+        "seconds": 35.286705017089844
+      },
+      "v4": {
+        "chamfer": 0.12573087441385447,
+        "chamfer_raw": 12.034166225579437,
+        "best_init_index": 21,
+        "seconds": 31.165346145629883
+      }
+    },
+    "d_connector__DCONN15": {
+      "craft": {
+        "chamfer": 0.04827861857591573,
+        "chamfer_raw": 1.583010318029542,
+        "best_init_index": 5,
+        "seconds": 9.60699200630188
+      },
+      "gpt52": {
+        "chamfer": 0.047605406495547196,
+        "chamfer_raw": 1.4825712189683096,
+        "best_init_index": 2,
+        "seconds": 8.907817125320435
+      },
+      "gpt4o": {
+        "chamfer": 0.08191739379533393,
+        "chamfer_raw": 1.8090996713075211,
+        "best_init_index": 7,
+        "seconds": 8.05708622932434
+      },
+      "v4": {
+        "chamfer": 0.05245366748484727,
+        "chamfer_raw": 1.7671574534034171,
+        "best_init_index": 23,
+        "seconds": 8.715395212173462
+      }
+    },
+    "display__BigTreeTech_TFT35v3_0": {
+      "craft": {
+        "chamfer": 0.03195657694873078,
+        "chamfer_raw": 5.347026542208868,
+        "best_init_index": 3,
+        "seconds": 7.2822582721710205
+      },
+      "gpt52": {
+        "chamfer": 0.03330526165002738,
+        "chamfer_raw": 4.018394792719052,
+        "best_init_index": 3,
+        "seconds": 7.665770053863525
+      },
+      "gpt4o": {
+        "error": "missing_stl"
+      },
+      "v4": {
+        "chamfer": 0.03731073384056783,
+        "chamfer_raw": 3.731926366368685,
+        "best_init_index": 3,
+        "seconds": 7.4848408699035645
+      }
+    },
+    "extrusion__E1515": {
+      "craft": {
+        "chamfer": 0.018779212045033994,
+        "chamfer_raw": 2.5199887754832093,
+        "best_init_index": 2,
+        "seconds": 5.867292881011963
+      },
+      "gpt52": {
+        "chamfer": 0.07829286975235081,
+        "chamfer_raw": 4.990877640814859,
+        "best_init_index": 22,
+        "seconds": 5.611048221588135
+      },
+      "gpt4o": {
+        "error": "missing_stl"
+      },
+      "v4": {
+        "chamfer": 0.018779212045033994,
+        "chamfer_raw": 2.5199887754832093,
+        "best_init_index": 2,
+        "seconds": 5.82779598236084
+      }
+    },
+    "extrusion_bracket__E20_corner_bracket": {
+      "craft": {
+        "chamfer": 0.07081001173147267,
+        "chamfer_raw": 1.5752882420435723,
+        "best_init_index": 1,
+        "seconds": 14.24334192276001
+      },
+      "gpt52": {
+        "chamfer": 0.05171690803887162,
+        "chamfer_raw": 10.936280419226268,
+        "best_init_index": 3,
+        "seconds": 10.678361892700195
+      },
+      "gpt4o": {
+        "chamfer": 0.08996617717469031,
+        "chamfer_raw": 7.36224571039247,
+        "best_init_index": 4,
+        "seconds": 11.03175401687622
+      },
+      "v4": {
+        "chamfer": 0.07079152817460108,
+        "chamfer_raw": 1.5747528251223464,
+        "best_init_index": 1,
+        "seconds": 14.230327129364014
+      }
+    },
+    "gear_motor__FIT0492_A": {
+      "craft": {
+        "chamfer": 0.05745438545717116,
+        "chamfer_raw": 13.590259504936533,
+        "best_init_index": 3,
+        "seconds": 12.845293045043945
+      },
+      "gpt52": {
+        "chamfer": 0.04709000969978949,
+        "chamfer_raw": 3.464771442977475,
+        "best_init_index": 0,
+        "seconds": 13.049906969070435
+      },
+      "gpt4o": {
+        "chamfer": 0.04967148659531722,
+        "chamfer_raw": 10.140398991514921,
+        "best_init_index": 4,
+        "seconds": 16.4676411151886
+      },
+      "v4": {
+        "chamfer": 0.15883810467793666,
+        "chamfer_raw": 5.498906532017767,
+        "best_init_index": 15,
+        "seconds": 12.496134757995605
+      }
+    },
+    "hot_end__E3D_clone": {
+      "craft": {
+        "chamfer": 0.09772979327038345,
+        "chamfer_raw": 7.600489059533019,
+        "best_init_index": 5,
+        "seconds": 9.004674911499023
+      },
+      "gpt52": {
+        "chamfer": 0.09677928324765502,
+        "chamfer_raw": 6.6450702858919435,
+        "best_init_index": 6,
+        "seconds": 7.889193058013916
+      },
+      "gpt4o": {
+        "chamfer": 0.09657026925215585,
+        "chamfer_raw": 4.139215553990585,
+        "best_init_index": 1,
+        "seconds": 8.427374124526978
+      },
+      "v4": {
+        "chamfer": 0.09769084872515021,
+        "chamfer_raw": 7.605517238549333,
+        "best_init_index": 0,
+        "seconds": 9.014972925186157
+      }
+    },
+    "ht_pipe__HT_110_cap": {
+      "craft": {
+        "chamfer": 0.10370009493204158,
+        "chamfer_raw": 22.873026327592306,
+        "best_init_index": 11,
+        "seconds": 15.03867793083191
+      },
+      "gpt52": {
+        "chamfer": 0.09032141547982828,
+        "chamfer_raw": 22.408451061137487,
+        "best_init_index": 11,
+        "seconds": 19.05854892730713
+      },
+      "gpt4o": {
+        "chamfer": 0.25068437793319365,
+        "chamfer_raw": 32.56237280049829,
+        "best_init_index": 9,
+        "seconds": 41.43455910682678
+      },
+      "v4": {
+        "chamfer": 0.22358904159313214,
+        "chamfer_raw": 28.18703445306182,
+        "best_init_index": 9,
+        "seconds": 19.022141933441162
+      }
+    },
+    "iec__IEC_320_C14_switched_fused_inlet": {
+      "craft": {
+        "chamfer": 0.04811505001065802,
+        "chamfer_raw": 2.166874754116777,
+        "best_init_index": 2,
+        "seconds": 11.035733938217163
+      },
+      "gpt52": {
+        "chamfer": 0.059579342954329,
+        "chamfer_raw": 2.165625250941924,
+        "best_init_index": 2,
+        "seconds": 11.957842350006104
+      },
+      "gpt4o": {
+        "chamfer": 0.1203909596701742,
+        "chamfer_raw": 7.706063084491836,
+        "best_init_index": 0,
+        "seconds": 11.789061784744263
+      },
+      "v4": {
+        "chamfer": 0.03765351861737494,
+        "chamfer_raw": 5.372182080984848,
+        "best_init_index": 3,
+        "seconds": 11.599324226379395
+      }
+    },
+    "insert__CNCKM2p5": {
+      "craft": {
+        "chamfer": 0.05293422803329625,
+        "chamfer_raw": 0.653443578853593,
+        "best_init_index": 12,
+        "seconds": 6.731845855712891
+      },
+      "gpt52": {
+        "chamfer": 0.043589731163570296,
+        "chamfer_raw": 0.6195888001735002,
+        "best_init_index": 3,
+        "seconds": 8.161288022994995
+      },
+      "gpt4o": {
+        "chamfer": 0.08097585901251686,
+        "chamfer_raw": 1.9212295927360725,
+        "best_init_index": 13,
+        "seconds": 5.436847925186157
+      },
+      "v4": {
+        "chamfer": 0.05689230176730799,
+        "chamfer_raw": 0.6599270304128757,
+        "best_init_index": 0,
+        "seconds": 4.262344837188721
+      }
+    },
+    "leadnut__LNHT8x2": {
+      "craft": {
+        "chamfer": 0.07924827047303774,
+        "chamfer_raw": 14.857701557172138,
+        "best_init_index": 8,
+        "seconds": 23.95204997062683
+      },
+      "gpt52": {
+        "chamfer": 0.10632515432067276,
+        "chamfer_raw": 15.386345467663563,
+        "best_init_index": 8,
+        "seconds": 16.174981832504272
+      },
+      "gpt4o": {
+        "chamfer": 0.061176154935972074,
+        "chamfer_raw": 4.9149857496122635,
+        "best_init_index": 23,
+        "seconds": 5.466469764709473
+      },
+      "v4": {
+        "chamfer": 0.10672861345818846,
+        "chamfer_raw": 15.357754766628588,
+        "best_init_index": 10,
+        "seconds": 17.75282597541809
+      }
+    },
+    "led__LED10mm": {
+      "craft": {
+        "chamfer": 0.041734533900475476,
+        "chamfer_raw": 0.35923825953980554,
+        "best_init_index": 0,
+        "seconds": 10.303631782531738
+      },
+      "gpt52": {
+        "chamfer": 0.2672154232173516,
+        "chamfer_raw": 0.9750465957738469,
+        "best_init_index": 3,
+        "seconds": 26.93397355079651
+      },
+      "gpt4o": {
+        "chamfer": 0.2548140499977999,
+        "chamfer_raw": 1.7438534197684183,
+        "best_init_index": 6,
+        "seconds": 32.08920884132385
+      },
+      "v4": {
+        "chamfer": 0.2653977681988735,
+        "chamfer_raw": 3.533789278786891,
+        "best_init_index": 0,
+        "seconds": 29.155421257019043
+      }
+    },
+    "light_strip__RIGID5050": {
+      "craft": {
+        "chamfer": 0.04672126631336437,
+        "chamfer_raw": 40.23382118496374,
+        "best_init_index": 3,
+        "seconds": 4.694552898406982
+      },
+      "gpt52": {
+        "chamfer": 0.047017511005265474,
+        "chamfer_raw": 40.390337740551274,
+        "best_init_index": 2,
+        "seconds": 5.030833959579468
+      },
+      "gpt4o": {
+        "chamfer": 0.04682497502023255,
+        "chamfer_raw": 67.65717739805032,
+        "best_init_index": 0,
+        "seconds": 4.81206202507019
+      },
+      "v4": {
+        "chamfer": 0.04664692383235571,
+        "chamfer_raw": 40.696694651898746,
+        "best_init_index": 2,
+        "seconds": 4.500097990036011
+      }
+    },
+    "linear_bearing__LM10LUU": {
+      "craft": {
+        "chamfer": 0.013533769738410186,
+        "chamfer_raw": 0.3773468229126652,
+        "best_init_index": 4,
+        "seconds": 1.714806079864502
+      },
+      "gpt52": {
+        "chamfer": 0.013964671065913328,
+        "chamfer_raw": 0.3797994393317059,
+        "best_init_index": 1,
+        "seconds": 1.4428679943084717
+      },
+      "gpt4o": {
+        "chamfer": 0.013189090062977683,
+        "chamfer_raw": 0.377950830054728,
+        "best_init_index": 5,
+        "seconds": 1.6423022747039795
+      },
+      "v4": {
+        "chamfer": 0.01353043700758106,
+        "chamfer_raw": 0.3771752523866933,
+        "best_init_index": 4,
+        "seconds": 1.365656852722168
+      }
+    },
+    "magnet__MAG484": {
+      "craft": {
+        "chamfer": 0.13044622640497,
+        "chamfer_raw": 1.0714901492450615,
+        "best_init_index": 8,
+        "seconds": 12.08101201057434
+      },
+      "gpt52": {
+        "chamfer": 0.01892803016792785,
+        "chamfer_raw": 1.0328049835242654,
+        "best_init_index": 1,
+        "seconds": 3.747220993041992
+      },
+      "gpt4o": {
+        "chamfer": 0.03086472139780538,
+        "chamfer_raw": 0.08378384675187478,
+        "best_init_index": 7,
+        "seconds": 3.740802049636841
+      },
+      "v4": {
+        "chamfer": 0.019308991815165794,
+        "chamfer_raw": 1.028210376059215,
+        "best_init_index": 0,
+        "seconds": 3.619429111480713
+      }
+    },
+    "mains_socket__Contactum": {
+      "craft": {
+        "chamfer": 0.030162711648908096,
+        "chamfer_raw": 2.7637389902103493,
+        "best_init_index": 1,
+        "seconds": 5.166750907897949
+      },
+      "gpt52": {
+        "chamfer": 0.026865055952334124,
+        "chamfer_raw": 2.2447038116485967,
+        "best_init_index": 1,
+        "seconds": 7.153489828109741
+      },
+      "gpt4o": {
+        "chamfer": 0.07943320062866344,
+        "chamfer_raw": 5.887963365547864,
+        "best_init_index": 14,
+        "seconds": 8.693662881851196
+      },
+      "v4": {
+        "chamfer": 0.07943320062866344,
+        "chamfer_raw": 5.887963365547864,
+        "best_init_index": 14,
+        "seconds": 8.69959020614624
+      }
+    },
+    "nut__M2_nut": {
+      "craft": {
+        "chamfer": 0.035645528591614795,
+        "chamfer_raw": 0.3909874520483856,
+        "best_init_index": 10,
+        "seconds": 6.775555610656738
+      },
+      "gpt52": {
+        "chamfer": 0.047943825169697626,
+        "chamfer_raw": 0.3978167391000718,
+        "best_init_index": 0,
+        "seconds": 7.9747490882873535
+      },
+      "gpt4o": {
+        "chamfer": 0.017877959998441308,
+        "chamfer_raw": 0.36940275555519064,
+        "best_init_index": 11,
+        "seconds": 8.372074842453003
+      },
+      "v4": {
+        "chamfer": 0.029352082875178178,
+        "chamfer_raw": 0.38672611151711855,
+        "best_init_index": 22,
+        "seconds": 5.010623931884766
+      }
+    },
+    "panel_meter__DSN_VC288": {
+      "craft": {
+        "chamfer": 0.05761777905016513,
+        "chamfer_raw": 1.733538766148431,
+        "best_init_index": 0,
+        "seconds": 10.78699517250061
+      },
+      "gpt52": {
+        "chamfer": 0.08645845884817091,
+        "chamfer_raw": 6.215493085396989,
+        "best_init_index": 23,
+        "seconds": 15.041146039962769
+      },
+      "gpt4o": {
+        "chamfer": 0.07636059930719276,
+        "chamfer_raw": 2.8875687455828767,
+        "best_init_index": 3,
+        "seconds": 12.07778787612915
+      },
+      "v4": {
+        "chamfer": 0.056099855743980104,
+        "chamfer_raw": 1.5494771280022555,
+        "best_init_index": 0,
+        "seconds": 10.763499975204468
+      }
+    },
+    "pcb__ArduinoLeonardo": {
+      "craft": {
+        "chamfer": 0.02995267573071212,
+        "chamfer_raw": 1.6675182851500499,
+        "best_init_index": 4,
+        "seconds": 7.5158021450042725
+      },
+      "gpt52": {
+        "chamfer": 0.030134986611949018,
+        "chamfer_raw": 1.668155372538378,
+        "best_init_index": 7,
+        "seconds": 7.572141885757446
+      },
+      "gpt4o": {
+        "chamfer": 0.031111861621334638,
+        "chamfer_raw": 1.664669684146201,
+        "best_init_index": 22,
+        "seconds": 8.01253890991211
+      },
+      "v4": {
+        "chamfer": 0.030150050629608058,
+        "chamfer_raw": 1.66855746385768,
+        "best_init_index": 22,
+        "seconds": 7.891711950302124
+      }
+    },
+    "photo_interrupter__PH1": {
+      "craft": {
+        "chamfer": 0.09743896196319754,
+        "chamfer_raw": 3.6748664271518443,
+        "best_init_index": 22,
+        "seconds": 19.047909021377563
+      },
+      "gpt52": {
+        "chamfer": 0.09838928244073011,
+        "chamfer_raw": 3.1996641843888005,
+        "best_init_index": 1,
+        "seconds": 17.270721673965454
+      },
+      "gpt4o": {
+        "chamfer": 0.12756075481072832,
+        "chamfer_raw": 3.884228788211269,
+        "best_init_index": 6,
+        "seconds": 14.89077615737915
+      },
+      "v4": {
+        "chamfer": 0.11776369643864135,
+        "chamfer_raw": 4.381900264290971,
+        "best_init_index": 1,
+        "seconds": 16.90618872642517
+      }
+    }
+  },
+  "mean_chamfer": {
+    "craft": 0.07303795912557969,
+    "gpt52": 0.08340789135682833,
+    "gpt4o": 0.09433788508267812,
+    "v4": 0.08377620569254819
+  }
+}

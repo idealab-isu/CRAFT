@@ -1,0 +1,29 @@
+WARNING: Problem converting rotate(a=[0, undef, 0]) parameter in file ../../../../../Documents/OpenSCAD/libraries/nopscadlib/vitamins/antenna.scad, line 95
+WARNING: Unable to convert translate([0, 0, undef]) parameter to a vec3 or vec2 of numbers in file ../../../../../Documents/OpenSCAD/libraries/nopscadlib/utils/core/global.scad, line 50
+CGAL error: assertion violation!
+Expression : ss_circle.has_on(sp)
+File       : /Users/runner/work/openscad/openscad/../libraries/install/include/CGAL/Nef_3/polygon_mesh_to_nef_3.h
+Line       : 264
+Explanation: 
+Refer to the bug-reporting instructions at https://www.cgal.org/bug_report.html
+PolySet has nonplanar faces. Attempting alternate construction
+CGAL error: assertion violation!
+Expression : ss_circle.has_on(sp)
+File       : /Users/runner/work/openscad/openscad/../libraries/install/include/CGAL/Nef_3/polygon_mesh_to_nef_3.h
+Line       : 264
+Explanation: 
+Refer to the bug-reporting instructions at https://www.cgal.org/bug_report.html
+PolySet has nonplanar faces. Attempting alternate construction
+Geometries in cache: 187
+Geometry cache size in bytes: 2375896
+CGAL Polyhedrons in cache: 12
+CGAL cache size in bytes: 99484736
+Total rendering time: 0:01:32.306
+   Top level object is a 3D object:
+   Simple:        yes
+   Vertices:    11661
+   Halfedges:   41260
+   Edges:       20630
+   Halffacets:  17794
+   Facets:       8897
+   Volumes:         4

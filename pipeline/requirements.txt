@@ -1,4 +1,4 @@
-# CADence - Text to CAD Pipeline
+# CRAFT - Text to CAD Pipeline
 # Core dependencies
 
 # Web framework
@@ -35,7 +35,9 @@ typing-extensions>=4.8.0
 # Knowledge Base (RAG) Dependencies
 # =============================================================================
 
-# Vector store for semantic search
+# Vector store for semantic search. If PersistentClient crashes with a Rust/sqlite
+# panic, the on-disk store is incompatible with this chromadb version: remove
+# kb_data/chroma_db and rebuild embeddings (see scripts/verify_knowledge_base.py).
 chromadb>=0.4.0
 
 # CLIP embeddings for vision-based retrieval (optional)

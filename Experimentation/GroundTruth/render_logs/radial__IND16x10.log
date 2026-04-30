@@ -1,0 +1,19 @@
+ERROR: Assertion '(r < (min(size.x, size.y) / 2))' failed in file rounded_rectangle.scad, line 25
+TRACE: called by 'assert' in file rounded_rectangle.scad, line 25
+TRACE: called by 'rounded_square' in file rounded_rectangle.scad, line 33
+TRACE: called by 'children' in file global.scad, line 84
+TRACE: called by 'linear_extrude' in file global.scad, line 83
+TRACE: called by 'if' in file global.scad, line 82
+TRACE: called by 'extrude_if' in file rounded_rectangle.scad, line 32
+TRACE: called by 'rounded_rectangle' in file radial.scad, line 105
+TRACE: called by 'if' in file radial.scad, line 104
+TRACE: called by 'children' in file global.scad, line 50
+TRACE: called by 'translate' in file global.scad, line 50
+TRACE: called by 'translate_z' in file radial.scad, line 103
+TRACE: called by 'color' in file radial.scad, line 102
+Geometries in cache: 1
+Geometry cache size in bytes: 0
+CGAL Polyhedrons in cache: 0
+CGAL cache size in bytes: 0
+Total rendering time: 0:00:00.000
+Current top level object is empty.

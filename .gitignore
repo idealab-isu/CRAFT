@@ -43,3 +43,35 @@ AESCAPE2026_abstract_submission.md
 CRAFT_v2_research_plan.md
 
 pipeline/static/stl/
+pipeline/static/sketches/
+pipeline/static/images/
+pipeline/static/kb/
+pipeline/static/core/
+pipeline/static/utils/
+
+*.py[cod]
+.DS_Store
+**/.DS_Store
+
+Experimentation/GroundTruth/stl/
+Experimentation/Chamfer_distance/tmp_views/
+Experimentation/Chamfer_distance/tmp_stl/
+Experimentation/Chamfer_distance/tmp_images/
+Experimentation/Chamfer_distance/tmp_kb/
+Experimentation/Chamfer_distance/tmp_core/
+Experimentation/Chamfer_distance/tmp_utils/
+
+ utils/*.pyc
+
+Experimentation/Chamfer_distance/stls/
+# Generated experiment outputs
+results/
+
+# Local/generated static outputs
+pipeline/static/images/
+pipeline/static/sketches/
+
+# OS/Python junk
+.DS_Store
+__pycache__/
+*.py[cod]

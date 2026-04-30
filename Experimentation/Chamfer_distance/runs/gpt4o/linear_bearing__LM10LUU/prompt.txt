@@ -1,0 +1,4 @@
+id   : linear_bearing__LM10LUU
+tier : Simple
+
+A long linear ball bearing: 10 mm bore, 19 mm outer diameter, 55 mm length.

@@ -1,0 +1,4 @@
+id   : d_connector__DCONN15
+tier : Complex
+
+A D-subminiature connector: 15 pins, 39.14 mm x 12.55 mm flange, 1.12 mm flange thickness, 33.32 mm mounting-hole pitch.

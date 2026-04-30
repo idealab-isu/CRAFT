@@ -170,6 +170,22 @@ class UnifiedLLMClient:
             self._responses_api = ResponsesAPI(self.openai_client)
         return self._responses_api
 
+    @property
+    def images(self):
+        """Expose the underlying OpenAI Images API (for SketchGenerator).
+
+        The unified client proxies chat/completions/responses; images is a
+        direct pass-through to the OpenAI SDK. Raises AttributeError with a
+        clear message if no underlying OpenAI client is configured, so the
+        sketch generator can catch it and fall back gracefully.
+        """
+        if self.openai_client is None or not hasattr(self.openai_client, "images"):
+            raise AttributeError(
+                "UnifiedLLMClient has no OpenAI client configured for image "
+                "generation (set OPENAI_API_KEY or pass openai_client=...)"
+            )
+        return self.openai_client.images
+
     def create(
         self,
         model: str,

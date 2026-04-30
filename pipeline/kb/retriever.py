@@ -118,6 +118,8 @@ class KnowledgeRetriever:
         # ChromaDB client
         self.client = None
         self.collection = None
+        # Set when PersistentClient crashes (corrupt DB, chromadb major upgrade, etc.)
+        self._chroma_unusable_reason: Optional[str] = None
 
         # OpenAI client for embeddings
         self.openai_client = None
@@ -132,13 +134,28 @@ class KnowledgeRetriever:
         # Initialize ChromaDB
         if CHROMADB_AVAILABLE:
             self.db_path.mkdir(parents=True, exist_ok=True)
-            self.client = chromadb.PersistentClient(
-                path=str(self.db_path),
-                settings=Settings(
-                    anonymized_telemetry=False,
-                    allow_reset=True
+            try:
+                self.client = chromadb.PersistentClient(
+                    path=str(self.db_path),
+                    settings=Settings(
+                        anonymized_telemetry=False,
+                        allow_reset=True
+                    )
                 )
-            )
+            except BaseException as exc:
+                # pyo3 PanicException from chromadb_rust_bindings does not always
+                # subclass Exception; also catch Rust panics from corrupt sqlite.
+                if isinstance(exc, (KeyboardInterrupt, SystemExit)):
+                    raise
+                self.client = None
+                self._chroma_unusable_reason = f"{type(exc).__name__}: {exc}"
+                print(
+                    "[KB] ChromaDB failed to open "
+                    f"{self.db_path} — semantic search disabled ({self._chroma_unusable_reason}).\n"
+                    "[KB] Repair: remove the vector store and rebuild embeddings, e.g.\n"
+                    "      rm -rf kb_data/chroma_db && "
+                    "python scripts/build_knowledge_base.py --skip-images --force"
+                )
         else:
             print("ChromaDB not available - retrieval will use fallback")
 
@@ -279,14 +296,42 @@ class KnowledgeRetriever:
         """
         top_k = top_k or KB_CONFIG.retrieval_top_k
 
-        collection = self._get_or_create_collection()
+        semantic_enabled = getattr(
+            KB_CONFIG.detection_strategies, "semantic", True
+        )
 
-        # If ChromaDB available, use vector search
-        if collection is not None and collection.count() > 0:
+        collection = (
+            self._get_or_create_collection() if semantic_enabled else None
+        )
+
+        chroma_nonempty = (
+            collection is not None and collection.count() > 0
+        )
+        # Vector search requires OpenAI embeddings. If the key is missing or
+        # embeddings fail, we must NOT call collection.query(query_texts=...):
+        # Chroma would pull in its default ONNX MiniLM embedder (~80 MB
+        # download) and can fail offline — use the local keyword index instead.
+        can_vector = (
+            semantic_enabled
+            and chroma_nonempty
+            and self.openai_client is not None
+        )
+
+        if can_vector:
             results = self._vector_search(query, top_k, category_filter)
+            mode = "vector"
         else:
-            # Fallback to keyword search
             results = self._fallback_search(query, top_k, category_filter)
+            if not semantic_enabled:
+                mode = "keyword(semantic-disabled)"
+            elif not chroma_nonempty:
+                mode = "keyword(empty-chroma)"
+            elif self.openai_client is None:
+                mode = "keyword(no-openai)"
+            else:
+                mode = "keyword"
+
+        print(f"[Retriever] retrieve(mode={mode}, top_k={top_k}) → {len(results)} results")
 
         return RetrievalContext(
             query=query,
@@ -311,22 +356,19 @@ class KnowledgeRetriever:
         # Get query embedding
         query_embedding = self._get_text_embedding(query)
 
-        if query_embedding:
-            # Search with embedding
-            search_results = collection.query(
-                query_embeddings=[query_embedding],
-                n_results=top_k,
-                where=where_filter,
-                include=["documents", "metadatas", "distances"]
+        if not query_embedding:
+            print(
+                "[Retriever] embedding unavailable; using keyword fallback "
+                "(avoiding Chroma default embedder)"
             )
-        else:
-            # Fallback to text search
-            search_results = collection.query(
-                query_texts=[query],
-                n_results=top_k,
-                where=where_filter,
-                include=["documents", "metadatas", "distances"]
-            )
+            return self._fallback_search(query, top_k, category_filter)
+
+        search_results = collection.query(
+            query_embeddings=[query_embedding],
+            n_results=top_k,
+            where=where_filter,
+            include=["documents", "metadatas", "distances"]
+        )
 
         # Convert to RetrievalResults
         results = []
@@ -482,11 +524,21 @@ class KnowledgeRetriever:
         stats = {
             "total_components": len(self.components),
             "chromadb_available": CHROMADB_AVAILABLE,
-            "openai_available": OPENAI_AVAILABLE
+            "openai_configured": bool(self.openai_client),
+            "chroma_client_active": self.client is not None,
         }
+        if self._chroma_unusable_reason:
+            stats["chroma_error"] = self._chroma_unusable_reason[:500]
 
-        if CHROMADB_AVAILABLE and self.collection:
-            stats["indexed_count"] = self.collection.count()
+        if CHROMADB_AVAILABLE and self.client:
+            try:
+                col = self._get_or_create_collection()
+                if col is not None:
+                    stats["indexed_count"] = col.count()
+            except BaseException as exc:
+                if isinstance(exc, (KeyboardInterrupt, SystemExit)):
+                    raise
+                stats["indexed_count_error"] = f"{type(exc).__name__}: {exc}"[:200]
 
         return stats
 
@@ -501,6 +553,12 @@ def get_retriever() -> KnowledgeRetriever:
     if _retriever is None:
         _retriever = KnowledgeRetriever()
     return _retriever
+
+
+def reset_retriever() -> None:
+    """Drop the process-wide singleton (e.g. after repairing kb_data/chroma_db)."""
+    global _retriever
+    _retriever = None
 
 
 def retrieve_components(query: str, top_k: int = 3) -> RetrievalContext:

@@ -1,0 +1,4 @@
+id   : display__BigTreeTech_TFT35v3_0
+tier : Complex
+
+A PCB-based display module: 84.5 mm x 54.5 mm front bezel, 4 mm bezel thickness.

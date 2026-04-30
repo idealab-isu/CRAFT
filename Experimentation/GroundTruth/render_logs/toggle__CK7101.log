@@ -1,0 +1,20 @@
+WARNING: undefined operation (number + undefined) in file toggle.scad, line 69
+WARNING: undefined operation (undefined + number) in file toggle.scad, line 69
+WARNING: undefined operation (number - undefined) in file toggle.scad, line 70
+WARNING: undefined operation (undefined > number) in file toggle.scad, line 70
+WARNING: Unable to convert translate([0, 0, undef]) parameter to a vec3 or vec2 of numbers in file ../../../../../Documents/OpenSCAD/libraries/nopscadlib/utils/core/global.scad, line 50
+Geometries in cache: 80
+Geometry cache size in bytes: 1076176
+CGAL Polyhedrons in cache: 12
+CGAL cache size in bytes: 31302312
+Total rendering time: 0:00:17.462
+   Top level object is a 3D object:
+   Simple:         no
+   Vertices:     3266
+   Halfedges:   14260
+   Edges:        7130
+   Halffacets:   7634
+   Facets:       3817
+   Volumes:         3
+WARNING: Object may not be a valid 2-manifold and may need repair!
+EXPORT-WARNING: Exported object may not be a valid 2-manifold and may need repair

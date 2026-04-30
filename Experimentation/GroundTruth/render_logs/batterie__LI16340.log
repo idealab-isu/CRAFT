@@ -1,0 +1,14 @@
+Fontconfig warning: "/Applications/OpenSCAD-2021.01.app/Contents/Resources/fonts/fonts.conf", line 84: unknown element "blank"
+Geometries in cache: 220
+Geometry cache size in bytes: 1629904
+CGAL Polyhedrons in cache: 4
+CGAL cache size in bytes: 15880368
+Total rendering time: 0:00:09.466
+   Top level object is a 3D object:
+   Simple:        yes
+   Vertices:     2474
+   Halfedges:   10996
+   Edges:        5498
+   Halffacets:   6068
+   Facets:       3034
+   Volumes:         8

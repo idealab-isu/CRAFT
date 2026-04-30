@@ -1,0 +1,4 @@
+id   : ball_bearing__BB608
+tier : Simple
+
+A ball bearing: 8 mm bore, 22 mm outer diameter, 7 mm width.

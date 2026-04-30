@@ -1,5 +1,5 @@
 # NopSCADlib Benchmark Prompts (15 total)
-# These short prompts are fed to GPT-4o, GPT-5.2, and CADence.
+# These short prompts are fed to GPT-4o, GPT-5.2, and CRAFT.
 # Ground truth for each is hand-authored OpenSCAD with NopSCADlib-sourced dimensions.
 
 ## Simple (5)

@@ -1,0 +1,23 @@
+WARNING: Unable to convert translate([0, 0, [undef, [2.5, 1], [2.5, 1.35], 0.35, 3.5, 1.27, 0.25]]) parameter to a vec3 or vec2 of numbers in file ../../../../../Documents/OpenSCAD/libraries/nopscadlib/utils/core/global.scad, line 50
+WARNING: Unable to convert cube(size=["LED5mm", 5, ["LED5x2mm", [5, 2], [5, 2.7], 0.7, 7, 2.54, 0.5]], ...) parameter to a number or a vec3 of numbers in file ../../../../../Documents/OpenSCAD/libraries/nopscadlib/vitamins/led.scad, line 56
+WARNING: Unable to convert translate([0, 0, [undef, 5, 5.5, 1, 6.75, 1.27, 0.2]]) parameter to a vec3 or vec2 of numbers in file ../../../../../Documents/OpenSCAD/libraries/nopscadlib/utils/core/global.scad, line 50
+WARNING: Unable to convert cube(size=["LED8mm", 8, ["LED10mm", 10, 11, 2, 13.5, 2.54, 0.4]], ...) parameter to a number or a vec3 of numbers in file ../../../../../Documents/OpenSCAD/libraries/nopscadlib/vitamins/led.scad, line 57
+WARNING: undefined operation (number * undefined) in file led.scad, line 64
+WARNING: undefined operation (undefined / number) in file led.scad, line 64
+WARNING: Unable to convert cube(size=[undef, undef, 5], ...) parameter to a number or a vec3 of numbers in file ../../../../../Documents/OpenSCAD/libraries/nopscadlib/vitamins/led.scad, line 67
+WARNING: undefined operation (number * undefined) in file led.scad, line 64
+WARNING: undefined operation (undefined / number) in file led.scad, line 64
+WARNING: Unable to convert cube(size=[undef, undef, 5], ...) parameter to a number or a vec3 of numbers in file ../../../../../Documents/OpenSCAD/libraries/nopscadlib/vitamins/led.scad, line 67
+Geometries in cache: 6
+Geometry cache size in bytes: 3640
+CGAL Polyhedrons in cache: 7
+CGAL cache size in bytes: 90656
+Total rendering time: 0:00:00.138
+   Top level object is a 3D object:
+   Simple:        yes
+   Vertices:       16
+   Halfedges:      48
+   Edges:          24
+   Halffacets:     24
+   Facets:         12
+   Volumes:         3

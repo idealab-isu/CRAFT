@@ -1,0 +1,4 @@
+id   : light_strip__RIGID5050
+tier : Medium
+
+A rigid aluminium-channel LED light strip: 500 mm uncut length, 36 LEDs (3 per segment), 14.4 mm outer width, 7 mm outer depth, 10.4 mm aperture, 0.9 mm aluminium channel thickness, 1.2 mm PCB thickness.

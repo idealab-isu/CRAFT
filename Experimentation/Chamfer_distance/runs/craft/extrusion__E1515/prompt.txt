@@ -1,0 +1,4 @@
+id   : extrusion__E1515
+tier : Medium
+
+A T-slot aluminium extrusion profile: 15 mm by 15 mm cross-section, 3.3 mm round central through-bore, 5.5 mm square inner chamber size, 6.2 mm T-slot opening width, 9.5 mm internal slot channel width, 1 mm T-slot lip thickness, 0.9 mm internal spar thickness, 0.5 mm corner fillet.

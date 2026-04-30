@@ -1,0 +1,4 @@
+id   : gear_motor__FIT0492_A
+tier : Complex
+
+A geared DC motor with integrated gearbox: 37 mm diameter round gearbox, 24.5 mm tall, 35.6 mm motor diameter, 32 mm motor length, 6 mm shaft diameter, 14.7 mm shaft length.

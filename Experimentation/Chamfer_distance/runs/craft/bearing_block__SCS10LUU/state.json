@@ -1,0 +1,783 @@
+{
+  "input_type": "text",
+  "timestamp": "20260425-215258",
+  "design_brief": {
+    "description": "Linear-shaft bearing block housing for an 8 mm round shaft, with a raised bore centerline offset and a flanged base. Includes a mounting flange with a 28 mm x 45 mm screw-hole pattern. Overall geometry defined by shaft center height and base flange height.",
+    "expected_parts": [
+      "main_body",
+      "shaft_bore",
+      "base_flange",
+      "mounting_holes_pattern",
+      "mounting_hole_counterbore_or_clearance",
+      "fillets_or_chamfers",
+      "right_trapezoid",
+      "linear_bearing",
+      "veroboard_base",
+      "pcb_base"
+    ],
+    "essential_parts": [
+      "main_body",
+      "shaft_bore",
+      "base_flange",
+      "right_trapezoid",
+      "linear_bearing",
+      "veroboard_base",
+      "pcb_base"
+    ],
+    "secondary_parts": [
+      "mounting_holes_pattern",
+      "mounting_hole_counterbore_or_clearance",
+      "fillets_or_chamfers"
+    ],
+    "optional_parts": [],
+    "parameters": {
+      "shaft_bore_diameter_mm": 8,
+      "shaft_centerline_offset_mm": 13,
+      "height_to_shaft_center_mm": 26,
+      "base_flange_height_mm": 21,
+      "mounting_pattern_x_mm": 45,
+      "mounting_pattern_y_mm": 28,
+      "mounting_hole_diameter_mm": 5.0,
+      "mounting_hole_count": 4,
+      "block_length_mm": 60,
+      "block_width_mm": 40,
+      "block_total_height_mm": 45,
+      "flange_thickness_mm": 6,
+      "edge_fillet_radius_mm": 2
+    },
+    "kb_augmented": true
+  },
+  "plan": {
+    "metadata": {
+      "version": "1.0",
+      "units": "mm",
+      "description": "Miniature linear-shaft bearing block housing scaled from primary total_length=8mm, with raised bore centerline and flanged base, including 4-hole mounting pattern.",
+      "approximate": true
+    },
+    "parameters": {
+      "total_length_mm": {
+        "value": 8,
+        "min": 4,
+        "max": 16,
+        "step": 0.5,
+        "type": "slider",
+        "description": "Primary anchor dimension; all other dimensions derived proportionally."
+      },
+      "shaft_bore_diameter_mm": {
+        "value": 1.6,
+        "min": 0.8,
+        "max": 3.2,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Scaled from total_length_mm; nominally 0.20*total_length_mm."
+      },
+      "shaft_centerline_offset_mm": {
+        "value": 2.6,
+        "min": 1.3,
+        "max": 5.2,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Vertical offset of bore centerline above main body mid-height reference; scaled."
+      },
+      "height_to_shaft_center_mm": {
+        "value": 5.2,
+        "min": 2.6,
+        "max": 10.4,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Distance from base bottom to shaft centerline; scaled."
+      },
+      "base_flange_height_mm": {
+        "value": 4.2,
+        "min": 2.1,
+        "max": 8.4,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Overall height of the base flange region; scaled."
+      },
+      "mounting_pattern_x_mm": {
+        "value": 4.5,
+        "min": 2.25,
+        "max": 9,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Hole spacing in X; scaled."
+      },
+      "mounting_pattern_y_mm": {
+        "value": 2.8,
+        "min": 1.4,
+        "max": 5.6,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Hole spacing in Y; scaled."
+      },
+      "mounting_hole_diameter_mm": {
+        "value": 0.8,
+        "min": 0.4,
+        "max": 1.6,
+        "step": 0.05,
+        "type": "slider",
+        "description": "Mounting hole diameter; scaled."
+      },
+      "mounting_hole_count": {
+        "value": 4,
+        "min": 4,
+        "max": 4,
+        "step": 1,
+        "type": "input",
+        "description": "Fixed at 4 for the rectangular pattern."
+      },
+      "block_length_mm": {
+        "value": 8,
+        "min": 4,
+        "max": 16,
+        "step": 0.5,
+        "type": "slider",
+        "description": "Overall block length; equals total_length_mm."
+      },
+      "block_width_mm": {
+        "value": 5.3333333333,
+        "min": 2.6666666667,
+        "max": 10.6666666667,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Overall block width; scaled."
+      },
+      "block_total_height_mm": {
+        "value": 6,
+        "min": 3,
+        "max": 12,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Overall block height; scaled."
+      },
+      "flange_thickness_mm": {
+        "value": 0.8,
+        "min": 0.4,
+        "max": 1.6,
+        "step": 0.05,
+        "type": "slider",
+        "description": "Base flange thickness (Z); scaled."
+      },
+      "edge_fillet_radius_mm": {
+        "value": 0.3,
+        "min": 0.1,
+        "max": 0.6,
+        "step": 0.05,
+        "type": "slider",
+        "description": "Small edge softening proxy; used as chamfer/relief scale."
+      },
+      "bore_length_mm": {
+        "value": 8.4,
+        "min": 4.2,
+        "max": 16.8,
+        "step": 0.1,
+        "type": "slider",
+        "description": "Length of bore cut; slightly longer than block_length_mm to guarantee through-cut."
+      },
+      "mounting_hole_depth_mm": {
+        "value": 1.2,
+        "min": 0.6,
+        "max": 2.4,
+        "step": 0.05,
+        "type": "slider",
+        "description": "Depth of mounting holes; equals flange_thickness_mm + small overlap."
+      },
+      "counterbore_diameter_mm": {
+        "value": 1.2,
+        "min": 0.6,
+        "max": 2.4,
+        "step": 0.05,
+        "type": "slider",
+        "description": "Optional counterbore diameter; scaled."
+      },
+      "counterbore_depth_mm": {
+        "value": 0.4,
+        "min": 0.2,
+        "max": 0.8,
+        "step": 0.05,
+        "type": "slider",
+        "description": "Optional counterbore depth; scaled."
+      },
+      "overlap_mm": {
+        "value": 0.6,
+        "min": 0.2,
+        "max": 1.2,
+        "step": 0.05,
+        "type": "slider",
+        "description": "Boolean overlap to guarantee connectivity."
+      }
+    },
+    "geometry": {
+      "base_shapes": [
+        {
+          "id": "base_flange",
+          "type": "box",
+          "size": [
+            "block_length_mm",
+            "block_width_mm",
+            "flange_thickness_mm"
+          ],
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-block_total_height_mm/2 + flange_thickness_mm/2"
+          ]
+        },
+        {
+          "id": "main_body",
+          "type": "box",
+          "size": [
+            "block_length_mm",
+            "block_width_mm",
+            "block_total_height_mm"
+          ],
+          "center": true,
+          "position": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "right_trapezoid",
+          "type": "linear_extrude",
+          "height": "block_length_mm",
+          "center": true,
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "profile": {
+            "type": "polygon",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                "block_width_mm*0.55",
+                0
+              ],
+              [
+                "block_width_mm*0.35",
+                "block_total_height_mm*0.55"
+              ],
+              [
+                0,
+                "block_total_height_mm*0.55"
+              ]
+            ]
+          },
+          "position": [
+            0,
+            0,
+            "-block_total_height_mm/2 + flange_thickness_mm + block_total_height_mm*0.275"
+          ]
+        },
+        {
+          "id": "shaft_bore",
+          "type": "cylinder",
+          "radius": "shaft_bore_diameter_mm/2",
+          "height": "bore_length_mm",
+          "center": true,
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "position": [
+            0,
+            0,
+            "-block_total_height_mm/2 + height_to_shaft_center_mm"
+          ]
+        },
+        {
+          "id": "mounting_hole",
+          "type": "cylinder",
+          "radius": "mounting_hole_diameter_mm/2",
+          "height": "mounting_hole_depth_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-block_total_height_mm/2 + flange_thickness_mm/2"
+          ]
+        },
+        {
+          "id": "mounting_hole_counterbore_or_clearance",
+          "type": "cylinder",
+          "radius": "counterbore_diameter_mm/2",
+          "height": "counterbore_depth_mm",
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-block_total_height_mm/2 + flange_thickness_mm - counterbore_depth_mm/2"
+          ]
+        },
+        {
+          "id": "fillets_or_chamfers",
+          "type": "cylinder",
+          "radius": "edge_fillet_radius_mm",
+          "height": "block_length_mm",
+          "center": true,
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "position": [
+            0,
+            "block_width_mm/2 - edge_fillet_radius_mm",
+            "-block_total_height_mm/2 + flange_thickness_mm + edge_fillet_radius_mm"
+          ]
+        },
+        {
+          "id": "linear_bearing",
+          "type": "cylinder",
+          "radius": "shaft_bore_diameter_mm/2 + shaft_bore_diameter_mm*0.25",
+          "height": "block_length_mm - overlap_mm",
+          "center": true,
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "position": [
+            0,
+            0,
+            "-block_total_height_mm/2 + height_to_shaft_center_mm"
+          ]
+        },
+        {
+          "id": "veroboard_base",
+          "type": "box",
+          "size": [
+            "block_length_mm*0.6",
+            "block_width_mm*0.6",
+            "flange_thickness_mm*0.5"
+          ],
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-block_total_height_mm/2 + flange_thickness_mm/2"
+          ]
+        },
+        {
+          "id": "pcb_base",
+          "type": "box",
+          "size": [
+            "block_length_mm*0.6",
+            "block_width_mm*0.6",
+            "flange_thickness_mm*0.5"
+          ],
+          "center": true,
+          "position": [
+            0,
+            0,
+            "-block_total_height_mm/2 + flange_thickness_mm/2"
+          ]
+        }
+      ],
+      "operations": [
+        {
+          "id": "mounting_hole_pos_1",
+          "type": "translate",
+          "target": "mounting_hole",
+          "params": {
+            "vector": [
+              "mounting_pattern_x_mm/2",
+              "mounting_pattern_y_mm/2",
+              0
+            ]
+          }
+        },
+        {
+          "id": "mounting_hole_pos_2",
+          "type": "translate",
+          "target": "mounting_hole",
+          "params": {
+            "vector": [
+              "-mounting_pattern_x_mm/2",
+              "mounting_pattern_y_mm/2",
+              0
+            ]
+          }
+        },
+        {
+          "id": "mounting_hole_pos_3",
+          "type": "translate",
+          "target": "mounting_hole",
+          "params": {
+            "vector": [
+              "mounting_pattern_x_mm/2",
+              "-mounting_pattern_y_mm/2",
+              0
+            ]
+          }
+        },
+        {
+          "id": "mounting_hole_pos_4",
+          "type": "translate",
+          "target": "mounting_hole",
+          "params": {
+            "vector": [
+              "-mounting_pattern_x_mm/2",
+              "-mounting_pattern_y_mm/2",
+              0
+            ]
+          }
+        },
+        {
+          "id": "counterbore_pos_1",
+          "type": "translate",
+          "target": "mounting_hole_counterbore_or_clearance",
+          "params": {
+            "vector": [
+              "mounting_pattern_x_mm/2",
+              "mounting_pattern_y_mm/2",
+              0
+            ]
+          }
+        },
+        {
+          "id": "counterbore_pos_2",
+          "type": "translate",
+          "target": "mounting_hole_counterbore_or_clearance",
+          "params": {
+            "vector": [
+              "-mounting_pattern_x_mm/2",
+              "mounting_pattern_y_mm/2",
+              0
+            ]
+          }
+        },
+        {
+          "id": "counterbore_pos_3",
+          "type": "translate",
+          "target": "mounting_hole_counterbore_or_clearance",
+          "params": {
+            "vector": [
+              "mounting_pattern_x_mm/2",
+              "-mounting_pattern_y_mm/2",
+              0
+            ]
+          }
+        },
+        {
+          "id": "counterbore_pos_4",
+          "type": "translate",
+          "target": "mounting_hole_counterbore_or_clearance",
+          "params": {
+            "vector": [
+              "-mounting_pattern_x_mm/2",
+              "-mounting_pattern_y_mm/2",
+              0
+            ]
+          }
+        },
+        {
+          "id": "mounting_holes_pattern",
+          "type": "union",
+          "target": "mounting_hole_pos_1",
+          "with": [
+            "mounting_hole_pos_2",
+            "mounting_hole_pos_3",
+            "mounting_hole_pos_4"
+          ]
+        },
+        {
+          "id": "mounting_counterbores_pattern",
+          "type": "union",
+          "target": "counterbore_pos_1",
+          "with": [
+            "counterbore_pos_2",
+            "counterbore_pos_3",
+            "counterbore_pos_4"
+          ]
+        },
+        {
+          "id": "block_union",
+          "type": "union",
+          "target": "main_body",
+          "with": [
+            "base_flange",
+            "right_trapezoid"
+          ]
+        },
+        {
+          "id": "block_with_bore",
+          "type": "difference",
+          "target": "block_union",
+          "with": [
+            "shaft_bore"
+          ]
+        },
+        {
+          "id": "block_with_mounting",
+          "type": "difference",
+          "target": "block_with_bore",
+          "with": [
+            "mounting_holes_pattern",
+            "mounting_counterbores_pattern",
+            "fillets_or_chamfers"
+          ]
+        },
+        {
+          "id": "final_model",
+          "type": "union",
+          "target": "block_with_mounting",
+          "with": [
+            "linear_bearing",
+            "veroboard_base",
+            "pcb_base"
+          ]
+        }
+      ]
+    },
+    "final_output": "final_model"
+  },
+  "code": "// Parameters (mm)\ntotal_length_mm = 8; //[4:16:0.5]\nshaft_bore_diameter_mm = 1.6; //[0.8:3.2:0.1]\nshaft_centerline_offset_mm = 2.6; //[1.3:5.2:0.1]\nheight_to_shaft_center_mm = 5.2; //[2.6:10.4:0.1]\nbase_flange_height_mm = 4.2; //[2.1:8.4:0.1]\nmounting_pattern_x_mm = 4.5; //[2.25:9:0.1]\nmounting_pattern_y_mm = 2.8; //[1.4:5.6:0.1]\nmounting_hole_diameter_mm = 0.8; //[0.4:1.6:0.05]\nmounting_hole_count = 4; //[4:4:1]\nblock_length_mm = 8; //[4:16:0.5]\nblock_width_mm = 5.3333333333; //[2.6666666667:10.6666666667:0.1]\nblock_total_height_mm = 6; //[3:12:0.1]\nflange_thickness_mm = 0.8; //[0.4:1.6:0.05]\nedge_fillet_radius_mm = 0.3; //[0.1:0.6:0.05]\nbore_length_mm = 8.4; //[4.2:16.8:0.1]\nmounting_hole_depth_mm = 1.2; //[0.6:2.4:0.05]\ncounterbore_diameter_mm = 1.2; //[0.6:2.4:0.05]\ncounterbore_depth_mm = 0.4; //[0.2:0.8:0.05]\noverlap_mm = 0.6; //[0.2:1.2:0.05]\n\n// Quality\n$fn=32;\n\n// ---------- Helpers ----------\nmodule rounded_rect_2d(w, h, r) {\n  r2 = min(r, min(w, h)/2);\n  if (r2 <= 0) square([w, h], center=true);\n  else offset(r=r2) offset(delta=-r2) square([w, h], center=true);\n}\n\nmodule screw_hole_with_counterbore(hole_d, hole_h, cb_d, cb_h) {\n  // Oriented along Z, centered in Z by caller if desired\n  union() {\n    cylinder(d=hole_d, h=hole_h, center=true);\n    cylinder(d=cb_d, h=cb_h, center=true);\n  }\n}\n\n// ---------- Base shapes (as modules) ----------\nmodule base_flange() {\n  color([0.15, 0.15, 0.17])  // black anodized-ish\n    translate([0, 0, -block_total_height_mm/2 + flange_thickness_mm/2])\n      cube([block_length_mm, block_width_mm, flange_thickness_mm], center=true);\n}\n\nmodule main_body() {\n  color([0.15, 0.15, 0.17])\n    translate([0, 0, 0])\n      cube([block_length_mm, block_width_mm, block_total_height_mm], center=true);\n}\n\n// [MANDATORY] Right Trapezoid - detailed geometry\nmodule right_trapezoid() {\n  // A reinforcing rib/wedge with slight relief and a small lightening slot\n  rib_h = block_total_height_mm * 0.55;\n  rib_w0 = block_width_mm * 0.55;\n  rib_w1 = block_width_mm * 0.35;\n  rib_len = block_length_mm;\n\n  zpos = -block_total_height_mm/2 + flange_thickness_mm + block_total_height_mm*0.275;\n\n  color([0.12, 0.12, 0.14])  // slightly different dark tone\n  translate([0, 0, zpos])\n  rotate([0, 90, 0])\n  difference() {\n    // Main wedge\n    linear_extrude(height=rib_len, center=true, convexity=10)\n      polygon(points=[\n        [0, 0],\n        [rib_w0, 0],\n        [rib_w1, rib_h],\n        [0, rib_h]\n      ]);\n\n    // Lightening slot (keeps it recognizable as a rib feature)\n    translate([0, 0, 0])\n      linear_extrude(height=rib_len + 0.2, center=true, convexity=10)\n        polygon(points=[\n          [rib_w0*0.18, rib_h*0.18],\n          [rib_w0*0.78, rib_h*0.18],\n          [rib_w0*0.62, rib_h*0.78],\n          [rib_w0*0.18, rib_h*0.78]\n        ]);\n\n    // Small chamfer-like relief at the bottom edge (approx)\n    translate([rib_w0*0.02, -0.01, 0])\n      linear_extrude(height=rib_len + 0.2, center=true, convexity=10)\n        polygon(points=[\n          [0, 0],\n          [rib_w0*0.25, 0],\n          [0, rib_h*0.18]\n        ]);\n  }\n}\n\nmodule shaft_bore() {\n  translate([0, 0, -block_total_height_mm/2 + height_to_shaft_center_mm])\n    rotate([0, 90, 0])\n      cylinder(r=shaft_bore_diameter_mm/2, h=bore_length_mm, center=true);\n}\n\nmodule mounting_hole() {\n  translate([0, 0, -block_total_height_mm/2 + flange_thickness_mm/2])\n    cylinder(r=mounting_hole_diameter_mm/2, h=mounting_hole_depth_mm, center=true);\n}\n\nmodule mounting_hole_counterbore_or_clearance() {\n  translate([0, 0, -block_total_height_mm/2 + flange_thickness_mm - counterbore_depth_mm/2])\n    cylinder(r=counterbore_diameter_mm/2, h=counterbore_depth_mm, center=true);\n}\n\nmodule fillets_or_chamfers() {\n  // Proxy relief cylinder along length near one top edge (as in plan)\n  translate([0, block_width_mm/2 - edge_fillet_radius_mm, -block_total_height_mm/2 + flange_thickness_mm + edge_fillet_radius_mm])\n    rotate([0, 90, 0])\n      cylinder(r=edge_fillet_radius_mm, h=block_length_mm, center=true);\n}\n\n// [MANDATORY] Linear Bearing - detailed geometry\nmodule linear_bearing() {\n  // Visible sleeve inside bore with grooves and slight lead-in chamfers\n  od = shaft_bore_diameter_mm + shaft_bore_diameter_mm*0.5; // matches plan radius: d/2 + d*0.25 => OD = d*1.5\n  id = shaft_bore_diameter_mm * 1.02; // tiny clearance\n  len = block_length_mm - overlap_mm;\n\n  zpos = -block_total_height_mm/2 + height_to_shaft_center_mm;\n\n  color([0.72, 0.72, 0.75])  // steel-ish\n  translate([0, 0, zpos])\n  rotate([0, 90, 0])\n  difference() {\n    union() {\n      // Outer sleeve\n      cylinder(d=od, h=len, center=true);\n\n      // Two shallow outer grooves (recognizable bearing detail)\n      for (sx = [-1, 1]) {\n        translate([sx*(len*0.28), 0, 0])\n          difference() {\n            cylinder(d=od*1.02, h=len*0.10, center=true);\n            cylinder(d=od*0.92, h=len*0.12, center=true);\n          }\n      }\n\n      // End collars (very small)\n      for (sx = [-1, 1]) {\n        translate([sx*(len/2 - len*0.06), 0, 0])\n          cylinder(d=od*1.03, h=len*0.06, center=true);\n      }\n    }\n\n    // Through ID\n    cylinder(d=id, h=len + 0.4, center=true);\n\n    // Lead-in chamfers (approx via conical cuts)\n    for (sx = [-1, 1]) {\n      translate([sx*(len/2), 0, 0])\n        rotate([0, 90, 0])\n          cylinder(h=od*0.35, r1=id/2, r2=od/2, center=true);\n    }\n  }\n}\n\n// [MANDATORY] Veroboard Base - detailed geometry\nmodule veroboard_base() {\n  // Small board with copper strip hints and mounting holes; placed per plan\n  L = block_length_mm*0.6;\n  W = block_width_mm*0.6;\n  T = flange_thickness_mm*0.5;\n\n  zpos = -block_total_height_mm/2 + flange_thickness_mm/2;\n\n  color([0.55, 0.35, 0.18])  // phenolic/brown perfboard\n  translate([0, 0, zpos])\n  difference() {\n    // Board with slightly rounded corners (2D offset, no minkowski)\n    linear_extrude(height=T, center=true)\n      rounded_rect_2d(L, W, min(0.35, min(L, W)*0.08));\n\n    // Two tiny mounting holes\n    for (sx = [-1, 1], sy = [-1, 1]) {\n      if ((sx == sy))  // only two corners to keep it distinct from PCB base\n        translate([sx*(L*0.35), sy*(W*0.35), 0])\n          cylinder(d=0.6, h=T+0.4, center=true);\n    }\n\n    // Shallow \"strip\" grooves on top face (visual detail)\n    for (i = [-2:2]) {\n      translate([0, i*(W/6), T*0.15])\n        cube([L*0.92, W*0.03, T*0.35], center=true);\n    }\n  }\n\n  // Copper strips as raised thin features (connected to board)\n  color([0.72, 0.45, 0.2])\n  translate([0, 0, zpos + T*0.25])\n  for (i = [-2:2]) {\n    translate([0, i*(W/6), 0])\n      cube([L*0.90, W*0.02, T*0.10], center=true);\n  }\n}\n\n// [MANDATORY] PCB Base - detailed geometry\nmodule pcb_base() {\n  // Small green PCB with pads and 4 holes; placed per plan (same location)\n  L = block_length_mm*0.6;\n  W = block_width_mm*0.6;\n  T = flange_thickness_mm*0.5;\n\n  zpos = -block_total_height_mm/2 + flange_thickness_mm/2;\n\n  color([0.0, 0.4, 0.2])  // PCB green\n  translate([0, 0, zpos])\n  difference() {\n    linear_extrude(height=T, center=true)\n      rounded_rect_2d(L, W, min(0.35, min(L, W)*0.08));\n\n    // 4 corner holes (small)\n    for (sx = [-1, 1], sy = [-1, 1]) {\n      translate([sx*(L*0.38), sy*(W*0.38), 0])\n        cylinder(d=0.5, h=T+0.4, center=true);\n    }\n  }\n\n  // Pads (gold) on top face\n  color([0.85, 0.7, 0.25])\n  translate([0, 0, zpos + T*0.25])\n  for (ix = [-3:3], iy = [-1:1]) {\n    translate([ix*(L/10), iy*(W/5), 0])\n      cylinder(d=min(0.55, W*0.10), h=T*0.10, center=true);\n  }\n}\n\n// ---------- Operation results ----------\nmodule mounting_hole_pos_1() { translate([mounting_pattern_x_mm/2,  mounting_pattern_y_mm/2, 0]) mounting_hole(); }\nmodule mounting_hole_pos_2() { translate([-mounting_pattern_x_mm/2, mounting_pattern_y_mm/2, 0]) mounting_hole(); }\nmodule mounting_hole_pos_3() { translate([mounting_pattern_x_mm/2,  -mounting_pattern_y_mm/2, 0]) mounting_hole(); }\nmodule mounting_hole_pos_4() { translate([-mounting_pattern_x_mm/2, -mounting_pattern_y_mm/2, 0]) mounting_hole(); }\n\nmodule counterbore_pos_1() { translate([mounting_pattern_x_mm/2,  mounting_pattern_y_mm/2, 0]) mounting_hole_counterbore_or_clearance(); }\nmodule counterbore_pos_2() { translate([-mounting_pattern_x_mm/2, mounting_pattern_y_mm/2, 0]) mounting_hole_counterbore_or_clearance(); }\nmodule counterbore_pos_3() { translate([mounting_pattern_x_mm/2,  -mounting_pattern_y_mm/2, 0]) mounting_hole_counterbore_or_clearance(); }\nmodule counterbore_pos_4() { translate([-mounting_pattern_x_mm/2, -mounting_pattern_y_mm/2, 0]) mounting_hole_counterbore_or_clearance(); }\n\nmodule mounting_holes_pattern() {\n  union() {\n    mounting_hole_pos_1();\n    mounting_hole_pos_2();\n    mounting_hole_pos_3();\n    mounting_hole_pos_4();\n  }\n}\n\nmodule mounting_counterbores_pattern() {\n  union() {\n    counterbore_pos_1();\n    counterbore_pos_2();\n    counterbore_pos_3();\n    counterbore_pos_4();\n  }\n}\n\nmodule block_union() {\n  union() {\n    main_body();\n    base_flange();\n    right_trapezoid();\n  }\n}\n\nmodule block_with_bore() {\n  difference() {\n    block_union();\n    shaft_bore();\n  }\n}\n\nmodule block_with_mounting() {\n  difference() {\n    block_with_bore();\n    mounting_holes_pattern();\n    mounting_counterbores_pattern();\n    fillets_or_chamfers();\n  }\n}\n\nmodule final_model() {\n  union() {\n    block_with_mounting();\n    linear_bearing();\n\n    // Stack the two boards slightly so both are visible and still connected to the flange\n    translate([0, 0, flange_thickness_mm*0.26]) veroboard_base();\n    translate([0, 0, -flange_thickness_mm*0.26]) pcb_base();\n  }\n}\n\n// ---------- Assembly ----------\nmodule assembly() {\n  // Primary at origin\n  final_model();\n}\n\nassembly();",
+  "validation": {
+    "score": 100,
+    "passed": false,
+    "checks": {},
+    "issues": [
+      "Model appears to be a simple cylindrical shaft-like part, not a bearing block housing with a flanged base",
+      "No visible raised bore centerline within a block body (no rectangular housing geometry present)",
+      "No visible mounting flange/base plate",
+      "No visible screw holes or 28 mm x 45 mm hole pattern"
+    ]
+  },
+  "stats": {
+    "plan_attempts": 1,
+    "repair_attempts": 0
+  },
+  "kb": {
+    "augmented": true,
+    "components": [
+      {
+        "id": "vitamins_bearing_block_right_trapezoid",
+        "name": "Right Trapezoid",
+        "module": "right_trapezoid",
+        "confidence": 1.0
+      },
+      {
+        "id": "vitamins_linear_bearing_linear_bearing",
+        "name": "Linear Bearing",
+        "module": "linear_bearing",
+        "confidence": 1.0
+      },
+      {
+        "id": "vitamins_veroboard_veroboard_base",
+        "name": "Veroboard Base",
+        "module": "veroboard_base",
+        "confidence": 1.0
+      },
+      {
+        "id": "vitamins_pcb_pcb_base",
+        "name": "Pcb Base",
+        "module": "pcb_base",
+        "confidence": 1.0
+      }
+    ],
+    "verification_results": []
+  },
+  "vlm_correction": {
+    "used": true,
+    "iterations": 1,
+    "approved": false,
+    "assessment": {
+      "approved": false,
+      "confidence": 0.85,
+      "overall_match": "poor",
+      "issues": [
+        "Model appears to be a simple cylindrical shaft-like part, not a bearing block housing with a flanged base",
+        "No visible raised bore centerline within a block body (no rectangular housing geometry present)",
+        "No visible mounting flange/base plate",
+        "No visible screw holes or 28 mm x 45 mm hole pattern"
+      ],
+      "suggestions": [
+        "Create the main bearing block body (rectangular/upright housing) with an 8 mm through-bore",
+        "Add a flanged base plate under the housing",
+        "Add two mounting holes in the base with 28 mm x 45 mm spacing (per request/sketch)",
+        "Ensure the bore centerline is raised/offset relative to the base per the specified shaft center height and base flange height"
+      ],
+      "view_assessments": {
+        "front": "Shows a horizontal cylinder; no block housing or base flange visible.",
+        "back": "Same as front; cylindrical shape only.",
+        "left": "Shows a vertical cylinder with a small mid feature; still no housing/base.",
+        "right": "Same as left; no flange or mounting features.",
+        "top": "Large dark rectangle with a small central vertical feature; no clear flange with hole pattern.",
+        "bottom": "Large dark rectangle with a small protrusion; no mounting holes or bearing block geometry."
+      }
+    },
+    "multi_view_images": {
+      "front": "static/images/20260425-215258_iter1/20260425-215258_iter1_front.png",
+      "back": "static/images/20260425-215258_iter1/20260425-215258_iter1_back.png",
+      "left": "static/images/20260425-215258_iter1/20260425-215258_iter1_left.png",
+      "right": "static/images/20260425-215258_iter1/20260425-215258_iter1_right.png",
+      "top": "static/images/20260425-215258_iter1/20260425-215258_iter1_top.png",
+      "bottom": "static/images/20260425-215258_iter1/20260425-215258_iter1_bottom.png"
+    },
+    "iteration_history": [
+      {
+        "iteration": 1,
+        "deterministic_score": 100,
+        "deterministic_passed": true,
+        "corrected": false,
+        "view_images": {
+          "front": "static/images/20260425-215258_iter1/20260425-215258_iter1_front.png",
+          "back": "static/images/20260425-215258_iter1/20260425-215258_iter1_back.png",
+          "left": "static/images/20260425-215258_iter1/20260425-215258_iter1_left.png",
+          "right": "static/images/20260425-215258_iter1/20260425-215258_iter1_right.png",
+          "top": "static/images/20260425-215258_iter1/20260425-215258_iter1_top.png",
+          "bottom": "static/images/20260425-215258_iter1/20260425-215258_iter1_bottom.png"
+        },
+        "vlm_assessment": {
+          "approved": false,
+          "confidence": 0.85,
+          "overall_match": "poor",
+          "issues": [
+            "Model appears to be a simple cylindrical shaft-like part, not a bearing block housing with a flanged base",
+            "No visible raised bore centerline within a block body (no rectangular housing geometry present)",
+            "No visible mounting flange/base plate",
+            "No visible screw holes or 28 mm x 45 mm hole pattern"
+          ]
+        }
+      }
+    ]
+  },
+  "component_verification": {
+    "used": true,
+    "iterations": 1,
+    "passed": false,
+    "all_parts_present": false,
+    "is_fully_connected": false,
+    "issues": [
+      "Missing ESSENTIAL part: main_body",
+      "Missing ESSENTIAL part: shaft_bore",
+      "Missing ESSENTIAL part: base_flange",
+      "Missing secondary part: mounting_holes_pattern",
+      "Missing secondary part: mounting_hole_counterbore_or_clearance",
+      "Missing ESSENTIAL part: right_trapezoid",
+      "Missing ESSENTIAL part: linear_bearing",
+      "Missing ESSENTIAL part: veroboard_base",
+      "Missing ESSENTIAL part: pcb_base",
+      "Model has disconnected/floating parts",
+      "Attachment issue: The cylindrical bearing/shaft element is not connected to the main rectangular housing/base; it appears as a separate solid in all orthographic views.",
+      "Attachment issue: No visible contact/union between the cylinder and the block (it overlaps in projection but does not appear to intersect/merge as a single body)."
+    ],
+    "history": [
+      {
+        "iteration": 1,
+        "all_parts_found": false,
+        "is_connected": false,
+        "issues": [
+          "Missing ESSENTIAL part: main_body",
+          "Missing ESSENTIAL part: shaft_bore",
+          "Missing ESSENTIAL part: base_flange",
+          "Missing secondary part: mounting_holes_pattern",
+          "Missing secondary part: mounting_hole_counterbore_or_clearance",
+          "Missing ESSENTIAL part: right_trapezoid",
+          "Missing ESSENTIAL part: linear_bearing",
+          "Missing ESSENTIAL part: veroboard_base",
+          "Missing ESSENTIAL part: pcb_base",
+          "Model has disconnected/floating parts",
+          "Attachment issue: The cylindrical bearing/shaft element is not connected to the main rectangular housing/base; it appears as a separate solid in all orthographic views.",
+          "Attachment issue: No visible contact/union between the cylinder and the block (it overlaps in projection but does not appear to intersect/merge as a single body)."
+        ],
+        "corrected": false,
+        "parts_present": [
+          {
+            "part_name": "main_body",
+            "present": false,
+            "confidence": 0.15,
+            "notes": "Orthographic views show a mostly cylindrical/rod-like object rather than a bearing block housing body."
+          },
+          {
+            "part_name": "shaft_bore",
+            "present": false,
+            "confidence": 0.2,
+            "notes": "No clear through-bore in a block is visible; the geometry appears to be a solid shaft-like form."
+          },
+          {
+            "part_name": "base_flange",
+            "present": false,
+            "confidence": 0.2,
+            "notes": "No distinct flanged base plate under a housing is visible in any view."
+          },
+          {
+            "part_name": "mounting_holes_pattern",
+            "present": false,
+            "confidence": 0.25,
+            "notes": "No pair of mounting holes (28 mm x 45 mm pattern) can be identified; bottom/top views do not show hole features."
+          },
+          {
+            "part_name": "mounting_hole_counterbore_or_clearance",
+            "present": false,
+            "confidence": 0.25,
+            "notes": "No counterbores/clearance holes are visible."
+          },
+          {
+            "part_name": "fillets_or_chamfers",
+            "present": false,
+            "confidence": 0.3,
+            "notes": "No clear edge treatments on a block/flange are visible; the model appears primarily cylindrical."
+          },
+          {
+            "part_name": "right_trapezoid",
+            "present": false,
+            "confidence": 0.1,
+            "notes": "No trapezoidal wedge-like component is visible in the orthographic views."
+          },
+          {
+            "part_name": "linear_bearing",
+            "present": true,
+            "confidence": 0.7,
+            "notes": "The model resembles a linear bearing/shaft element (cylindrical body with a central collar-like feature) across multiple views."
+          },
+          {
+            "part_name": "veroboard_base",
+            "present": false,
+            "confidence": 0.1,
+            "notes": "No perforated board/base plate geometry is visible."
+          },
+          {
+            "part_name": "pcb_base",
+            "present": false,
+            "confidence": 0.1,
+            "notes": "No PCB-like flat plate/base is visible."
+          }
+        ],
+        "connectivity": {
+          "is_single_object": false,
+          "floating_parts": [
+            "linear_bearing (cylindrical shaft-like piece)"
+          ],
+          "attachment_issues": [
+            "The cylindrical bearing/shaft element is not connected to the main rectangular housing/base; it appears as a separate solid in all orthographic views.",
+            "No visible contact/union between the cylinder and the block (it overlaps in projection but does not appear to intersect/merge as a single body)."
+          ],
+          "confidence": 0.74
+        }
+      }
+    ]
+  },
+  "prompt_enhancement": {
+    "enhanced": false,
+    "enhanced_prompt": null,
+    "notes": []
+  },
+  "sketch": {
+    "used": true,
+    "role": "reference",
+    "web_path": "static/sketches/sketch_20260425-215258.png",
+    "prompt": "Draw a clean, minimalistic orthographic technical line sketch of the described object on a white background. Use thin black lines only \u2014 no shading, no color, no photorealism, no perspective distortion. Keep proportions realistic. Show the front or three-quarter view that most clearly reveals all canonical parts of the object. If helpful, label key dimensions in millimeters with small arrows, but keep labels sparse. The sketch should look like a designer's concept drawing, suitable as a reference for a parametric CAD model.\n\nOBJECT: A linear-shaft bearing block: 8 mm shaft bore, 13 mm centre-line offset, 26 mm height to shaft centre, 21 mm base flange height, 28 mm x 45 mm mounting-screw pattern.\nREQUIRED PARTS (must be visible in the sketch): main_body, shaft_bore, base_flange, right_trapezoid, linear_bearing, veroboard_base, pcb_base\nPROPORTIONAL CONSTRAINTS \u2014 total_length = 8mm (category: bolt).\nAll other parts of the sketch must scale consistently with this total size \u2014 no exaggerated wheels, handles, or details.\nAPPROX DIMENSIONS: shaft_bore_diameter_mm\u22488mm, shaft_centerline_offset_mm\u224813mm, height_to_shaft_center_mm\u224826mm, base_flange_height_mm\u224821mm, mounting_pattern_x_mm\u224845mm, mounting_pattern_y_mm\u224828mm\nNOTE: Mounting hole diameter, overall block envelope, and whether holes are clearance/counterbored are not specified by the request; values provided are placeholders and should be confirmed. Define clear datums: base mounting plane (Z=0), longitudinal axis (X), transverse axis (Y), and offset direction for the 13 mm centerline offset.\n\nKeep the final image below 1024x1024, clean white background, no text outside the dimension labels, no watermark.",
+    "error": null
+  }
+}

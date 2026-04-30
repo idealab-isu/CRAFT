@@ -1,0 +1,4 @@
+id   : mains_socket__Contactum
+tier : Complex
+
+A flush-mount mains-power wall socket: 84 mm x 84 mm face, 10.5 mm height, 3.6 mm wall thickness, 60.3 mm screw-hole pitch.
