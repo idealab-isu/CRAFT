@@ -6,16 +6,17 @@
     <title>CRAFT - Text to CAD Pipeline</title>
     <style>
         :root {
-            --bg: #1a1a2e;
-            --surface: #16213e;
-            --surface-2: #0f3460;
-            --primary: #e94560;
-            --secondary: #00adb5;
-            --text: #eee;
-            --text-dim: #888;
-            --success: #4ade80;
-            --warning: #fbbf24;
-            --error: #f87171;
+            --bg: #f8f9fa;
+            --surface: #ffffff;
+            --surface-2: #e9ecef;
+            --primary: #2563eb;
+            --secondary: #059669;
+            --text: #1f2937;
+            --text-dim: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --accent: #3b82f6;
         }
         
         * {
@@ -25,8 +26,8 @@
         }
         
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%);
             color: var(--text);
             min-height: 100vh;
             line-height: 1.6;
@@ -44,16 +45,20 @@
         }
         
         h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -0.02em;
         }
-        
+
         .subtitle {
             color: var(--text-dim);
-            margin-top: 0.5rem;
+            margin-top: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 500;
         }
         
         .main-grid {
@@ -70,9 +75,15 @@
         
         .panel {
             background: var(--surface);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid var(--surface-2);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
         .panel h2 {
@@ -122,18 +133,21 @@
         textarea, input[type="text"] {
             width: 100%;
             padding: 1rem;
-            background: var(--bg);
-            border: 1px solid var(--surface-2);
-            border-radius: 8px;
+            background: var(--surface);
+            border: 1.5px solid rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
             color: var(--text);
             font-size: 1rem;
             resize: vertical;
             min-height: 120px;
+            transition: all 0.2s ease;
+            font-family: inherit;
         }
-        
+
         textarea:focus, input:focus {
             outline: none;
-            border-color: var(--secondary);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
         .btn {
@@ -151,19 +165,26 @@
         .btn-primary {
             background: var(--primary);
             color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            font-weight: 600;
         }
-        
+
         .btn-primary:hover {
-            filter: brightness(1.1);
+            background: #1d4ed8;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+            transform: translateY(-2px);
         }
-        
+
         .btn-secondary {
             background: var(--surface-2);
             color: var(--text);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            font-weight: 500;
         }
-        
+
         .btn-secondary:hover {
-            background: var(--secondary);
+            background: #d1d5db;
+            border-color: rgba(0, 0, 0, 0.12);
         }
         
         .btn:disabled {
@@ -208,19 +229,22 @@
         
         /* Output area */
         .output-image {
-            background: var(--bg);
-            border-radius: 8px;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
             min-height: 300px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
         }
-        
+
         .output-image img {
             max-width: 100%;
             max-height: 400px;
             object-fit: contain;
+            border-radius: 8px;
         }
 
         .placeholder {
@@ -287,18 +311,21 @@
         /* Validation display */
         .validation-result {
             margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.25rem;
+            border-radius: 12px;
+            border-left: 4px solid;
+            background: var(--surface);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
-        
+
         .validation-result.passed {
-            background: rgba(74, 222, 128, 0.1);
-            border: 1px solid var(--success);
+            border-left-color: var(--success);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
         }
-        
+
         .validation-result.failed {
-            background: rgba(248, 113, 113, 0.1);
-            border: 1px solid var(--error);
+            border-left-color: var(--error);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%);
         }
         
         .score {
@@ -1040,13 +1067,72 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
                         </label>
                     </div>
 
+                    <!-- Settings Panel -->
+                    <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: var(--bg); border-radius: 8px;">
+                        <button id="settings-toggle" style="width: 100%; background: none; border: none; padding: 0; text-align: left; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: var(--text-dim); font-weight: 500; font-size: 0.9rem;">
+                            <span>⚙️ Model Settings</span>
+                            <span id="settings-arrow" style="transition: transform 0.3s ease;">▶</span>
+                        </button>
+                        <div id="settings-panel" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.1);">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.3rem;">Primary Model</label>
+                                    <select id="model-primary" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.85rem;">
+                                        <option value="gpt-4o">GPT-4o</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                        <option value="gpt-4">GPT-4</option>
+                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.3rem;">Reasoning Model</label>
+                                    <select id="model-reasoning" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.85rem;">
+                                        <option value="gpt-5.2">GPT-5.2</option>
+                                        <option value="gpt-4o">GPT-4o</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.3rem;">Secondary Model</label>
+                                    <select id="model-secondary" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.85rem;">
+                                        <option value="gpt-4o">GPT-4o</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                        <option value="gpt-4">GPT-4</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.3rem;">Fast Model</label>
+                                    <select id="model-fast" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.85rem;">
+                                        <option value="gpt-4o">GPT-4o</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button id="save-settings-btn" style="width: 100%; padding: 0.5rem; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; font-weight: 500; transition: background 0.2s;">
+                                💾 Save Settings
+                            </button>
+                            <div id="settings-message" style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-dim);"></div>
+                        </div>
+                    </div>
+
                     <div class="btn-group">
                         <button class="btn btn-primary" id="generate-btn">
                             ⚡ Generate
                         </button>
-                        <div class="loading" id="loading">
+                        <div class="loading" id="loading" style="display: none;">
                             <div class="spinner"></div>
                             <span>Generating...</span>
+                        </div>
+                        <!-- Progress Bar Section -->
+                        <div id="progress-section" style="display: none; width: 100%; margin-top: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span id="progress-stage" style="font-size: 0.9rem; color: var(--text-dim);">Starting...</span>
+                                <span id="progress-eta" style="font-size: 0.85rem; color: var(--secondary);">ETA: --</span>
+                            </div>
+                            <div style="background: var(--surface-2); border-radius: 8px; height: 8px; overflow: hidden; border: 1px solid var(--surface-3);">
+                                <div id="progress-bar" style="background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 8px;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1449,7 +1535,72 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
                 document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
             });
         });
-        
+
+        // Settings Panel
+        const settingsToggle = document.getElementById('settings-toggle');
+        const settingsPanel = document.getElementById('settings-panel');
+        const settingsArrow = document.getElementById('settings-arrow');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const settingsMessage = document.getElementById('settings-message');
+
+        settingsToggle.addEventListener('click', () => {
+            const isOpen = settingsPanel.style.display !== 'none';
+            settingsPanel.style.display = isOpen ? 'none' : 'block';
+            settingsArrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+
+            // Load current settings when opening
+            if (!isOpen) {
+                loadSettings();
+            }
+        });
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings');
+                const data = await response.json();
+
+                document.getElementById('model-primary').value = data.models.primary;
+                document.getElementById('model-reasoning').value = data.models.reasoning;
+                document.getElementById('model-secondary').value = data.models.secondary;
+                document.getElementById('model-fast').value = data.models.fast;
+            } catch (err) {
+                console.error('Error loading settings:', err);
+            }
+        }
+
+        saveSettingsBtn.addEventListener('click', async () => {
+            try {
+                const settings = {
+                    models: {
+                        primary: document.getElementById('model-primary').value,
+                        reasoning: document.getElementById('model-reasoning').value,
+                        secondary: document.getElementById('model-secondary').value,
+                        fast: document.getElementById('model-fast').value,
+                    }
+                };
+
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    settingsMessage.style.color = 'var(--success)';
+                    settingsMessage.textContent = '✓ Settings saved!';
+                    setTimeout(() => {
+                        settingsMessage.textContent = '';
+                    }, 2000);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (err) {
+                settingsMessage.style.color = 'var(--error)';
+                settingsMessage.textContent = '✗ Error: ' + err.message;
+            }
+        });
+
         // Toggle code/plan visibility
         document.getElementById('code-toggle').addEventListener('click', function() {
             const content = document.getElementById('code-content');
@@ -1576,7 +1727,6 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
 
             setLoading(true);
             hideError();
-            // Text-only mode has no sketch input — make sure we don't show a stale one.
             clearInputSketch();
 
             const formData = new FormData();
@@ -1586,11 +1736,18 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
             formData.append('use_sketch', (sketchEl && sketchEl.checked) ? 'true' : 'false');
 
             try {
+                // First, start the generation request
                 const response = await fetch('/generate', {
                     method: 'POST',
                     body: formData
                 });
                 const data = await response.json();
+
+                // Extract session ID for progress streaming
+                if (data.session_id) {
+                    connectProgressStream(data.session_id);
+                }
+
                 handleResponse(data);
             } catch (err) {
                 showError('Request failed: ' + err.message);
@@ -1598,6 +1755,43 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
                 setLoading(false);
             }
         });
+
+        // Progress streaming helper
+        function connectProgressStream(sessionId) {
+            const eventSource = new EventSource(`/progress/${sessionId}`);
+            const progressBar = document.getElementById('progress-bar');
+            const progressStage = document.getElementById('progress-stage');
+            const progressEta = document.getElementById('progress-eta');
+
+            eventSource.onmessage = (e) => {
+                try {
+                    const update = JSON.parse(e.data);
+
+                    // Update progress bar
+                    progressBar.style.width = (update.progress * 100) + '%';
+
+                    // Update stage message
+                    progressStage.textContent = update.message || 'Processing...';
+
+                    // Update ETA
+                    if (update.eta > 0) {
+                        const minutes = Math.floor(update.eta / 60);
+                        const seconds = update.eta % 60;
+                        if (minutes > 0) {
+                            progressEta.textContent = `ETA: ${minutes}m ${seconds}s`;
+                        } else {
+                            progressEta.textContent = `ETA: ${seconds}s`;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Progress update parse error:', err);
+                }
+            };
+
+            eventSource.onerror = () => {
+                eventSource.close();
+            };
+        }
         
         // Generate from vision
         visionBtn.addEventListener('click', async () => {
@@ -1791,7 +1985,19 @@ Example: A coffee mug with a curved handle on the right side. The mug should be 
             }
 
             btn.disabled = isLoading;
-            loadingEl.classList.toggle('active', isLoading);
+            loadingEl.style.display = isLoading ? 'flex' : 'none';
+
+            // Show/hide progress bar for text generation only
+            const progressSection = document.getElementById('progress-section');
+            if (type === 'text' && progressSection) {
+                progressSection.style.display = isLoading ? 'block' : 'none';
+                if (isLoading) {
+                    // Reset progress bar
+                    document.getElementById('progress-bar').style.width = '0%';
+                    document.getElementById('progress-stage').textContent = 'Starting...';
+                    document.getElementById('progress-eta').textContent = 'ETA: --';
+                }
+            }
         }
         
         function showError(message) {

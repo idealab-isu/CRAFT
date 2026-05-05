@@ -27,16 +27,19 @@ Routes:
 import os
 import json
 import secrets
+import time
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 
-from flask import Flask, render_template, request, jsonify, send_from_directory, session
+from flask import Flask, render_template, request, jsonify, send_from_directory, session, Response
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from openai import OpenAI
+from queue import Queue
 
 # Import CRAFT modules
+from core.progress import ProgressTracker, PipelineStage, create_sse_progress_handler
 from core.schema import validate_plan, postprocess_plan
 from core.reasoner import TextReasoner, DesignBrief, KBComponentContext
 from core.vision import (
@@ -466,6 +469,22 @@ class CRAFTPipeline:
             client=client,
             enabled=self.use_sketch,
         )
+
+        # Progress callback (set by Flask if available)
+        self._progress_callback = None
+
+    def _emit_progress(self, stage: str, progress: float, message: str, details: dict = None):
+        """Emit progress update if callback is set."""
+        if self._progress_callback:
+            try:
+                self._progress_callback({
+                    "stage": stage,
+                    "progress": progress,
+                    "message": message,
+                    "details": details or {}
+                })
+            except Exception as e:
+                print(f"[Progress] Emit failed: {e}")
     
     def run_text(self, prompt: str) -> PipelineState:
         """
@@ -747,6 +766,9 @@ class CRAFTPipeline:
         Returns:
             Updated state
         """
+        # Emit progress: Starting planning
+        self._emit_progress("planning", 0.1, "Creating CAD plan from design brief...")
+
         # Stage 3: Planning. We ONLY pass the sketch to the planner when
         # sketch_mode == "plan" (role=="planner"). In the new default
         # "reference" mode the sketch is withheld from the planner to keep
@@ -774,9 +796,13 @@ class CRAFTPipeline:
         if not plan_result.valid:
             return state
 
+        self._emit_progress("compilation", 0.35, "Compiling plan into OpenSCAD code...")
+
         # Stage 4: Compilation (with KB component injection)
         kb_components = state.design_brief.kb_components if hasattr(state.design_brief, 'kb_components') else None
         state.scad_code = self.compiler.compile(state.plan, kb_components=kb_components)
+
+        self._emit_progress("compilation", 0.45, "Optimizing OpenSCAD code...")
 
         # Stage 4b: Preemptive render-safety scan (rule-based, no LLM call).
         # Strips patterns we KNOW timeout OpenSCAD (minkowski, $fn > 32)
@@ -798,8 +824,12 @@ class CRAFTPipeline:
         # Save files
         self._save_files(state)
 
+        self._emit_progress("rendering", 0.50, "Rendering 3D preview (this may take 30-60 seconds)...")
+
         # Stage 5: Render initial preview
         self._render(state)
+
+        self._emit_progress("rendering", 0.75, "Render complete, validating model...")
 
         # Stage 5.5 — CRAFT v2.1 sanity gate.
         # Run the cheap, deterministic quality gate on the initial render
@@ -831,6 +861,7 @@ class CRAFTPipeline:
 
         # Stage 6 & 7: post-render refinement (VLM v2, or v3 gap refinement)
         if self.use_vlm_correction:
+            self._emit_progress("vlm_correction", 0.80, "Running visual quality check...")
             if self.craft_version_str == "3":
                 state = self._run_v3_refinement(state)
             else:
@@ -851,6 +882,8 @@ class CRAFTPipeline:
         # v2 post-render sketch: skip in v3 (intent sketch is part of v3 path)
         if self.craft_version_str != "3":
             self._maybe_run_verification_sketch(state)
+
+        self._emit_progress("complete", 1.0, "Generation complete!")
         return state
 
     def _run_v3_refinement(self, state: PipelineState) -> PipelineState:
@@ -1250,6 +1283,17 @@ app.secret_key = secrets.token_hex(16)
 # In production, use Redis or database
 current_states: Dict[str, PipelineState] = {}
 
+# Progress tracking for real-time frontend updates
+progress_queues: Dict[str, Queue] = {}
+
+
+def get_progress_queue(session_id: str) -> Queue:
+    """Get or create progress queue for a session."""
+    if session_id not in progress_queues:
+        progress_queues[session_id] = Queue()
+    return progress_queues[session_id]
+
+
 def get_pipeline(
     use_kb: bool = True,
     model_pipeline: Optional[str] = None,
@@ -1310,14 +1354,67 @@ def generate():
     use_sketch = use_sketch_str in ("true", "1", "yes", "on")
 
     try:
+        # Create session_id early for progress streaming
+        session_id = secrets.token_hex(8)
+        progress_queue = get_progress_queue(session_id)
+
+        # Create progress callback
+        _gen_start = time.time()
+        def emit_progress(update):
+            try:
+                # Handle both dict and ProgressUpdate object formats
+                if isinstance(update, dict):
+                    stage = update.get("stage", "unknown")
+                    progress = update.get("progress", 0)
+                    message = update.get("message", "Processing...")
+                    eta_seconds = update.get("eta_seconds")
+                    details = update.get("details", {})
+                else:
+                    # ProgressUpdate dataclass
+                    stage = update.stage
+                    progress = update.progress
+                    message = update.message
+                    eta_seconds = update.eta_seconds
+                    details = update.details or {}
+
+                # Estimate eta if not provided
+                if eta_seconds is None or eta_seconds == 0:
+                    elapsed = time.time() - _gen_start
+                    if progress > 0.01:
+                        estimated_total = elapsed / progress
+                        eta_seconds = int(max(0, estimated_total - elapsed))
+                    else:
+                        eta_seconds = 120  # default 2 min estimate
+
+                progress_queue.put({
+                    "stage": stage,
+                    "progress": round(progress, 3),
+                    "message": message,
+                    "eta": eta_seconds,
+                    "details": details
+                })
+            except Exception as e:
+                print(f"[Progress] Failed to emit event: {e}")
+
         # Get pipeline with hybrid model configuration
         pipeline = get_pipeline(use_kb=use_rag, use_sketch=use_sketch)
 
-        # Run pipeline
+        # Monkey-patch pipeline to emit progress (will be called from pipeline methods)
+        pipeline._progress_callback = emit_progress
+
+        # Send initial progress update
+        emit_progress({
+            "stage": "understanding",
+            "progress": 0.05,
+            "message": "Analyzing design requirements...",
+            "eta_seconds": 120,
+            "details": {}
+        })
+
+        # Run pipeline with progress tracking
         state = pipeline.run_text(text)
 
         # Store state for potential repair
-        session_id = secrets.token_hex(8)
         current_states[session_id] = state
         session["state_id"] = session_id
 
@@ -1404,14 +1501,55 @@ def vision():
         # Set view names
         view_names = DEFAULT_VIEW_NAMES[:len(image_paths)]
 
+        # Create session early for progress
+        session_id = secrets.token_hex(8)
+        progress_queue = get_progress_queue(session_id)
+        _gen_start = time.time()
+
+        def emit_progress(update):
+            try:
+                # Handle both dict and ProgressUpdate object formats
+                if isinstance(update, dict):
+                    stage = update.get("stage", "unknown")
+                    progress = update.get("progress", 0)
+                    message = update.get("message", "Processing...")
+                    eta_seconds = update.get("eta_seconds")
+                    details = update.get("details", {})
+                else:
+                    # ProgressUpdate dataclass
+                    stage = update.stage
+                    progress = update.progress
+                    message = update.message
+                    eta_seconds = update.eta_seconds
+                    details = update.details or {}
+
+                # Estimate eta if not provided
+                if eta_seconds is None or eta_seconds == 0:
+                    elapsed = time.time() - _gen_start
+                    if progress > 0.01:
+                        estimated_total = elapsed / progress
+                        eta_seconds = int(max(0, estimated_total - elapsed))
+                    else:
+                        eta_seconds = 120  # default 2 min estimate
+
+                progress_queue.put({
+                    "stage": stage,
+                    "progress": round(progress, 3),
+                    "message": message,
+                    "eta": eta_seconds,
+                    "details": details
+                })
+            except Exception as e:
+                print(f"[Progress] Failed to emit: {e}")
+
         # Get pipeline with hybrid model configuration
         pipeline = get_pipeline(use_kb=True)
+        pipeline._progress_callback = emit_progress
 
         # Run pipeline
         state = pipeline.run_vision(image_paths, view_names)
-        
+
         # Store state
-        session_id = secrets.token_hex(8)
         current_states[session_id] = state
         session["state_id"] = session_id
         
@@ -1482,15 +1620,56 @@ def vision_single():
         print(f"[Vision-Single] Processing single image: {image_path}")
         print(f"[Vision-Single] Using {SINGLE_IMAGE_MODEL} for image understanding")
 
+        # Create session early for progress
+        session_id = secrets.token_hex(8)
+        progress_queue = get_progress_queue(session_id)
+        _gen_start = time.time()
+
+        def emit_progress(update):
+            try:
+                # Handle both dict and ProgressUpdate object formats
+                if isinstance(update, dict):
+                    stage = update.get("stage", "unknown")
+                    progress = update.get("progress", 0)
+                    message = update.get("message", "Processing...")
+                    eta_seconds = update.get("eta_seconds")
+                    details = update.get("details", {})
+                else:
+                    # ProgressUpdate dataclass
+                    stage = update.stage
+                    progress = update.progress
+                    message = update.message
+                    eta_seconds = update.eta_seconds
+                    details = update.details or {}
+
+                # Estimate eta if not provided
+                if eta_seconds is None or eta_seconds == 0:
+                    elapsed = time.time() - _gen_start
+                    if progress > 0.01:
+                        estimated_total = elapsed / progress
+                        eta_seconds = int(max(0, estimated_total - elapsed))
+                    else:
+                        eta_seconds = 120  # default 2 min estimate
+
+                progress_queue.put({
+                    "stage": stage,
+                    "progress": round(progress, 3),
+                    "message": message,
+                    "eta": eta_seconds,
+                    "details": details
+                })
+            except Exception as e:
+                print(f"[Progress] Failed to emit: {e}")
+
         # Get pipeline with hybrid model configuration
         # KB is disabled for single image mode (concept images, not NopSCADlib components)
         pipeline = get_pipeline(use_kb=False)
+        pipeline._progress_callback = emit_progress
 
         # Run single image pipeline
         state = pipeline.run_single_image(image_path)
 
         # Store state for potential repair
-        session_id = secrets.token_hex(8)
         current_states[session_id] = state
         session["state_id"] = session_id
 
@@ -1737,6 +1916,129 @@ def healthz():
         "supported_models": SUPPORTED_MODELS,
         "kb_available": KB_AVAILABLE
     })
+
+
+@app.route("/progress/<session_id>")
+def progress_stream(session_id: str):
+    """
+    Server-Sent Events (SSE) endpoint for streaming progress updates.
+
+    Client connects and receives real-time progress updates during generation:
+    - Current stage (understanding, planning, compilation, rendering, VLM correction, etc.)
+    - Progress percentage (0-100%)
+    - Estimated time remaining
+    - Stage-specific details
+
+    Usage:
+        const eventSource = new EventSource(`/progress/${sessionId}`);
+        eventSource.onmessage = (e) => {
+            const update = JSON.parse(e.data);
+            updateProgressBar(update.progress * 100);
+            updateETA(update.eta);
+        };
+        eventSource.onerror = () => eventSource.close();
+    """
+    def generate_progress():
+        queue = get_progress_queue(session_id)
+        timeout = 0  # Don't block
+        while True:
+            try:
+                update = queue.get(timeout=timeout)
+                yield f"data: {json.dumps(update)}\n\n"
+            except:
+                # Queue is empty, check if we should keep waiting
+                if session_id in current_states:
+                    # Still generating, keep connection open
+                    yield ": heartbeat\n\n"
+                    import time
+                    time.sleep(0.1)
+                else:
+                    # Session done
+                    break
+
+    return Response(
+        generate_progress(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        }
+    )
+
+
+# =============================================================================
+# SETTINGS AND CONFIGURATION ENDPOINTS
+# =============================================================================
+
+@app.route("/api/settings", methods=["GET"])
+def get_settings():
+    """Get current model configuration and pipeline settings."""
+    return jsonify({
+        "models": {
+            "primary": os.getenv("MODEL_PRIMARY", "gpt-4o"),
+            "secondary": os.getenv("MODEL_SECONDARY", "gpt-4o"),
+            "reasoning": os.getenv("MODEL_REASONING", "gpt-5.2"),
+            "fast": os.getenv("MODEL_FAST", "gpt-4o"),
+        },
+        "pipeline": {
+            "version": os.getenv("CRAFT_VERSION", "2"),
+            "auto_repair": os.getenv("AUTO_REPAIR", "true").lower() == "true",
+            "vlm_correction": os.getenv("USE_VLM_CORRECTION", "true").lower() == "true",
+            "max_vlm_iterations": int(os.getenv("MAX_VLM_ITERATIONS", "1")),
+            "component_verification": os.getenv("USE_COMPONENT_VERIFICATION", "true").lower() == "true",
+            "max_plan_attempts": int(os.getenv("MAX_PLAN_ATTEMPTS", "2")),
+        },
+        "available_models": {
+            "openai": ["gpt-4o", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"],
+        },
+        "has_gemini_key": bool(os.getenv("GEMINI_API_KEY")),
+        "has_openai_key": bool(os.getenv("OPENAI_API_KEY")),
+    })
+
+
+@app.route("/api/settings", methods=["POST"])
+def update_settings():
+    """Update model configuration dynamically."""
+    try:
+        data = request.get_json()
+
+        # Update model configurations
+        if "models" in data:
+            models = data["models"]
+            if "primary" in models:
+                os.environ["MODEL_PRIMARY"] = models["primary"]
+            if "secondary" in models:
+                os.environ["MODEL_SECONDARY"] = models["secondary"]
+            if "reasoning" in models:
+                os.environ["MODEL_REASONING"] = models["reasoning"]
+            if "fast" in models:
+                os.environ["MODEL_FAST"] = models["fast"]
+
+        # Update pipeline settings
+        if "pipeline" in data:
+            pipeline_cfg = data["pipeline"]
+            if "auto_repair" in pipeline_cfg:
+                os.environ["AUTO_REPAIR"] = str(pipeline_cfg["auto_repair"]).lower()
+            if "vlm_correction" in pipeline_cfg:
+                os.environ["USE_VLM_CORRECTION"] = str(pipeline_cfg["vlm_correction"]).lower()
+            if "max_vlm_iterations" in pipeline_cfg:
+                os.environ["MAX_VLM_ITERATIONS"] = str(pipeline_cfg["max_vlm_iterations"])
+
+        return jsonify({
+            "success": True,
+            "message": "Settings updated successfully",
+            "settings": {
+                "models": {
+                    "primary": os.getenv("MODEL_PRIMARY"),
+                    "secondary": os.getenv("MODEL_SECONDARY"),
+                    "reasoning": os.getenv("MODEL_REASONING"),
+                    "fast": os.getenv("MODEL_FAST"),
+                }
+            }
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
 
 
 # =============================================================================

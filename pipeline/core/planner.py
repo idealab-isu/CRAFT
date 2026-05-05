@@ -22,6 +22,7 @@ from .schema import (
 )
 from .reasoner import DesignBrief
 from .vision import encode_image_as_data_url
+from .smooth_surface_optimizer import detect_curved_surface_need, get_smooth_surface_guidance
 
 
 # =============================================================================
@@ -120,6 +121,32 @@ cheap to evaluate. Concretely:
    union of the visible parts, with at most a couple of differences for
    windows/hollows.
 
+**ADVANCED SHAPE TECHNIQUES FOR REALISM:**
+Use these OpenSCAD features to create smooth, organic, and realistic shapes:
+
+1. HULL() FOR CURVED/ORGANIC FORMS:
+   - Use hull() to blend between shapes: hull([shape1, shape2, shape3])
+   - Example: Airplane fuselage = hull([nose_cone, body_cylinder, tail_cone])
+   - Example: Smooth bottle neck = hull([large_sphere, small_sphere])
+   - hull() creates smooth transitions between objects; use sparingly (≤2 per model)
+
+2. OFFSET() FOR ROUNDED EDGES:
+   - offset(r=radius) rounds edges: offset(-2) creates beveled/rounded corners
+   - Use for: smoothing box edges, rounding sharp features, creating fillets
+
+3. POLYHEDRON() FOR COMPLEX SHAPES:
+   - Define vertices and faces for custom shapes
+   - Example: Pyramid nose cone, irregular wings, asymmetric features
+
+4. TRANSLATE + ROTATE FOR COMPLEX ASSEMBLIES:
+   - Rotate shapes non-orthogonally for: airplane wings at angles, car windshields, tilted components
+   - Use sin/cos for smooth curves: y = 30 * sin(angle)
+
+5. AVOID BOXY LOOK:
+   - Instead of plain cube: use hull([sphere(r=10), translated sphere])
+   - Instead of cylinder: use tapered cylinder = hull([cylinder_bottom, cylinder_top_smaller])
+   - Instead of rectangles: round corners with offset()
+
 **KEEP IT RECOGNIZABLE, NOT PHOTOREALISTIC:**
 A rendered car needs: body, cabin, 4 wheels, a couple of windows. NOT:
 door handles, wiper blades, license plates, mirror stalks, wheel spokes,
@@ -127,6 +154,13 @@ grille slats, rim hubs. Those are cosmetic and explode the complexity
 budget without improving recognizability. If the brief's parts list has
 cosmetic extras, IGNORE them; deliver the essential silhouette only.
 Target: ≤ 10–15 top-level parameters, ≤ 10 base shapes for most objects.
+
+**SMOOTH OVER BLOCKY:**
+When user describes organic/flowing objects (airplane, boat, vase, car body):
+- Use hull() to blend shapes smoothly instead of hard rectangles
+- Use offset() for rounded edges on boxes
+- Prefer tapered cylinders over uniform ones
+- Position parts with angles (not just orthogonal) for visual interest
 
 CONSTRUCTION STRATEGY:
 1. Start with the main body as a base_shape
@@ -414,6 +448,18 @@ class Planner:
             primary_dimension_block=primary_dimension_section,
             kb_context=kb_context_section
         )
+
+        # AUTO-DETECT SMOOTH SURFACES: Check if design needs curved shapes
+        # and enhance prompt with specific guidance
+        needs_curves, curve_keywords, confidence = detect_curved_surface_need(brief.description)
+        if needs_curves and confidence > 0.3:
+            curve_guidance = get_smooth_surface_guidance(curve_keywords, confidence)
+            if curve_guidance:
+                text_content += curve_guidance
+                print(
+                    f"[Planner] Smooth surfaces detected (confidence: {confidence:.2f}): "
+                    f"{', '.join(curve_keywords[:3])}"
+                )
 
         # v2: optionally attach a concept sketch as vision input so the planner
         # sees the intended shape. When present, we switch the user message to

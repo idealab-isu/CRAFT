@@ -131,14 +131,15 @@ class UnifiedLLMClient:
         "o1-mini": "openai",
         "gemini-2.0-flash": "gemini",
         "gemini-2.5-flash": "gemini",
+        "gemini-2.5-pro": "gemini",
         "gemini-3-pro-preview": "gemini",
     }
 
     # Gemini API model names
     GEMINI_MODEL_NAMES = {
-        "gemini-2.0-flash": "gemini-2.0-flash",
-        "gemini-2.5-flash": "gemini-2.0-flash-exp",
-        "gemini-3-pro-preview": "gemini-exp-1206",
+        "gemini-2.5-flash": "gemini-2.5-flash",    # Latest Flash model
+        "gemini-2.5-pro": "gemini-2.5-pro",        # Latest Pro model
+        "gemini-exp-1206": "gemini-2.5-pro",       # Fallback to Pro
     }
 
     def __init__(self, openai_client=None, gemini_api_key: Optional[str] = None):

@@ -14,6 +14,7 @@ import re
 from dataclasses import dataclass, field, asdict
 from typing import Any, Dict, List, Optional, Tuple
 from .schema import extract_parameters, extract_parameter_metadata, extract_shape_ids
+from .smooth_surface_optimizer import detect_curved_surface_need, get_smooth_surface_code_pattern
 
 
 # =============================================================================
