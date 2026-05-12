@@ -68,6 +68,47 @@ Respond with JSON ONLY:
 }}
 """
 
+GAP_ANALYSIS_PROMPT_VIEWS = """You are doing a SINGLE structured review for CRAFT v3 gap refinement (IMAGE-ONLY mode).
+
+There is no text prompt. The TARGET is the 3D shape shown in {n_target_views}
+reference renders below — those views ARE the spec.
+
+The images after this message are, in order:
+  1) {n_target_views} TARGET reference views of the shape we want to reproduce
+     (rendered from 4 front-facing and 4 rear-facing camera angles by the
+     Zero-to-CAD harness; viewpoints are NOT labeled).
+  2) Six orthographic renders of the CURRENT OpenSCAD model
+     (front, back, left, right, top, bottom).
+
+Your job: compare TARGET vs CURRENT and list ONLY actionable, concrete deltas.
+- **add** for parts/features visible in the TARGET but missing from CURRENT.
+- **remove** for extras present in CURRENT but not in the TARGET.
+- **fix_connectivity** when parts that should touch are visibly floating.
+- **adjust_proportions** when overall shape is right but dimensions are clearly off.
+
+Rules:
+- The TARGET views are the authority. Do not invent details not visible there.
+- Cross-reference multiple views before listing a gap (a feature might be
+  hidden in one view but visible in another).
+- If CURRENT already matches TARGET well enough, set no_changes_needed true.
+- Do not ask to add text/labels/logos/decorative noise.
+
+Respond with JSON ONLY:
+{{
+  "no_changes_needed": true/false,
+  "gaps": [
+    {{
+      "id": "g1",
+      "action": "add" | "remove" | "fix_connectivity" | "adjust_proportions",
+      "description": "one short imperative sentence an OpenSCAD expert can follow"
+    }}
+  ],
+  "rationale": "one or two sentences explaining the overall delta",
+  "match_confidence": 0.0
+}}
+"""
+
+
 APPLY_GAPS_PROMPT = """You are patching existing OpenSCAD for CRAFT v3. Apply ONLY the listed gaps.
 Do not redesign from scratch. Preserve parametric variables and structure where possible.
 
@@ -176,13 +217,16 @@ class GapRefiner:
         view_images: Dict[str, str],
         sketch_path: Optional[str],
         reference_images: Optional[Dict[str, Dict[str, str]]] = None,
+        input_view_paths: Optional[List[str]] = None,
     ) -> str:
         if self.model in RESPONSES_API_VISION_MODELS:
             return self._responses_vision_json(
-                text_prompt, view_images, sketch_path, reference_images
+                text_prompt, view_images, sketch_path, reference_images,
+                input_view_paths,
             )
         return self._chat_vision_json(
-            text_prompt, view_images, sketch_path, reference_images
+            text_prompt, view_images, sketch_path, reference_images,
+            input_view_paths,
         )
 
     def _responses_vision_json(
@@ -191,10 +235,34 @@ class GapRefiner:
         view_images: Dict[str, str],
         sketch_path: Optional[str],
         reference_images: Optional[Dict[str, Dict[str, str]]],
+        input_view_paths: Optional[List[str]] = None,
     ) -> str:
         content_parts: List[Dict[str, Any]] = [
             {"type": "input_text", "text": text_prompt}
         ]
+        # Image-only mode (Z2C 8-view eval): TARGET views come FIRST so the
+        # model anchors on the spec before seeing the current model.
+        if input_view_paths:
+            content_parts.append(
+                {
+                    "type": "input_text",
+                    "text": "\n\n=== TARGET REFERENCE VIEWS (this IS the spec) ===\n",
+                }
+            )
+            for i, p in enumerate(input_view_paths):
+                if os.path.exists(p):
+                    content_parts.append(
+                        {"type": "input_text", "text": f"\nTARGET VIEW {i}:"}
+                    )
+                    content_parts.append(
+                        {
+                            "type": "input_image",
+                            "image_url": self._image_to_base64(p),
+                        }
+                    )
+            content_parts.append(
+                {"type": "input_text", "text": "\n=== CURRENT MODEL VIEWS ===\n"}
+            )
         if sketch_path and os.path.exists(sketch_path):
             content_parts.append(
                 {
@@ -258,10 +326,32 @@ class GapRefiner:
         view_images: Dict[str, str],
         sketch_path: Optional[str],
         reference_images: Optional[Dict[str, Dict[str, str]]],
+        input_view_paths: Optional[List[str]] = None,
     ) -> str:
         content_parts: List[Dict[str, Any]] = [
             {"type": "text", "text": text_prompt}
         ]
+        if input_view_paths:
+            content_parts.append(
+                {
+                    "type": "text",
+                    "text": "\n=== TARGET REFERENCE VIEWS (this IS the spec) ===\n",
+                }
+            )
+            for i, p in enumerate(input_view_paths):
+                if os.path.exists(p):
+                    content_parts.append(
+                        {"type": "text", "text": f"\nTARGET VIEW {i}:"}
+                    )
+                    content_parts.append(
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": self._image_to_base64(p)},
+                        }
+                    )
+            content_parts.append(
+                {"type": "text", "text": "\n=== CURRENT MODEL VIEWS ===\n"}
+            )
         if sketch_path and os.path.exists(sketch_path):
             content_parts.append(
                 {
@@ -347,9 +437,16 @@ class GapRefiner:
         timestamp: str,
         sketch_path: Optional[str] = None,
         kb_reference_images: Optional[Dict[str, Dict[str, str]]] = None,
+        input_view_paths: Optional[List[str]] = None,
     ) -> GapRefinementResult:
-        """
-        Render six views, analyze gaps vs sketch+prompt, optionally apply one patch.
+        """Render six views, analyze gaps, optionally apply one patch.
+
+        Modes:
+          - text mode (default): TARGET = original_prompt + optional sketch.
+            Uses GAP_ANALYSIS_PROMPT.
+          - image-only mode: `input_view_paths` provided (e.g. Z2C's 8 views).
+            TARGET = those input views. Uses GAP_ANALYSIS_PROMPT_VIEWS and
+            ignores `sketch_path` (the views ARE the spec).
         """
         try:
             view_images = self._render_ortho(scad_path, timestamp, "v3_baseline")
@@ -361,20 +458,30 @@ class GapRefiner:
                     error="orthographic render failed",
                 )
 
-            parts_line = (
-                ", ".join(expected_parts)
-                if expected_parts
-                else "(none specified)"
-            )
-            text_prompt = GAP_ANALYSIS_PROMPT.format(
-                original_prompt=original_prompt,
-                expected_parts=parts_line,
-            )
+            if input_view_paths:
+                # Image-only mode: views are the spec; ignore sketch path.
+                text_prompt = GAP_ANALYSIS_PROMPT_VIEWS.format(
+                    n_target_views=len(input_view_paths),
+                )
+                effective_sketch = None
+            else:
+                parts_line = (
+                    ", ".join(expected_parts)
+                    if expected_parts
+                    else "(none specified)"
+                )
+                text_prompt = GAP_ANALYSIS_PROMPT.format(
+                    original_prompt=original_prompt,
+                    expected_parts=parts_line,
+                )
+                effective_sketch = sketch_path
+
             raw = self._call_analyze_vision(
                 text_prompt,
                 view_images,
-                sketch_path,
+                effective_sketch,
                 kb_reference_images,
+                input_view_paths,
             )
             analysis = self._extract_json(raw)
             if not analysis:

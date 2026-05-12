@@ -25,6 +25,14 @@ python-dotenv>=1.0.0
 pandas>=2.0.0
 pyarrow>=14.0.0  # for parquet support
 
+# Zero-to-CAD evaluation harness (Experimentation/zerotocad_eval)
+datasets>=2.18.0    # HF streaming of the Z2C test split
+trimesh>=4.0.0      # voxelization + CD scoring (also used by Chamfer_distance/)
+# Optional for runners:
+# transformers>=4.45.0  # for Their model (ADSKAILab/Zero-To-CAD-Qwen3-VL-2B)
+# torch>=2.0.0          # backend for transformers
+# cadquery              # to execute Their model's / GPT-5.2's CadQuery output to STL
+
 # Progress bars
 tqdm>=4.66.0
 

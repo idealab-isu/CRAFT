@@ -75,3 +75,12 @@ pipeline/static/sketches/
 .DS_Store
 __pycache__/
 *.py[cod]
+Experimentation/zerotocad_eval/data/
+results/zerotocad_eval/
+
+/plans/
+/scad_scripts/
+/static/
+
+# Stray git internals
+/FETCH_HEAD
