@@ -4,9 +4,16 @@ Detect curved/smooth shape needs and enhance prompts with NURBS guidance.
 Analyzes design briefs to identify objects that benefit from smooth,
 curved surfaces (aerodynamic, aesthetic, decorative, artistic, etc.)
 and enriches prompts with guidance on using smooth surface techniques.
+
+Env toggle: set `CRAFT_DISABLE_NURBS=1` to short-circuit `detect_curved_surface_need`
+and `detect_aerodynamic_shape` to always return False. Used by the
+Zero-to-CAD eval ablation script to isolate the NURBS-module contribution.
 """
 
+import os
 from typing import Tuple, List, Optional
+
+_NURBS_DISABLED = os.getenv("CRAFT_DISABLE_NURBS", "").lower() in ("1", "true", "yes")
 
 # General curved surface indicators
 CURVED_SHAPE_KEYWORDS = {
@@ -52,6 +59,8 @@ def detect_curved_surface_need(brief_description: str) -> Tuple[bool, List[str],
     Returns:
         Tuple of (needs_curves, detected_keywords, confidence_score 0-1.0)
     """
+    if _NURBS_DISABLED:
+        return False, [], 0.0
     if not brief_description:
         return False, [], 0.0
 

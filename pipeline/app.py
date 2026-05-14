@@ -273,6 +273,12 @@ class PipelineState:
         self.craft_version: str = "2"
         self.v3_gap_refinement: Optional[Dict[str, Any]] = None
 
+        # Zero-to-CAD image-only eval (8 unlabeled views, no text prompt)
+        # When set, _run_v3_refinement treats these as the authoritative target
+        # and passes them to GapRefiner via `input_view_paths`. None in normal
+        # text/vision modes.
+        self.input_view_paths: Optional[List[str]] = None
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON response."""
         result = {
@@ -624,6 +630,59 @@ class CRAFTPipeline:
         # Stage 3-6: Core pipeline
         return self._run_core_pipeline(state)
 
+    def run_zerotocad_vision(
+        self,
+        image_paths: List[str],
+    ) -> PipelineState:
+        """Run CRAFT v3 in IMAGE-ONLY mode against Zero-to-CAD's 8-view harness.
+
+        Inputs: 8 unlabeled rendered views (4 front-facing + 4 rear-facing
+        camera angles, 256x256 PNG) — the exact input format used in the
+        Zero-to-CAD evaluation protocol. There is NO text prompt — the views
+        ARE the spec.
+
+        Differences from `run_vision()`:
+          1. Stage 1 uses `VisionAnalyzer.analyze_zerotocad_8view()` which
+             prompts for a CAD-focused, self-contained description (instead
+             of the 6-orthographic-view caption format).
+          2. `state.input_view_paths` is set so `_run_v3_refinement` passes
+             the input views straight to `GapRefiner.run()` as the visual
+             TARGET — gap analysis compares current renders against the input
+             views, not against a synthesized text description.
+
+        Reference: CRAFT_zerotocad_eval_plan.md, Phase 2.
+        """
+        if len(image_paths) != 8:
+            raise ValueError(
+                f"run_zerotocad_vision expects exactly 8 views, got {len(image_paths)}"
+            )
+
+        state = PipelineState(
+            input_type="zerotocad_vision", original_input=image_paths
+        )
+        state.input_view_paths = list(image_paths)
+
+        # Stage 1: 8-view image-only analysis → rich CAD-focused caption.
+        vision_result = self.vision_analyzer.analyze_zerotocad_8view(image_paths)
+        state.captions = {
+            "best": vision_result.best_caption,
+            "alternatives": vision_result.alternatives,
+            "features": vision_result.identified_features,
+        }
+
+        # Stage 2: caption → design brief (no KB lookup — Z2C shapes are not
+        # catalog mechanical parts; KB retrieval would be inert noise).
+        reasoner_no_kb = TextReasoner(
+            self.client, self.model_pipeline, use_kb=False
+        )
+        state.design_brief = reasoner_no_kb.analyze(vision_result.best_caption)
+        state.design_brief.source = "zerotocad_vision"
+
+        # Stage 3-6: core pipeline (planning, compilation, rendering, v3
+        # refinement). _run_v3_refinement reads state.input_view_paths and
+        # routes through the image-only branch of GapRefiner.
+        return self._run_core_pipeline(state)
+
     def run_single_image(self, image_path: str) -> PipelineState:
         """
         Run pipeline with a single concept image input.
@@ -945,6 +1004,10 @@ class CRAFTPipeline:
             timestamp=state.timestamp,
             sketch_path=sketch_ref,
             kb_reference_images=ref_imgs,
+            # Zero-to-CAD image-only mode: when 8 input views are set, gap
+            # analysis compares current renders against them instead of the
+            # design-brief text (the views ARE the spec).
+            input_view_paths=state.input_view_paths,
         )
 
         state.v3_gap_refinement = {
