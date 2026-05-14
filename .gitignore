@@ -84,3 +84,4 @@ results/zerotocad_eval/
 
 # Stray git internals
 /FETCH_HEAD
+.publish-cd-audit-gallery/
