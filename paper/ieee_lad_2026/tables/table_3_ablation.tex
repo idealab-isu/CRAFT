@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Ablation study on NopSCADlib (rows: full pipeline and component-disabled variants).}
+\label{tab:ablation}
+\begin{tabular}{lrrr}
+\toprule
+Variant & CD $\downarrow$ & F1 $\uparrow$ & Voxel IoU $\uparrow$ \\
+\midrule
+craft & 0.0654 & 0.2530 & 0.2356 \\
+no\_json\_ir & 0.0643 & 0.2383 & 0.1999 \\
+no\_retrieval & 0.0764 & 0.2030 & 0.1545 \\
+no\_multiview & 0.0738 & 0.1907 & 0.2272 \\
+no\_verification & 0.0637 & 0.2574 & 0.2411 \\
+no\_recovery & 0.0773 & 0.1878 & 0.2289 \\
+\bottomrule
+\end{tabular}
+\end{table}

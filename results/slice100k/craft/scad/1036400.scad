@@ -1,20 +1,19 @@
-// Simple hollow cylindrical sleeve (tube/spacer)
-// Bounding box: 6.35 x 6.35 x 25.65 mm
+// Simple hollow cylindrical sleeve (tube/spacer) with concentric through-bore
+// Bounding box: 6.3 x 6.3 x 25.7 mm (approx from OD and L)
 
-L  = 25.65;
-OD = 6.35;
-ID = 3.175;
+OD = 6.35;      // outer diameter (mm)
+ID = 3.175;     // inner diameter (mm)
+L  = 25.65;     // length/height (mm)
 
-// Smoothness (avoid faceted look)
-$fn = 128;
+overlap = 0.2;  // ensures clean through-cut
 
-module sleeve(L, OD, ID) {
+$fn = 96;
+
+module sleeve(od, id, h) {
     difference() {
-        cylinder(h = L, d = OD, center = true);
-        // Slightly longer bore to guarantee a clean through-cut
-        cylinder(h = L + 0.2, d = ID, center = true);
+        cylinder(h=h, r=od/2, center=true);
+        cylinder(h=h + 2*overlap, r=id/2, center=true);
     }
 }
 
-color([0.85, 0.85, 0.8])
-sleeve(L, OD, ID);
+sleeve(OD, ID, L);

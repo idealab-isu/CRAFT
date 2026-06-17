@@ -1,4 +1,0 @@
-id   : antenna__ESP201_antenna
-tier : Complex
-
-A folding whip RF antenna module: 108.5 mm total length, 9.5 mm base diameter, 7.9 mm tip diameter, 20.6 mm fixed straight section, pivot 20.6 mm from the base, 6.45 mm panel gap for washers and nuts.

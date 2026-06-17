@@ -1,167 +1,151 @@
-// Parameters
-bbox_X = 46.19; //[23.095:92.38:0.01]
-bbox_Y = 40; //[20:80:0.01]
-bbox_Z = 19; //[9.5:38:0.01]
-body_thickness = 19; //[9.5:38:0.01]
-hex_flat_to_flat_Y = 40; //[20:80:0.01]
-hex_point_to_point_X = 46.19; //[23.095:92.38:0.01]
-hole_d = 6; //[3:12:0.01]
-hole_offset_X = 0; //[-5:5:0.01]
-hole_offset_Y = 0; //[-5:5:0.01]
-notch_count = 6; //[3:12:1]
-notch_w = 8; //[4:16:0.01]
-notch_d = 3; //[1.5:6:0.01]
-notch_h = 3; //[1:8:0.01]
-notch_z0 = 0; //[-5:5:0.01]
-top_relief_w = 18; //[9:36:0.01]
-top_relief_d = 10; //[5:20:0.01]
-top_relief_h = 4; //[1:9:0.01]
-top_relief_offset_X = 6; //[-15:15:0.01]
-top_relief_offset_Y = -4; //[-15:15:0.01]
-bottom_relief_w = 16; //[8:32:0.01]
-bottom_relief_d = 12; //[6:24:0.01]
-bottom_relief_h = 3; //[1:9:0.01]
-bottom_relief_offset_X = -7; //[-15:15:0.01]
-bottom_relief_offset_Y = 5; //[-15:15:0.01]
-edge_chamfer = 0.8; //[0.2:2:0.01]
-csk_top_d = 10.5; //[7:18:0.01]
-csk_top_h = 2.5; //[1:6:0.01]
-align_mark_d = 2; //[1:4:0.01]
-align_mark_h = 0.8; //[0.3:2:0.01]
-overlap = 1; //[0.5:2:0.01]
-hex_R = 23.095; //[11.5475:46.19:0.01]
-hex_r = 20; //[10:40:0.01]
+// Fixed OpenSCAD model: thick hex plate with visible through-hole,
+// clear perimeter steps/notches, and asymmetric top/bottom reliefs.
+// Ensures ONE connected solid and non-blank render by using consistent centering.
 
-// Base Shapes
-module hex_main_body() {
-  linear_extrude(height=body_thickness, center=true) {
-    polygon(points=[
-      [hex_R, 0],
-      [hex_R/2, hex_r],
-      [-hex_R/2, hex_r],
-      [-hex_R, 0],
-      [-hex_R/2, -hex_r],
-      [hex_R/2, -hex_r]
-    ]);
-  }
+// ---------- Parameters ----------
+bbox_x = 46.19;                 // target overall X (approx, via hex corners)
+bbox_y = 40.0;                  // target overall Y (flat-to-flat)
+thickness_z = 19.0;             // overall thickness
+
+hex_flat_to_flat = 40.0;        // across flats (Y direction when point-up)
+hex_rotation_deg = 0.0;
+
+hole_d = 6.0;
+hole_offset_x = 1.5;
+hole_offset_y = -0.8;
+
+notch_count = 6;
+notch_w = 6.0;                  // tangential width
+notch_d = 2.0;                  // radial depth into perimeter
+notch_h = 4.0;                  // vertical height of notch cut
+notch_z_from_top = 0.0;         // 0 => starts at top surface
+
+top_relief_1_w = 18.0;
+top_relief_1_d = 8.0;
+top_relief_1_depth = 3.0;
+top_relief_1_offset_x = 6.0;
+top_relief_1_offset_y = 0.0;
+
+top_relief_2_w = 10.0;
+top_relief_2_d = 6.0;
+top_relief_2_depth = 2.0;
+top_relief_2_offset_x = -8.0;
+top_relief_2_offset_y = 6.0;
+
+bottom_relief_1_w = 16.0;
+bottom_relief_1_d = 10.0;
+bottom_relief_1_depth = 3.0;
+bottom_relief_1_offset_x = -5.0;
+bottom_relief_1_offset_y = -4.0;
+
+bottom_relief_2_w = 9.0;
+bottom_relief_2_d = 7.0;
+bottom_relief_2_depth = 2.0;
+bottom_relief_2_offset_x = 7.0;
+bottom_relief_2_offset_y = -7.0;
+
+edge_chamfer_size = 0.8;        // small corner reliefs (optional)
+alignment_mark_d = 2.0;
+alignment_mark_depth = 0.6;
+alignment_mark_offset_r = 14.0;
+
+overlap = 1.0;
+
+countersink_enable = 0;
+countersink_top_d = 10.0;
+countersink_depth = 3.0;
+
+// ---------- Derived ----------
+hex_apothem = hex_flat_to_flat/2;                 // center to flat
+hex_corner_r = hex_flat_to_flat/sqrt(3);          // center to corner (circumradius)
+
+// ---------- Helpers ----------
+module hex_prism(ftf, h, rot=0) {
+    // Use cylinder with $fn=6 for robust, centered hex prism.
+    // For a regular hex: across flats = sqrt(3)*R => R = ftf/sqrt(3)
+    rotate([0,0,rot])
+        cylinder(h=h, r=ftf/sqrt(3), $fn=6, center=true);
 }
 
-module central_through_hole() {
-  translate([hole_offset_X, hole_offset_Y, 0])
-    cylinder(r=hole_d/2, h=body_thickness + 2*overlap, center=true);
+module through_hole() {
+    translate([hole_offset_x, hole_offset_y, 0])
+        cylinder(h=thickness_z + 2*overlap, r=hole_d/2, center=true, $fn=64);
 }
 
-module counterbore_or_countersink_on_hole() {
-  translate([hole_offset_X, hole_offset_Y, body_thickness/2 - (csk_top_h + overlap)/2])
-    cylinder(r=csk_top_d/2, h=csk_top_h + overlap, center=true);
+module perimeter_notch(angle_deg) {
+    // Cut a shallow rectangular step into each flat, near the perimeter.
+    // Place the notch so its outer face slightly exceeds the flat plane to guarantee intersection.
+    // Flat plane is at radius = hex_apothem.
+    rotate([0,0,angle_deg])
+        translate([hex_apothem - notch_d/2 + overlap/2, 0,
+                   thickness_z/2 - notch_z_from_top - notch_h/2])
+            cube([notch_d + overlap, notch_w, notch_h + overlap], center=true);
 }
 
-module top_face_asymmetric_relief() {
-  translate([top_relief_offset_X, top_relief_offset_Y, body_thickness/2 - (top_relief_h + overlap)/2])
-    cube([top_relief_w, top_relief_d, top_relief_h + overlap], center=true);
+module top_relief(w,d,depth,ox,oy) {
+    translate([ox, oy, thickness_z/2 - depth/2])
+        cube([w, d, depth + overlap], center=true);
 }
 
-module bottom_face_asymmetric_relief() {
-  translate([bottom_relief_offset_X, bottom_relief_offset_Y, -body_thickness/2 + (bottom_relief_h + overlap)/2])
-    cube([bottom_relief_w, bottom_relief_d, bottom_relief_h + overlap], center=true);
+module bottom_relief(w,d,depth,ox,oy) {
+    translate([ox, oy, -thickness_z/2 + depth/2])
+        cube([w, d, depth + overlap], center=true);
 }
 
-module perimeter_notch(angle) {
-  rotate([0, 0, angle])
-    translate([hex_R - (notch_d/2) + overlap, 0, notch_z0])
-      cube([notch_d + 2*overlap, notch_w, notch_h + 2*overlap], center=true);
+module edge_corner_relief(angle_deg) {
+    // Small corner reliefs near vertices to suggest chamfer/relief without complex minkowski.
+    rotate([0,0,angle_deg])
+        translate([hex_corner_r - edge_chamfer_size/2 + overlap/2, 0, 0])
+            cube([edge_chamfer_size + overlap, edge_chamfer_size + overlap, thickness_z + 2*overlap], center=true);
 }
 
-module edge_chamfer_top() {
-  translate([0, 0, body_thickness/2 - edge_chamfer])
-    cylinder(r1=hex_R + edge_chamfer, r2=hex_R - edge_chamfer, h=2*edge_chamfer, center=true);
+module alignment_mark(angle_deg) {
+    rotate([0,0,angle_deg])
+        translate([alignment_mark_offset_r, 0, thickness_z/2 - alignment_mark_depth/2])
+            cylinder(r=alignment_mark_d/2, h=alignment_mark_depth + overlap, center=true, $fn=48);
 }
 
-module edge_chamfer_bottom() {
-  translate([0, 0, -body_thickness/2 + edge_chamfer])
-    cylinder(r1=hex_R + edge_chamfer, r2=hex_R - edge_chamfer, h=2*edge_chamfer, center=true);
+module countersink_variant() {
+    if (countersink_enable) {
+        translate([hole_offset_x, hole_offset_y, thickness_z/2 - countersink_depth/2])
+            cylinder(r1=countersink_top_d/2, r2=hole_d/2, h=countersink_depth + overlap, center=true, $fn=64);
+    }
 }
 
-module small_alignment_marks_top_1() {
-  translate([hex_r/2, 0, body_thickness/2 - (align_mark_h + overlap)/2])
-    cylinder(r=align_mark_d/2, h=align_mark_h + overlap, center=true);
-}
-
-module small_alignment_marks_top_2() {
-  translate([0, hex_r/2, body_thickness/2 - (align_mark_h + overlap)/2])
-    cylinder(r=align_mark_d/2, h=align_mark_h + overlap, center=true);
-}
-
-// Operations
-module perimeter_rectangular_notches() {
-  union() {
-    for (i = [0:notch_count-1])
-      perimeter_notch(i * 360/notch_count);
-  }
-}
-
-module small_alignment_marks() {
-  union() {
-    small_alignment_marks_top_1();
-    small_alignment_marks_top_2();
-  }
-}
-
-module edge_chamfers_fillets() {
-  union() {
-    edge_chamfer_top();
-    edge_chamfer_bottom();
-  }
-}
-
-module hex_body_minus_hole() {
-  difference() {
-    hex_main_body();
-    central_through_hole();
-  }
-}
-
-module hex_body_minus_hole_minus_csk() {
-  difference() {
-    hex_body_minus_hole();
-    counterbore_or_countersink_on_hole();
-  }
-}
-
-module hex_body_minus_notches() {
-  difference() {
-    hex_body_minus_hole_minus_csk();
-    perimeter_rectangular_notches();
-  }
-}
-
-module hex_body_minus_top_relief() {
-  difference() {
-    hex_body_minus_notches();
-    top_face_asymmetric_relief();
-  }
-}
-
-module hex_body_minus_bottom_relief() {
-  difference() {
-    hex_body_minus_top_relief();
-    bottom_face_asymmetric_relief();
-  }
-}
-
-module hex_body_minus_alignment_marks() {
-  difference() {
-    hex_body_minus_bottom_relief();
-    small_alignment_marks();
-  }
-}
-
+// ---------- Complete Model ----------
 module complete_model() {
-  difference() {
-    hex_body_minus_alignment_marks();
-    edge_chamfers_fillets();
-  }
+    difference() {
+        // Main body centered at origin to match all subtractive features
+        hex_prism(hex_flat_to_flat, thickness_z, hex_rotation_deg);
+
+        union() {
+            // Central through-hole (now correctly centered in Z and guaranteed to cut through)
+            through_hole();
+
+            // Perimeter notches/steps around flats
+            for (i = [0:notch_count-1])
+                perimeter_notch(i * 360/notch_count);
+
+            // Asymmetric top reliefs (cuts)
+            top_relief(top_relief_1_w, top_relief_1_d, top_relief_1_depth, top_relief_1_offset_x, top_relief_1_offset_y);
+            top_relief(top_relief_2_w, top_relief_2_d, top_relief_2_depth, top_relief_2_offset_x, top_relief_2_offset_y);
+
+            // Asymmetric bottom reliefs (different from top)
+            bottom_relief(bottom_relief_1_w, bottom_relief_1_d, bottom_relief_1_depth, bottom_relief_1_offset_x, bottom_relief_1_offset_y);
+            bottom_relief(bottom_relief_2_w, bottom_relief_2_d, bottom_relief_2_depth, bottom_relief_2_offset_x, bottom_relief_2_offset_y);
+
+            // Small corner reliefs at vertices (optional but helps stepped/keyed look)
+            for (i = [0:5])
+                edge_corner_relief(i * 60 + 30); // vertices for point-up hex
+
+            // Small alignment marks on top face
+            alignment_mark(0);
+            alignment_mark(210);
+
+            // Optional countersink
+            countersink_variant();
+        }
+    }
 }
 
-// Final Output
 complete_model();

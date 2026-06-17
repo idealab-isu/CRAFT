@@ -1,54 +1,80 @@
+// Dimension-calibrated (target: 3.50 x 1.70 x 9.07 mm)
+scale([0.724707, 1.008629, 1.000441])
+{
 // Curved C-shaped hollow sleeve segment (partial ring/pipe section)
-// Target bounding box: 9.1 x 3.5 x 1.7 mm (L x W x H), elongated along X
-// Fix: ensure non-empty visible geometry; true hollow C-segment; constant wall;
-// faceted outer surface; single connected solid; robust clipping to bbox.
+// Target bounding box: ~3.5 x 1.7 x 9.1 mm (X x Y x Z), elongated along Z
 
-$fn = 64;
+// --- Parameters (kept from original, but made consistent) ---
+L = 9.07;                 // length along Z
+W = 3.5;                  // overall diameter across outer surface (X/Y)
+H = 1.7;                  // radial thickness (outer radius - inner radius)*2? (used to derive radii)
+t = 0.35;                 // wall thickness (radial)
+arc_deg = 220;            // arc angle of the clamp segment (open ends)
+outer_facets = 12;        // faceted outer surface
+overlap = 0.2;            // small overlap for robust booleans
+mark_r = 0.18;
+mark_h = 0.25;
 
-bbox_L = 9.10; // X (length)
-bbox_W = 3.50; // Y (width)
-bbox_H = 1.70; // Z (height)
+// --- Derived dimensions ---
+// Use W as outer diameter => outer radius:
+R_out = W/2;              // 1.75 mm
+// Use H as radial build (approx) and t as wall thickness; ensure valid:
+R_in  = max(0.2, R_out - H);          // inner radius (concave)
+R_void = max(0.1, R_out - t);         // inner void radius to create constant wall thickness
 
-wall_t = 0.30;
-facet_count = 12;          // facets around the arc (outer surface faceting)
-end_gap_clearance = 0.20;  // chord gap between open ends (approx)
-eps = 0.02;
+// Keep void inside the sleeve wall; if parameters conflict, clamp:
+R_void = min(R_void, R_out - 0.05);
+R_in   = min(R_in,  R_void - 0.05);
 
-// Radii chosen to fit within bbox in Y and Z after clipping.
-// Use the limiting half-dimension so the ring is guaranteed to exist after intersection.
-R_outer_use = max(wall_t + 0.10, min(bbox_W/2, bbox_H/2) - eps);
-R_inner_use = max(0.05, R_outer_use - wall_t);
+// --- Modules ---
+module c_segment_sleeve() {
+    // Create a faceted outer cylinder segment and subtract a smooth inner cylinder segment
+    // Both are made with rotate_extrude(angle=arc_deg) around Z, then extruded along Z by using 2D profile in (radius, z).
+    difference() {
+        // Outer: faceted by using low $fn on rotate_extrude
+        rotate_extrude(angle=arc_deg, $fn=outer_facets)
+            polygon(points=[
+                [0,   -L/2],
+                [R_out, -L/2],
+                [R_out,  L/2],
+                [0,    L/2]
+            ]);
 
-// Compute arc angle from desired end gap at outer radius.
-// chord = 2*R*sin(theta/2) => theta = 2*asin(chord/(2R))
-// arc = 360 - theta (remove a wedge to make a "C")
-arc_from_gap = 2 * asin(min(0.999, end_gap_clearance / (2*R_outer_use)));
-arc_deg_use  = 360 - arc_from_gap * 180 / PI;
-arc_deg_use  = max(160, min(330, arc_deg_use)); // clearly C-shaped
+        // Inner void: smooth (higher $fn) to keep concave inner radius
+        rotate_extrude(angle=arc_deg, $fn=max(48, outer_facets*4))
+            polygon(points=[
+                [0,     -L/2 - overlap],
+                [R_void, -L/2 - overlap],
+                [R_void,  L/2 + overlap],
+                [0,      L/2 + overlap]
+            ]);
 
-// 2D ring sector in XY (faceted by polygon sampling)
-module ring_sector_2d(Ri, Ro, ang_deg, facets=24) {
-    ang = max(1, min(359, ang_deg));
-    n = max(6, facets);
-
-    outer_pts = [for (i=[0:n]) let(a = -ang/2 + ang*i/n) [Ro*cos(a), Ro*sin(a)]];
-    inner_pts = [for (i=[0:n]) let(a =  ang/2 - ang*i/n) [Ri*cos(a), Ri*sin(a)]];
-
-    polygon(points=concat(outer_pts, inner_pts));
-}
-
-// Main sleeve: extrude along X by rotating a Z-extrude
-module c_sleeve() {
-    rotate([0,90,0])
-        linear_extrude(height=bbox_L + 2*eps, center=true, convexity=10)
-            ring_sector_2d(R_inner_use, R_outer_use, arc_deg_use, facets=max(12, facet_count));
-}
-
-// Clip to exact bounding box while keeping a single solid.
-// Slightly oversize the clipping cube to avoid accidental empty intersections due to coplanar faces.
-intersection() {
-    union() {
-        c_sleeve();
+        // Remove the central core so it is a sleeve (ensures concave inner surface starts at R_in)
+        // This also prevents any accidental fill near the axis from the outer polygon.
+        cylinder(r=R_in, h=L + 2*overlap, center=true, $fn=96);
     }
-    cube([bbox_L + 2*eps, bbox_W + 2*eps, bbox_H + 2*eps], center=true);
+}
+
+module alignment_mark_cut() {
+    // Small cylindrical dimple on the outer surface near one end
+    // Place at mid-angle of the arc, on outer radius.
+    ang = arc_deg/2;
+    rpos = R_out - mark_r*0.6; // slightly inset so it cuts into the surface
+    zpos = L/2 - mark_h/2 - overlap;
+
+    rotate([0,0,ang])
+        translate([rpos, 0, zpos])
+            cylinder(r=mark_r, h=mark_h, center=true, $fn=32);
+}
+
+// --- Final solid (one connected body) ---
+difference() {
+    // Center the arc around +X direction by rotating so the opening is symmetric about X axis
+    rotate([0,0,-arc_deg/2])
+        c_segment_sleeve();
+
+    // Optional small mark (subtractive), does not disconnect the part
+    rotate([0,0,-arc_deg/2])
+        alignment_mark_cut();
+}
 }

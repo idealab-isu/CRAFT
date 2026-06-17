@@ -1,167 +1,170 @@
-// Render-safe OpenSCAD model: tapered plate with concave semicircular cutout (horns),
-// four through-slots (two parallel pairs), stencil cut-through text,
-// and two underside mounting feet/tabs. One connected solid.
+// Thin tapered ID/mounting plate with concave semicircular cutout, 4 through-slots,
+// stencil-style cut-through text "EEZYbot ARM MK2", and TWO underside mounting feet.
+// Structural fixes applied:
+// - Slots are guaranteed to be inside the plate (and not inside the cutout) by computing
+//   the local plate half-width at the slot X positions and clamping Y positions.
+// - Two underside feet are created and forced to intersect the plate with overlap.
+// - All translate() values are derived from dimensions (no arbitrary offsets).
 
-$fn = 64;
+$fn = 96;
 
-// -------------------- Parameters --------------------
-plate_L = 0.08;
-plate_W_wide = 0.08;
-plate_W_narrow = 0.055;
-plate_thk = 0.006;
+// -------------------- Parameters (mm-ish units; keep small as provided) --------------------
+plate_L        = 0.078;
+plate_W_wide   = 0.078;
+plate_W_narrow = 0.050;
+plate_t        = 0.006;
 
-cutout_r = 0.028;
-cutout_center_offset_from_end = 0.0;
+cutout_r = 0.022;                 // concave semicircle radius at the narrow end
 
-// Slots: two parallel pairs near cutout end (all horizontal in plan view)
 slot_L = 0.018;
 slot_W = 0.003;
-slot_pair_spacing = 0.008;              // spacing within each side pair (in Y)
-slot_pair_offset_from_cutout_end = 0.016;
-slot_pair_lateral_offset = 0.018;       // center of each side pair from centerline (in Y)
-
-text_height = 0.008;                    // font size
-text_stroke = 0.0012;                   // stencil bridge thickness
-text_offset_from_cutout_end = 0.034;    // move text away from cutout
-text_depth = 0.02;                      // ensure full cut-through (>= plate_thk)
+slot_pair_spacing = 0.010;        // spacing between the two slot rows (Y)
+slot_edge_margin  = 0.006;        // keep slots away from cutout opening
+slot_col_spacing  = 0.012;        // separation between the two columns (X)
+slot_y_margin     = 0.002;        // keep slots away from plate edges
 
 foot_L = 0.012;
-foot_W = 0.006;
+foot_W = 0.008;
 foot_drop = 0.004;
-foot_offset_from_cutout_end = 0.06;
-foot_lateral_offset = 0.02;
+foot_from_cutout_end = 0.060;     // from cutout end along +X
+foot_lateral_offset = 0.018;
 
-eps = 0.001;
+overlap = 0.0015;                 // small overlap to guarantee connectivity
+
+// Text (cut-through)
+text_str = "EEZYbot ARM MK2";
+text_size = 0.010;
+text_spacing = 1.0;
+text_font = "Liberation Sans:style=Bold";
+text_y_offset = 0;
+text_x_offset = 0.010;
+
+// Stencil bridges
+bridge_w = 0.0012;
+bridge_h = 0.0040;
+bridge_count = 14;
 
 // -------------------- Helpers --------------------
+function clamp(v, lo, hi) = (v < lo) ? lo : (v > hi) ? hi : v;
+
+// Linear taper: half-width at a given x along the plate
+function plate_halfW_at_x(x) =
+    let(t = (x + plate_L/2) / plate_L)  // 0 at narrow end (-L/2), 1 at wide end (+L/2)
+    (plate_W_narrow/2) + t * ((plate_W_wide - plate_W_narrow)/2);
+
 module tapered_plate_2d() {
-    polygon(points=[
-        [-plate_L/2, -plate_W_wide/2],
-        [-plate_L/2,  plate_W_wide/2],
-        [ plate_L/2,  plate_W_narrow/2],
-        [ plate_L/2, -plate_W_narrow/2]
+    polygon(points = [
+        [-plate_L/2, -plate_W_narrow/2],
+        [-plate_L/2,  plate_W_narrow/2],
+        [ plate_L/2,  plate_W_wide/2],
+        [ plate_L/2, -plate_W_wide/2]
     ]);
 }
 
-module tapered_plate_body() {
-    linear_extrude(height=plate_thk, center=false)
-        tapered_plate_2d();
-}
+// Concave semicircular cutout that opens into the plate from the narrow end.
+module concave_semicircular_end_cutout_2d() {
+    end_x = -plate_L/2;
+    cx = end_x; // center on the end line for a clean semicircle opening
 
-// Concave semicircular cutout along the LEFT end (x = -plate_L/2).
-module concave_semicircular_end_cutout() {
-    translate([-plate_L/2 + cutout_center_offset_from_end, 0, plate_thk/2])
-        cylinder(r=cutout_r, h=plate_thk + 2*eps, center=true);
-}
-
-// Rounded slot (capsule) via hull of two circles, then extrude.
-module rounded_slot_3d(len, wid) {
-    linear_extrude(height=plate_thk + 2*eps, center=true)
-        hull() {
-            translate([-(len/2 - wid/2), 0]) circle(r=wid/2, $fn=32);
-            translate([ (len/2 - wid/2), 0]) circle(r=wid/2, $fn=32);
-        }
-}
-
-// Four slots: two parallel pairs near cutout end (2 on +Y side, 2 on -Y side).
-module all_through_slots() {
-    x_center = -plate_L/2 + slot_pair_offset_from_cutout_end + slot_L/2;
-
-    for (dy = [-(slot_pair_spacing/2), +(slot_pair_spacing/2)]) {
-        translate([x_center,  slot_pair_lateral_offset + dy, plate_thk/2])
-            rounded_slot_3d(slot_L, slot_W);
-        translate([x_center, -slot_pair_lateral_offset + dy, plate_thk/2])
-            rounded_slot_3d(slot_L, slot_W);
+    intersection() {
+        translate([cx, 0]) circle(r = cutout_r);
+        // Keep x >= end_x portion of the circle (the part overlapping the plate)
+        translate([end_x - overlap, -2*cutout_r])
+            square([2*cutout_r + 4*overlap, 4*cutout_r], center=false);
     }
 }
 
-// Stencil cut-through text: "EEZYbot ARM MK2"
-// Fixes:
-// - Ensure full string appears (no clipping) by scaling to fit available length.
-// - Ensure readable from FRONT (not mirrored) by keeping normal orientation.
-// - Keep stencil bridges but avoid over-subtracting.
-module stencil_text_cutout() {
-    x_text = -plate_L/2 + text_offset_from_cutout_end;
-    zc = plate_thk/2;
-
-    // Available length from x_text to near right end, keep a margin.
-    avail_len = (plate_L/2 - x_text) - 0.004;
-
-    module raw_text_2d() {
-        text("EEZYbot ARM MK2",
-             size=text_height,
-             halign="left",
-             valign="center",
-             font="Liberation Sans:style=Bold");
+module rounded_slot_2d(cx, cy, L, W) {
+    r = max(W/2, 0.0001);
+    hull() {
+        translate([cx - L/2, cy]) circle(r = r);
+        translate([cx + L/2, cy]) circle(r = r);
     }
+}
 
-    // Measure and scale text to fit in X so it doesn't get clipped by the plate taper.
-    module fitted_text_2d() {
-        // Use textmetrics via text() bounding box approximation using offset+projection:
-        // OpenSCAD lacks direct text bbox; use a conservative scale based on heuristic length.
-        // Heuristic: average glyph width ~0.62*size; length ~ n*0.62*size.
-        n = 14; // "EEZYbot ARM MK2" length incl spaces (approx)
-        est_len = n * 0.62 * text_height;
-        sx = min(1, avail_len / est_len);
-        scale([sx, 1]) raw_text_2d();
+module all_slots_2d() {
+    end_x = -plate_L/2;
+
+    // Place slots just past the cutout opening, clearly within the plate
+    x1 = end_x + cutout_r + slot_edge_margin + slot_L/2;
+    x2 = x1 + slot_col_spacing;
+
+    // Compute safe Y positions based on local plate width at each column X
+    // so slots cannot end up outside the tapered outline.
+    y_lim1 = plate_halfW_at_x(x1) - (slot_W/2) - slot_y_margin;
+    y_lim2 = plate_halfW_at_x(x2) - (slot_W/2) - slot_y_margin;
+
+    // Desired pair positions, then clamped to fit both columns
+    y_des = slot_pair_spacing/2;
+    y1 = clamp( y_des, 0, min(y_lim1, y_lim2));
+    y2 = -y1;
+
+    union() {
+        rounded_slot_2d(x1, y1, slot_L, slot_W);
+        rounded_slot_2d(x2, y1, slot_L, slot_W);
+        rounded_slot_2d(x1, y2, slot_L, slot_W);
+        rounded_slot_2d(x2, y2, slot_L, slot_W);
     }
+}
 
-    module text_solid() {
-        translate([x_text, 0, zc])
-            linear_extrude(height=plate_thk + 2*eps, center=true)
-                fitted_text_2d();
-    }
-
-    // Stencil bridges: thin vertical bars that REMOVE from the text-solid,
-    // leaving small connections in the final cutout.
-    module bridge_bars() {
-        // Place several bars across the text span.
-        // Use same heuristic span as above, but clamp to avail_len.
-        n = 14;
-        est_len = n * 0.62 * text_height;
-        span = min(avail_len, est_len);
-        bar_h = text_height * 1.8;
-
-        for (i = [1:6]) {
-            bx = x_text + i * span / 7;
-            translate([bx, 0, zc])
-                cube([text_stroke, bar_h, plate_thk + 4*eps], center=true);
-        }
-    }
+module stencil_text_minus_bridges_2d() {
+    approx_w = max(text_size * len(text_str) * 0.58, text_size*2);
+    x_min = -approx_w/2 + text_x_offset;
 
     difference() {
-        text_solid();
-        bridge_bars();
+        translate([text_x_offset, text_y_offset])
+            text(text_str, size=text_size, font=text_font, spacing=text_spacing,
+                 halign="center", valign="center");
+
+        for (i = [0:bridge_count-1]) {
+            xi = x_min + (i + 0.5) * (approx_w / bridge_count);
+            translate([xi, text_y_offset])
+                square([bridge_w, bridge_h], center=true);
+        }
     }
 }
 
-// Two underside mounting feet/tabs, connected to underside of plate.
-// Ensure they overlap into the plate (z overlap) so union is one connected solid.
-module underside_mounting_feet_tabs_x2() {
-    x_foot_center = -plate_L/2 + foot_offset_from_cutout_end + foot_L/2;
+module plate_solid() {
+    difference() {
+        linear_extrude(height = plate_t, center = true, convexity=10)
+            tapered_plate_2d();
 
-    // Plate spans z=[0, plate_thk]. Feet should extend below 0 and overlap slightly into plate.
-    z_foot_center = -foot_drop/2 + eps; // top of foot at z=eps (overlaps into plate)
+        // Concave semicircular bite (horn corners)
+        linear_extrude(height = plate_t + 2*overlap, center = true, convexity=10)
+            concave_semicircular_end_cutout_2d();
 
-    translate([x_foot_center,  foot_lateral_offset, z_foot_center])
-        cube([foot_L, foot_W, foot_drop], center=true);
+        // Four through-slots near cutout end
+        linear_extrude(height = plate_t + 2*overlap, center = true, convexity=10)
+            all_slots_2d();
 
-    translate([x_foot_center, -foot_lateral_offset, z_foot_center])
+        // Cut-through stencil text
+        linear_extrude(height = plate_t + 2*overlap, center = true, convexity=10)
+            stencil_text_minus_bridges_2d();
+    }
+}
+
+module underside_foot(x, y) {
+    // Intersect the plate by 'overlap' to guarantee a single connected solid
+    translate([x, y, -(plate_t/2 + foot_drop/2) + overlap])
         cube([foot_L, foot_W, foot_drop], center=true);
 }
 
-// Main plate with cutouts
-module plate_with_all_cutouts() {
-    difference() {
-        tapered_plate_body();
-        concave_semicircular_end_cutout();
-        all_through_slots();
-        stencil_text_cutout();
+module final_plate_with_feet() {
+    end_x = -plate_L/2;
+    foot_x = end_x + foot_from_cutout_end;
+
+    // Ensure feet are within the local plate width at foot_x
+    y_lim = plate_halfW_at_x(foot_x) - foot_W/2 - overlap;
+    foot_y = clamp(foot_lateral_offset, 0, y_lim);
+
+    union() {
+        plate_solid();
+
+        // TWO feet/tabs (symmetrical), both connected
+        underside_foot(foot_x,  foot_y);
+        underside_foot(foot_x, -foot_y);
     }
 }
 
-// Final connected model
-union() {
-    plate_with_all_cutouts();
-    underside_mounting_feet_tabs_x2();
-}
+// Render
+color("Silver") final_plate_with_feet();

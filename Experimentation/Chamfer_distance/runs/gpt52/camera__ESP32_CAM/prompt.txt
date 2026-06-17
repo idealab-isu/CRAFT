@@ -1,4 +1,0 @@
-id   : camera__ESP32_CAM
-tier : Complex
-
-A camera module: 41° x 54° field of view, 15 mm x 2.2 mm x 1 mm ribbon connector.

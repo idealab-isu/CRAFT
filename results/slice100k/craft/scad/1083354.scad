@@ -1,90 +1,130 @@
 // Parameters
-L = 97.5; //[48.75:195:0.5]
-OD_max = 19; //[9.5:38:0.5]
-OD_min = 14; //[7:28:0.5]
-ID = 10; //[5:18:0.5]
-L_sec1 = 40; //[20:80:0.5]
-L_trans = 10; //[5:20:0.5]
-L_sec2 = 47.5; //[23.75:95:0.5]
+L_total = 97.5; //[48.75:195:0.5]
+OD_max = 19; //[9.5:38:0.1]
+OD_min = 14; //[7:28:0.1]
+L_large = 40; //[20:80:0.5]
+L_taper = 10; //[5:20:0.5]
+L_small = 47.5; //[23.75:95:0.5]
+ID_bore = 10; //[5:18:0.1]
+chamfer = 0.5; //[0.2:2:0.1]
 overlap = 1; //[0.5:2:0.1]
-csk_depth = 2; //[1:5:0.5]
-csk_ID = 12; //[10.5:18:0.5]
-chamfer = 0.8; //[0.3:2:0.1]
 fillet_r = 0.6; //[0.2:2:0.1]
+counterbore_ID = 12; //[10.2:18:0.1]
+counterbore_depth = 8; //[2:20:0.5]
+knurl_depth = 0.3; //[0.1:1:0.05]
+knurl_pitch = 2; //[1:5:0.5]
+knurl_count = 10; //[3:30:1]
 
 // Base Shapes
-module outer_sec1_cyl() {
-  translate([0, 0, -L/2 + L_sec1/2])
-    cylinder(h=L_sec1, r=OD_max/2, center=true);
+module outer_cylinder_section_large_OD() {
+  translate([0, 0, -L_total/2 + L_large/2])
+    cylinder(h=L_large, r=OD_max/2, center=true);
 }
 
-module outer_trans_cone() {
-  translate([0, 0, -L/2 + L_sec1 + L_trans/2])
-    cylinder(h=L_trans, r1=OD_max/2, r2=OD_min/2, center=true);
+module outer_cylinder_section_small_OD() {
+  translate([0, 0, L_total/2 - L_small/2])
+    cylinder(h=L_small, r=OD_min/2, center=true);
 }
 
-module outer_sec2_cyl() {
-  translate([0, 0, -L/2 + L_sec1 + L_trans + L_sec2/2])
-    cylinder(h=L_sec2, r=OD_min/2, center=true);
+module outer_conical_frustum_transition() {
+  translate([0, 0, -L_total/2 + L_large + L_taper/2 - overlap/2])
+    cylinder(h=L_taper, r1=OD_max/2, r2=OD_min/2, center=true);
 }
 
-module through_bore_cyl() {
-  translate([0, 0, 0])
-    cylinder(h=L + 2*overlap, r=ID/2, center=true);
+module central_through_bore() {
+  cylinder(h=L_total + 2*overlap, r=ID_bore/2, center=true);
 }
 
-module csk_top_cone() {
-  translate([0, 0, L/2 - csk_depth/2])
-    cylinder(h=csk_depth, r1=csk_ID/2, r2=ID/2, center=true);
+module end_face_chamfer_minusZ() {
+  translate([0, 0, -L_total/2 + chamfer])
+    rotate([180, 0, 0])
+    cylinder(h=2*chamfer, r1=ID_bore/2 + chamfer, r2=ID_bore/2, center=true);
 }
 
-module csk_bot_cone() {
-  translate([0, 0, -L/2 + csk_depth/2])
-    cylinder(h=csk_depth, r1=ID/2, r2=csk_ID/2, center=true);
+module end_face_chamfer_plusZ() {
+  translate([0, 0, L_total/2 - chamfer])
+    cylinder(h=2*chamfer, r1=ID_bore/2 + chamfer, r2=ID_bore/2, center=true);
 }
 
-module outer_chamfer_top_cone() {
-  translate([0, 0, -L/2 + chamfer])
-    cylinder(h=2*chamfer, r1=OD_max/2 + chamfer, r2=OD_max/2 - chamfer, center=true);
+module internal_counterbore() {
+  translate([0, 0, L_total/2 - (counterbore_depth + overlap)/2])
+    cylinder(h=counterbore_depth + overlap, r=counterbore_ID/2, center=true);
 }
 
-module outer_chamfer_bot_cone() {
-  translate([0, 0, L/2 - chamfer])
-    cylinder(h=2*chamfer, r1=OD_min/2 - chamfer, r2=OD_min/2 + chamfer, center=true);
+module fillet_blend_large_side() {
+  translate([0, 0, -L_total/2 + L_large - fillet_r])
+    cylinder(h=2*fillet_r, r=OD_max/2, center=true);
+}
+
+module fillet_blend_small_side() {
+  translate([0, 0, -L_total/2 + L_large + L_taper + fillet_r - overlap])
+    cylinder(h=2*fillet_r, r=OD_min/2, center=true);
+}
+
+module knurl_groove_cutter_proto() {
+  rotate_extrude()
+    translate([OD_max/2 - knurl_depth, 0, 0])
+    circle(r=knurl_depth);
 }
 
 // Operations
-module outer_union() {
+module outer_union_raw() {
   union() {
-    outer_sec1_cyl();
-    outer_trans_cone();
-    outer_sec2_cyl();
+    outer_cylinder_section_large_OD();
+    outer_conical_frustum_transition();
+    outer_cylinder_section_small_OD();
   }
 }
 
-module outer_with_chamfers() {
-  difference() {
-    outer_union();
-    outer_chamfer_top_cone();
-    outer_chamfer_bot_cone();
+module fillet_on_OD_transitions() {
+  hull() {
+    fillet_blend_large_side();
+    fillet_blend_small_side();
   }
 }
 
-module bore_with_countersinks() {
+module outer_union_with_fillet() {
   union() {
-    through_bore_cyl();
-    csk_top_cone();
-    csk_bot_cone();
+    outer_union_raw();
+    fillet_on_OD_transitions();
   }
 }
 
-// Final Bushing
-module final_bushing() {
+module outer_minus_bore() {
   difference() {
-    outer_with_chamfers();
-    bore_with_countersinks();
+    outer_union_with_fillet();
+    central_through_bore();
   }
 }
 
-// Render the final bushing
-color("Silver") final_bushing();
+module outer_minus_bore_and_counterbore() {
+  difference() {
+    outer_minus_bore();
+    internal_counterbore();
+  }
+}
+
+module outer_minus_internal_edge_breaks() {
+  difference() {
+    outer_minus_bore_and_counterbore();
+    end_face_chamfer_minusZ();
+    end_face_chamfer_plusZ();
+  }
+}
+
+module knurl_grooves() {
+  for (i = [0:knurl_count-1]) {
+    translate([0, 0, -(knurl_count-1)*knurl_pitch/2 + i*knurl_pitch])
+      knurl_groove_cutter_proto();
+  }
+}
+
+module surface_text_or_knurl() {
+  difference() {
+    outer_minus_internal_edge_breaks();
+    knurl_grooves();
+  }
+}
+
+// Final Output
+surface_text_or_knurl();

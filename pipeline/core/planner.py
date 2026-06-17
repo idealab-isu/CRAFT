@@ -21,8 +21,6 @@ from .schema import (
     get_schema_as_string
 )
 from .reasoner import DesignBrief
-from .vision import encode_image_as_data_url
-from .smooth_surface_optimizer import detect_curved_surface_need, get_smooth_surface_guidance
 
 
 # =============================================================================
@@ -48,7 +46,6 @@ CRITICAL RULES:
    - No text profiles, no extruded text, no embossed/debossed text
    - Only generate pure geometric shapes (boxes, cylinders, spheres, etc.)
    - If the user asks for text, ignore that part of the request
-7. Do NOT add display stands, mounting bases, PCBs, "test fixtures", or other scene/assembly props unless the user explicitly asked. Model the requested part(s) only; avoid "helpful" extras.
 
 **CONNECTIVITY IS ABSOLUTELY CRITICAL - PARTS MUST PHYSICALLY TOUCH:**
 The final model MUST be ONE connected solid. NO floating/disconnected pieces allowed.
@@ -79,88 +76,6 @@ PARAMETRIC DESIGN:
 - Choose sensible ranges: min should be ~50% of value, max should be ~200% of value
 - Reference parameters as strings in geometry: "W", "H/2", "radius*0.8"
 - This makes the model adjustable via sliders in the UI
-
-**SKETCH IS THE PRIMARY VISUAL REFERENCE (when attached):**
-If a concept sketch is attached to this message, treat it as the authoritative
-visual ground truth. The sketch shows the target silhouette, part layout, and
-relative proportions. Extract any dimension labels visible on the sketch and
-use those numbers directly as parameter values (read "2700 mm" on a wheelbase
-arrow → set wheelbase=2700). Match the sketch's visible proportions even if
-they differ from your training-set defaults. The sketch is a better signal
-than the text spec for geometry; text only tells you part *names*.
-
-**PROPORTIONAL REASONING (light touch — don't over-engineer):**
-- If the user specifies a TOTAL SIZE (e.g. "a 10cm car"), that dimension is the
-  primary anchor — every other parameter must scale from it, not use absolute
-  defaults. 10cm car → body_L=100, NOT 4500.
-- If the user DOES NOT specify a size, pick sensible real-world defaults for a
-  typical instance (car ~4500mm, watch ~40mm, chair seat ~450mm, mug ~80mm
-  diameter) and keep internal proportions self-consistent.
-- Rules of thumb for common categories (approximate — don't treat as holy):
-    car: wheel_dia ≈ L/7, cabin_L ≈ 0.45*L, body_H ≈ 0.30*L, clearance ≈ 0.05*L
-    watch: case_thickness ≈ 0.30*D, crown ≈ 0.14*D, dial ≈ 0.80*D
-    mug: height ≈ 1.1*D, wall ≈ 0.08*D, handle ≈ 0.4*D wide
-    bottle: body_dia ≈ 0.30*H, neck_dia ≈ 0.10*H
-- When a sketch is attached, the sketch trumps these ratios.
-
-**RENDER-SAFETY LIMITS (MANDATORY — violating these crashes the render):**
-OpenSCAD renders each view in ≤60 seconds. You MUST keep the plan small and
-cheap to evaluate. Concretely:
-1. NEVER use the minkowski operation. It is banned. It causes 60s+ timeouts.
-2. Use hull sparingly — only when necessary (loop handles, smooth links).
-   Each hull() should have AT MOST 4 operand shapes, and there should be
-   AT MOST 2 hull operations in the entire plan.
-3. Never request $fn > 32 (the compiler defaults to a safe value; don't
-   override upward). Cylinders/spheres look fine at $fn=24.
-4. Keep total base_shape count ≤ 20. Keep total operation count ≤ 15.
-   If the object has many repeating features (4 wheels, 8 spokes, etc.),
-   use a single base_shape + replication via rotate+translate in a single
-   operation, not 8 separate base_shapes.
-5. Every boolean operation increases complexity multiplicatively. Avoid
-   chains like difference(difference(difference(...))). Prefer ONE big
-   union of the visible parts, with at most a couple of differences for
-   windows/hollows.
-
-**ADVANCED SHAPE TECHNIQUES FOR REALISM:**
-Use these OpenSCAD features to create smooth, organic, and realistic shapes:
-
-1. HULL() FOR CURVED/ORGANIC FORMS:
-   - Use hull() to blend between shapes: hull([shape1, shape2, shape3])
-   - Example: Airplane fuselage = hull([nose_cone, body_cylinder, tail_cone])
-   - Example: Smooth bottle neck = hull([large_sphere, small_sphere])
-   - hull() creates smooth transitions between objects; use sparingly (≤2 per model)
-
-2. OFFSET() FOR ROUNDED EDGES:
-   - offset(r=radius) rounds edges: offset(-2) creates beveled/rounded corners
-   - Use for: smoothing box edges, rounding sharp features, creating fillets
-
-3. POLYHEDRON() FOR COMPLEX SHAPES:
-   - Define vertices and faces for custom shapes
-   - Example: Pyramid nose cone, irregular wings, asymmetric features
-
-4. TRANSLATE + ROTATE FOR COMPLEX ASSEMBLIES:
-   - Rotate shapes non-orthogonally for: airplane wings at angles, car windshields, tilted components
-   - Use sin/cos for smooth curves: y = 30 * sin(angle)
-
-5. AVOID BOXY LOOK:
-   - Instead of plain cube: use hull([sphere(r=10), translated sphere])
-   - Instead of cylinder: use tapered cylinder = hull([cylinder_bottom, cylinder_top_smaller])
-   - Instead of rectangles: round corners with offset()
-
-**KEEP IT RECOGNIZABLE, NOT PHOTOREALISTIC:**
-A rendered car needs: body, cabin, 4 wheels, a couple of windows. NOT:
-door handles, wiper blades, license plates, mirror stalks, wheel spokes,
-grille slats, rim hubs. Those are cosmetic and explode the complexity
-budget without improving recognizability. If the brief's parts list has
-cosmetic extras, IGNORE them; deliver the essential silhouette only.
-Target: ≤ 10–15 top-level parameters, ≤ 10 base shapes for most objects.
-
-**SMOOTH OVER BLOCKY:**
-When user describes organic/flowing objects (airplane, boat, vase, car body):
-- Use hull() to blend shapes smoothly instead of hard rectangles
-- Use offset() for rounded edges on boxes
-- Prefer tapered cylinders over uniform ones
-- Position parts with angles (not just orthogonal) for visual interest
 
 CONSTRUCTION STRATEGY:
 1. Start with the main body as a base_shape
@@ -269,26 +184,14 @@ DESCRIPTION: {description}
 EXPECTED PARTS: {parts}
 
 SUGGESTED PARAMETERS: {parameters}
-{primary_dimension_block}{kb_context}
+{kb_context}
 Generate a complete JSON CAD plan that:
 1. Creates all expected parts
 2. Uses the suggested parameters (adjust if needed)
 3. Combines parts logically
 4. Sets final_output to the complete model
-5. If a PRIMARY DIMENSION is given above, EVERY other parameter MUST be sized
-   proportionally to it using the PROPORTIONAL REASONING rules. Do NOT use
-   arbitrary absolute defaults that ignore the primary dimension.
 
 Remember: Use parameter names as strings for dimensions (e.g., "W", "H/2")."""
-
-
-PLANNER_PRIMARY_DIMENSION_TEMPLATE = """
-PRIMARY DIMENSION: {label} = {value_mm} mm  (category hint: {category})
-*** This is the user-specified total size. All other dimensions MUST be derived
-    proportionally from this value using the canonical ratios for "{category}".
-    Do not reuse absolute defaults from training data when they would conflict
-    with this target size. ***
-"""
 
 
 PLANNER_KB_CONTEXT_TEMPLATE = """
@@ -353,7 +256,7 @@ class Planner:
         self,
         brief: DesignBrief,
         max_attempts: int = MAX_PLAN_ATTEMPTS,
-        reference_image_path: Optional[str] = None,
+        budget=None,
     ) -> PlanResult:
         """
         Create a CAD plan from a design brief.
@@ -363,10 +266,9 @@ class Planner:
         Args:
             brief: Design brief with description, parts, and parameters
             max_attempts: Maximum number of attempts (including repairs)
-            reference_image_path: Optional path to an orthographic sketch of the
-                target object. When provided, it is attached to the user message
-                as a vision modality so the planner commits to a specific visual
-                interpretation instead of hallucinating geometry from text.
+            budget: Optional shared RecoveryBudget. Each repair attempt (i.e.
+                    every attempt after the first) is charged to layer
+                    "schema_repair".
 
         Returns:
             PlanResult with plan, validity status, and attempt count
@@ -380,19 +282,23 @@ class Planner:
 
             if attempt == 1:
                 # First attempt: generate from scratch
-                plan, error = self._generate_plan(
-                    brief, reference_image_path=reference_image_path
-                )
+                plan, error = self._generate_plan(brief)
             else:
                 # Subsequent attempts: repair the failed plan
+                if budget is not None:
+                    if not budget.can_retry("schema_repair"):
+                        break
+                    budget.charge("schema_repair", note=f"attempt{attempt}")
                 plan, error = self._repair_plan(plan, last_error, brief)
-            
+
             if error is None:
                 # Plan generated successfully, now validate
                 plan = postprocess_plan(plan)
                 valid, validation_error = validate_plan(plan)
-                
+
                 if valid:
+                    if budget is not None and attempt > 1:
+                        budget.mark_succeeded("schema_repair")
                     return PlanResult(
                         plan=plan,
                         valid=True,
@@ -403,7 +309,7 @@ class Planner:
                     last_error = validation_error
             else:
                 last_error = error
-        
+
         # Max attempts reached
         return PlanResult(
             plan=plan,
@@ -414,8 +320,7 @@ class Planner:
     
     def _generate_plan(
         self,
-        brief: DesignBrief,
-        reference_image_path: Optional[str] = None,
+        brief: DesignBrief
     ) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
         """
         Generate a plan from a design brief.
@@ -430,88 +335,13 @@ class Planner:
                 kb_context=brief.kb_context_prompt
             )
 
-        # Build PRIMARY DIMENSION block (for proportional reasoning) if the
-        # reasoner surfaced a user-specified total size.
-        primary_dimension_section = ""
-        primary = getattr(brief, "primary_dimension", None)
-        if primary and isinstance(primary, dict) and primary.get("value_mm"):
-            primary_dimension_section = PLANNER_PRIMARY_DIMENSION_TEMPLATE.format(
-                label=primary.get("label", "total size"),
-                value_mm=primary["value_mm"],
-                category=primary.get("category", "generic"),
-            )
-
-        text_content = PLANNER_USER_TEMPLATE.format(
+        user_content = PLANNER_USER_TEMPLATE.format(
             description=brief.description,
             parts=", ".join(brief.expected_parts) if brief.expected_parts else "main body",
             parameters=json.dumps(brief.parameters, indent=2),
-            primary_dimension_block=primary_dimension_section,
             kb_context=kb_context_section
         )
-
-        # AUTO-DETECT SMOOTH SURFACES: Check if design needs curved shapes
-        # and enhance prompt with specific guidance
-        needs_curves, curve_keywords, confidence = detect_curved_surface_need(brief.description)
-        if needs_curves and confidence > 0.3:
-            curve_guidance = get_smooth_surface_guidance(curve_keywords, confidence)
-            if curve_guidance:
-                text_content += curve_guidance
-                print(
-                    f"[Planner] Smooth surfaces detected (confidence: {confidence:.2f}): "
-                    f"{', '.join(curve_keywords[:3])}"
-                )
-
-        # v2: optionally attach a concept sketch as vision input so the planner
-        # sees the intended shape. When present, we switch the user message to
-        # the content-parts form. If encoding fails, fall back silently to text.
-        user_message: Any
-        if reference_image_path:
-            try:
-                data_url = encode_image_as_data_url(
-                    reference_image_path, max_side=1024, quality=85
-                )
-                sketch_directive = (
-                    "\n\n=== ATTACHED: CONCEPT SKETCH ===\n"
-                    "An orthographic concept sketch of the target object is "
-                    "attached. IT IS THE PRIMARY VISUAL REFERENCE — treat it "
-                    "as authoritative for shape, silhouette, part layout, and "
-                    "relative proportions.\n\n"
-                    "HOW TO USE THE SKETCH:\n"
-                    "1. Look at the sketch FIRST, before reading the text spec.\n"
-                    "2. Identify the overall bounding box and each visible part.\n"
-                    "3. READ any dimension labels drawn on the sketch (e.g. "
-                    "   '2700 mm', '1450 mm', 'Ø 40 mm'). Those numbers are "
-                    "   USER-AUTHORITATIVE — use them directly as parameter "
-                    "   values in the plan (after converting to millimeters).\n"
-                    "4. Estimate un-labeled dimensions from the visible "
-                    "   proportions in the sketch, not from your training "
-                    "   defaults.\n"
-                    "5. The sketch takes priority over the text EXPECTED "
-                    "   PARTS list: if the sketch doesn't clearly show a part "
-                    "   from the text (e.g. door handles on a small car), "
-                    "   OMIT it. Prefer a simple, recognizable silhouette.\n\n"
-                    "DO NOT copy text or arrow labels from the sketch into "
-                    "the generated SCAD as geometry — they are metadata only.\n"
-                    "DO NOT add minkowski() or hull() to mimic the sketch's "
-                    "hand-drawn rounded corners — the sketch is schematic; "
-                    "boxy approximations are fine and render fast."
-                )
-                user_message = {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": text_content + sketch_directive,
-                        },
-                        {"type": "image_url", "image_url": {"url": data_url}},
-                    ],
-                }
-            except Exception as e:
-                print(f"[Planner] Failed to attach sketch (falling back to text): {e}")
-                user_message = {"role": "user", "content": text_content}
-        else:
-            user_message = {"role": "user", "content": text_content}
-
+        
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -522,13 +352,16 @@ class Planner:
                         "role": "system",
                         "content": PLANNER_SYSTEM_PROMPT + "\n\nSCHEMA:\n" + self.schema_str
                     },
-                    user_message,
+                    {
+                        "role": "user",
+                        "content": user_content
+                    }
                 ]
             )
-
+            
             plan = json.loads(response.choices[0].message.content)
             return plan, None
-
+            
         except json.JSONDecodeError as e:
             return None, f"Invalid JSON response: {str(e)}"
         except Exception as e:

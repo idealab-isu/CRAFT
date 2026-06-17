@@ -1,0 +1,910 @@
+{
+  "version": "2.0",
+  "dataset": "slice100k",
+  "total": 100,
+  "prompt_variants_available": [
+    "descriptive"
+  ],
+  "prompts": [
+    {
+      "id": "100072",
+      "prompt": "A short, solid prismatic block with rounded/filleted long edges, featuring two opposing rectangular side cutouts that create an H-shaped profile when viewed from the left/right. From the front/back it appears as a wide bar with a central web and symmetric recesses on both sides. The geometry suggests a spacer/connector-like part intended to provide clearance or capture around a mating feature while maintaining a stiff central rib. Bounding box: 36.0 x 19.0 x 21.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A short, solid prismatic block with rounded/filleted long edges, featuring two opposing rectangular side cutouts that create an H-shaped profile when viewed from the left/right. From the front/back it appears as a wide bar with a central web and symmetric recesses on both sides. The geometry suggests a spacer/connector-like part intended to provide clearance or capture around a mating feature while maintaining a stiff central rib. Bounding box: 36.0 x 19.0 x 21.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "100173",
+      "prompt": "A single irregular, faceted polyhedral solid resembling a low\u2011poly rock or gemstone. The surface is composed of many planar polygon faces with sharp edges and varying facet sizes, forming an overall rounded/ovoid mass with no openings or appendages. No clear functional features are present; it reads as a decorative or natural-stone-like form. Bounding box: 70.5 x 65.2 x 70.4 mm.",
+      "prompt_variants": {
+        "descriptive": "A single irregular, faceted polyhedral solid resembling a low\u2011poly rock or gemstone. The surface is composed of many planar polygon faces with sharp edges and varying facet sizes, forming an overall rounded/ovoid mass with no openings or appendages. No clear functional features are present; it reads as a decorative or natural-stone-like form. Bounding box: 70.5 x 65.2 x 70.4 mm."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "100330",
+      "prompt": "A flat, dog-bone/figure-eight style link plate made from two rounded-end tabs connected by an offset central web. Each end tab contains a small square through-hole near its rounded tip, and there are shallow rectangular recess/step features near the transitions between the end tabs and the central web. The part appears to be a thin connector/bracket intended for pinned/bolted attachment at both ends. Bounding box: 31.9 x 61.2 x 5.5 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A flat, dog-bone/figure-eight style link plate made from two rounded-end tabs connected by an offset central web. Each end tab contains a small square through-hole near its rounded tip, and there are shallow rectangular recess/step features near the transitions between the end tabs and the central web. The part appears to be a thin connector/bracket intended for pinned/bolted attachment at both ends. Bounding box: 31.9 x 61.2 x 5.5 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "100423",
+      "prompt": "A faceted, low-poly spiral/rosette-like solid with a roughly circular footprint in front/back/side views and a pronounced taper in the top/bottom views. The surface is composed of many planar triangular facets forming a twisted, vortex-like depression toward the center, giving the object a sculptural, turbine/rose-bud appearance. No discrete holes or mounting features are visible; it reads as a decorative or aerodynamic-style twisted form rather than a functional bracket. Bounding box: 6.2 x 6.0 x 11.6 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A faceted, low-poly spiral/rosette-like solid with a roughly circular footprint in front/back/side views and a pronounced taper in the top/bottom views. The surface is composed of many planar triangular facets forming a twisted, vortex-like depression toward the center, giving the object a sculptural, turbine/rose-bud appearance. No discrete holes or mounting features are visible; it reads as a decorative or aerodynamic-style twisted form rather than a functional bracket. Bounding box: 6.2 x 6.0 x 11.6 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1005285",
+      "prompt": "The object is a simple knob- or lollipop-like solid composed of a faceted sphere with a short, centered cylindrical stem attached along one axis. The sphere dominates the volume and the cylinder appears to be coaxial and normal to the sphere\u2019s surface, forming a single-piece rotationally symmetric part. No holes, slots, or secondary features are visible, suggesting a generic handle/peg or decorative cap geometry rather than a detailed mechanical component. Bounding box: 6.8 x 6.8 x 9.9 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "The object is a simple knob- or lollipop-like solid composed of a faceted sphere with a short, centered cylindrical stem attached along one axis. The sphere dominates the volume and the cylinder appears to be coaxial and normal to the sphere\u2019s surface, forming a single-piece rotationally symmetric part. No holes, slots, or secondary features are visible, suggesting a generic handle/peg or decorative cap geometry rather than a detailed mechanical component. Bounding box: 6.8 x 6.8 x 9.9 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "100643",
+      "prompt": "A long, flat rectangular bar with both ends chamfered, carrying two short rectangular prongs that project perpendicularly from one face. The two prongs are spaced along the length and appear to have small step/shoulder features near their free ends, forming a simple two-hook/peg bracket-like geometry for supporting or locating another part. Bounding box: 22.5 x 85.1 x 10.4 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A long, flat rectangular bar with both ends chamfered, carrying two short rectangular prongs that project perpendicularly from one face. The two prongs are spaced along the length and appear to have small step/shoulder features near their free ends, forming a simple two-hook/peg bracket-like geometry for supporting or locating another part. Bounding box: 22.5 x 85.1 x 10.4 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "100728",
+      "prompt": "The object is a simple solid right circular cylinder (a straight round rod) with constant diameter along its full length. All orthographic views are consistent with a uniform cylindrical shaft with flat circular end faces and no secondary features. It resembles a generic pin/dowel/axle-like stock part with no visible holes, steps, or chamfers. Bounding box: 3.0 x 3.0 x 26.0 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "The object is a simple solid right circular cylinder (a straight round rod) with constant diameter along its full length. All orthographic views are consistent with a uniform cylindrical shaft with flat circular end faces and no secondary features. It resembles a generic pin/dowel/axle-like stock part with no visible holes, steps, or chamfers. Bounding box: 3.0 x 3.0 x 26.0 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "101187",
+      "prompt": "The object is a simple rectangular prismatic plate/block with a single obround (rounded-rectangle) through-slot near one end. Across the different orthographic views, the slot appears near the left edge in the front view, near the right edge in the back view, near the top edge in the left view, and near the bottom edge in the right view, indicating it is located close to one corner/edge region of the prism. The overall geometry is otherwise featureless, suggesting a basic mounting/handle slot or clearance feature in a solid plate. Bounding box: 114.0 x 59.5 x 0.8 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a simple rectangular prismatic plate/block with a single obround (rounded-rectangle) through-slot near one end. Across the different orthographic views, the slot appears near the left edge in the front view, near the right edge in the back view, near the top edge in the left view, and near the bottom edge in the right view, indicating it is located close to one corner/edge region of the prism. The overall geometry is otherwise featureless, suggesting a basic mounting/handle slot or clearance feature in a solid plate. Bounding box: 114.0 x 59.5 x 0.8 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "1016856",
+      "prompt": "A rounded-rectangle plate/bracket with multiple through-cut keyhole/dogbone-shaped slots arranged in three rows, plus a stepped thickness profile that forms an L-shaped side silhouette (one end thicker like a boss). The faces show shallow circular recess outlines near the corners and small edge notches at mid-sides, suggesting a mounting/fixture plate intended to accept pins/bolts or provide adjustable tie/strap routing through the slots. Bounding box: 40.0 x 40.0 x 16.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A rounded-rectangle plate/bracket with multiple through-cut keyhole/dogbone-shaped slots arranged in three rows, plus a stepped thickness profile that forms an L-shaped side silhouette (one end thicker like a boss). The faces show shallow circular recess outlines near the corners and small edge notches at mid-sides, suggesting a mounting/fixture plate intended to accept pins/bolts or provide adjustable tie/strap routing through the slots. Bounding box: 40.0 x 40.0 x 16.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "103085",
+      "prompt": "A rigid, L-shaped/C-shaped bracket made from rectangular prismatic members, consisting of a long horizontal beam with a tall vertical end plate on one side and a shorter vertical support/leg on the opposite side. The tall end plate has a sloped/chamfered top face, and the horizontal beam contains a through hexagonal hole (likely for a captive nut or tool access). Overall it resembles a mounting/stand-off bracket intended to support or locate another component across an open span. Bounding box: 55.4 x 31.5 x 37.5 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A rigid, L-shaped/C-shaped bracket made from rectangular prismatic members, consisting of a long horizontal beam with a tall vertical end plate on one side and a shorter vertical support/leg on the opposite side. The tall end plate has a sloped/chamfered top face, and the horizontal beam contains a through hexagonal hole (likely for a captive nut or tool access). Overall it resembles a mounting/stand-off bracket intended to support or locate another component across an open span. Bounding box: 55.4 x 31.5 x 37.5 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "103086",
+      "prompt": "The object is a rigid C-shaped/U-bracket formed from a rectangular bar with two perpendicular end legs, creating an open rectangular throat. One leg is taller and slightly tapered/chamfered at its outer end, while the opposite leg is shorter; a single hexagonal through-hole is located near one end of the long bar, suggesting a fastener or captive-nut feature for mounting or clamping. Bounding box: 55.4 x 31.5 x 37.5 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "The object is a rigid C-shaped/U-bracket formed from a rectangular bar with two perpendicular end legs, creating an open rectangular throat. One leg is taller and slightly tapered/chamfered at its outer end, while the opposite leg is shorter; a single hexagonal through-hole is located near one end of the long bar, suggesting a fastener or captive-nut feature for mounting or clamping. Bounding box: 55.4 x 31.5 x 37.5 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "103087",
+      "prompt": "A long rectangular prismatic bar with chamfered/relieved corners at both ends and a single transverse hexagonal through-hole located near the mid-length. The hole appears to have a shallow V-shaped countersink/counterbore feature on both faces around it. Overall it resembles a simple spacer/link block intended for a hex fastener or hex-shaft pass-through. Bounding box: 16.6 x 55.0 x 20.1 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A long rectangular prismatic bar with chamfered/relieved corners at both ends and a single transverse hexagonal through-hole located near the mid-length. The hole appears to have a shallow V-shaped countersink/counterbore feature on both faces around it. Overall it resembles a simple spacer/link block intended for a hex fastener or hex-shaft pass-through. Bounding box: 16.6 x 55.0 x 20.1 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "103143",
+      "prompt": "A thick-walled cylindrical ring (bushing/collar-like) with a central circular bore and several rectangular cutouts/notches around the circumference. The part appears to be a split or keyed sleeve: the outer surface is mostly cylindrical, while the notches interrupt the ring at multiple angular positions, suggesting indexing, clearance, or engagement features for mating components. Bounding box: 45.0 x 44.6 x 115.0 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A thick-walled cylindrical ring (bushing/collar-like) with a central circular bore and several rectangular cutouts/notches around the circumference. The part appears to be a split or keyed sleeve: the outer surface is mostly cylindrical, while the notches interrupt the ring at multiple angular positions, suggesting indexing, clearance, or engagement features for mating components. Bounding box: 45.0 x 44.6 x 115.0 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "103145",
+      "prompt": "A thick, flat annular ring (washer-like collar) with a large central circular opening and several evenly spaced rectangular notches cut into the inner diameter. Two small external tabs/protrusions appear on the outer rim at one location, suggesting a keyed/retained orientation feature. The part is essentially a short cylindrical band with constant thickness, likely serving as a spacer, retaining ring, or alignment collar. Bounding box: 60.0 x 60.6 x 11.8 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thick, flat annular ring (washer-like collar) with a large central circular opening and several evenly spaced rectangular notches cut into the inner diameter. Two small external tabs/protrusions appear on the outer rim at one location, suggesting a keyed/retained orientation feature. The part is essentially a short cylindrical band with constant thickness, likely serving as a spacer, retaining ring, or alignment collar. Bounding box: 60.0 x 60.6 x 11.8 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "103284",
+      "prompt": "The object is a faceted polyhedral solid resembling a truncated prism: it has a larger, flat polygonal top face and a smaller polygonal bottom face connected by sloped planar side facets. The front/back/left/right orthographic views appear as a regular-looking polygon silhouette, while the top/bottom views reveal the taper and the transition from vertical upper walls to angled lower faces. No holes, cutouts, or secondary attachments are visible; it reads as a single-piece geometric block or knob-like form. Bounding box: 39.4 x 37.7 x 36.4 mm.",
+      "prompt_variants": {
+        "descriptive": "The object is a faceted polyhedral solid resembling a truncated prism: it has a larger, flat polygonal top face and a smaller polygonal bottom face connected by sloped planar side facets. The front/back/left/right orthographic views appear as a regular-looking polygon silhouette, while the top/bottom views reveal the taper and the transition from vertical upper walls to angled lower faces. No holes, cutouts, or secondary attachments are visible; it reads as a single-piece geometric block or knob-like form. Bounding box: 39.4 x 37.7 x 36.4 mm."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1036310",
+      "prompt": "A short, solid cylindrical disk with a single circular through-hole located on the central axis, forming a simple washer/spacer-like part. The outer surface is a smooth cylinder and the two end faces are flat and parallel, with the hole passing completely through the thickness. The geometry suggests use as a spacer, bushing, or washer for locating/clearance around a shaft or fastener. Bounding box: 20.0 x 20.0 x 18.0 mm.",
+      "prompt_variants": {
+        "descriptive": "A short, solid cylindrical disk with a single circular through-hole located on the central axis, forming a simple washer/spacer-like part. The outer surface is a smooth cylinder and the two end faces are flat and parallel, with the hole passing completely through the thickness. The geometry suggests use as a spacer, bushing, or washer for locating/clearance around a shaft or fastener. Bounding box: 20.0 x 20.0 x 18.0 mm."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1036395",
+      "prompt": "A thick annular ring resembling a spur gear or toothed washer, with evenly spaced rectangular teeth/lugs around the outer circumference and a circular through-bore at the center. The part is axially symmetric and appears to be a single-piece disk with constant thickness, suitable for indexing/engagement or torque transmission via the outer lugs. Bounding box: 23.5 x 23.5 x 7.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thick annular ring resembling a spur gear or toothed washer, with evenly spaced rectangular teeth/lugs around the outer circumference and a circular through-bore at the center. The part is axially symmetric and appears to be a single-piece disk with constant thickness, suitable for indexing/engagement or torque transmission via the outer lugs. Bounding box: 23.5 x 23.5 x 7.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "1036400",
+      "prompt": "The object is a simple hollow cylindrical sleeve (tube/spacer) with a concentric through-bore. In the orthographic end views it appears as an annulus (ring), and the side views show a constant-diameter cylinder with uniform wall thickness and no additional external features. It functions geometrically as a bushing/spacer or standoff component for guiding or separating parts around a shaft/bolt. Bounding box: 6.3 x 6.3 x 25.7 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "The object is a simple hollow cylindrical sleeve (tube/spacer) with a concentric through-bore. In the orthographic end views it appears as an annulus (ring), and the side views show a constant-diameter cylinder with uniform wall thickness and no additional external features. It functions geometrically as a bushing/spacer or standoff component for guiding or separating parts around a shaft/bolt. Bounding box: 6.3 x 6.3 x 25.7 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "103824",
+      "prompt": "A small U-shaped bracket/clip with a rounded outer back and an open front, forming a shallow channel. The part has two opposing internal cylindrical bosses/holes near the upper and lower regions of the side walls, and small front-edge tabs/lips at the open end. Overall it resembles a snap-on or retaining clip intended to capture a mating piece within the channel and possibly accept pins/screws through the side features. Bounding box: 22.1 x 24.3 x 79.0 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A small U-shaped bracket/clip with a rounded outer back and an open front, forming a shallow channel. The part has two opposing internal cylindrical bosses/holes near the upper and lower regions of the side walls, and small front-edge tabs/lips at the open end. Overall it resembles a snap-on or retaining clip intended to capture a mating piece within the channel and possibly accept pins/screws through the side features. Bounding box: 22.1 x 24.3 x 79.0 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "103825",
+      "prompt": "A small U-shaped bracket/clip with a rounded outer back and an open front, forming a shallow channel. The part has two opposing cylindrical through-holes on the side walls near the upper region and small end tabs/lips at the open edge, with generous internal fillets. It appears intended as a retaining or mounting clip that captures a mating piece within the channel and can be pinned/fastened through the side holes. Bounding box: 22.1 x 24.3 x 79.0 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A small U-shaped bracket/clip with a rounded outer back and an open front, forming a shallow channel. The part has two opposing cylindrical through-holes on the side walls near the upper region and small end tabs/lips at the open edge, with generous internal fillets. It appears intended as a retaining or mounting clip that captures a mating piece within the channel and can be pinned/fastened through the side holes. Bounding box: 22.1 x 24.3 x 79.0 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "104294",
+      "prompt": "A long, thin, flat plate-like part resembling a comb or rack, with a series of evenly spaced rectangular slots/teeth running along most of its length. One end has a pointed, chamfered tip, while the opposite end has a wider mounting tab with two circular through-holes and a central gear-like (scalloped) cutout. The geometry suggests a lightweight, slotted strip intended for indexing/engagement or as a mounting/adjustment rack. Bounding box: 24.4 x 99.3 x 2.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A long, thin, flat plate-like part resembling a comb or rack, with a series of evenly spaced rectangular slots/teeth running along most of its length. One end has a pointed, chamfered tip, while the opposite end has a wider mounting tab with two circular through-holes and a central gear-like (scalloped) cutout. The geometry suggests a lightweight, slotted strip intended for indexing/engagement or as a mounting/adjustment rack. Bounding box: 24.4 x 99.3 x 2.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "104301",
+      "prompt": "A long, narrow prismatic bar/strap with a series of evenly spaced circular through-holes along its length and a U-shaped forked slot at one end. The opposite end is squared/flat, while the fork end has two parallel tines separated by a rectangular opening. The geometry suggests a lightweight linkage/brace or adjustable mounting strap intended to accept pins/bolts through the holes and engage another part with the fork. Bounding box: 105.1 x 9.7 x 12.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A long, narrow prismatic bar/strap with a series of evenly spaced circular through-holes along its length and a U-shaped forked slot at one end. The opposite end is squared/flat, while the fork end has two parallel tines separated by a rectangular opening. The geometry suggests a lightweight linkage/brace or adjustable mounting strap intended to accept pins/bolts through the holes and engage another part with the fork. Bounding box: 105.1 x 9.7 x 12.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1043461",
+      "prompt": "The object is a symmetric, elongated bracket/strap-like part with a thicker central block containing a square through-window. Two wide rectangular arms extend from the central section in opposite directions, with slight step/fillet transitions at the junctions. The top/bottom views show multiple longitudinal ribs/fins on one face, suggesting a stiffened mounting or clamping component. Bounding box: 10.9 x 43.9 x 10.6 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "The object is a symmetric, elongated bracket/strap-like part with a thicker central block containing a square through-window. Two wide rectangular arms extend from the central section in opposite directions, with slight step/fillet transitions at the junctions. The top/bottom views show multiple longitudinal ribs/fins on one face, suggesting a stiffened mounting or clamping component. Bounding box: 10.9 x 43.9 x 10.6 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "104403",
+      "prompt": "A compact, block-like mechanical part with a central through cylindrical bore and a surrounding rectangular body. The exterior has small centered tabs on the top and bottom faces and small lateral protrusions on the left and right sides, giving it a keyed/locating profile. Overall it resembles a bushing or hub-style spacer intended to locate on a shaft while being constrained in a housing. Bounding box: 22.0 x 22.0 x 37.6 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A compact, block-like mechanical part with a central through cylindrical bore and a surrounding rectangular body. The exterior has small centered tabs on the top and bottom faces and small lateral protrusions on the left and right sides, giving it a keyed/locating profile. Overall it resembles a bushing or hub-style spacer intended to locate on a shaft while being constrained in a housing. Bounding box: 22.0 x 22.0 x 37.6 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1044251",
+      "prompt": "A thick annular ring (washer-like disk) with a central circular through-bore and a series of evenly spaced rectangular lugs/teeth around the outer circumference. The part appears uniform in thickness with flat parallel faces and a toothed outer profile, consistent with a simple gear-like or castellated ring used for indexing, locking, or torque transmission on a shaft. Bounding box: 23.5 x 23.5 x 7.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thick annular ring (washer-like disk) with a central circular through-bore and a series of evenly spaced rectangular lugs/teeth around the outer circumference. The part appears uniform in thickness with flat parallel faces and a toothed outer profile, consistent with a simple gear-like or castellated ring used for indexing, locking, or torque transmission on a shaft. Bounding box: 23.5 x 23.5 x 7.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "104431",
+      "prompt": "A prismatic solid resembling a chamfered rectangular block, with all four vertical edges beveled and the top and bottom faces tapered so the plan view is wider at mid-length and narrower at both ends. The front/back/left/right faces appear mostly flat with a subtle inset/inner rectangular panel effect created by the edge chamfers. No holes, slots, or separate attachments are visible; it reads as a single-piece spacer or decorative/structural block. Bounding box: 0.8 x 0.8 x 2.0 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A prismatic solid resembling a chamfered rectangular block, with all four vertical edges beveled and the top and bottom faces tapered so the plan view is wider at mid-length and narrower at both ends. The front/back/left/right faces appear mostly flat with a subtle inset/inner rectangular panel effect created by the edge chamfers. No holes, slots, or separate attachments are visible; it reads as a single-piece spacer or decorative/structural block. Bounding box: 0.8 x 0.8 x 2.0 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "104445",
+      "prompt": "The object is a simple rectangular block (cuboid) with slightly beveled/chamfered edges around its perimeter. All faces appear flat with no cutouts, holes, or protruding features, giving it the appearance of a plain spacer or solid brick-like part. Bounding box: 0.8 x 0.8 x 1.2 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "The object is a simple rectangular block (cuboid) with slightly beveled/chamfered edges around its perimeter. All faces appear flat with no cutouts, holes, or protruding features, giving it the appearance of a plain spacer or solid brick-like part. Bounding box: 0.8 x 0.8 x 1.2 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "104930",
+      "prompt": "A small U-shaped bracket/clip with a rounded outer back and an open front mouth, forming a shallow channel. The part has two opposing circular through-holes on the side walls (one per side) and small top-front corner tabs/lips, with generous fillets on the outer perimeter. It appears intended as a retaining or mounting clip that captures a mating piece within the U-channel and can be pinned/bolted through the side holes. Bounding box: 22.1 x 24.3 x 79.0 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A small U-shaped bracket/clip with a rounded outer back and an open front mouth, forming a shallow channel. The part has two opposing circular through-holes on the side walls (one per side) and small top-front corner tabs/lips, with generous fillets on the outer perimeter. It appears intended as a retaining or mounting clip that captures a mating piece within the U-channel and can be pinned/bolted through the side holes. Bounding box: 22.1 x 24.3 x 79.0 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "105103",
+      "prompt": "The object is a long, flat, blade-like bar with a single serrated edge made of evenly spaced triangular teeth and a pointed/chamfered tip at one end. The opposite end is a wider mounting plate (diamond/arrowhead shaped) containing two circular through-holes and a central gear/star-shaped cutout, suggesting it is meant to be fastened or indexed onto another component. Overall it resembles a serrated rack/knife insert or cutting/ratcheting strip designed for engagement or cutting along one side while being bolted at the base. Bounding box: 24.4 x 99.3 x 3.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a long, flat, blade-like bar with a single serrated edge made of evenly spaced triangular teeth and a pointed/chamfered tip at one end. The opposite end is a wider mounting plate (diamond/arrowhead shaped) containing two circular through-holes and a central gear/star-shaped cutout, suggesting it is meant to be fastened or indexed onto another component. Overall it resembles a serrated rack/knife insert or cutting/ratcheting strip designed for engagement or cutting along one side while being bolted at the base. Bounding box: 24.4 x 99.3 x 3.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1053374",
+      "prompt": "A small bracket-like part consisting of a thick circular lug with a through-hole, attached to a flat base/arm that extends to a rectangular pad at one end. The arm includes a U-shaped relief/notch between the lug and the end pad, and the end pad is angled relative to the main body, suggesting a hook/stop or contact surface. Overall it resembles a mounting/lever bracket with a pivot/fastener hole and an offset tab. Bounding box: 19.6 x 12.4 x 12.4 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A small bracket-like part consisting of a thick circular lug with a through-hole, attached to a flat base/arm that extends to a rectangular pad at one end. The arm includes a U-shaped relief/notch between the lug and the end pad, and the end pad is angled relative to the main body, suggesting a hook/stop or contact surface. Overall it resembles a mounting/lever bracket with a pivot/fastener hole and an offset tab. Bounding box: 19.6 x 12.4 x 12.4 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "1054518",
+      "prompt": "A stepped cylindrical bushing/spacer consisting of a larger-diameter base flange with a smaller-diameter upper boss, both coaxial. A through cylindrical bore runs along the central axis, and the upper boss has a side cutout/flat that opens the bore to the exterior, creating a C-shaped opening at the top section. The geometry suggests a locating/spacing component with a relief for access or clamping around a shaft/pin. Bounding box: 10.1 x 10.2 x 8.0 mm.",
+      "prompt_variants": {
+        "descriptive": "A stepped cylindrical bushing/spacer consisting of a larger-diameter base flange with a smaller-diameter upper boss, both coaxial. A through cylindrical bore runs along the central axis, and the upper boss has a side cutout/flat that opens the bore to the exterior, creating a C-shaped opening at the top section. The geometry suggests a locating/spacing component with a relief for access or clamping around a shaft/pin. Bounding box: 10.1 x 10.2 x 8.0 mm."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "105688",
+      "prompt": "A split cylindrical sleeve/collar: a thick-walled ring extruded into a short tube with a full-length axial slit that opens the cylinder into a C-shape. The inner bore is circular with several small internal relief notches/steps near the slit, suggesting a snap-on or clamping spacer/bushing that can be installed over a shaft without sliding from an end. Bounding box: 19.5 x 18.9 x 78.5 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A split cylindrical sleeve/collar: a thick-walled ring extruded into a short tube with a full-length axial slit that opens the cylinder into a C-shape. The inner bore is circular with several small internal relief notches/steps near the slit, suggesting a snap-on or clamping spacer/bushing that can be installed over a shaft without sliding from an end. Bounding box: 19.5 x 18.9 x 78.5 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "105692",
+      "prompt": "A thick, octagonal outer ring (nut-like profile) with a large circular through-bore. The inner bore has two opposing rectangular keyway/notch cutouts, and the outer perimeter includes a pair of small cylindrical pins/tabs protruding from one face near one edge. Overall it resembles a keyed retaining/lock ring or collar intended to locate on a shaft/bore and provide anti-rotation indexing. Bounding box: 29.8 x 30.9 x 6.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thick, octagonal outer ring (nut-like profile) with a large circular through-bore. The inner bore has two opposing rectangular keyway/notch cutouts, and the outer perimeter includes a pair of small cylindrical pins/tabs protruding from one face near one edge. Overall it resembles a keyed retaining/lock ring or collar intended to locate on a shaft/bore and provide anti-rotation indexing. Bounding box: 29.8 x 30.9 x 6.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "1066901",
+      "prompt": "A thin, flat plate-like bracket with an overall rounded-rectangle outline and a stepped extension on one end that terminates in a U-shaped open notch. The main body contains six evenly sized circular through-holes arranged in a 2\u00d73 grid, plus a single smaller circular through-hole near the rounded end. The part appears to be a lightweight mounting/fixture plate intended for fastening and locating components via the hole pattern and end notch. Bounding box: 108.0 x 31.0 x 3.5 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thin, flat plate-like bracket with an overall rounded-rectangle outline and a stepped extension on one end that terminates in a U-shaped open notch. The main body contains six evenly sized circular through-holes arranged in a 2\u00d73 grid, plus a single smaller circular through-hole near the rounded end. The part appears to be a lightweight mounting/fixture plate intended for fastening and locating components via the hole pattern and end notch. Bounding box: 108.0 x 31.0 x 3.5 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "106705",
+      "prompt": "A thin, plate-like mounting bracket/frame with a large central rectangular cutout and several smaller rectangular window cutouts arranged in a row. It includes a prominent circular through-hole ring feature on one end and multiple small fastener through-holes on outward tabs around the perimeter. The part appears intended as a lightweight mounting/adapter plate for holding or aligning components while providing clearance openings and screw attachment points. Bounding box: 81.2 x 68.5 x 10.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thin, plate-like mounting bracket/frame with a large central rectangular cutout and several smaller rectangular window cutouts arranged in a row. It includes a prominent circular through-hole ring feature on one end and multiple small fastener through-holes on outward tabs around the perimeter. The part appears intended as a lightweight mounting/adapter plate for holding or aligning components while providing clearance openings and screw attachment points. Bounding box: 81.2 x 68.5 x 10.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1071710",
+      "prompt": "A thin, constant-thickness bracket-like part consisting of a central rectangular pad with two long arms extending from opposite sides. The arms are angled relative to the pad (forming a shallow V/boomerang profile in side views) and blend into the pad with large filleted/concave transitions. No holes or cutouts are visible; the geometry suggests a simple bent/formed strap or clip component. Bounding box: 11.0 x 43.9 x 10.9 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A thin, constant-thickness bracket-like part consisting of a central rectangular pad with two long arms extending from opposite sides. The arms are angled relative to the pad (forming a shallow V/boomerang profile in side views) and blend into the pad with large filleted/concave transitions. No holes or cutouts are visible; the geometry suggests a simple bent/formed strap or clip component. Bounding box: 11.0 x 43.9 x 10.9 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "107389",
+      "prompt": "A small mounting clip/bracket consisting of a broad, rounded rectangular base plate with a central raised spine and a U-shaped, forward-projecting cradle. The cradle is formed by a curved arm with two short cylindrical/rounded end nubs, creating an open hook-like seat intended to retain or support a rod/tube/cable against the base. Bounding box: 5.4 x 1.4 x 9.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A small mounting clip/bracket consisting of a broad, rounded rectangular base plate with a central raised spine and a U-shaped, forward-projecting cradle. The cradle is formed by a curved arm with two short cylindrical/rounded end nubs, creating an open hook-like seat intended to retain or support a rod/tube/cable against the base. Bounding box: 5.4 x 1.4 x 9.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "107390",
+      "prompt": "A curved, C-shaped clamp/brace segment with a faceted outer surface and a concave inner channel. The part is a partial ring (arc) with two squared-off end tabs that appear slightly thickened, suggesting it is meant to clip around or support a cylindrical object. Overall geometry is symmetric about the mid-plane of the arc and resembles a segmented pipe/handlebar clamp insert. Bounding box: 3.0 x 1.2 x 9.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A curved, C-shaped clamp/brace segment with a faceted outer surface and a concave inner channel. The part is a partial ring (arc) with two squared-off end tabs that appear slightly thickened, suggesting it is meant to clip around or support a cylindrical object. Overall geometry is symmetric about the mid-plane of the arc and resembles a segmented pipe/handlebar clamp insert. Bounding box: 3.0 x 1.2 x 9.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "107391",
+      "prompt": "A thin, rounded-rectangle plate-like part with a slightly tapered outline and shallow side scallops/notches on both left and right edges. The top and bottom faces appear mostly flat with subtle diagonal surface contouring/rib-like relief, and the perimeter has generous fillets. It resembles a small cover/guard or spacer plate intended to sit flush against another surface. Bounding box: 5.4 x 0.6 x 6.7 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A thin, rounded-rectangle plate-like part with a slightly tapered outline and shallow side scallops/notches on both left and right edges. The top and bottom faces appear mostly flat with subtle diagonal surface contouring/rib-like relief, and the perimeter has generous fillets. It resembles a small cover/guard or spacer plate intended to sit flush against another surface. Bounding box: 5.4 x 0.6 x 6.7 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "107392",
+      "prompt": "The object is a simple rounded rectangular block (a capsule-like prism) with large fillets on the long edges and slightly radiused/rounded ends. All views show a solid, featureless exterior with no holes, cutouts, or attachments, suggesting it is a generic spacer/cover-like solid rather than a detailed functional part. Bounding box: 2.6 x 1.1 x 8.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "The object is a simple rounded rectangular block (a capsule-like prism) with large fillets on the long edges and slightly radiused/rounded ends. All views show a solid, featureless exterior with no holes, cutouts, or attachments, suggesting it is a generic spacer/cover-like solid rather than a detailed functional part. Bounding box: 2.6 x 1.1 x 8.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "107402",
+      "prompt": "A curved, C-shaped segment of a hollow cylindrical sleeve (a partial ring/pipe section) with a constant wall thickness and faceted outer surface. The part forms an arc with open ends and a concave inner radius, resembling a clamp or collar segment intended to wrap around a round shaft or tube. Bounding box: 3.5 x 1.7 x 9.1 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A curved, C-shaped segment of a hollow cylindrical sleeve (a partial ring/pipe section) with a constant wall thickness and faceted outer surface. The part forms an arc with open ends and a concave inner radius, resembling a clamp or collar segment intended to wrap around a round shaft or tube. Bounding box: 3.5 x 1.7 x 9.1 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "107445",
+      "prompt": "The object is a split cylindrical sleeve/collar: a thick-walled ring extruded into a long tube with a full-length axial gap, forming a C-shaped cross-section. The inner bore is circular and includes several small internal steps/notches near one end, while the outer surface is largely smooth and cylindrical. This geometry suggests a clamp/spacer-style sleeve intended to snap over or grip a shaft/pipe while allowing radial flex due to the slit. Bounding box: 19.5 x 18.9 x 78.5 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "The object is a split cylindrical sleeve/collar: a thick-walled ring extruded into a long tube with a full-length axial gap, forming a C-shaped cross-section. The inner bore is circular and includes several small internal steps/notches near one end, while the outer surface is largely smooth and cylindrical. This geometry suggests a clamp/spacer-style sleeve intended to snap over or grip a shaft/pipe while allowing radial flex due to the slit. Bounding box: 19.5 x 18.9 x 78.5 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1079828",
+      "prompt": "A long, thin rectangular strip-like part with a shallow V-shaped (saddle) profile along its length, creating a central low point and higher ends when viewed from the front/back. The top face appears flat in plan view, while the bottom view shows slight end steps/shoulders and a subtle mid-length seam/transition, suggesting a single-piece bar with localized thickness changes. Function is not explicit, but the geometry resembles a contoured spacer/cover strip or a shallow channel-like support element. Bounding box: 61.0 x 12.8 x 5.1 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A long, thin rectangular strip-like part with a shallow V-shaped (saddle) profile along its length, creating a central low point and higher ends when viewed from the front/back. The top face appears flat in plan view, while the bottom view shows slight end steps/shoulders and a subtle mid-length seam/transition, suggesting a single-piece bar with localized thickness changes. Function is not explicit, but the geometry resembles a contoured spacer/cover strip or a shallow channel-like support element. Bounding box: 61.0 x 12.8 x 5.1 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "108321",
+      "prompt": "A low-profile hexagonal ring/collar with a large central circular through-opening and a recessed inner annulus. Around the inner perimeter are evenly spaced rectangular lugs/teeth (approximately 10) that protrude radially inward, creating a castellated/drive-like profile. The part reads as a spacer/retainer or coupling collar intended to locate or engage another cylindrical component via the internal lugs. Bounding box: 46.2 x 40.0 x 10.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A low-profile hexagonal ring/collar with a large central circular through-opening and a recessed inner annulus. Around the inner perimeter are evenly spaced rectangular lugs/teeth (approximately 10) that protrude radially inward, creating a castellated/drive-like profile. The part reads as a spacer/retainer or coupling collar intended to locate or engage another cylindrical component via the internal lugs. Bounding box: 46.2 x 40.0 x 10.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "108328",
+      "prompt": "A hexagonal prismatic block (hex-head style) with a single small circular through-hole near the center of the broad face and a diagonal recessed band/groove running across that face. The top/bottom views show a mostly constant thickness with slight end chamfers/steps and a small notch-like relief on one end, suggesting a simple machined spacer/fixture block with a locating or fastener hole and a face groove. Bounding box: 46.2 x 40.0 x 7.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A hexagonal prismatic block (hex-head style) with a single small circular through-hole near the center of the broad face and a diagonal recessed band/groove running across that face. The top/bottom views show a mostly constant thickness with slight end chamfers/steps and a small notch-like relief on one end, suggesting a simple machined spacer/fixture block with a locating or fastener hole and a face groove. Bounding box: 46.2 x 40.0 x 7.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "108329",
+      "prompt": "A thick hexagonal plate/block with a small circular through-hole near the center and several shallow rectangular steps/notches around the perimeter. The top and bottom faces show asymmetric cutouts/reliefs, giving the part a stepped profile in elevation. Overall it resembles a hex-head spacer/fixture plate intended to be located or fastened via the central hole while providing keyed/clearance features on the outer edge. Bounding box: 46.2 x 40.0 x 19.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thick hexagonal plate/block with a small circular through-hole near the center and several shallow rectangular steps/notches around the perimeter. The top and bottom faces show asymmetric cutouts/reliefs, giving the part a stepped profile in elevation. Overall it resembles a hex-head spacer/fixture plate intended to be located or fastened via the central hole while providing keyed/clearance features on the outer edge. Bounding box: 46.2 x 40.0 x 19.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "108330",
+      "prompt": "A thick hexagonal prism (nut-like body) with a single circular through-hole located near the center of one face. Two opposing faces include shallow V-shaped/angled recessed grooves that meet at a small flat land, creating a chevron-like relief across the face; the part is otherwise flat on top and bottom with uniform thickness. The geometry suggests a simple mechanical spacer/fixture block or decorative/locating feature rather than a threaded fastener (no threads visible). Bounding box: 46.2 x 40.0 x 7.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thick hexagonal prism (nut-like body) with a single circular through-hole located near the center of one face. Two opposing faces include shallow V-shaped/angled recessed grooves that meet at a small flat land, creating a chevron-like relief across the face; the part is otherwise flat on top and bottom with uniform thickness. The geometry suggests a simple mechanical spacer/fixture block or decorative/locating feature rather than a threaded fastener (no threads visible). Bounding box: 46.2 x 40.0 x 7.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "1083348",
+      "prompt": "A hollow cylindrical ring (torus-like collar) with a single small rectangular lug protruding radially from the outer diameter. The part is essentially a thick-walled circular sleeve with a through-bore, and the lug appears to be an attachment/stop feature for mounting or indexing. Overall geometry is dominated by the annular body with one asymmetric tab feature. Bounding box: 22.0 x 19.0 x 82.5 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A hollow cylindrical ring (torus-like collar) with a single small rectangular lug protruding radially from the outer diameter. The part is essentially a thick-walled circular sleeve with a through-bore, and the lug appears to be an attachment/stop feature for mounting or indexing. Overall geometry is dominated by the annular body with one asymmetric tab feature. Bounding box: 22.0 x 19.0 x 82.5 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1083353",
+      "prompt": "The object is a simple hollow right circular cylinder (a tube/bushing) with a concentric through-bore. All orthographic views indicate constant outer diameter and constant inner diameter along its full length, with flat end faces and no additional features. Functionally it resembles a spacer sleeve or plain bushing for guiding/spacing around a shaft. Bounding box: 15.0 x 15.0 x 82.5 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "The object is a simple hollow right circular cylinder (a tube/bushing) with a concentric through-bore. All orthographic views indicate constant outer diameter and constant inner diameter along its full length, with flat end faces and no additional features. Functionally it resembles a spacer sleeve or plain bushing for guiding/spacing around a shaft. Bounding box: 15.0 x 15.0 x 82.5 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1083354",
+      "prompt": "The object is an axisymmetric hollow tube/bushing with a central through-bore and a stepped/tapered outer profile. In side views it appears as two cylindrical sections of different diameters connected by a short conical (frustum) transition, forming a necked midsection. It resembles a reducer sleeve or spacer that provides a through passage while changing the outer diameter along its length. Bounding box: 19.0 x 19.0 x 97.5 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "The object is an axisymmetric hollow tube/bushing with a central through-bore and a stepped/tapered outer profile. In side views it appears as two cylindrical sections of different diameters connected by a short conical (frustum) transition, forming a necked midsection. It resembles a reducer sleeve or spacer that provides a through passage while changing the outer diameter along its length. Bounding box: 19.0 x 19.0 x 97.5 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "108337",
+      "prompt": "A flat, hexagonal plate (hex-prism) with a single circular through-hole near the center and two shallow, parallel diagonal grooves on one face. The part has small step-like thickness changes along the perimeter/edge profile visible in top/bottom views, suggesting a simple machined or molded spacer/cover plate with alignment or grip grooves. Bounding box: 46.2 x 40.0 x 8.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A flat, hexagonal plate (hex-prism) with a single circular through-hole near the center and two shallow, parallel diagonal grooves on one face. The part has small step-like thickness changes along the perimeter/edge profile visible in top/bottom views, suggesting a simple machined or molded spacer/cover plate with alignment or grip grooves. Bounding box: 46.2 x 40.0 x 8.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "108341",
+      "prompt": "The object is a hexagonal flat plate (hex-prism) with a centrally mounted hemispherical dome/boss that protrudes from one face. A small circular through-hole is located at the center of the dome, aligned with the plate\u2019s center axis. Overall it resembles a hex-head cap/cover or knob-like fastener head with a central bore. Bounding box: 46.2 x 40.0 x 29.9 mm.",
+      "prompt_variants": {
+        "descriptive": "The object is a hexagonal flat plate (hex-prism) with a centrally mounted hemispherical dome/boss that protrudes from one face. A small circular through-hole is located at the center of the dome, aligned with the plate\u2019s center axis. Overall it resembles a hex-head cap/cover or knob-like fastener head with a central bore. Bounding box: 46.2 x 40.0 x 29.9 mm."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "108518",
+      "prompt": "A thick circular ring (annulus) with a large central through-bore and several evenly spaced rectangular notches cut into the inner circumference. The part has a constant axial thickness and appears to be a spacer/retaining ring or collar-like component intended to locate or engage with mating tabs/keys around a cylindrical assembly. Bounding box: 60.0 x 59.6 x 11.8 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thick circular ring (annulus) with a large central through-bore and several evenly spaced rectangular notches cut into the inner circumference. The part has a constant axial thickness and appears to be a spacer/retaining ring or collar-like component intended to locate or engage with mating tabs/keys around a cylindrical assembly. Bounding box: 60.0 x 59.6 x 11.8 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "108616",
+      "prompt": "A thin, flat, paddle-like plate with a rectangular window cutout in a rounded-rectangle head, transitioning through a tapered neck into a long, narrow rectangular handle/shaft. The head includes two small circular through-holes located near opposite ends of the window opening. Overall it resembles a tag/fixture plate or handle plate intended for mounting or attachment via the holes while providing a large central clearance opening. Bounding box: 73.0 x 20.0 x 4.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thin, flat, paddle-like plate with a rectangular window cutout in a rounded-rectangle head, transitioning through a tapered neck into a long, narrow rectangular handle/shaft. The head includes two small circular through-holes located near opposite ends of the window opening. Overall it resembles a tag/fixture plate or handle plate intended for mounting or attachment via the holes while providing a large central clearance opening. Bounding box: 73.0 x 20.0 x 4.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "108618",
+      "prompt": "A thin, flat rectangular faceplate/frame with rounded corners and multiple cutouts. It has two large rectangular window openings side-by-side, two small circular holes centered between those windows, and one small circular mounting hole near each end. The part appears intended as a mounting bezel or panel insert for two rectangular modules with additional central fasteners/indicators. Bounding box: 65.0 x 20.0 x 4.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thin, flat rectangular faceplate/frame with rounded corners and multiple cutouts. It has two large rectangular window openings side-by-side, two small circular holes centered between those windows, and one small circular mounting hole near each end. The part appears intended as a mounting bezel or panel insert for two rectangular modules with additional central fasteners/indicators. Bounding box: 65.0 x 20.0 x 4.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "108620",
+      "prompt": "A stepped, axisymmetric cylindrical part consisting of two coaxial circular sections: a larger-diameter, short flange (disk) and a smaller-diameter cylindrical boss protruding from one face. The boss is centered on the flange, forming a simple shoulder; no through-holes or external cutouts are visible. This geometry resembles a generic spacer/bushing or flanged hub component intended to locate or support another part concentrically. Bounding box: 8.6 x 8.6 x 6.2 mm.",
+      "prompt_variants": {
+        "descriptive": "A stepped, axisymmetric cylindrical part consisting of two coaxial circular sections: a larger-diameter, short flange (disk) and a smaller-diameter cylindrical boss protruding from one face. The boss is centered on the flange, forming a simple shoulder; no through-holes or external cutouts are visible. This geometry resembles a generic spacer/bushing or flanged hub component intended to locate or support another part concentrically. Bounding box: 8.6 x 8.6 x 6.2 mm."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "108693",
+      "prompt": "The object is a radial starburst/asterisk-like 3D form made from multiple rectangular prismatic spokes intersecting at a central hub. It has one dominant long bar passing straight through the center and several shorter spokes arranged around it at different angles, creating a multi-directional cross. No holes or cutouts are visible; it reads as a decorative or structural spacer-like element rather than a functional mechanism. Bounding box: 37.7 x 40.0 x 5.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a radial starburst/asterisk-like 3D form made from multiple rectangular prismatic spokes intersecting at a central hub. It has one dominant long bar passing straight through the center and several shorter spokes arranged around it at different angles, creating a multi-directional cross. No holes or cutouts are visible; it reads as a decorative or structural spacer-like element rather than a functional mechanism. Bounding box: 37.7 x 40.0 x 5.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "109136",
+      "prompt": "A flat hexagonal plate (regular hexagon in plan) with a single circular through-hole located at the center. The part has a mostly uniform thickness with a small localized step/boss feature visible in the top/bottom views, suggesting a shallow raised (or recessed) pad on one face around the mid-span. Overall it resembles a simple spacer/washer-like plate intended for fastening or locating via the central hole. Bounding box: 35.0 x 30.3 x 4.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A flat hexagonal plate (regular hexagon in plan) with a single circular through-hole located at the center. The part has a mostly uniform thickness with a small localized step/boss feature visible in the top/bottom views, suggesting a shallow raised (or recessed) pad on one face around the mid-span. Overall it resembles a simple spacer/washer-like plate intended for fastening or locating via the central hole. Bounding box: 35.0 x 30.3 x 4.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "109138",
+      "prompt": "The object is a flat, hexagonal plate (nut-like profile) with a centered circular through-hole. It appears to be a thin prismatic solid with slight stepped thickness features visible in the top/bottom views, suggesting a shallow boss/recess around the midsection. Functionally it resembles a hex washer/spacer or a simplified hex nut/plate intended to be fastened around a central bolt or shaft. Bounding box: 25.0 x 21.7 x 4.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a flat, hexagonal plate (nut-like profile) with a centered circular through-hole. It appears to be a thin prismatic solid with slight stepped thickness features visible in the top/bottom views, suggesting a shallow boss/recess around the midsection. Functionally it resembles a hex washer/spacer or a simplified hex nut/plate intended to be fastened around a central bolt or shaft. Bounding box: 25.0 x 21.7 x 4.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1093114",
+      "prompt": "A symmetric four-armed cross-like component with a central rounded hub and four identical elongated arms radiating at 90\u00b0 increments (forming an \u201cX\u201d in front/back views). In top/bottom views the arms appear as thick, rounded loop/teardrop-shaped members with large internal cutouts, meeting at a central rectangular junction; a small cylindrical peg/boss protrudes from the center on one side. Overall it resembles a rotor/propeller-like or knobbed cross bracket where the hub and peg could serve as a mounting/drive interface. Bounding box: 47.8 x 47.8 x 14.3 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A symmetric four-armed cross-like component with a central rounded hub and four identical elongated arms radiating at 90\u00b0 increments (forming an \u201cX\u201d in front/back views). In top/bottom views the arms appear as thick, rounded loop/teardrop-shaped members with large internal cutouts, meeting at a central rectangular junction; a small cylindrical peg/boss protrudes from the center on one side. Overall it resembles a rotor/propeller-like or knobbed cross bracket where the hub and peg could serve as a mounting/drive interface. Bounding box: 47.8 x 47.8 x 14.3 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "109375",
+      "prompt": "The object is a long, slender bar/rod with several evenly spaced perpendicular crossbars (tabs) forming repeated \u201cT\u201d intersections along its length. In side views it appears as a vertical spine with multiple short horizontal arms at different heights, suggesting a simple rack/rail-like element with regularly spaced protrusions for spacing, indexing, or hanging. Bounding box: 149.2 x 27.2 x 2.6 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a long, slender bar/rod with several evenly spaced perpendicular crossbars (tabs) forming repeated \u201cT\u201d intersections along its length. In side views it appears as a vertical spine with multiple short horizontal arms at different heights, suggesting a simple rack/rail-like element with regularly spaced protrusions for spacing, indexing, or hanging. Bounding box: 149.2 x 27.2 x 2.6 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "110029",
+      "prompt": "A long, slender cylindrical sleeve/rod with forked (U-shaped) open ends on both sides, creating two opposing prongs at each end. The body is mostly constant diameter with localized tapered/filleted transitions near the ends and small chamfers/rounded tips on the prongs. Overall it resembles a double-ended clevis-like connector or spacer sleeve intended to straddle and locate around another part via the end slots. Bounding box: 4.0 x 20.8 x 4.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A long, slender cylindrical sleeve/rod with forked (U-shaped) open ends on both sides, creating two opposing prongs at each end. The body is mostly constant diameter with localized tapered/filleted transitions near the ends and small chamfers/rounded tips on the prongs. Overall it resembles a double-ended clevis-like connector or spacer sleeve intended to straddle and locate around another part via the end slots. Bounding box: 4.0 x 20.8 x 4.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "110030",
+      "prompt": "A T-shaped mechanical fastener/clip consisting of a long cylindrical shank with a slightly flared end, intersecting a transverse cylindrical body that terminates in a split two-prong fork. At the intersection there is a circular boss and a flat, wedge-like rectangular tab/plate projecting to one side, giving the head an asymmetric profile. The forked end and side tab suggest it is intended to snap into or retain against another part (e.g., a panel/slot engagement) rather than serve as a simple pin. Bounding box: 11.0 x 18.9 x 8.8 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A T-shaped mechanical fastener/clip consisting of a long cylindrical shank with a slightly flared end, intersecting a transverse cylindrical body that terminates in a split two-prong fork. At the intersection there is a circular boss and a flat, wedge-like rectangular tab/plate projecting to one side, giving the head an asymmetric profile. The forked end and side tab suggest it is intended to snap into or retain against another part (e.g., a panel/slot engagement) rather than serve as a simple pin. Bounding box: 11.0 x 18.9 x 8.8 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "110031",
+      "prompt": "The object is a T-shaped mechanical fitting consisting of a long cylindrical stem intersecting a shorter horizontal cylindrical barrel. One end of the barrel has a flat, rectangular flange/stop plate, while the opposite end is split into two parallel prongs forming an open U-shaped slot with chamfered tips. The junction includes a stepped collar/shoulder, suggesting a locating/retaining feature for insertion into or engagement with another part. Bounding box: 11.0 x 18.9 x 8.8 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "The object is a T-shaped mechanical fitting consisting of a long cylindrical stem intersecting a shorter horizontal cylindrical barrel. One end of the barrel has a flat, rectangular flange/stop plate, while the opposite end is split into two parallel prongs forming an open U-shaped slot with chamfered tips. The junction includes a stepped collar/shoulder, suggesting a locating/retaining feature for insertion into or engagement with another part. Bounding box: 11.0 x 18.9 x 8.8 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "110173",
+      "prompt": "The object is a thin, square, flat plate or frame-like panel with a uniform thickness. In the front/back/left/right orthographic views it appears as a square outline with a consistent border, while the top and bottom views show it as a long, narrow rectangle indicating a shallow depth. No holes, cutouts, or protruding features are visible beyond the outer perimeter. Bounding box: 95.0 x 95.0 x 9.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a thin, square, flat plate or frame-like panel with a uniform thickness. In the front/back/left/right orthographic views it appears as a square outline with a consistent border, while the top and bottom views show it as a long, narrow rectangle indicating a shallow depth. No holes, cutouts, or protruding features are visible beyond the outer perimeter. Bounding box: 95.0 x 95.0 x 9.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "110201",
+      "prompt": "A U-shaped/saddle-style mounting strap made from a flat bar, with a semicircular arched center section and two straight end tabs. Each end tab contains a single circular through-hole for fastening, and the part is symmetric about its mid-plane and centerline. The geometry suggests a clamp/retainer intended to secure a cylindrical object (pipe/cable) against a surface using two fasteners. Bounding box: 48.0 x 10.0 x 16.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A U-shaped/saddle-style mounting strap made from a flat bar, with a semicircular arched center section and two straight end tabs. Each end tab contains a single circular through-hole for fastening, and the part is symmetric about its mid-plane and centerline. The geometry suggests a clamp/retainer intended to secure a cylindrical object (pipe/cable) against a surface using two fasteners. Bounding box: 48.0 x 10.0 x 16.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "110202",
+      "prompt": "A flat, symmetric linkage-like frame consisting of a central vertical spine connected to a diamond-shaped braced loop, with circular eyelets at the diamond\u2019s four corners and additional eyelets along the spine. One end of the spine terminates in a short cylindrical boss/cap, suggesting a mounting or attachment point, while the multiple ring features indicate pin/hinge or tie-off connections. Bounding box: 96.6 x 19.0 x 123.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A flat, symmetric linkage-like frame consisting of a central vertical spine connected to a diamond-shaped braced loop, with circular eyelets at the diamond\u2019s four corners and additional eyelets along the spine. One end of the spine terminates in a short cylindrical boss/cap, suggesting a mounting or attachment point, while the multiple ring features indicate pin/hinge or tie-off connections. Bounding box: 96.6 x 19.0 x 123.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "110204",
+      "prompt": "A rotationally symmetric, spool-like annular part consisting of two thick outer circular flanges connected by a central double-conical (hourglass) waist, with a concentric through-bore along the axis. The outer faces are flat circular discs, while the inner profile tapers inward from each flange toward the mid-plane, forming a V-shaped groove-like exterior. This geometry resembles a pulley/spacer or guide roller body intended to locate or guide a belt/rope around the waist while mounting on a shaft via the central hole. Bounding box: 10.0 x 7.0 x 10.0 mm.",
+      "prompt_variants": {
+        "descriptive": "A rotationally symmetric, spool-like annular part consisting of two thick outer circular flanges connected by a central double-conical (hourglass) waist, with a concentric through-bore along the axis. The outer faces are flat circular discs, while the inner profile tapers inward from each flange toward the mid-plane, forming a V-shaped groove-like exterior. This geometry resembles a pulley/spacer or guide roller body intended to locate or guide a belt/rope around the waist while mounting on a shaft via the central hole. Bounding box: 10.0 x 7.0 x 10.0 mm."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "110207",
+      "prompt": "The object is a rotationally symmetric, stepped cylindrical sleeve/connector with multiple diameter changes along its axis. It has several circumferential ribs and grooves, including two prominent recessed bands near the midsection and smaller end collars. No through-holes or flats are visible, suggesting a turned part intended for coupling, spacing, or sealing (e.g., accommodating O-rings) based on the ring grooves. Bounding box: 12.0 x 27.2 x 27.2 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "The object is a rotationally symmetric, stepped cylindrical sleeve/connector with multiple diameter changes along its axis. It has several circumferential ribs and grooves, including two prominent recessed bands near the midsection and smaller end collars. No through-holes or flats are visible, suggesting a turned part intended for coupling, spacing, or sealing (e.g., accommodating O-rings) based on the ring grooves. Bounding box: 12.0 x 27.2 x 27.2 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "110209",
+      "prompt": "A rotationally symmetric, spool-like cylindrical part with multiple stepped diameters along its axis, creating alternating raised bands and recessed grooves. The profile shows smooth transitions/fillets between steps and no visible holes or flats, suggesting a turned component intended as a roller, spacer, or bushing-like sleeve where the outer contour provides seating or retention features. Bounding box: 12.0 x 23.0 x 24.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A rotationally symmetric, spool-like cylindrical part with multiple stepped diameters along its axis, creating alternating raised bands and recessed grooves. The profile shows smooth transitions/fillets between steps and no visible holes or flats, suggesting a turned component intended as a roller, spacer, or bushing-like sleeve where the outer contour provides seating or retention features. Bounding box: 12.0 x 23.0 x 24.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "110211",
+      "prompt": "A small mounting bracket/block consisting of a rectangular base plate with rounded outer corners and two through-holes spaced symmetrically near the ends. A centered rectangular boss protrudes from one face, and the opposite face includes a centered semicylindrical (U-shaped) cutout, suggesting it locates or seats against a round rod/shaft while being fastened with two bolts. Bounding box: 22.0 x 15.0 x 6.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A small mounting bracket/block consisting of a rectangular base plate with rounded outer corners and two through-holes spaced symmetrically near the ends. A centered rectangular boss protrudes from one face, and the opposite face includes a centered semicylindrical (U-shaped) cutout, suggesting it locates or seats against a round rod/shaft while being fastened with two bolts. Bounding box: 22.0 x 15.0 x 6.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "110834",
+      "prompt": "The object is a flanged cylindrical bushing/spacer: a short hollow cylinder with a larger-diameter circular flange (lip) on one end. It has a through bore that is noticeably offset from the outer diameter centerline (eccentric hole), creating a thick and thin wall region around the bore. The geometry suggests a locating/spacing sleeve or eccentric bushing used to shift an axis relative to a mounting hole. Bounding box: 21.2 x 21.1 x 10.0 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a flanged cylindrical bushing/spacer: a short hollow cylinder with a larger-diameter circular flange (lip) on one end. It has a through bore that is noticeably offset from the outer diameter centerline (eccentric hole), creating a thick and thin wall region around the bore. The geometry suggests a locating/spacing sleeve or eccentric bushing used to shift an axis relative to a mounting hole. Bounding box: 21.2 x 21.1 x 10.0 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "110905",
+      "prompt": "A simple paddle-like solid consisting of a long rectangular prismatic body with a smaller rounded-end cylindrical/obround peg protruding from one end. The body has a stepped shoulder where the peg meets the main block, and the opposite end is flat; overall it resembles a handle/plug or key-like insert with a single projecting stem. Bounding box: 10.0 x 43.5 x 26.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A simple paddle-like solid consisting of a long rectangular prismatic body with a smaller rounded-end cylindrical/obround peg protruding from one end. The body has a stepped shoulder where the peg meets the main block, and the opposite end is flat; overall it resembles a handle/plug or key-like insert with a single projecting stem. Bounding box: 10.0 x 43.5 x 26.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "111008",
+      "prompt": "A faceted five-point star solid formed by five identical wedge-like pyramidal lobes radiating from a central hub, creating a stellated, spiky appearance. Each point is made of planar triangular faces meeting at sharp ridges, with a generally convex outer surface and no openings. The object reads as a decorative/star polyhedron rather than a functional mechanical part. Bounding box: 54.4 x 57.1 x 90.0 mm. The object is upright with a roughly circular/square cross-section.",
+      "prompt_variants": {
+        "descriptive": "A faceted five-point star solid formed by five identical wedge-like pyramidal lobes radiating from a central hub, creating a stellated, spiky appearance. Each point is made of planar triangular faces meeting at sharp ridges, with a generally convex outer surface and no openings. The object reads as a decorative/star polyhedron rather than a functional mechanical part. Bounding box: 54.4 x 57.1 x 90.0 mm. The object is upright with a roughly circular/square cross-section."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "111013",
+      "prompt": "The object is a symmetric, prismatic connector/block with an overall H-shaped profile in the front/back view and an I-beam-like profile in the left/right view. It consists of two larger end masses joined by a narrower central web, with shallow rectangular reliefs/notches at the midspan on the top and bottom edges. No holes or curved features are present; it resembles a simple spacer/link or structural cross-section element. Bounding box: 14.0 x 9.0 x 3.6 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a symmetric, prismatic connector/block with an overall H-shaped profile in the front/back view and an I-beam-like profile in the left/right view. It consists of two larger end masses joined by a narrower central web, with shallow rectangular reliefs/notches at the midspan on the top and bottom edges. No holes or curved features are present; it resembles a simple spacer/link or structural cross-section element. Bounding box: 14.0 x 9.0 x 3.6 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "111021",
+      "prompt": "The object is a compact, rounded-rectangular housing/block with a smaller protruding latch-like boss on one side and a shallow recessed notch/relief on the opposite face. From the top/bottom views it includes an integral narrow neck leading to a small tab/handle with a single circular through-hole, suggesting a hang/attachment point. Overall it resembles a small enclosure or clip-on component with a hanging/fastening tab and a side latch feature. Bounding box: 1.4 x 1.0 x 2.6 mm.",
+      "prompt_variants": {
+        "descriptive": "The object is a compact, rounded-rectangular housing/block with a smaller protruding latch-like boss on one side and a shallow recessed notch/relief on the opposite face. From the top/bottom views it includes an integral narrow neck leading to a small tab/handle with a single circular through-hole, suggesting a hang/attachment point. Overall it resembles a small enclosure or clip-on component with a hanging/fastening tab and a side latch feature. Bounding box: 1.4 x 1.0 x 2.6 mm."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "111552",
+      "prompt": "A long, flat rectangular link/strap with rounded ends and a through-hole near each end. The part is uniform in thickness and width along its length, forming a simple two-point mounting bar suitable as a connector, tie bar, or bracket between two fasteners/pins. Bounding box: 102.0 x 7.0 x 3.5 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A long, flat rectangular link/strap with rounded ends and a through-hole near each end. The part is uniform in thickness and width along its length, forming a simple two-point mounting bar suitable as a connector, tie bar, or bracket between two fasteners/pins. Bounding box: 102.0 x 7.0 x 3.5 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1120761",
+      "prompt": "A thick, plus-sign (cross-shaped) solid with rounded outer corners, formed as a uniform extrusion of a 2D cross profile. The object has four equal arms extending from a central square/rectangular core, with flat top and bottom faces and no visible cutouts or holes. It appears to be a generic spacer/connector-like block defined primarily by its symmetric cross footprint. Bounding box: 26.4 x 26.4 x 5.6 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thick, plus-sign (cross-shaped) solid with rounded outer corners, formed as a uniform extrusion of a 2D cross profile. The object has four equal arms extending from a central square/rectangular core, with flat top and bottom faces and no visible cutouts or holes. It appears to be a generic spacer/connector-like block defined primarily by its symmetric cross footprint. Bounding box: 26.4 x 26.4 x 5.6 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "1120762",
+      "prompt": "The object is a solid, star-like hub consisting of a central thick prismatic body with multiple rectangular arms protruding radially. Several arm ends and some hub corners are rounded/filleted, giving a softened, molded appearance. No holes or internal cavities are visible; it resembles a multi-directional connector/knob-like part intended to provide multiple grasping or attachment directions. Bounding box: 13.2 x 12.0 x 6.3 mm.",
+      "prompt_variants": {
+        "descriptive": "The object is a solid, star-like hub consisting of a central thick prismatic body with multiple rectangular arms protruding radially. Several arm ends and some hub corners are rounded/filleted, giving a softened, molded appearance. No holes or internal cavities are visible; it resembles a multi-directional connector/knob-like part intended to provide multiple grasping or attachment directions. Bounding box: 13.2 x 12.0 x 6.3 mm."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1120763",
+      "prompt": "A flat, elongated link/strap plate with rounded ends and a uniform thickness. It has one large through-hole near each end, plus three smaller through-holes near each end arranged asymmetrically (the small-hole pattern is mirrored between the two faces). The geometry suggests a simple connector/bracket plate intended for bolted/pinned attachment at multiple hole locations. Bounding box: 60.6 x 7.0 x 2.5 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A flat, elongated link/strap plate with rounded ends and a uniform thickness. It has one large through-hole near each end, plus three smaller through-holes near each end arranged asymmetrically (the small-hole pattern is mirrored between the two faces). The geometry suggests a simple connector/bracket plate intended for bolted/pinned attachment at multiple hole locations. Bounding box: 60.6 x 7.0 x 2.5 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1120766",
+      "prompt": "A symmetric cross-shaped hub consisting of a central short cylinder with four rectangular prismatic lugs extending radially at 90\u00b0 intervals. The front/back/left/right orthographic views show a circular core with orthogonal tabs, while the top/bottom views confirm the core is cylindrical with the tabs protruding from its sidewall. No holes, cutouts, or surface detailing are visible, suggesting a simple coupling/spacer-like solid. Bounding box: 11.7 x 11.7 x 6.3 mm.",
+      "prompt_variants": {
+        "descriptive": "A symmetric cross-shaped hub consisting of a central short cylinder with four rectangular prismatic lugs extending radially at 90\u00b0 intervals. The front/back/left/right orthographic views show a circular core with orthogonal tabs, while the top/bottom views confirm the core is cylindrical with the tabs protruding from its sidewall. No holes, cutouts, or surface detailing are visible, suggesting a simple coupling/spacer-like solid. Bounding box: 11.7 x 11.7 x 6.3 mm."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1120767",
+      "prompt": "The object is a short cylindrical disk with four equally spaced rectangular lugs protruding radially at 90\u00b0 intervals (forming a cross-like silhouette in front/back/side views). The cylinder has flat top and bottom faces and appears uniform with no visible holes or internal cutouts. It resembles a simple hub/cap or knob-like part intended for gripping, indexing, or providing four attachment/drive tabs. Bounding box: 16.8 x 16.8 x 6.3 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a short cylindrical disk with four equally spaced rectangular lugs protruding radially at 90\u00b0 intervals (forming a cross-like silhouette in front/back/side views). The cylinder has flat top and bottom faces and appears uniform with no visible holes or internal cutouts. It resembles a simple hub/cap or knob-like part intended for gripping, indexing, or providing four attachment/drive tabs. Bounding box: 16.8 x 16.8 x 6.3 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1120773",
+      "prompt": "A flat, X-shaped mounting bracket consisting of a central rectangular plate with four identical diagonal arms extending to the corners. Each arm terminates in a circular lug/boss with a through-hole, forming four mounting points; the part is largely planar with slight thickness and raised cylindrical features at the ends. The geometry suggests a lightweight cross-frame or standoff bracket intended to fasten to another assembly at four points. Bounding box: 92.7 x 67.7 x 10.8 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A flat, X-shaped mounting bracket consisting of a central rectangular plate with four identical diagonal arms extending to the corners. Each arm terminates in a circular lug/boss with a through-hole, forming four mounting points; the part is largely planar with slight thickness and raised cylindrical features at the ends. The geometry suggests a lightweight cross-frame or standoff bracket intended to fasten to another assembly at four points. Bounding box: 92.7 x 67.7 x 10.8 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1120775",
+      "prompt": "The object is a short right circular cylinder with two opposing rectangular lugs (tabs) protruding from its side, forming a symmetric \"spool\" or \"T-bar through a drum\" silhouette depending on view. The lugs are centered on the cylinder\u2019s mid-height and extend equally in opposite directions, suggesting a simple mounting/handling feature or a keyed/anti-rotation interface. Bounding box: 11.7 x 6.6 x 7.0 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "The object is a short right circular cylinder with two opposing rectangular lugs (tabs) protruding from its side, forming a symmetric \"spool\" or \"T-bar through a drum\" silhouette depending on view. The lugs are centered on the cylinder\u2019s mid-height and extend equally in opposite directions, suggesting a simple mounting/handling feature or a keyed/anti-rotation interface. Bounding box: 11.7 x 6.6 x 7.0 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1120776",
+      "prompt": "A flat, triangular/teardrop-shaped mounting plate (bracket) with rounded lobes at two corners, each containing a large through-hole. Two smaller through-holes are located nearer the center area, forming a simple bolt pattern; the part appears to be a constant-thickness planar plate intended for fastening or locating components. Bounding box: 18.3 x 21.6 x 2.5 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A flat, triangular/teardrop-shaped mounting plate (bracket) with rounded lobes at two corners, each containing a large through-hole. Two smaller through-holes are located nearer the center area, forming a simple bolt pattern; the part appears to be a constant-thickness planar plate intended for fastening or locating components. Bounding box: 18.3 x 21.6 x 2.5 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "1120777",
+      "prompt": "A flat, elongated link/strap plate with rounded (capsule-shaped) ends and a uniform thickness. It has two identical circular through-holes, one near each end, aligned along the long axis, suggesting use as a simple connector or mounting link between two fasteners/pins. Bounding box: 44.4 x 7.6 x 2.5 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A flat, elongated link/strap plate with rounded (capsule-shaped) ends and a uniform thickness. It has two identical circular through-holes, one near each end, aligned along the long axis, suggesting use as a simple connector or mounting link between two fasteners/pins. Bounding box: 44.4 x 7.6 x 2.5 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "1120779",
+      "prompt": "A symmetric cross-shaped hub consisting of a central short cylinder with four rectangular tabs (lugs) protruding orthogonally at 90\u00b0 intervals. The front/back/left/right views show a circular core with a plus-sign silhouette, while the top/bottom views indicate the tabs are centered around the cylinder\u2019s mid-height. No holes, cutouts, or surface detailing are visible, suggesting a simple coupling/locator-style part. Bounding box: 11.7 x 11.7 x 6.3 mm.",
+      "prompt_variants": {
+        "descriptive": "A symmetric cross-shaped hub consisting of a central short cylinder with four rectangular tabs (lugs) protruding orthogonally at 90\u00b0 intervals. The front/back/left/right views show a circular core with a plus-sign silhouette, while the top/bottom views indicate the tabs are centered around the cylinder\u2019s mid-height. No holes, cutouts, or surface detailing are visible, suggesting a simple coupling/locator-style part. Bounding box: 11.7 x 11.7 x 6.3 mm."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1129073",
+      "prompt": "An elongated, double-ended pointed (spindle/arrowhead-like) solid with a large through-slot running along its long axis, forming a closed loop opening with rounded ends. The outer body is faceted with chamfered/angled surfaces and includes two shallow rectangular side notches near the mid-length. The geometry suggests a lightweight link/handle or connector-style part designed to pass a strap/rod through the central slot while providing tapered ends for guiding or clearance. Bounding box: 7.8 x 24.5 x 4.5 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "An elongated, double-ended pointed (spindle/arrowhead-like) solid with a large through-slot running along its long axis, forming a closed loop opening with rounded ends. The outer body is faceted with chamfered/angled surfaces and includes two shallow rectangular side notches near the mid-length. The geometry suggests a lightweight link/handle or connector-style part designed to pass a strap/rod through the central slot while providing tapered ends for guiding or clearance. Bounding box: 7.8 x 24.5 x 4.5 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "1129074",
+      "prompt": "An elongated, double-ended pointed link/connector body with a large central through-slot (rounded-rectangle/obround) running along its length. The exterior is faceted with tapered, conical tips at both ends and shallow rectangular relief notches on the mid-sides, giving a symmetric, streamlined profile. Functionally it resembles a strap/rope pass-through link or decorative connector where material passes through the long slot. Bounding box: 7.8 x 24.5 x 4.5 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "An elongated, double-ended pointed link/connector body with a large central through-slot (rounded-rectangle/obround) running along its length. The exterior is faceted with tapered, conical tips at both ends and shallow rectangular relief notches on the mid-sides, giving a symmetric, streamlined profile. Functionally it resembles a strap/rope pass-through link or decorative connector where material passes through the long slot. Bounding box: 7.8 x 24.5 x 4.5 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Complex"
+    },
+    {
+      "id": "112998",
+      "prompt": "A small fastener-like part consisting of a thick circular head (flange) attached to a straight cylindrical shank that splits at the free end into two opposing tapered prongs, forming a V-shaped fork. The prongs are wedge/chamfered and appear intended to flex or bite into a mating feature, suggesting a push-in clip/rivet or retaining pin geometry. Bounding box: 10.0 x 18.0 x 6.3 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A small fastener-like part consisting of a thick circular head (flange) attached to a straight cylindrical shank that splits at the free end into two opposing tapered prongs, forming a V-shaped fork. The prongs are wedge/chamfered and appear intended to flex or bite into a mating feature, suggesting a push-in clip/rivet or retaining pin geometry. Bounding box: 10.0 x 18.0 x 6.3 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "112999",
+      "prompt": "A fastener-like part consisting of a long cylindrical shank with a large circular head on one end and a split, two-prong tip on the other. The tip is formed by a longitudinal slot that divides the end into two tapered wedge-shaped legs, suggesting a push-in/retaining or expanding clip function. Bounding box: 10.0 x 23.0 x 6.3 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A fastener-like part consisting of a long cylindrical shank with a large circular head on one end and a split, two-prong tip on the other. The tip is formed by a longitudinal slot that divides the end into two tapered wedge-shaped legs, suggesting a push-in/retaining or expanding clip function. Bounding box: 10.0 x 23.0 x 6.3 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "1130077",
+      "prompt": "The object is a V-shaped sheet-metal style bracket/channel with two flared side walls forming an open trough and a flat base plate. At one end, the base transitions into a narrower rectangular mounting tab that contains a single circular through-hole. The geometry suggests a guide/support bracket intended to be fastened via the hole while the V-channel cradles or locates another part. Bounding box: 52.3 x 50.0 x 38.8 mm.",
+      "prompt_variants": {
+        "descriptive": "The object is a V-shaped sheet-metal style bracket/channel with two flared side walls forming an open trough and a flat base plate. At one end, the base transitions into a narrower rectangular mounting tab that contains a single circular through-hole. The geometry suggests a guide/support bracket intended to be fastened via the hole while the V-channel cradles or locates another part. Bounding box: 52.3 x 50.0 x 38.8 mm."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "1130078",
+      "prompt": "A bracket-like part consisting of a wide V-shaped (flared) plate that transitions into a narrower rectangular stem, with a single circular through-hole near the stem end. The body is largely prismatic with stepped side profiles and a central ridge/crease along the V-plate, suggesting a mounting or locating component that fastens via the hole and provides a broad bearing/guide surface. Bounding box: 52.3 x 50.0 x 38.8 mm.",
+      "prompt_variants": {
+        "descriptive": "A bracket-like part consisting of a wide V-shaped (flared) plate that transitions into a narrower rectangular stem, with a single circular through-hole near the stem end. The body is largely prismatic with stepped side profiles and a central ridge/crease along the V-plate, suggesting a mounting or locating component that fastens via the hole and provides a broad bearing/guide surface. Bounding box: 52.3 x 50.0 x 38.8 mm."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "113126",
+      "prompt": "A thick, C-shaped/U-channel bracket formed from a rectangular block with a large rectangular internal cutout, creating upper and lower jaws connected by a side web. One side includes a small rectangular protruding lug/stop that is offset from the main outer profile. The part resembles a clamp or hook-like mounting bracket intended to capture or locate another rectangular component within the open cavity. Bounding box: 31.8 x 31.8 x 15.8 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A thick, C-shaped/U-channel bracket formed from a rectangular block with a large rectangular internal cutout, creating upper and lower jaws connected by a side web. One side includes a small rectangular protruding lug/stop that is offset from the main outer profile. The part resembles a clamp or hook-like mounting bracket intended to capture or locate another rectangular component within the open cavity. Bounding box: 31.8 x 31.8 x 15.8 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "113127",
+      "prompt": "A blocky, C-shaped bracket/frame made from rectangular prismatic members, forming a large rectangular opening through the center. The outer perimeter is stepped with several cuboid bosses at corners/ends, and the inner opening has sharp 90\u00b0 corners with small step transitions. Overall it resembles a clamp-like or mounting bracket geometry with reinforced pads at select locations. Bounding box: 31.8 x 31.8 x 15.8 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A blocky, C-shaped bracket/frame made from rectangular prismatic members, forming a large rectangular opening through the center. The outer perimeter is stepped with several cuboid bosses at corners/ends, and the inner opening has sharp 90\u00b0 corners with small step transitions. Overall it resembles a clamp-like or mounting bracket geometry with reinforced pads at select locations. Bounding box: 31.8 x 31.8 x 15.8 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "113128",
+      "prompt": "A stepped, H-like bracket/block composed of two large rectangular end blocks connected by a central rectangular bridge, with additional offset pads creating an asymmetric profile. The part is entirely prismatic with sharp edges and several shoulder steps/rebates on the top and bottom faces, suggesting a spacer/connector or mounting block intended to locate against mating surfaces. Bounding box: 31.8 x 31.8 x 15.8 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A stepped, H-like bracket/block composed of two large rectangular end blocks connected by a central rectangular bridge, with additional offset pads creating an asymmetric profile. The part is entirely prismatic with sharp edges and several shoulder steps/rebates on the top and bottom faces, suggesting a spacer/connector or mounting block intended to locate against mating surfaces. Bounding box: 31.8 x 31.8 x 15.8 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "113340",
+      "prompt": "A symmetric, double-ended wedge/clevis-like solid with a short rectangular central block and two opposing flared arms that form an hourglass/X silhouette in side views. Each end contains a triangular through-opening (pyramidal/triangular tunnel) that tapers toward the center, creating two opposing triangular voids visible from front/back and left/right. The overall form resembles a lightweight structural spacer or bracket-like connector with large chamfered/angled faces and internal triangular cutouts. Bounding box: 54.5 x 22.2 x 29.5 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A symmetric, double-ended wedge/clevis-like solid with a short rectangular central block and two opposing flared arms that form an hourglass/X silhouette in side views. Each end contains a triangular through-opening (pyramidal/triangular tunnel) that tapers toward the center, creating two opposing triangular voids visible from front/back and left/right. The overall form resembles a lightweight structural spacer or bracket-like connector with large chamfered/angled faces and internal triangular cutouts. Bounding box: 54.5 x 22.2 x 29.5 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "113341",
+      "prompt": "The object is a symmetric double-ended arrow/indicator: a long rectangular prism body with pointed triangular (pyramidal/wedge) tips on both ends. Near each end, small stepped/fin-like protrusions extend laterally from the sides, giving the ends a notched, bracketed look. Overall it reads as a bidirectional pointer or slider-like indicator rather than a functional mechanical part with interfaces (no holes or fasteners visible). Bounding box: 20.6 x 60.4 x 8.4 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "The object is a symmetric double-ended arrow/indicator: a long rectangular prism body with pointed triangular (pyramidal/wedge) tips on both ends. Near each end, small stepped/fin-like protrusions extend laterally from the sides, giving the ends a notched, bracketed look. Overall it reads as a bidirectional pointer or slider-like indicator rather than a functional mechanical part with interfaces (no holes or fasteners visible). Bounding box: 20.6 x 60.4 x 8.4 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    },
+    {
+      "id": "113342",
+      "prompt": "A slender, tapered prismatic arm (wedge-like bar) with a small triangular fin/blade attached near one end at an acute angle, forming an L-shaped/kinked profile. The main body is long and narrow with a slight taper, while the attached triangular plate projects laterally and downward/upward depending on view. No holes or cutouts are visible; the part reads as a simple bracket/lever-like component with an angled gusset or blade feature. Bounding box: 23.1 x 10.3 x 72.4 mm. The object is elongated along one axis.",
+      "prompt_variants": {
+        "descriptive": "A slender, tapered prismatic arm (wedge-like bar) with a small triangular fin/blade attached near one end at an acute angle, forming an L-shaped/kinked profile. The main body is long and narrow with a slight taper, while the attached triangular plate projects laterally and downward/upward depending on view. No holes or cutouts are visible; the part reads as a simple bracket/lever-like component with an angled gusset or blade feature. Bounding box: 23.1 x 10.3 x 72.4 mm. The object is elongated along one axis."
+      },
+      "family": "slice100k",
+      "tier": "Medium"
+    },
+    {
+      "id": "113343",
+      "prompt": "A long, thin tapered wedge-like part resembling a triangular prism that narrows to a sharp tip. One long edge includes a small longitudinal step/flange, and the wide end has a short perpendicular end face creating an L-like profile at that end. Overall it is a simple, single-piece prismatic component with no holes or cutouts, likely functioning as a shim, ramp, or guide. Bounding box: 36.2 x 55.5 x 8.7 mm. The object is flat/plate-like.",
+      "prompt_variants": {
+        "descriptive": "A long, thin tapered wedge-like part resembling a triangular prism that narrows to a sharp tip. One long edge includes a small longitudinal step/flange, and the wide end has a short perpendicular end face creating an L-like profile at that end. Overall it is a simple, single-piece prismatic component with no holes or cutouts, likely functioning as a shim, ramp, or guide. Bounding box: 36.2 x 55.5 x 8.7 mm. The object is flat/plate-like."
+      },
+      "family": "slice100k",
+      "tier": "Simple"
+    }
+  ]
+}

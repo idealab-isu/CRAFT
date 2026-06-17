@@ -1,72 +1,81 @@
-// Chamfered spacer block with mid-length bulge (wider at center, narrower at ends)
-// Bounding box: 0.8 x 0.8 x 2.0 mm
+// Parameters
+bbox_x = 0.8; //[0.4:1.6:0.01]
+bbox_y = 0.8; //[0.4:1.6:0.01]
+bbox_z = 2.0; //[1.0:4.0:0.01]
+mid_w = 0.8; //[0.4:1.6:0.01]
+end_w = 0.72; //[0.36:1.44:0.01]
+chamfer = 0.06; //[0.02:0.12:0.005]
+taper_h = 0.4; //[0.2:0.8:0.01]
+overlap = 0.01; //[0.005:0.05:0.005]
+panel_inset = 0.02; //[0.005:0.06:0.005]
+panel_margin = 0.12; //[0.06:0.24:0.005]
+micro_fillet_r = 0.01; //[0.005:0.03:0.001]
+texture_amp = 0.003; //[0.0:0.02:0.001]
 
-$fn = 64;
-
-// Parameters (mm)
-L       = 2.0;   // length (Z)
-W_max   = 0.8;   // max width at mid (X)
-D_max   = 0.8;   // max depth at mid (Y)
-W_end   = 0.72;  // width at ends (Z = +/- L/2)
-D_end   = 0.72;  // depth at ends (Z = +/- L/2)
-chamfer = 0.08;  // vertical edge bevel amount (corner cut in plan)
-overlap = 0.02;  // small thickness for hull slices (robust)
-
-// Clamp chamfer so it can't invert geometry
-ch = min(chamfer, min(W_end, D_end, W_max, D_max)/2 - 0.001);
-
-// 2D chamfered rectangle (flat sides + beveled corners)
-module chamfered_rect_2d(w, d, c) {
-    polygon(points=[
-        [ w/2 - c,  d/2],
-        [-w/2 + c,  d/2],
-        [-w/2,      d/2 - c],
-        [-w/2,     -d/2 + c],
-        [-w/2 + c, -d/2],
-        [ w/2 - c, -d/2],
-        [ w/2,     -d/2 + c],
-        [ w/2,      d/2 - c]
-    ]);
+// Base Shapes
+module main_prismatic_body_mid() {
+  cube([mid_w, mid_w, bbox_z - 2 * taper_h], center = true);
 }
 
-// Main solid: tapered ends + bulged mid, with vertical edge chamfers
-module spacer_block() {
-    // Use hull between multiple Z cross-sections to make the lengthwise taper
-    // clearly visible in orthographic side views.
-    hull() {
-        // bottom end
-        translate([0,0,-L/2])
-            linear_extrude(height=overlap, center=true)
-                chamfered_rect_2d(W_end, D_end, ch);
+module top_taper_zone() {
+  translate([0, 0, (bbox_z / 2 - taper_h / 2) - overlap])
+    cylinder(h = taper_h, r1 = mid_w / 2, r2 = end_w / 2, center = true);
+}
 
-        // lower shoulder (helps show taper)
-        translate([0,0,-L/4])
-            linear_extrude(height=overlap, center=true)
-                chamfered_rect_2d(
-                    W_end + (W_max - W_end)*0.65,
-                    D_end + (D_max - D_end)*0.65,
-                    ch
-                );
+module bottom_taper_zone() {
+  translate([0, 0, (-bbox_z / 2 + taper_h / 2) + overlap])
+    cylinder(h = taper_h, r1 = end_w / 2, r2 = mid_w / 2, center = true);
+}
 
-        // mid bulge
-        translate([0,0,0])
-            linear_extrude(height=overlap, center=true)
-                chamfered_rect_2d(W_max, D_max, ch);
+module vertical_edge_chamfers() {
+  cube([mid_w - 2 * chamfer, mid_w - 2 * chamfer, bbox_z + 2 * overlap], center = true);
+}
 
-        // upper shoulder
-        translate([0,0, L/4])
-            linear_extrude(height=overlap, center=true)
-                chamfered_rect_2d(
-                    W_end + (W_max - W_end)*0.65,
-                    D_end + (D_max - D_end)*0.65,
-                    ch
-                );
+module subtle_inset_panel_effect() {
+  cube([mid_w - 2 * panel_margin, mid_w - 2 * panel_margin, bbox_z - 2 * panel_margin], center = true);
+}
 
-        // top end
-        translate([0,0, L/2])
-            linear_extrude(height=overlap, center=true)
-                chamfered_rect_2d(W_end, D_end, ch);
+module micro_fillet_edges() {
+  sphere(r = micro_fillet_r, center = true);
+}
+
+module surface_texture() {
+  sphere(r = texture_amp, center = true);
+}
+
+// Operations
+module mid_bulge_taper_profile() {
+  union() {
+    main_prismatic_body_mid();
+    top_taper_zone();
+    bottom_taper_zone();
+  }
+}
+
+module chamfered_body() {
+  intersection() {
+    mid_bulge_taper_profile();
+    vertical_edge_chamfers();
+  }
+}
+
+module inset_panel_body() {
+  difference() {
+    chamfered_body();
+    translate([0, 0, 0]) subtle_inset_panel_effect();
+  }
+}
+
+// Final Output
+module final_with_surface_texture() {
+  minkowski() {
+    minkowski() {
+      inset_panel_body();
+      micro_fillet_edges();
     }
+    surface_texture();
+  }
 }
 
-spacer_block();
+// Render the final output
+final_with_surface_texture();

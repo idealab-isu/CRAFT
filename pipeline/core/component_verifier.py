@@ -29,7 +29,7 @@ from utils.rendering import STANDARD_VIEWS, ORTHO_VIEWS, MultiViewRenderer
 # CONFIGURATION
 # =============================================================================
 
-MAX_COMPONENT_ITERATIONS = int(os.getenv("MAX_COMPONENT_ITERATIONS", "1"))
+MAX_COMPONENT_ITERATIONS = int(os.getenv("MAX_COMPONENT_ITERATIONS", "3"))
 
 # Tiered confidence thresholds for part verification (KB-augmented mode)
 ESSENTIAL_PART_THRESHOLD = 0.85   # Essential parts MUST have 85%+ confidence
@@ -84,8 +84,6 @@ class HolisticVerificationResult:
     features_present: List[Dict[str, Any]]  # [{feature, present, confidence, notes}]
     missing_critical_features: List[str]
     suggestions: List[str]
-    unrequested_geometry: List[str] = field(default_factory=list)
-    has_unrequested_extras: bool = False
 
 
 @dataclass
@@ -132,7 +130,8 @@ class ComponentVerifier:
         client,
         model: str,
         max_iterations: int = MAX_COMPONENT_ITERATIONS,
-        image_dir: str = "static/images"
+        image_dir: str = "static/images",
+        budget=None,
     ):
         """
         Initialize the component verifier.
@@ -142,22 +141,20 @@ class ComponentVerifier:
             model: Model to use for verification
             max_iterations: Maximum verification/fix iterations
             image_dir: Directory for view images
+            budget: Optional shared RecoveryBudget. Each iteration after the
+                    first is charged to the budget under "component_verification".
         """
         self.client = client
         self.model = model
         self.max_iterations = max_iterations
         self.image_dir = image_dir
+        self.budget = budget
 
-        # CRAFT v2.1 two-pass rendering: component-verifier iteration
-        # renders use a low ``$fn`` (32) for speed. The final user-facing
-        # render (driven outside this loop) preserves the SCAD's own
-        # ``$fn`` for high quality.
         # Multi-view renderer (increased timeout for complex models)
         self.renderer = MultiViewRenderer(
             imgsize=(400, 400),
             distance=200,
-            timeout=300,  # 5 minutes per view for high-quality renders
-            fn_override=32,
+            timeout=300  # 5 minutes per view for high-quality renders
         )
 
     def _get_token_param(self, max_tokens: int) -> Dict[str, int]:
@@ -174,8 +171,7 @@ class ComponentVerifier:
         max_tokens: int = 1500,
         temperature: float = 0.2,
         json_response: bool = True,
-        reference_images: Dict[str, Dict[str, str]] = None,
-        sketch_image_path: Optional[str] = None,
+        reference_images: Dict[str, Dict[str, str]] = None
     ) -> str:
         """
         Call the appropriate vision API based on model.
@@ -193,8 +189,6 @@ class ComponentVerifier:
             temperature: Sampling temperature
             json_response: Whether to request JSON format
             reference_images: Optional dict of {component_id: {view_name: image_path}}
-            sketch_image_path: Optional early-stage design sketch to show as a
-                visual intent anchor (CRAFT v2.1 sketch integration).
 
         Returns:
             The response text from the model
@@ -207,15 +201,13 @@ class ComponentVerifier:
                     return self._call_responses_api(
                         text_prompt, view_images, view_names,
                         max_tokens, temperature, json_response,
-                        reference_images=reference_images,
-                        sketch_image_path=sketch_image_path,
+                        reference_images=reference_images
                     )
                 else:
                     return self._call_chat_completions_api(
                         text_prompt, view_images, view_names,
                         max_tokens, temperature, json_response,
-                        reference_images=reference_images,
-                        sketch_image_path=sketch_image_path,
+                        reference_images=reference_images
                     )
             except Exception as e:
                 last_error = e
@@ -242,8 +234,7 @@ class ComponentVerifier:
         max_tokens: int,
         temperature: float,
         json_response: bool,
-        reference_images: Dict[str, Dict[str, str]] = None,
-        sketch_image_path: Optional[str] = None,
+        reference_images: Dict[str, Dict[str, str]] = None
     ) -> str:
         """
         Call OpenAI Responses API for GPT-5.2 vision.
@@ -257,23 +248,6 @@ class ComponentVerifier:
             "type": "input_text",
             "text": text_prompt
         })
-
-        # Design-intent sketch (optional) — placed ahead of KB and renders so
-        # the model sees the user's visual target first.
-        if sketch_image_path and os.path.exists(sketch_image_path):
-            content_parts.append({
-                "type": "input_text",
-                "text": (
-                    "\n\n=== DESIGN INTENT SKETCH ===\n"
-                    "Early concept sketch for the requested object. Use it as "
-                    "a loose visual reference for silhouette and structure — "
-                    "not as a literal specification."
-                ),
-            })
-            content_parts.append({
-                "type": "input_image",
-                "image_url": self._image_to_base64(sketch_image_path),
-            })
 
         # Add KB reference images first (if available)
         if reference_images:
@@ -341,8 +315,7 @@ class ComponentVerifier:
         max_tokens: int,
         temperature: float,
         json_response: bool,
-        reference_images: Dict[str, Dict[str, str]] = None,
-        sketch_image_path: Optional[str] = None,
+        reference_images: Dict[str, Dict[str, str]] = None
     ) -> str:
         """
         Call OpenAI Chat Completions API for GPT-4o/GPT-5.1 vision.
@@ -356,25 +329,6 @@ class ComponentVerifier:
             "type": "text",
             "text": text_prompt
         })
-
-        # Design-intent sketch (optional) — see Responses API branch for the
-        # rationale. Sits between text prompt and generated views.
-        if sketch_image_path and os.path.exists(sketch_image_path):
-            content_parts.append({
-                "type": "text",
-                "text": (
-                    "\n\n=== DESIGN INTENT SKETCH ===\n"
-                    "Early concept sketch for the requested object. Use it as "
-                    "a loose visual reference for silhouette and structure — "
-                    "not as a literal specification."
-                ),
-            })
-            content_parts.append({
-                "type": "image_url",
-                "image_url": {
-                    "url": self._image_to_base64(sketch_image_path),
-                },
-            })
 
         # Add KB reference images first (if available)
         if reference_images:
@@ -435,62 +389,6 @@ class ComponentVerifier:
         response = self.client.chat.completions.create(**kwargs)
         return response.choices[0].message.content
 
-    def _component_score(
-        self,
-        parts_check: List[PartPresenceCheck],
-        connectivity_check: ConnectivityCheck,
-        is_holistic: bool,
-        holistic_result: Optional[HolisticVerificationResult] = None,
-    ) -> float:
-        """
-        CRAFT v2.1 — composite score used for cross-iteration rollback.
-
-        Blends two signals:
-          - ``parts_score``: how well the expected parts / semantic features
-            are present. In holistic mode it derives from the VLM's overall
-            confidence and the missing-critical-features list. In KB mode
-            it's the threshold-weighted fraction of parts that pass their
-            per-tier bar (essentials weigh 3x, secondaries 1.5x, optionals 1x).
-          - ``connectivity_score``: 1.0 if single object with no attachment
-            issues, scaled down by number of issues.
-
-        Returns a float in [0, 1]. Higher is better.
-        """
-        # --- Parts ---
-        if is_holistic and holistic_result is not None:
-            base = float(holistic_result.confidence or 0.0)
-            if not holistic_result.matches_request:
-                base = max(0.0, base - 0.2)
-            base -= 0.15 * len(holistic_result.missing_critical_features or [])
-            if getattr(holistic_result, "has_unrequested_extras", False):
-                n_ex = len(getattr(holistic_result, "unrequested_geometry", None) or [])
-                base -= 0.2 * min(max(n_ex, 1), 3)
-            parts_score = max(0.0, min(1.0, base))
-        else:
-            weights = {"essential": 3.0, "secondary": 1.5, "optional": 1.0}
-            total_w = 0.0
-            got_w = 0.0
-            for p in parts_check or []:
-                w = weights.get(p.tier, 1.5)
-                total_w += w
-                if p.meets_threshold:
-                    got_w += w
-                elif p.present:
-                    # partial credit for "we see it but below threshold"
-                    got_w += 0.4 * w * max(0.0, min(1.0, float(p.confidence or 0.0)))
-            parts_score = got_w / total_w if total_w > 0 else 1.0
-
-        # --- Connectivity ---
-        if connectivity_check is None:
-            conn_score = 0.5
-        else:
-            base = 1.0 if connectivity_check.is_single_object else 0.3
-            base -= 0.10 * len(connectivity_check.attachment_issues or [])
-            base -= 0.10 * len(connectivity_check.floating_parts or [])
-            conn_score = max(0.0, min(1.0, base))
-
-        return 0.6 * parts_score + 0.4 * conn_score
-
     def verify_and_fix(
         self,
         scad_code: str,
@@ -502,8 +400,7 @@ class ComponentVerifier:
         essential_parts: Optional[List[str]] = None,
         secondary_parts: Optional[List[str]] = None,
         optional_parts: Optional[List[str]] = None,
-        kb_components: Optional[List[Any]] = None,
-        reference_sketch_path: Optional[str] = None,
+        kb_components: Optional[List[Any]] = None
     ) -> ComponentVerificationOutput:
         """
         Run the component verification and fix loop with TIERED thresholds.
@@ -551,23 +448,13 @@ class ComponentVerifier:
         else:
             print(f"[Component Verifier] Using KB-AUGMENTED mode ({len(kb_components)} components)")
 
-        # Rollback bookkeeping (CRAFT v2.1). ``best`` always reflects the
-        # highest-scoring candidate seen; iterations that regress are thrown
-        # away and the next iteration restarts from the best candidate.
-        best = {
-            "code": scad_code,
-            "score": -1.0,
-            "view_images": existing_view_images or {},
-            "parts_check": [],
-            "connectivity": None,
-            "all_parts_found": False,
-            "is_connected": False,
-            "issues": [],
-            "iteration": 0,
-        }
-
         for iteration in range(1, self.max_iterations + 1):
             print(f"[Component Verifier] Iteration {iteration}/{self.max_iterations}")
+
+            # Charge each retry against the shared budget (iter 1 is the initial check)
+            if self.budget is not None and iteration > 1:
+                if self.budget.can_retry("component_verification"):
+                    self.budget.charge("component_verification", note=f"iter{iteration}")
 
             # Step 1: Save current code
             with open(current_scad_path, "w", encoding="utf-8") as f:
@@ -590,35 +477,27 @@ class ComponentVerifier:
             if is_holistic_mode:
                 # HOLISTIC MODE: Semantic verification for non-KB prompts
                 holistic_result, parts_check = self._check_holistic_presence(
-                    view_images, expected_parts, original_prompt,
-                    reference_sketch_path=reference_sketch_path,
+                    view_images, expected_parts, original_prompt
                 )
             else:
                 # KB-AUGMENTED MODE: Part-by-part verification with reference images
                 parts_check = self._check_parts_presence(
                     view_images, expected_parts, original_prompt, part_tiers,
-                    kb_components=kb_components,
-                    reference_sketch_path=reference_sketch_path,
+                    kb_components=kb_components
                 )
 
             # Step 4: Check connectivity (focus on essential parts)
             connectivity_check = self._check_connectivity(
-                view_images, essential_parts or expected_parts, original_prompt,
-                reference_sketch_path=reference_sketch_path,
+                view_images, essential_parts or expected_parts, original_prompt
             )
 
             # Determine overall status - BRANCH based on mode
             if is_holistic_mode:
                 # HOLISTIC MODE: Use semantic match result
-                extras_bad = (
-                    holistic_result.has_unrequested_extras
-                    or len(holistic_result.unrequested_geometry) > 0
-                )
                 all_parts_found = (
-                    (not extras_bad)
-                    and holistic_result.matches_request
-                    and holistic_result.confidence >= HOLISTIC_MATCH_THRESHOLD
-                    and len(holistic_result.missing_critical_features) == 0
+                    holistic_result.matches_request and
+                    holistic_result.confidence >= HOLISTIC_MATCH_THRESHOLD and
+                    len(holistic_result.missing_critical_features) == 0
                 )
                 # In holistic mode, be lenient about connectivity if the overall shape matches
                 is_connected = (
@@ -646,12 +525,6 @@ class ComponentVerifier:
                 # HOLISTIC MODE: Report semantic issues
                 if not holistic_result.matches_request:
                     issues.append(f"Model does not match request: {holistic_result.overall_assessment}")
-                if extras_bad:
-                    ugeom = holistic_result.unrequested_geometry or []
-                    issues.append(
-                        "Unrequested extra geometry: "
-                        + (", ".join(ugeom) if ugeom else "see overall_assessment")
-                    )
                 for missing in holistic_result.missing_critical_features:
                     issues.append(f"Missing critical feature: {missing}")
                 # Only add connectivity issues if they're severe
@@ -697,58 +570,10 @@ class ComponentVerifier:
                 corrected=False
             )
 
-            # CRAFT v2.1 — score this candidate and update best-so-far.
-            iteration_score = self._component_score(
-                parts_check=parts_check,
-                connectivity_check=connectivity_check,
-                is_holistic=is_holistic_mode,
-                holistic_result=holistic_result,
-            )
-            improved = iteration_score > best["score"]
-            if improved:
-                best = {
-                    "code": current_code,
-                    "score": iteration_score,
-                    "view_images": view_images,
-                    "parts_check": parts_check,
-                    "connectivity": connectivity_check,
-                    "all_parts_found": all_parts_found,
-                    "is_connected": is_connected,
-                    "issues": issues,
-                    "iteration": iteration,
-                }
-                print(
-                    f"[Component Verifier] Iter {iteration} is new best "
-                    f"(score={iteration_score:.3f})"
-                )
-            else:
-                print(
-                    f"[Component Verifier] Iter {iteration} score "
-                    f"{iteration_score:.3f} did not beat best "
-                    f"{best['score']:.3f} (iter {best['iteration']}) — "
-                    f"will roll back before next fix"
-                )
-
             # Check if verification passed
             if all_parts_found and is_connected:
                 print(f"[Component Verifier] All checks passed on iteration {iteration}")
                 iteration_history.append(result)
-                # Prefer best if this pass somehow regressed.
-                if not improved and best["score"] > iteration_score:
-                    print(
-                        f"[Component Verifier] Passing iteration regressed on "
-                        f"score — returning best candidate from iter "
-                        f"{best['iteration']}."
-                    )
-                    return ComponentVerificationOutput(
-                        success=True,
-                        final_code=best["code"],
-                        iterations=iteration,
-                        all_parts_present=best["all_parts_found"],
-                        is_fully_connected=best["is_connected"],
-                        iteration_history=iteration_history,
-                        final_issues=best["issues"],
-                    )
                 return ComponentVerificationOutput(
                     success=True,
                     final_code=current_code,
@@ -759,23 +584,11 @@ class ComponentVerifier:
                     final_issues=[]
                 )
 
-            # Rollback before next fix: if this iteration regressed, hand the
-            # fixer the best candidate so far, not the worse current one.
-            if not improved and best["score"] >= 0 and best["code"] != current_code:
-                print(
-                    f"[Component Verifier] Rolling back to best candidate "
-                    f"(iter {best['iteration']}) before applying fix."
-                )
-                current_code = best["code"]
-                with open(current_scad_path, "w", encoding="utf-8") as f:
-                    f.write(current_code)
-
             # Step 5: Attempt targeted fix if issues found
             if fix_prompt and iteration < self.max_iterations:
                 print(f"[Component Verifier] Attempting targeted fix for {len(issues)} issues...")
                 corrected_code = self._apply_targeted_fix(
-                    current_code, fix_prompt, view_images, original_prompt,
-                    reference_sketch_path=reference_sketch_path,
+                    current_code, fix_prompt, view_images, original_prompt
                 )
 
                 if corrected_code and corrected_code.strip() != current_code.strip():
@@ -788,19 +601,7 @@ class ComponentVerifier:
 
             iteration_history.append(result)
 
-        # Reached max iterations — return the best candidate seen.
-        if best["score"] >= 0:
-            return ComponentVerificationOutput(
-                success=best["all_parts_found"] and best["is_connected"],
-                final_code=best["code"],
-                iterations=len(iteration_history),
-                all_parts_present=best["all_parts_found"],
-                is_fully_connected=best["is_connected"],
-                iteration_history=iteration_history,
-                final_issues=best["issues"],
-            )
-
-        # Fallback: no iteration scored (e.g. every render failed).
+        # Reached max iterations
         final_result = iteration_history[-1] if iteration_history else None
 
         return ComponentVerificationOutput(
@@ -918,8 +719,7 @@ class ComponentVerifier:
         expected_parts: List[str],
         original_prompt: str,
         part_tiers: Optional[Dict[str, str]] = None,
-        kb_components: Optional[List[Any]] = None,
-        reference_sketch_path: Optional[str] = None,
+        kb_components: Optional[List[Any]] = None
     ) -> List[PartPresenceCheck]:
         """
         Check if all expected parts are visually present with TIERED thresholds.
@@ -986,8 +786,7 @@ IMPORTANT:
                 view_names=["front", "back", "left", "right", "top", "bottom"],
                 max_tokens=1500,
                 temperature=0.2,
-                json_response=True,
-                sketch_image_path=reference_sketch_path,
+                json_response=True
             )
 
             result = self._extract_json(result_text)
@@ -1055,8 +854,7 @@ IMPORTANT:
         self,
         view_images: Dict[str, str],
         expected_parts: List[str],
-        original_prompt: str,
-        reference_sketch_path: Optional[str] = None,
+        original_prompt: str
     ) -> ConnectivityCheck:
         """
         Check if the model is a single connected object.
@@ -1072,10 +870,6 @@ IMPORTANT:
 
 ORIGINAL REQUEST:
 {original_prompt}{parts_context}
-
-If the request is for a single component only, a separate unrequested base or stand
-may appear as a second solid — list it as a floating/connection issue relative to
-the intended part if it should not be there.
 
 Analyze the 6 views below and determine:
 1. Is this a SINGLE CONNECTED OBJECT, or are there floating/disconnected parts?
@@ -1100,8 +894,7 @@ Be strict - parts should visually touch/connect, not just be near each other."""
                 view_names=["front", "back", "left", "right", "top", "bottom"],
                 max_tokens=1500,
                 temperature=0.2,
-                json_response=True,
-                sketch_image_path=reference_sketch_path,
+                json_response=True
             )
 
             result = self._extract_json(result_text)
@@ -1126,8 +919,7 @@ Be strict - parts should visually touch/connect, not just be near each other."""
         self,
         view_images: Dict[str, str],
         expected_parts: List[str],
-        original_prompt: str,
-        reference_sketch_path: Optional[str] = None,
+        original_prompt: str
     ) -> Tuple[HolisticVerificationResult, List[PartPresenceCheck]]:
         """
         Holistic (semantic) verification for non-KB prompts.
@@ -1163,14 +955,13 @@ EXPECTED FEATURES:
 Based on the request, this model should have: {features_description}
 
 Examine the 6 orthographic views below and determine:
-1. Does this 3D model represent what the user requested (and nothing major that they did NOT ask for)?
+1. Does this 3D model represent what the user requested?
 2. Are the key structural features present (even if simplified or stylized)?
 
 IMPORTANT GUIDELINES:
 - Be LENIENT with style/proportions - a blocky/simplified version is acceptable
 - Focus on whether the ESSENTIAL STRUCTURE is present, not perfection
-- For complex assemblies, merged geometry (e.g. chair legs as one block) is fine if recognizable
-- For a SINGLE-PART or minimal request (e.g. "antenna", "capacitor", "washer"), a separate stand, display base, PCB, mounting plate, or "scene" block is almost always WRONG — list it under unrequested_geometry and set has_unrequested_extras to true
+- A chair with 4 legs as a single base is fine (doesn't need 4 separate leg modules)
 - Simplified/merged geometry is acceptable as long as the object is recognizable
 
 Respond with JSON:
@@ -1178,8 +969,6 @@ Respond with JSON:
     "matches_request": true/false,
     "confidence": 0.0-1.0,
     "overall_assessment": "brief description of what you see and how well it matches",
-    "has_unrequested_extras": true/false,
-    "unrequested_geometry": ["e.g. display base, PCB, extra block not mentioned in the request - empty if none"],
     "features_present": [
         {{
             "feature": "name of expected feature",
@@ -1192,7 +981,7 @@ Respond with JSON:
     "suggestions": ["optional improvements, if any"]
 }}
 
-Approve (matches_request true) only if the model is recognizable AND there are no significant unrequested add-ons. Be generous on proportions, strict on spurious extra parts."""
+Be generous - if it looks reasonably like what was requested, approve it."""
 
             # Call vision API
             result_text = self._call_vision_api(
@@ -1201,27 +990,19 @@ Approve (matches_request true) only if the model is recognizable AND there are n
                 view_names=["front", "back", "left", "right", "top", "bottom"],
                 max_tokens=1500,
                 temperature=0.2,
-                json_response=True,
-                sketch_image_path=reference_sketch_path,
+                json_response=True
             )
 
             result = self._extract_json(result_text)
 
             # Build HolisticVerificationResult
-            ugeom = result.get("unrequested_geometry") or []
-            if not isinstance(ugeom, list):
-                ugeom = [str(ugeom)] if ugeom else []
             holistic_result = HolisticVerificationResult(
                 matches_request=result.get("matches_request", False),
                 confidence=result.get("confidence", 0.5),
                 overall_assessment=result.get("overall_assessment", ""),
                 features_present=result.get("features_present", []),
                 missing_critical_features=result.get("missing_critical_features", []),
-                suggestions=result.get("suggestions", []),
-                unrequested_geometry=ugeom,
-                has_unrequested_extras=bool(
-                    result.get("has_unrequested_extras", False) or len(ugeom) > 0
-                ),
+                suggestions=result.get("suggestions", [])
             )
 
             # Convert to PartPresenceCheck list for compatibility
@@ -1284,9 +1065,7 @@ Approve (matches_request true) only if the model is recognizable AND there are n
                 overall_assessment=f"Verification failed: {str(e)}",
                 features_present=[],
                 missing_critical_features=["Verification failed"],
-                suggestions=[],
-                unrequested_geometry=[],
-                has_unrequested_extras=False,
+                suggestions=[]
             ), [
                 PartPresenceCheck(
                     part_name=part,
@@ -1435,15 +1214,6 @@ Expected parts: {', '.join(expected_parts)}"""
         for missing in holistic_result.missing_critical_features:
             issues.append(f"MISSING FEATURE: {missing}")
 
-        if (
-            holistic_result.has_unrequested_extras
-            and holistic_result.unrequested_geometry
-        ):
-            for x in holistic_result.unrequested_geometry:
-                issues.append(
-                    f"REMOVE UNREQUESTED: '{x}' is not in the user's request — delete that geometry"
-                )
-
         # Suggestions from VLM
         for suggestion in holistic_result.suggestions[:3]:  # Limit to top 3
             issues.append(f"IMPROVEMENT: {suggestion}")
@@ -1481,7 +1251,6 @@ HOLISTIC FIX REQUIREMENTS:
 3. Keep the design simple - a blocky/simplified version is acceptable
 4. All parts should be connected into a single solid object
 5. Focus on the OVERALL SHAPE and SILHOUETTE, not fine details
-6. Remove any stands, display bases, PCBs, or mounting blocks that were not requested
 
 Do not add text, labels, or overly complex decorations. Keep it geometric and clean."""
 
@@ -1490,8 +1259,7 @@ Do not add text, labels, or overly complex decorations. Keep it geometric and cl
         current_code: str,
         fix_prompt: str,
         view_images: Dict[str, str],
-        original_prompt: str,
-        reference_sketch_path: Optional[str] = None,
+        original_prompt: str
     ) -> Optional[str]:
         """
         Apply a targeted fix based on the specific issues identified.
@@ -1555,9 +1323,8 @@ FIX REQUIREMENTS:
 2. **RECALCULATE ALL translate() VALUES** to ensure parts touch
 3. Ensure all parts are connected in a single union()
 4. Add slight overlap (1-2mm) between parts for solid connections
-5. If issues require removing unrequested bases/stands/PCBs, delete those modules or difference them out
-6. Do NOT add new "helper" geometry — if fixing connectivity, do not introduce stands or scene extras
-7. Output ONLY the corrected OpenSCAD code
+5. Do NOT change the overall design - only fix connectivity
+6. Output ONLY the corrected OpenSCAD code
 
 CORRECTED CODE:"""
 
@@ -1569,8 +1336,7 @@ CORRECTED CODE:"""
                 view_names=["front", "right", "top"],
                 max_tokens=4000,
                 temperature=0.1,
-                json_response=False,  # We want code, not JSON
-                sketch_image_path=reference_sketch_path,
+                json_response=False  # We want code, not JSON
             )
 
             # Clean up the response
@@ -1657,9 +1423,7 @@ def run_component_verification(
     existing_view_images: Optional[Dict[str, str]] = None,
     essential_parts: Optional[List[str]] = None,
     secondary_parts: Optional[List[str]] = None,
-    optional_parts: Optional[List[str]] = None,
-    kb_components: Optional[List[Any]] = None,
-    reference_sketch_path: Optional[str] = None,
+    optional_parts: Optional[List[str]] = None
 ) -> ComponentVerificationOutput:
     """
     Convenience function to run component verification with tiered thresholds.
@@ -1698,7 +1462,5 @@ def run_component_verification(
         existing_view_images=existing_view_images,
         essential_parts=essential_parts,
         secondary_parts=secondary_parts,
-        optional_parts=optional_parts,
-        kb_components=kb_components,
-        reference_sketch_path=reference_sketch_path,
+        optional_parts=optional_parts
     )

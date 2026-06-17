@@ -1,107 +1,168 @@
 // Dimension-calibrated (target: 0.08 x 0.05 x 0.05 mm)
-scale([0.760012, 0.510008, 0.510008])
+scale([0.760000, 0.510000, 0.510000])
 {
-// Stepped L-shaped block with prominent side notch + rear U-shaped fork pocket
-// Bounding box: 0.1 x 0.1 x 0.1 mm
-// Simplified for reliable/fast rendering (removed complex chamfer wedges)
+// Prismatic stepped L-shaped block with large side notch + rear U-pocket (forked), with chamfers
+// Bounding box enforced: 0.1 x 0.1 x 0.1 mm
 
-$fn = 16;
+$fn = 48;
 
-bbox_X = 0.1;
-bbox_Y = 0.1;
-bbox_Z = 0.1;
+// ---------- Global ----------
+bbox = [0.1, 0.1, 0.1];   // X,Y,Z (mm)
+eps  = 0.0005;           // small overlap to avoid coincident faces
 
-// L thicknesses (legs)
-legX = 0.035;   // thickness of vertical leg in X
-legY = 0.035;   // thickness of horizontal leg in Y
+X = bbox[0];
+Y = bbox[1];
+Z = bbox[2];
 
-// Step (top relief in the inner corner)
-step_h = 0.03;
+// ---------- Primary proportions (kept within bbox) ----------
+leg_w = 0.045;           // X thickness of vertical leg
+arm_d = 0.040;           // Y thickness of horizontal arm
 
-// Large rectangular side notch (cut through full Z)
-side_notch_w  = 0.045;  // depth into X from +X side
-side_notch_y  = 0.060;  // length along Y
-side_notch_y0 = 0.020;  // start offset from -Y
-side_notch_z  = bbox_Z + 0.01; // through all Z with margin
+// Step feature (small ledge on the inside corner)
+step_w = 0.018;          // X extent
+step_d = 0.018;          // Y extent
+step_h = 0.030;          // Z extent
 
-// Rear U-pocket (open to +Y, visible in BACK view as a forked pocket)
-u_depth    = 0.040;  // pocket depth from +Y face inward
-u_outer_x  = 0.070;  // overall width of pocket in X
-u_outer_z  = 0.070;  // overall height of pocket in Z
-u_wall     = 0.012;  // side walls thickness (fork tines)
-u_floor    = 0.012;  // bottom floor thickness (in Z)
-u_center_x = 0.0;
-u_z0       = -bbox_Z/2; // start at bottom
+// Side rectangular notch (large cutout on one side) - cut from +Y side
+notch_w = 0.040;         // X
+notch_d = 0.030;         // Y depth from +Y
+notch_h = 0.060;         // Z
+notch_x0 = 0.020;        // start X from -X face
+notch_z0 = 0.020;        // start Z from -Z face
 
-eps = 0.0005;
+// Rear U-shaped recess (visible from back, forked pocket) - open to -Y
+u_w    = 0.060;          // X overall pocket width
+u_d    = 0.030;          // Y depth from -Y face
+u_h    = 0.060;          // Z height
+u_x0   = 0.015;          // start X from -X face
+u_z0   = 0.020;          // start Z from -Z face
+u_wall = 0.010;          // side wall thickness (fork tines)
+u_floor= 0.010;          // bottom thickness inside pocket
 
-// ---------- Main geometry ----------
-module L_solid() {
-    // Union of two overlapping legs
+// Chamfers
+ch_ext = 0.006;          // external chamfer size
+ch_int = 0.006;          // internal chamfer size
+
+// ---------- Helpers ----------
+module chamfer_wedge_Z(size, zspan, corner=[1,1]) {
+    // corner: [sx,sy] where sx,sy are +1 or -1 indicating which XY corner
+    sx = corner[0];
+    sy = corner[1];
+    linear_extrude(height=zspan, center=true)
+        polygon(points=[
+            [0,0],
+            [sx*size,0],
+            [0,sy*size]
+        ]);
+}
+
+module chamfer_wedge_X(size, xspan, corner=[1,1]) {
+    // corner: [sy,sz] in YZ plane
+    sy = corner[0];
+    sz = corner[1];
+    rotate([0,90,0])
+        linear_extrude(height=xspan, center=true)
+            polygon(points=[
+                [0,0],
+                [sy*size,0],
+                [0,sz*size]
+            ]);
+}
+
+// ---------- Base solid (connected) ----------
+module base_L() {
     union() {
-        // horizontal leg (thin in Y)
-        translate([0, -bbox_Y/2 + legY/2, 0])
-            cube([bbox_X, legY, bbox_Z], center=true);
+        // Vertical leg: X in [-X/2, -X/2+leg_w], full Y, full Z
+        translate([-X/2 + leg_w/2, 0, 0])
+            cube([leg_w, Y, Z], center=true);
 
-        // vertical leg (thin in X)
-        translate([-bbox_X/2 + legX/2, 0, 0])
-            cube([legX, bbox_Y, bbox_Z], center=true);
+        // Horizontal arm: full X, Y in [-Y/2, -Y/2+arm_d], full Z
+        translate([0, -Y/2 + arm_d/2, 0])
+            cube([X, arm_d, Z], center=true);
+
+        // Step/ledge near inside corner (adds a small boss)
+        // Ensure it actually intersects both leg and arm with a tiny overlap (eps)
+        translate([
+            (-X/2 + leg_w) + step_w/2 - eps,
+            (-Y/2 + arm_d) + step_d/2 - eps,
+            -Z/2 + step_h/2
+        ])
+            cube([step_w + 2*eps, step_d + 2*eps, step_h], center=true);
     }
 }
 
-module step_cut() {
-    // Remove a top step in the inner corner region
-    x_len = (bbox_X - legX) + 2*eps;
-    y_len = (bbox_Y - legY) + 2*eps;
-    z_len = step_h + 2*eps;
-
-    translate([(-bbox_X/2 + legX) + x_len/2 - eps,
-               (-bbox_Y/2 + legY) + y_len/2 - eps,
-               bbox_Z/2 - z_len/2 + eps])
-        cube([x_len, y_len, z_len], center=true);
-}
-
+// ---------- Cuts ----------
 module side_notch_cut() {
-    // Side notch from +X face, through full Z
-    x_len = side_notch_w + 2*eps;
-    y_len = side_notch_y + 2*eps;
-    z_len = side_notch_z;
-
-    translate([bbox_X/2 - x_len/2 + eps,
-               -bbox_Y/2 + side_notch_y0 + y_len/2 - eps,
-               0])
-        cube([x_len, y_len, z_len], center=true);
+    // Cut from +Y side into the part (clearly side-opening)
+    // Place so its +Y face is slightly beyond +Y/2 to guarantee opening.
+    translate([
+        -X/2 + notch_x0 + notch_w/2,
+        (Y/2) - (notch_d/2) + eps,
+        -Z/2 + notch_z0 + notch_h/2
+    ])
+        cube([notch_w, notch_d + 2*eps, notch_h], center=true);
 }
 
-module rear_U_cut() {
-    // U-shaped recess open to +Y: subtract inner from outer to leave two side walls + floor
-    outer_x = u_outer_x;
-    outer_z = u_outer_z;
-
-    inner_x = max(outer_x - 2*u_wall, 0.001);
-    inner_z = max(outer_z - u_floor, 0.001);
-
-    y_center = bbox_Y/2 - u_depth/2 + eps;
+module rear_U_fork_cut() {
+    // Create a forked U-pocket open to -Y by subtracting:
+    // 1) an outer pocket volume (opens to -Y)
+    // 2) an inner slot volume (leaves two tines + a floor)
+    x_c = -X/2 + u_x0 + u_w/2;
+    y_c = -Y/2 + u_d/2 - eps;   // pushes slightly out of -Y face to ensure opening
+    z_c = -Z/2 + u_z0 + u_h/2;
 
     // Outer pocket volume
-    translate([u_center_x, y_center, u_z0 + outer_z/2])
-    difference() {
-        cube([outer_x, u_depth + 2*eps, outer_z], center=true);
+    translate([x_c, y_c, z_c])
+        cube([u_w, u_d + 2*eps, u_h], center=true);
 
-        // Inner removal (slightly longer in Y to ensure clean opening)
-        translate([0, 0, (u_floor/2) + (inner_z/2)])
-            cube([inner_x, u_depth + 4*eps, inner_z + 2*eps], center=true);
-    }
+    // Inner slot (removes center, leaving fork tines and floor)
+    // Make it slightly deeper to avoid coplanar faces with outer pocket.
+    translate([x_c, y_c - eps, z_c + u_floor/2])
+        cube([u_w - 2*u_wall, u_d + 4*eps, u_h - u_floor], center=true);
 }
 
-module model() {
-    difference() {
-        L_solid();
-        step_cut();
-        side_notch_cut();
-        rear_U_cut();
-    }
+module internal_chamfer_cut() {
+    // Chamfer an internal corner of the inner slot (machined detail).
+    // Target: inside top-back corner of the inner slot (open side is -Y),
+    // so chamfer at Y = (-Y/2 + u_d) and Z = (-Z/2 + u_z0 + u_h).
+    xspan = (u_w - 2*u_wall) + 2*eps;
+
+    x_c    = -X/2 + u_x0 + u_w/2;
+    y_back = (-Y/2 + u_d) - eps;          // back wall of pocket (inside)
+    z_top  = (-Z/2 + u_z0 + u_h) - eps;   // top of pocket
+
+    translate([x_c, y_back, z_top])
+        chamfer_wedge_X(ch_int, xspan, corner=[-1,-1]);
 }
 
-model();
+module external_chamfers_cut() {
+    zspan = Z + 2*eps;
+
+    // XY vertical edge breaks (all four outer corners)
+    translate([ X/2,  Y/2, 0]) chamfer_wedge_Z(ch_ext, zspan, corner=[-1,-1]);
+    translate([-X/2,  Y/2, 0]) chamfer_wedge_Z(ch_ext, zspan, corner=[ 1,-1]);
+    translate([ X/2, -Y/2, 0]) chamfer_wedge_Z(ch_ext, zspan, corner=[-1, 1]);
+    translate([-X/2, -Y/2, 0]) chamfer_wedge_Z(ch_ext, zspan, corner=[ 1, 1]);
+}
+
+module top_edge_break_cut() {
+    // Break along top front edge (Y = +Y/2, Z = +Z/2), spanning full X
+    xspan = X + 2*eps;
+    translate([0, Y/2, Z/2])
+        chamfer_wedge_X(ch_ext, xspan, corner=[-1,-1]);
+}
+
+// ---------- Final model ----------
+difference() {
+    base_L();
+
+    // Primary cuts (side notch + rear forked U-pocket)
+    side_notch_cut();
+    rear_U_fork_cut();
+
+    // Chamfers
+    internal_chamfer_cut();
+    external_chamfers_cut();
+    top_edge_break_cut();
+}
 }

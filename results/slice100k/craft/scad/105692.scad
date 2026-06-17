@@ -1,91 +1,92 @@
-$fn = 96;
+$fn = 128;
 
-// Parameters (mm)
-bbox_X = 29.78;
-bbox_Y = 30.86;
+// Target bounding box (approx): 29.8 x 30.9 x 6.0 mm
+bbox_X = 30.86;
+bbox_Y = 29.78;
 bbox_Z = 6.0;
 
-body_thickness = bbox_Z;
+ring_thickness = bbox_Z;
 
+// Outer octagon (nut-like) - true octagon with flats aligned to X/Y
 outer_flat_to_flat_X = bbox_X;
 outer_flat_to_flat_Y = bbox_Y;
 
-bore_d = 18.0;
+// Inner bore + keyways (two opposing, left-right)
+bore_d = 20;
+keyway_w = 3;                 // tangential width (Y)
+keyway_depth_radial = 2;      // radial depth outward from bore
+keyway_len_axial = bbox_Z;    // through full thickness
 
-// Keyway/notch parameters (rectangular cutouts interrupting the bore)
-keyway_w = 3.0;                 // tangential width (Y)
-keyway_depth_radial = 2.0;      // radial intrusion into ring from bore wall (X)
-keyway_length_axial = bbox_Z;   // through
+// Pins/tabs (two small cylinders) on +Z face near +X edge
+pin_d = 2;
+pin_h = 1.2;                  // protrusion beyond 6mm plate
+pin_edge_offset = 2;          // from outer edge toward center
+pin_spacing = 6;              // center-to-center in Y
 
-// Pins/tabs
-pin_d = 2.0;
-pin_h = 1.2;
-pin_edge_offset = 2.0;          // from outer edge inward (Y)
-pin_spacing = 6.0;              // center-to-center along X
+// Robust boolean overlap / connectivity overlap
+overlap = 1.2;                // 1-2mm overlap for solid connections
 
-// Overlaps / robustness
-cut_overlap = 1.0;              // extra length for cutters so they fully cut
-attach_overlap = 1.0;           // overlap between pins and body for solid union
-
-// Helpers
-function oct_points(w, h) =
-    let(
-        a = w/2,
-        b = h/2,
-        c = min(w, h) * 0.22
-    )
+// ---------- Helpers ----------
+function oct_points_from_flats(fx, fy) =
+    let(a = fx/2, b = fy/2,
+        // corner cut so resulting polygon is an octagon with flats on X/Y
+        c = min(a, b) * (sqrt(2) - 1))
     [
-        [ a - c,  b],
-        [ a,      b - c],
-        [ a,     -b + c],
-        [ a - c, -b],
-        [-a + c, -b],
-        [-a,     -b + c],
-        [-a,      b - c],
-        [-a + c,  b]
+      [ a - c,  b],
+      [ a,      b - c],
+      [ a,     -b + c],
+      [ a - c, -b],
+      [-a + c, -b],
+      [-a,     -b + c],
+      [-a,      b - c],
+      [-a + c,  b]
     ];
 
-module outer_octagon_prism() {
-    linear_extrude(height=body_thickness, center=true)
-        polygon(points=oct_points(outer_flat_to_flat_X, outer_flat_to_flat_Y));
+module outer_oct_prism(h){
+  linear_extrude(height=h, center=true)
+    polygon(points=oct_points_from_flats(outer_flat_to_flat_X, outer_flat_to_flat_Y));
 }
 
-module bore_and_keyways_cutter() {
-    // This is a CUTTER (to be subtracted): bore + two opposing rectangular notches
-    union() {
-        // main through-bore
-        cylinder(d=bore_d, h=body_thickness + 2*cut_overlap, center=true);
-
-        // two opposing rectangular keyways/notches intruding into bore
-        // Place each notch so it overlaps the bore wall and clearly interrupts the circle.
-        // Center is slightly OUTSIDE the bore radius so the notch cuts into the ring.
-        for (sx = [-1, 1]) {
-            translate([sx*(bore_d/2 + keyway_depth_radial/2), 0, 0])
-                cube([keyway_depth_radial, keyway_w, body_thickness + 2*cut_overlap], center=true);
-        }
-    }
+module bore_cut(){
+  cylinder(d=bore_d, h=ring_thickness + 2*overlap, center=true);
 }
 
-module outer_ring_body() {
-    difference() {
-        outer_octagon_prism();
-        bore_and_keyways_cutter();
-    }
+module keyway_cut(sign=1){
+  // Two opposing rectangular notches opening into the bore, oriented along X (left-right)
+  // Start slightly inside bore and extend outward; ensure full-through cut.
+  x_center = sign * (bore_d/2 + keyway_depth_radial/2 - overlap/2);
+  translate([x_center, 0, 0])
+    cube([keyway_depth_radial + overlap, keyway_w, keyway_len_axial + 2*overlap], center=true);
 }
 
-module pins() {
-    // Pins protrude from +Z face, near +Y edge, spaced along X.
-    // Ensure they intersect the body by attach_overlap.
-    zc = body_thickness/2 + pin_h/2 - attach_overlap;
-    yc = outer_flat_to_flat_Y/2 - pin_edge_offset - pin_d/2;
+module pins(){
+  // Two small cylindrical pins protruding from ONLY the +Z face near the +X outer edge.
+  // Ensure they intersect the ring by `overlap` for a single connected solid.
+  x_pin = outer_flat_to_flat_X/2 - pin_edge_offset - pin_d/2;
 
-    for (x = [-pin_spacing/2, pin_spacing/2]) {
-        translate([x, yc, zc])
-            cylinder(d=pin_d, h=pin_h, center=true);
-    }
+  // Place so the pin bottom is embedded into the ring by `overlap`
+  // ring top surface is at +ring_thickness/2
+  // pin bottom = z_pin - pin_h/2 = ring_thickness/2 - overlap
+  z_pin = ring_thickness/2 - overlap + pin_h/2;
+
+  union(){
+    translate([x_pin,  pin_spacing/2, z_pin]) cylinder(d=pin_d, h=pin_h, center=true);
+    translate([x_pin, -pin_spacing/2, z_pin]) cylinder(d=pin_d, h=pin_h, center=true);
+  }
 }
 
-union() {
-    outer_ring_body();
-    pins();
+// ---------- Model ----------
+module ring_body(){
+  difference(){
+    outer_oct_prism(ring_thickness);
+    bore_cut();
+    keyway_cut( 1);
+    keyway_cut(-1);
+  }
+}
+
+// Single connected solid
+union(){
+  ring_body();
+  pins();
 }

@@ -1,132 +1,93 @@
-// Parameters
-bbox_L = 92.71; //[46.355:185.42:0.01]
-bbox_W = 67.7; //[33.85:135.4:0.01]
-bbox_H = 10.79; //[5.395:21.58:0.01]
-plate_t = 3.0; //[1.5:6.0:0.1]
-boss_h = 7.79; //[3.895:15.58:0.01]
-center_L = 26.0; //[13.0:52.0:0.1]
-center_W = 18.0; //[9.0:36.0:0.1]
-arm_w = 10.0; //[5.0:20.0:0.1]
-lug_od = 16.0; //[8.0:32.0:0.1]
-hole_d = 5.0; //[2.5:10.0:0.1]
-lug_center_offset_x = 38.0; //[19.0:76.0:0.1]
-lug_center_offset_y = 25.0; //[12.5:50.0:0.1]
-arm_end_overlap = 2.0; //[0.5:4.0:0.1]
-outer_edge_clearance = 0.0; //[0.0:2.0:0.1]
-conn_overlap = 1.0; //[0.5:2.0:0.1]
-open_margin = 1.0; //[0.5:4.0:0.1]
-open_r = 12.0; //[6.0:24.0:0.1]
-edge_round_r = 0.8; //[0.0:2.0:0.1]
-csk_d = 9.0; //[6.0:14.0:0.1]
-csk_h = 2.0; //[0.5:4.0:0.1]
+$fn = 96;
 
-// Central Plate
-module central_plate() {
-  translate([0, 0, 0])
-    cube([center_L, center_W, plate_t], center=true);
-}
+// Target bounding box (approx): 92.7 x 67.7 x 10.8 mm
 
-// Arm Module
-module arm(x_offset, y_offset, angle) {
-  length = sqrt((lug_center_offset_x - center_L/2 + arm_end_overlap)^2 + (lug_center_offset_y - center_W/2 + arm_end_overlap)^2);
-  translate([(center_L/2 + x_offset)/2, (center_W/2 + y_offset)/2, 0])
-    rotate([0, 0, angle])
-      cube([length, arm_w, plate_t], center=true);
-}
+// Key dimensions
+bbox_L = 92.71;
+bbox_W = 67.70;
+bbox_H = 10.79;
 
-// Lug Module
-module lug(x_offset, y_offset) {
-  translate([x_offset, y_offset, plate_t/2 + boss_h/2 - conn_overlap/2])
-    cylinder(h=boss_h, r=lug_od/2, center=true);
-}
+plate_t = 3.20;          // main plate thickness
+boss_h  = bbox_H - plate_t;
 
-// Hole Module
-module hole(x_offset, y_offset) {
-  translate([x_offset, y_offset, boss_h/2])
-    cylinder(h=bbox_H + 2*conn_overlap, r=hole_d/2, center=true);
-}
+plate_L = 34.0;          // central rectangle length (X)
+plate_W = 22.0;          // central rectangle width  (Y)
 
-// Counterbore Module
-module counterbore(x_offset, y_offset) {
-  translate([x_offset, y_offset, plate_t/2 + boss_h - (csk_h + conn_overlap)/2])
-    cylinder(h=csk_h + conn_overlap, r=csk_d/2, center=true);
-}
+arm_w   = 10.0;          // arm width
+lug_od  = 18.0;          // lug outer diameter
+hole_d  = 5.20;          // through-hole diameter
 
-// Open Area Module
-module open_area(x_offset, y_offset) {
-  translate([x_offset, y_offset, 0])
-    cylinder(h=plate_t + 2*conn_overlap, r=open_r, center=true);
-}
+// Lug center offsets (set to hit the target bbox)
+lug_center_offset_x = bbox_L/2 - lug_od/2;  // 37.355
+lug_center_offset_y = bbox_W/2 - lug_od/2;  // 25.85
 
-// Arm Root Blends
-module arm_root_blends() {
-  cylinder(h=plate_t, r=arm_w/2, center=true);
-}
+// Small overlaps to guarantee watertight unions/differences
+eps = 0.05;
+overlap = 0.6;
 
-// Edge Rounding Sphere
-module edge_rounding_sphere() {
-  sphere(r=edge_round_r, center=true);
-}
+// Derived
+boss_zc = plate_t + boss_h/2;     // boss center Z (boss sits on top of plate)
+plate_zc = plate_t/2;
 
-// Assemble Bracket
-module bracket() {
-  union() {
-    central_plate();
-    arm(lug_center_offset_x, lug_center_offset_y, atan2((lug_center_offset_y - center_W/2 + arm_end_overlap), (lug_center_offset_x - center_L/2 + arm_end_overlap)));
-    arm(-lug_center_offset_x, lug_center_offset_y, 180 - atan2((lug_center_offset_y - center_W/2 + arm_end_overlap), (lug_center_offset_x - center_L/2 + arm_end_overlap)));
-    arm(lug_center_offset_x, -lug_center_offset_y, -atan2((lug_center_offset_y - center_W/2 + arm_end_overlap), (lug_center_offset_x - center_L/2 + arm_end_overlap)));
-    arm(-lug_center_offset_x, -lug_center_offset_y, 180 + atan2((lug_center_offset_y - center_W/2 + arm_end_overlap), (lug_center_offset_x - center_L/2 + arm_end_overlap)));
-    lug(lug_center_offset_x, lug_center_offset_y);
-    lug(-lug_center_offset_x, lug_center_offset_y);
-    lug(lug_center_offset_x, -lug_center_offset_y);
-    lug(-lug_center_offset_x, -lug_center_offset_y);
-  }
-}
+// 2D helpers
+module rect2d(L, W) { square([L, W], center=true); }
+module circ2d(d)    { circle(d=d); }
 
-// Weight Reduction Open Areas
-module weight_reduction() {
-  union() {
-    open_area(0, center_W/2 + open_r + open_margin);
-    open_area(0, -(center_W/2 + open_r + open_margin));
-    open_area(center_L/2 + open_r + open_margin, 0);
-    open_area(-(center_L/2 + open_r + open_margin), 0);
-  }
-}
+// One arm as a 2D hull between a rectangle at the plate corner and a circle at the lug center
+module arm2d(sx, sy) {
+    // Plate corner point where arm starts (outer corner of central plate)
+    px = sx * plate_L/2;
+    py = sy * plate_W/2;
 
-// All Holes
-module all_holes() {
-  union() {
-    hole(lug_center_offset_x, lug_center_offset_y);
-    hole(-lug_center_offset_x, lug_center_offset_y);
-    hole(lug_center_offset_x, -lug_center_offset_y);
-    hole(-lug_center_offset_x, -lug_center_offset_y);
-  }
-}
+    // Lug center
+    lx = sx * lug_center_offset_x;
+    ly = sy * lug_center_offset_y;
 
-// All Counterbores
-module all_counterbores() {
-  union() {
-    counterbore(lug_center_offset_x, lug_center_offset_y);
-    counterbore(-lug_center_offset_x, lug_center_offset_y);
-    counterbore(lug_center_offset_x, -lug_center_offset_y);
-    counterbore(-lug_center_offset_x, -lug_center_offset_y);
-  }
-}
-
-// Final Bracket with Cutouts
-module final_bracket() {
-  difference() {
-    bracket();
-    weight_reduction();
-    union() {
-      all_holes();
-      all_counterbores();
+    hull() {
+        translate([px, py]) rect2d(arm_w, arm_w);
+        translate([lx, ly]) circ2d(lug_od);
     }
-  }
 }
 
-// Final Output
-minkowski() {
-  final_bracket();
-  edge_rounding_sphere();
+// Full 2D outline: central plate + 4 arms + 4 lug discs
+module outline2d() {
+    union() {
+        rect2d(plate_L, plate_W);
+
+        arm2d( 1,  1);
+        arm2d(-1,  1);
+        arm2d( 1, -1);
+        arm2d(-1, -1);
+
+        // Ensure full circular lugs are present
+        translate([ lug_center_offset_x,  lug_center_offset_y]) circ2d(lug_od);
+        translate([-lug_center_offset_x,  lug_center_offset_y]) circ2d(lug_od);
+        translate([ lug_center_offset_x, -lug_center_offset_y]) circ2d(lug_od);
+        translate([-lug_center_offset_x, -lug_center_offset_y]) circ2d(lug_od);
+    }
 }
+
+// Main solid: planar plate + raised bosses at lugs, then subtract through-holes
+module bracket() {
+    difference() {
+        union() {
+            // Base plate (planar X-shape)
+            linear_extrude(height=plate_t)
+                outline2d();
+
+            // Raised cylindrical bosses at the four mounting points (connected to plate)
+            for (sx = [-1, 1], sy = [-1, 1]) {
+                translate([sx*lug_center_offset_x, sy*lug_center_offset_y, plate_t - overlap])
+                    cylinder(h=boss_h + overlap, d=lug_od, center=false);
+            }
+        }
+
+        // Through-holes at the four mounting points (cut through entire thickness)
+        for (sx = [-1, 1], sy = [-1, 1]) {
+            translate([sx*lug_center_offset_x, sy*lug_center_offset_y, -eps])
+                cylinder(h=bbox_H + 2*eps, d=hole_d, center=false);
+        }
+    }
+}
+
+bracket();

@@ -1,144 +1,117 @@
-// Connected L/C bracket with clear end-plate slope and through hex hole
-// Bounding box target: 55.44 x 31.55 x 37.52 mm (X x Y x Z)
+// Parameters
+L = 55.44; //[27.72:110.88:0.01]
+W = 31.55; //[15.78:63.1:0.01]
+H = 37.52; //[18.76:75.04:0.01]
+beam_h = 12.0; //[6.0:24.0:0.1]
+beam_w = 18.0; //[9.0:31.55:0.1]
+end_plate_t = 8.0; //[4.0:16.0:0.1]
+end_plate_h = 37.52; //[18.76:37.52:0.01]
+leg_t = 8.0; //[4.0:16.0:0.1]
+leg_h = 20.0; //[10.0:37.52:0.1]
+hex_flat = 10.0; //[5.0:20.0:0.1]
+hex_axis_h = 40.0; //[20.0:80.0:0.1]
+hex_center_x = 27.72; //[0.0:55.44:0.01]
+hex_center_y = 15.775; //[0.0:31.55:0.001]
+hex_center_z = 6.0; //[0.0:37.52:0.1]
+top_slope_drop = 10.0; //[5.0:20.0:0.1]
+top_slope_run = 16.0; //[8.0:32.0:0.1]
+overlap = 1.0; //[0.5:2.0:0.1]
+fillet_r = 1.2; //[0.6:2.4:0.1]
+small_chamfer = 0.8; //[0.4:1.6:0.1]
 
-$fn = 96;
-
-// Bounding box
-bbox_L = 55.44;
-bbox_W = 31.55;
-bbox_H = 37.52;
-
-// Main members
-beam_L = bbox_L;
-beam_W = bbox_W;
-beam_H = 10;
-
-end_plate_t = 6;
-end_plate_H = bbox_H;
-
-leg_t = 6;
-leg_H = 18;
-
-// Hex hole (through beam thickness, along Z)
-hex_AF = 10;
-hex_axis_angle_deg = 0;
-hex_center_x_from_left = 27.72;
-hex_center_y_from_front = 15.775;
-hex_clearance = 0.2;
-
-// End-plate slope (top chamfer)
-slope_drop = 8;
-slope_run  = 12;
-
-// Small edge chamfers on beam (optional)
-beam_edge_chamfer = 1;
-
-// Small cylindrical reliefs at junctions
-relief_r = 2;
-relief_depth = 1.5;
-
-overlap = 0.5;
-
-// Helpers
-function hex_R_from_AF(af) = af / sqrt(3); // circumradius for pointy-top hex when AF is across flats
-
+// Base Shapes
 module horizontal_beam() {
-  translate([0, 0, -bbox_H/2 + beam_H/2])
-    cube([beam_L, beam_W, beam_H], center=true);
+  translate([0, 0, -H/2 + beam_h/2])
+    cube([L, beam_w, beam_h], center=true);
 }
 
 module tall_vertical_end_plate() {
-  translate([-beam_L/2 + end_plate_t/2, 0, -bbox_H/2 + end_plate_H/2])
-    cube([end_plate_t, beam_W, end_plate_H], center=true);
+  translate([-L/2 + end_plate_t/2, 0, 0])
+    cube([end_plate_t, W, end_plate_h], center=true);
 }
 
 module short_vertical_support_leg() {
-  translate([beam_L/2 - leg_t/2, 0, -bbox_H/2 + leg_H/2])
-    cube([leg_t, beam_W, leg_H], center=true);
+  translate([L/2 - leg_t/2, 0, -H/2 + leg_h/2])
+    cube([leg_t, W, leg_h], center=true);
 }
 
-module hex_hole_prism() {
-  af = hex_AF + hex_clearance;
-  R  = hex_R_from_AF(af);
-
-  // Centered in XY, extruded through beam thickness in Z
-  translate([
-      -beam_L/2 + hex_center_x_from_left,
-      -beam_W/2 + hex_center_y_from_front,
-      -bbox_H/2 + beam_H/2
-    ])
-    rotate([0, 0, hex_axis_angle_deg])
-      linear_extrude(height=beam_H + 2*overlap, center=true)
-        polygon(points=[
-          [ R, 0],
-          [ R/2,  af/2],
-          [-R/2,  af/2],
-          [-R, 0],
-          [-R/2, -af/2],
-          [ R/2, -af/2]
-        ]);
+module end_plate_top_chamfer_slope() {
+  rotate([0, atan(top_slope_drop/top_slope_run), 0])
+    translate([-L/2 + top_slope_run/2 - overlap, 0, H/2 - top_slope_drop/2 + overlap])
+      cube([top_slope_run, W + 2*overlap, top_slope_drop], center=true);
 }
 
-module slope_cut_wedge() {
-  // Cut a wedge from the TOP of the tall end plate to create a visible sloped face.
-  // Slope runs along +X (from left edge toward beam), dropping in Z by slope_drop over slope_run.
-  ang = atan(slope_drop / slope_run);
-
-  x_left = -beam_L/2;
-  x_right = x_left + end_plate_t;
-  z_top = -bbox_H/2 + end_plate_H;
-
-  // Use a large cutter rotated about Y; positioned so it intersects the plate top.
-  // Make it wide in Y and tall in Z to guarantee a clean cut.
-  translate([x_right - slope_run/2, 0, z_top - slope_drop/2])
-    rotate([0, -ang, 0])
-      cube([slope_run + 4*overlap, beam_W + 4*overlap, slope_drop + end_plate_H + 4*overlap], center=true);
+module through_hex_hole() {
+  translate([-L/2 + hex_center_x, -W/2 + hex_center_y, -H/2 + hex_center_z])
+    linear_extrude(height=hex_axis_h, center=true)
+      polygon(points=[
+        [hex_flat/sqrt(3), 0],
+        [hex_flat/(2*sqrt(3)), hex_flat/2],
+        [-hex_flat/(2*sqrt(3)), hex_flat/2],
+        [-hex_flat/sqrt(3), 0],
+        [-hex_flat/(2*sqrt(3)), -hex_flat/2],
+        [hex_flat/(2*sqrt(3)), -hex_flat/2]
+      ]);
 }
 
-module beam_chamfer_wedge_top_front() {
-  if (beam_edge_chamfer > 0)
-    translate([0, beam_W/2 - beam_edge_chamfer/2, -bbox_H/2 + beam_H - beam_edge_chamfer/2])
-      rotate([45, 0, 0])
-        cube([beam_L + 4*overlap, beam_edge_chamfer, beam_edge_chamfer], center=true);
+module small_chamfers_on_external_edges() {
+  translate([0, 0, H/2 - small_chamfer/2 + overlap])
+    cube([L + 2*overlap, W + 2*overlap, small_chamfer], center=true);
 }
 
-module beam_chamfer_wedge_top_back() {
-  if (beam_edge_chamfer > 0)
-    translate([0, -beam_W/2 + beam_edge_chamfer/2, -bbox_H/2 + beam_H - beam_edge_chamfer/2])
-      rotate([-45, 0, 0])
-        cube([beam_L + 4*overlap, beam_edge_chamfer, beam_edge_chamfer], center=true);
+module mounting_holes_other_than_hex() {
+  translate([L/2 - leg_t/2, 0, -H/2 + beam_h/2])
+    rotate([90, 0, 0])
+      cylinder(r=2.0, h=W + 2*overlap, center=true);
 }
 
-module alignment_relief_left() {
-  // Relief at left plate/beam junction (cuts into beam near plate)
-  translate([-beam_L/2 + end_plate_t + relief_depth/2, 0, -bbox_H/2 + beam_H/2])
-    rotate([0, 90, 0])
-      cylinder(r=relief_r, h=relief_depth + 2*overlap, center=true);
+module edge_fillets() {
+  sphere(r=fillet_r, center=true);
 }
 
-module alignment_relief_right() {
-  // Relief at right leg/beam junction (cuts into beam near leg)
-  translate([beam_L/2 - leg_t - relief_depth/2, 0, -bbox_H/2 + beam_H/2])
-    rotate([0, 90, 0])
-      cylinder(r=relief_r, h=relief_depth + 2*overlap, center=true);
-}
-
-module final_bracket() {
-  difference() {
-    union() {
-      horizontal_beam();
-      tall_vertical_end_plate();
-      short_vertical_support_leg();
-    }
-
-    // Cuts
-    slope_cut_wedge();
-    beam_chamfer_wedge_top_front();
-    beam_chamfer_wedge_top_back();
-    alignment_relief_left();
-    alignment_relief_right();
-    hex_hole_prism();
+// Operations
+module union_main_solids() {
+  union() {
+    horizontal_beam();
+    tall_vertical_end_plate();
+    short_vertical_support_leg();
   }
 }
 
-color("Silver") final_bracket();
+module difference_end_plate_slope() {
+  difference() {
+    union_main_solids();
+    end_plate_top_chamfer_slope();
+  }
+}
+
+module difference_hex_hole() {
+  difference() {
+    difference_end_plate_slope();
+    through_hex_hole();
+  }
+}
+
+module difference_other_mounting_hole() {
+  difference() {
+    difference_hex_hole();
+    mounting_holes_other_than_hex();
+  }
+}
+
+module difference_small_chamfers() {
+  difference() {
+    difference_other_mounting_hole();
+    small_chamfers_on_external_edges();
+  }
+}
+
+module minkowski_edge_fillets() {
+  minkowski() {
+    difference_small_chamfers();
+    edge_fillets();
+  }
+}
+
+// Final Output
+minkowski_edge_fillets();

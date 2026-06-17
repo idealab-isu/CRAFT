@@ -1,134 +1,151 @@
 // Dimension-calibrated (target: 0.03 x 0.01 x 0.03 mm)
-scale([1.033375, 1.000168, 3.100521])
+scale([0.848664, 0.909091, 2.818182])
 {
-// Compact faceted cylindrical tool body with:
-// - central hex through-bore (visible on both ends)
-// - multiple smaller hexagonal through-holes arranged around it on ONE end face (-X end)
-// - stepped collar near one end (-X)
-// - domed/capped opposite end (+X)
-// Units: meters
+// Compact faceted cylindrical tool body with central + peripheral hex through-holes,
+// stepped collar on one end, and a domed/capped opposite end.
+//
+// Structural fixes applied:
+// - Make the hex bores unambiguously visible on the *-X end face* by ensuring the dome/cap
+//   does NOT cover that end (cap stays on +X only).
+// - Ensure ALL bores are true through-holes by cutting longer than the full solid extent.
+// - Recalculate all translate() placements so collar/chamfer/cap overlap the main body.
+// - Keep everything as one connected solid (union) then subtract bores (difference).
 
-// ---------- Quality ----------
-$fn = 64;
-facet_count = 12;
+// ---------- Parameters (meters; keep as provided) ----------
+L = 0.03; //[0.015:0.06:0.001]          // overall length (X axis)
+body_flat_d = 0.009; //[0.0045:0.018:0.0005]
+facet_count = 12; //[6:24:1]
 
-// ---------- Parameters ----------
-body_len      = 0.026;
-body_flat_d   = 0.0092;
+bore_hex_flat_d = 0.004; //[0.002:0.008:0.0005]
+bore_clearance = 0.0; //[0.0:0.001:0.0001]
 
-collar_len    = 0.0025;
-collar_flat_d = 0.010;
+small_hex_count = 6; //[3:12:1]
+small_hex_flat_d = 0.0016; //[0.0008:0.0032:0.0001]
+small_hex_ring_r = 0.0032; //[0.0016:0.0064:0.0001]
 
-dome_len      = 0.0015;   // axial length of cap segment
-dome_r        = 0.005;    // sphere radius used to form cap
+collar_len = 0.004; //[0.002:0.008:0.0005]
+collar_flat_d = 0.01; //[0.005:0.02:0.0005]
 
-bore_hex_af   = 0.0036;
+cap_len = 0.003; //[0.0015:0.006:0.0005]
+cap_dome_r = 0.0045; //[0.002:0.009:0.0005]
 
-hole_count    = 6;
-hole_hex_af   = 0.0016;
-hole_ring_r   = 0.0032;
-
-recess_depth  = 0.0006;
-recess_af     = 0.0068;
-
-// Robust overlap for unions/cuts (1–2mm)
-overlap       = 0.0012;
-
-// ---------- Derived extents (axis along X) ----------
-x_body_min   = -body_len/2;
-x_body_max   =  body_len/2;
-
-x_collar_min = x_body_min - collar_len + overlap; // overlaps into body
-x_collar_max = x_body_min + overlap;
-
-x_neg_end    = x_collar_min; // outermost -X end face
-x_pos_end    = x_body_max + dome_len; // outermost +X end (cap tip plane)
+overlap = 0.0012; //[0.0002:0.002:0.0001]   // ~1.2mm overlap for robust connections
+chamfer_len = 0.001; //[0.0003:0.002:0.0001]
 
 // ---------- Helpers ----------
-function hex_R_from_AF(af) = af / sqrt(3); // circumradius for hex with given across-flats
+function circumradius_from_flat(flat_d) = flat_d/sqrt(3); // center->vertex
 
-module hex_prism_x(af, len, center=true) {
+module hex2d_from_flat(flat_d) {
+  r = circumradius_from_flat(flat_d);
+  polygon(points=[ for (a=[0:60:300]) [ r*cos(a), r*sin(a) ] ]);
+}
+
+module faceted_cyl_x(len, flat_d, facets) {
+  // Faceted outer profile extruded along X
+  rotate([0,90,0])
+    linear_extrude(height=len, center=true)
+      polygon(points=[ for (i=[0:facets-1])
+        [ (flat_d/2)*cos(i*360/facets), (flat_d/2)*sin(i*360/facets) ]
+      ]);
+}
+
+module hex_bore_x(len, flat_d) {
+  rotate([0,90,0])
+    linear_extrude(height=len, center=true)
+      hex2d_from_flat(flat_d);
+}
+
+module small_hex_bore_x(len, flat_d, ang_deg) {
+  translate([0, small_hex_ring_r*cos(ang_deg), small_hex_ring_r*sin(ang_deg)])
     rotate([0,90,0])
-        linear_extrude(height=len, center=center, convexity=10)
-            circle(r=hex_R_from_AF(af), $fn=6);
+      linear_extrude(height=len, center=true)
+        hex2d_from_flat(flat_d);
 }
 
-// ---------- Main solids (axis along X) ----------
-module main_faceted_body() {
+module end_chamfer_x(x_plane, flat_d, chamfer) {
+  // Bevel ring centered on the end plane (x_plane), overlapping the body
+  translate([x_plane,0,0])
     rotate([0,90,0])
-        cylinder(r=body_flat_d/2, h=body_len, $fn=facet_count, center=true);
+      cylinder(
+        h = 2*chamfer + 2*overlap,
+        r1 = flat_d/2 + chamfer,
+        r2 = max(0.0005, flat_d/2 - chamfer),
+        center = true,
+        $fn = facet_count
+      );
 }
 
-module stepped_collar() {
-    // Collar spans x = [x_collar_min, x_collar_max]
-    translate([(x_collar_min + x_collar_max)/2, 0, 0])
-        rotate([0,90,0])
-            cylinder(r=collar_flat_d/2, h=(x_collar_max - x_collar_min), $fn=facet_count, center=true);
-}
+module domed_cap_x(x_end, body_r) {
+  // Cap only on +X end. It overlaps the main body by 'overlap' so it is connected.
+  // Cylinder spans [x_end - cap_len - overlap, x_end + overlap]
+  x_cyl_len    = cap_len + 2*overlap;
+  x_cyl_center = x_end - cap_len/2; // gives overlap on both sides of the join plane
 
-module domed_or_capped_end() {
-    // Domed cap on +X end, overlapping into main body by `overlap`
-    x_base = x_body_max - overlap; // where sphere begins overlapping the body
-    x_tip  = x_body_max + dome_len;
+  union() {
+    // Short cylindrical collar under the dome
+    translate([x_cyl_center,0,0])
+      rotate([0,90,0])
+        cylinder(h=x_cyl_len, r=body_r, center=true, $fn=facet_count);
 
+    // Dome: keep only the portion beyond the plane at x = x_end - cap_len
     intersection() {
-        translate([x_base, 0, 0]) sphere(r=dome_r, $fn=96);
-        translate([(x_base + x_tip)/2, 0, 0])
-            cube([ (x_tip - x_base) + 2*overlap,
-                   2*(dome_r + overlap),
-                   2*(dome_r + overlap) ], center=true);
+      // Sphere center chosen so dome protrudes beyond x_end
+      translate([x_end - cap_len + cap_dome_r - overlap, 0, 0])
+        sphere(r=cap_dome_r, $fn=96);
+
+      // Clip volume: keep x >= (x_end - cap_len - overlap)
+      translate([x_end - cap_len - overlap, -cap_dome_r - overlap, -cap_dome_r - overlap])
+        cube([cap_len + 2*cap_dome_r + 3*overlap,
+              2*cap_dome_r + 2*overlap,
+              2*cap_dome_r + 2*overlap], center=false);
     }
+  }
 }
 
-// ---------- Cutters ----------
-module central_hex_through_bore() {
-    // Through the entire assembled length (+ extra) so openings are visible on both ends
-    total_len = (x_pos_end - x_neg_end) + 6*overlap;
-    hex_prism_x(bore_hex_af, total_len, center=true);
-}
+// ---------- Build ----------
+module final_geometry() {
+  x_end_pos =  L/2;
+  x_end_neg = -L/2;
 
-module peripheral_hex_holes_endface_only() {
-    // Smaller hex through-holes that start at the -X end face and run inward only.
-    // Ensure they CLEAR the collar and enter the main body.
-    hole_depth = body_len * 0.55;
+  body_r = body_flat_d/2;
 
-    // Start slightly outside the -X end face, extend inward
-    x_start  = x_neg_end - overlap;
-    x_end    = x_start + hole_depth + 2*overlap;
-    x_center = (x_start + x_end)/2;
+  // Conservative solid extents along X (include collar and dome)
+  x_min = x_end_neg - collar_len - 2*overlap;
+  x_max = x_end_pos + cap_dome_r + 2*overlap;
+  total_cut_len = (x_max - x_min) + 6*overlap; // extra margin so bores are guaranteed through
 
-    for (i = [0:hole_count-1]) {
-        ang = i * 360 / hole_count;
-        translate([x_center, hole_ring_r*cos(ang), hole_ring_r*sin(ang)])
-            hex_prism_x(hole_hex_af, (x_end - x_start), center=true);
+  difference() {
+    union() {
+      // Main faceted body (centered)
+      faceted_cyl_x(L, body_flat_d, facet_count);
+
+      // Stepped collar near -X end:
+      // Collar spans [x_end_neg - overlap, x_end_neg + collar_len + overlap]
+      x_collar_len    = collar_len + 2*overlap;
+      x_collar_center = x_end_neg + collar_len/2; // attaches at -L/2 with overlap
+      translate([x_collar_center, 0, 0])
+        faceted_cyl_x(x_collar_len, collar_flat_d, facet_count);
+
+      // Small chamfer at -X end plane (kept connected by overlap)
+      end_chamfer_x(x_end_neg, body_flat_d, chamfer_len);
+
+      // Domed/capped +X end (connected)
+      domed_cap_x(x_end_pos, body_r);
     }
-}
 
-module end_face_recess() {
-    // Shallow hex counterbore opening on the -X end face (around the central bore)
-    x_start  = x_neg_end - overlap;
-    x_end    = x_start + recess_depth + 2*overlap;
-    x_center = (x_start + x_end)/2;
+    // Through bores: cut through entire solid so they open on BOTH ends.
+    // This makes the -X end face clearly show the central hex + ring of smaller hex holes.
+    union() {
+      hex_bore_x(total_cut_len, bore_hex_flat_d + bore_clearance);
 
-    translate([x_center, 0, 0])
-        hex_prism_x(recess_af, (x_end - x_start), center=true);
-}
-
-// ---------- Assembly ----------
-module tool_body() {
-    difference() {
-        union() {
-            main_faceted_body();
-            stepped_collar();
-            domed_or_capped_end();
-        }
-        // Required features:
-        central_hex_through_bore();
-        peripheral_hex_holes_endface_only();
-        end_face_recess();
+      for (i=[0:small_hex_count-1]) {
+        ang = i*360/small_hex_count;
+        small_hex_bore_x(total_cut_len, small_hex_flat_d, ang);
+      }
     }
+  }
 }
 
-// Final output
-tool_body();
+color([0.85, 0.85, 0.8])
+final_geometry();
 }

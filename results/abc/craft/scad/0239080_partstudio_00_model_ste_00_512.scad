@@ -1,70 +1,84 @@
-// Dimension-calibrated (target: 0.41 x 0.04 x 0.01 mm)
-scale([0.990244, 1.075027, 0.625572])
-{
-// Long thin plate with a single row of rounded studs on ONE broad face only
-// All dimensions in mm
-
-$fn = 48;
-
 // Parameters
-L = 0.41;                  // overall length
-W = 0.04;                  // overall width
-plate_H = 0.006;           // plate thickness (flat opposite face)
-stud_H = 0.004;            // stud protrusion height above plate
-stud_D = 0.012;            // stud diameter
-stud_pitch = 0.02;         // center-to-center spacing
-stud_count = 19;           // number of studs
-stud_edge_margin = 0.015;  // margin from each end to first/last stud center
-stud_row_offset_W = 0.0;   // lateral offset of stud row (0 = centered)
-overlap = 0.001;           // small overlap to ensure watertight union
+L = 0.41; //[0.205:0.82:0.001]
+W = 0.04; //[0.02:0.08:0.001]
+H_total = 0.01; //[0.005:0.02:0.0005]
+plate_H = 0.006; //[0.003:0.012:0.0005]
+stud_H = 0.004; //[0.002:0.008:0.0005]
+stud_D = 0.02; //[0.01:0.04:0.001]
+stud_count = 7; //[3:15:1]
+end_margin = 0.03; //[0.015:0.06:0.001]
+stud_centerline_offset_W = 0.0; //[-0.01:0.01:0.0005]
+stud_top_rounding = 0.002; //[0.001:0.004:0.0005]
+overlap = 0.0008; //[0.0005:0.002:0.0001]
+edge_fillet_r = 0.001; //[0.0005:0.002:0.0001]
+chamfer_len = 0.003; //[0.0015:0.006:0.0005]
 
-H_total = plate_H + stud_H;
-
-// Derived: ensure studs fit within length; if not, reduce count automatically
-max_count = floor((L - 2*stud_edge_margin)/stud_pitch) + 1;
-n = (stud_count > max_count) ? max_count : stud_count;
-
-// Base plate centered at origin, with BOTTOM face at z = -H_total/2 (flat)
+// Base Plate
 module base_plate() {
-    translate([0, 0, -H_total/2 + plate_H/2])
-        cube([L, W, plate_H], center=true);
+  color("Silver")
+  translate([0, 0, 0])
+    cube([L, W, plate_H], center=true);
 }
 
-// Single rounded stud: cylinder + hemispherical cap, protruding ONLY upward from plate top
-module rounded_stud() {
-    r = stud_D/2;
-
-    // Plate top plane (stud base plane)
-    z_top_plate = -H_total/2 + plate_H;
-
-    union() {
-        // Cylindrical portion (slightly sunk into plate for connectivity)
-        translate([0, 0, z_top_plate + stud_H/2 - overlap/2])
-            cylinder(h=stud_H + overlap, r=r, center=true);
-
-        // Hemispherical cap: keep only the upper half above the stud base plane
-        translate([0, 0, z_top_plate + stud_H])
-            intersection() {
-                sphere(r=r);
-                // Keep z >= 0 in local coords (upper hemisphere)
-                translate([0, 0, r/2])
-                    cube([2*r + 2*overlap, 2*r + 2*overlap, r + 2*overlap], center=true);
-            }
-    }
+// Stud Cylinder
+module stud_cylinder(index) {
+  translate([
+    -L/2 + end_margin + index * ((L - 2*end_margin) / (stud_count-1)),
+    stud_centerline_offset_W,
+    plate_H/2 + (stud_H + overlap)/2 - overlap
+  ])
+  cylinder(h=stud_H + overlap, r=stud_D/2, center=true);
 }
 
-// Row of studs along length (on top face only)
+// Stud Rounding Sphere
+module stud_rounding_sphere(index) {
+  translate([
+    -L/2 + end_margin + index * ((L - 2*end_margin) / (stud_count-1)),
+    stud_centerline_offset_W,
+    plate_H/2 + stud_H - stud_top_rounding
+  ])
+  sphere(r=stud_top_rounding, center=true);
+}
+
+// Stud Row
 module stud_row() {
-    x_start = -L/2 + stud_edge_margin;
-    for (i = [0 : n-1]) {
-        translate([x_start + i*stud_pitch, stud_row_offset_W, 0])
-            rounded_stud();
+  union() {
+    for (i = [0:stud_count-1]) {
+      stud_cylinder(i);
+      stud_rounding_sphere(i);
     }
+  }
 }
 
-// Final connected solid
-union() {
-    base_plate();
-    stud_row();
+// Edge Fillets Kernel
+module edge_fillets_kernel() {
+  sphere(r=edge_fillet_r, center=true);
 }
+
+// End Chamfer Wedge
+module end_chamfer_wedge(pos) {
+  translate([
+    pos * (L/2 - chamfer_len/2 + overlap),
+    0,
+    H_total/2 - plate_H/2
+  ])
+  cube([chamfer_len, W + 2*overlap, H_total + 2*overlap], center=true);
 }
+
+// Final Model
+module final_model() {
+  difference() {
+    minkowski() {
+      union() {
+        base_plate();
+        stud_row();
+      }
+      edge_fillets_kernel();
+    }
+    end_chamfer_wedge(1);
+    end_chamfer_wedge(-1);
+  }
+}
+
+// Render the final model
+final_model();

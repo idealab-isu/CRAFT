@@ -127,63 +127,6 @@ Output JSON:
 
 
 # =============================================================================
-# ZERO-TO-CAD 8-VIEW PROMPT (image-only, no text prompt)
-# =============================================================================
-#
-# Used by `VisionAnalyzer.analyze_zerotocad_8view()` for the CAD-journal eval.
-# Inputs: 8 unlabeled rendered views (4 front-facing + 4 rear-facing camera
-# angles per Z2C's rendering script). The model has no text prompt — the
-# views ARE the spec. Output JSON matches the existing VisionAnalysis schema
-# so downstream (reasoner → planner → compiler) is unchanged.
-
-ZEROTOCAD_8VIEW_PROMPT = """You are looking at 8 rendered views of a 3D CAD shape.
-The 8 views are 4 front-facing camera angles plus 4 rear-facing camera angles
-(in arbitrary order — they are NOT labeled front/back/left/right/top/bottom).
-
-There is no text prompt. The 8 views ARE the specification. Your task is to
-produce a description rich enough that an OpenSCAD expert can reproduce the
-shape WITHOUT seeing the views.
-
-Reason about the shape carefully:
-- What is the primary form? (plate, bracket, housing, shaft, hub, lever, etc.)
-- What parts/features are visible? (holes, slots, ribs, bosses, chamfers, fillets, pockets, threads, lugs)
-- Approximate proportions (length × width × height as ratios — exact dims aren't required)
-- Symmetry — is it bilateral / radial / none?
-- Any curved surfaces (revolves, lofts, sweeps) vs pure CSG-on-prisms?
-- For every visible feature, give: location, count, approximate relative size.
-
-OUTPUT FORMAT (strict JSON):
-{
-    "best": "One self-contained CAD-focused description of the shape (3-6 sentences). Include: primary form, all visible parts/features, approximate proportions, distinctive details. This text alone should be enough for someone who has never seen the views to reproduce the shape.",
-    "alternatives": [
-        "Alternative 1 — emphasize geometric primitives and CSG operations",
-        "Alternative 2 — emphasize functional/mechanical role",
-        "Alternative 3 — emphasize fabrication / 'how would you build it'"
-    ],
-    "features": {
-        "primary_form": "concise classifier (e.g., 'L-bracket', 'flanged hub', 'rectangular plate', 'tapered shaft')",
-        "primitives": ["list of primitives needed: box, cylinder, sphere, cone, polygon, revolution, loft, sweep"],
-        "components": [
-            {"part": "name", "primitive": "type", "approx_size": "S/M/L relative to whole", "position": "where on the part"}
-        ],
-        "features": ["holes (count and pattern)", "slots", "chamfers", "fillets", "ribs", "bosses", "pockets"],
-        "curved_surfaces_needed": true,
-        "symmetry": "bilateral|radial|axial|none",
-        "estimated_complexity": "simple|medium|complex",
-        "estimated_brep_faces": "rough estimate of B-Rep face count (7-100 typical)"
-    }
-}
-
-GUIDELINES:
-- Synthesize across views — do not describe view 0 separately from view 1.
-- Be conservative: only describe what is clearly visible across multiple views.
-- Mark `curved_surfaces_needed: true` if any visible surface is a smooth revolve / sweep / loft.
-- This output will be passed verbatim to a CAD planner. Make it dense, factual, and free of hedging.
-
-Respond ONLY with valid JSON."""
-
-
-# =============================================================================
 # SINGLE IMAGE CONCEPT UNDERSTANDING PROMPT (GPT-5.2 ONLY)
 # =============================================================================
 
@@ -549,71 +492,6 @@ class VisionAnalyzer:
                 ],
                 identified_features={"error": str(e)},
                 view_names=view_names
-            )
-
-    def analyze_zerotocad_8view(self, image_paths: List[str]) -> VisionAnalysis:
-        """Analyze 8 unlabeled rendered views from Zero-to-CAD's eval harness.
-
-        Z2C renders 4 front-facing + 4 rear-facing camera angles per shape
-        (256x256 PNG). The views are NOT orthographic and are NOT named
-        front/back/left/right — they're arbitrary viewpoints around the part.
-        This method uses a dedicated prompt (`ZEROTOCAD_8VIEW_PROMPT`) that
-        instructs the VLM to synthesize across views and emit a CAD-focused
-        description rich enough to drive the planner WITHOUT a text prompt.
-
-        The returned VisionAnalysis matches the shape produced by `analyze()`
-        so the rest of the pipeline (reasoner → planner → compiler → v3
-        refinement) is unchanged.
-
-        Args:
-            image_paths: list of 8 image paths (PNG/JPEG). Order is preserved
-                         as view_0 ... view_7 in the prompt.
-
-        Returns:
-            VisionAnalysis with rich CAD-focused caption + features.
-
-        Raises:
-            ValueError: if `image_paths` is not exactly 8 paths.
-        """
-        if len(image_paths) != 8:
-            raise ValueError(
-                f"Zero-to-CAD eval expects exactly 8 views, got {len(image_paths)}"
-            )
-
-        view_names = [f"view_{i}" for i in range(8)]
-
-        try:
-            result_text = self._call_vision_api(
-                system_prompt=(
-                    "You are a 3D CAD reverse-engineering expert. You produce "
-                    "dense, structured descriptions of CAD parts from rendered "
-                    "views, suitable as input to a parametric CAD generator."
-                ),
-                user_prompt=ZEROTOCAD_8VIEW_PROMPT,
-                image_paths=image_paths,
-                view_names=view_names,
-                max_tokens=2500,
-                temperature=0.2,
-                json_response=True,
-            )
-            data = self._extract_json(result_text)
-            return VisionAnalysis(
-                best_caption=data.get("best", "3D CAD object"),
-                alternatives=data.get("alternatives", [])[:3],
-                identified_features=data.get("features", {}),
-                view_names=view_names,
-            )
-        except Exception as e:
-            print(f"[Vision][Z2C-8view] Analysis failed: {e}")
-            return VisionAnalysis(
-                best_caption=f"3D CAD object (8-view analysis failed: {str(e)[:80]})",
-                alternatives=[
-                    "A mechanical CAD part",
-                    "A manufactured component",
-                    "An engineered geometric body",
-                ],
-                identified_features={"error": str(e)},
-                view_names=view_names,
             )
 
     def _extract_json(self, text: str) -> Dict[str, Any]:

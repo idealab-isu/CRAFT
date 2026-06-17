@@ -1,134 +1,134 @@
 // Dimension-calibrated (target: 19.50 x 18.88 x 78.50 mm)
-scale([1.188854, 1.032839, 1.000000])
+scale([1.227503, 1.032839, 1.028064])
 {
 $fn = 128;
 
-// Parameters (mm) â€” target bounding box ~19.5 x 18.9 x 78.5
-bbox_X = 19.5;          // overall X (OD)
-bbox_Y = 18.88;         // overall Y (OD)
-L = 78.5;               // length (Z)
+// =====================
+// Parameters (mm)
+// =====================
+L = 78.5;                 // overall length (Z)
+OD_x = 19.5;              // target bounding box X
+OD_y = 18.88;             // target bounding box Y
+ID = 14;                  // base inner diameter
+slit_w = 2;               // axial slit width
 
-ODx = bbox_X;
-ODy = bbox_Y;
+// Internal steps/notches near one end (annular counterbores)
+step_count = 3;           // number of internal steps
+step_axial_len = 2;       // axial length of each step
+step_radial_depth = 0.4;  // radial increase per step
+step_start_from_end = 0.5;// offset from end to first step
 
-// Bore + slit
-ID = 14;                // main bore diameter
-slit_w = 3.0;           // widened to make the split clearly visible in end views
+// Bore lead-in at same end
+bore_lead_len = 3;        // lead-in length
+bore_lead_extra_d = 1;    // lead-in extra diameter
 
-// Internal stepped/notched features near +Z end (make them clearly visible)
-step1_L = 3;
-step1_ID = 13.2;
-step2_L = 3;
-step2_ID = 12.6;
-step3_L = 3;
-step3_ID = 12.0;
+// Outer end chamfer
+edge_chamfer = 0.6;       // outer end chamfer height
 
-step_start_from_end = 0; // from +Z end
+// Robust boolean overlap
+overlap = 1.5;            // 1–2mm recommended
 
-// Small overlaps for robust booleans
-overlap = 0.5;          // boolean overlap (mm)
-chamfer_L = 0.8;        // end chamfer length
-lead_in_L = 2;          // bore lead-in length at +Z end
-lead_in_ID = 15;        // lead-in bore diameter at +Z end
-
+// =====================
 // Derived
-ODr = min(ODx, ODy)/2;
-IDr = ID/2;
+// =====================
+OD_r = min(OD_x, OD_y)/2; // keep outer cylindrical
+ID_r = ID/2;
 
-// --- Core geometry helpers ---
-module outer_body() {
-    // Keep OD within bbox by using the smaller of X/Y
-    cylinder(h=L, r=ODr, center=true);
+// Ensure stepped features fit within length (simple guard)
+steps_total_len = step_count * step_axial_len;
+assert(bore_lead_len + step_start_from_end + steps_total_len <= L,
+       "Internal step/lead-in lengths exceed part length.");
+
+// =====================
+// Base Shapes
+// =====================
+module outer_tube_body() {
+  cylinder(h=L, r=OD_r, center=true);
 }
 
-module axial_slit_cut() {
-    // Full-length slit that opens to the outside.
-    // Place the slit so its inner face is slightly inside the OD to guarantee a clean cut.
-    // Make it long in Y so it fully spans the tube.
-    translate([ODr - slit_w/2 + overlap, 0, 0])
-        cube([slit_w + 2*overlap, 2*ODr + 4*overlap, L + 4*overlap], center=true);
+module inner_bore_base_cut() {
+  cylinder(h=L + 2*overlap, r=ID_r, center=true);
 }
 
-module bore_main_cut() {
-    cylinder(h=L + 4*overlap, r=IDr, center=true);
+// Full-length axial slit (C-shaped cross-section)
+module full_length_axial_slit_cut() {
+  // Slot fully crosses the wall and runs full length.
+  // Positioned so it opens the ring on +X side.
+  translate([OD_r - slit_w/2, 0, 0])
+    cube([slit_w + 2*overlap, 2*OD_r + 4*overlap, L + 4*overlap], center=true);
 }
 
-module bore_lead_in_cut() {
-    // Enlarged lead-in at +Z end
-    translate([0, 0, L/2 - lead_in_L/2])
-        cylinder(h=lead_in_L + 4*overlap, r1=lead_in_ID/2, r2=IDr, center=true);
+// Internal steps/notches near one end of the bore (annular counterbores)
+// Implemented as a stack of short cylinders that enlarge the bore near -Z end.
+module internal_steps_near_one_end_cut() {
+  union() {
+    for (n = [1:step_count]) {
+      r_step = ID_r + step_radial_depth * n;
+
+      // Steps start near -Z end and progress inward along +Z
+      z0 = -L/2 + step_start_from_end;                 // start position from -Z end
+      z_center = z0 + (n-1)*step_axial_len + step_axial_len/2;
+
+      translate([0, 0, z_center])
+        cylinder(h=step_axial_len + 2*overlap, r=r_step, center=true);
+    }
+  }
 }
 
-module end_chamfer_outer_cuts() {
-    // Outer chamfers at both ends (subtractive)
-    translate([0, 0, L/2 - chamfer_L/2])
-        cylinder(h=chamfer_L + 4*overlap,
-                 r1=ODr + 2*overlap,
-                 r2=max(ODr - chamfer_L, 0.01),
-                 center=true);
+// Lead-in taper on bore at the same (-Z) end
+module lead_in_taper_on_bore_cut() {
+  // Starts exactly at -Z end and extends inward
+  z_center = -L/2 + bore_lead_len/2;
 
-    translate([0, 0, -L/2 + chamfer_L/2])
-        cylinder(h=chamfer_L + 4*overlap,
-                 r1=max(ODr - chamfer_L, 0.01),
-                 r2=ODr + 2*overlap,
-                 center=true);
+  translate([0, 0, z_center])
+    cylinder(h=bore_lead_len + 2*overlap,
+             r1=ID_r + bore_lead_extra_d/2,
+             r2=ID_r,
+             center=true);
 }
 
-module internal_steps_cut() {
-    // IMPORTANT FIX:
-    // Steps must be "notches" (i.e., reduce the bore locally), so we subtract an ANNULUS:
-    // (main bore) minus (smaller bore) over each step length.
-    // This creates visible internal shoulders/steps near +Z end.
-    z1 = L/2 - step_start_from_end - step1_L/2;
-    z2 = L/2 - step_start_from_end - step1_L - step2_L/2;
-    z3 = L/2 - step_start_from_end - step1_L - step2_L - step3_L/2;
+// Outer end chamfers (simple bevels)
+module outer_chamfers_cut() {
+  union() {
+    // -Z end chamfer
+    translate([0, 0, -L/2 + edge_chamfer/2])
+      cylinder(h=edge_chamfer + 2*overlap,
+               r1=OD_r + overlap,
+               r2=max(OD_r - edge_chamfer, 0.01),
+               center=true);
+
+    // +Z end chamfer
+    translate([0, 0,  L/2 - edge_chamfer/2])
+      cylinder(h=edge_chamfer + 2*overlap,
+               r1=max(OD_r - edge_chamfer, 0.01),
+               r2=OD_r + overlap,
+               center=true);
+  }
+}
+
+// =====================
+// Final Model (single connected solid)
+// =====================
+module complete_model() {
+  difference() {
+    outer_tube_body();
 
     union() {
-        // Step 1
-        translate([0, 0, z1])
-        difference() {
-            cylinder(h=step1_L + 2*overlap, r=IDr + overlap, center=true);
-            cylinder(h=step1_L + 4*overlap, r=step1_ID/2, center=true);
-        }
+      // Base bore
+      inner_bore_base_cut();
 
-        // Step 2
-        translate([0, 0, z2])
-        difference() {
-            cylinder(h=step2_L + 2*overlap, r=IDr + overlap, center=true);
-            cylinder(h=step2_L + 4*overlap, r=step2_ID/2, center=true);
-        }
+      // Internal stepped/notched features near one end (visible in section/end view)
+      lead_in_taper_on_bore_cut();
+      internal_steps_near_one_end_cut();
 
-        // Step 3
-        translate([0, 0, z3])
-        difference() {
-            cylinder(h=step3_L + 2*overlap, r=IDr + overlap, center=true);
-            cylinder(h=step3_L + 4*overlap, r=step3_ID/2, center=true);
-        }
+      // Full-length slit
+      full_length_axial_slit_cut();
+
+      // Outer chamfers
+      outer_chamfers_cut();
     }
+  }
 }
 
-// --- Final model (single connected solid) ---
-module split_sleeve() {
-    difference() {
-        // Outer body with chamfered ends
-        difference() {
-            outer_body();
-            end_chamfer_outer_cuts();
-        }
-
-        // Main through-bore
-        bore_main_cut();
-
-        // Lead-in at +Z end
-        bore_lead_in_cut();
-
-        // Internal steps/notches near +Z end (now correctly formed as shoulders)
-        internal_steps_cut();
-
-        // Full-length axial slit (widened for visibility)
-        axial_slit_cut();
-    }
-}
-
-split_sleeve();
+complete_model();
 }

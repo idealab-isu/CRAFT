@@ -1,68 +1,68 @@
 // Dimension-calibrated (target: 0.02 x 0.02 x 0.01 mm)
-scale([0.601248, 2.004161, 1.739221])
+scale([0.500201, 1.667336, 1.429063])
 {
-// Symmetric plus-shaped (cross) plate: two perpendicular rectangular bars
-// intersecting at midpoints, with slight outer-edge chamfer and a subtly
-// thickened/rounded center intersection.
-// Units are meters (OpenSCAD is unitless).
+$fn = 64;
 
-$fn = 96;
+// Parameters (meters in original; keep as-is)
+arm_len = 0.01;          // full length of each bar (end-to-end)
+arm_w   = 0.006;         // bar width
+arm_t   = 0.008;         // bar thickness (Z)
 
-// ---- Parameters ----
-arm_len = 0.01;      // full end-to-end length of each bar (X and Y)
-arm_w   = 0.006;     // bar width
-arm_t   = 0.008;     // arm thickness (plate thickness)
+center_size    = 0.008;  // center pad size (X/Y)
+center_t       = 0.01;   // center pad thickness (Z), slightly thicker than arms
 
-center_size = 0.007; // size of center thickened pad (square)
-center_t    = 0.010; // center thickness (slightly thicker than arms)
+chamfer        = 0.0005; // small bevel/round on outer edges
+center_round_r = 0.0015; // extra rounding on center pad
 
-chamfer = 0.00035;   // small 2D corner bevel approximation
-overlap = 0.0015;    // 1â€“2mm overlap to guarantee watertight union
+// Robust union overlap (requested 1–2mm; in meters here)
+overlap = 0.0015;        // 1.5mm
 
 // ---- Helpers ----
-function clamp(x, a, b) = min(max(x, a), b);
+module bar_x() { cube([arm_len, arm_w, arm_t], center=true); }
+module bar_y() { cube([arm_w, arm_len, arm_t], center=true); }
 
-module cross_2d() {
-    // True plus: two rectangles crossing at midpoints -> four equal arms
+module cross_arms() {
+    // Two perpendicular bars intersecting at midpoints (same plane)
     union() {
-        square([arm_len, arm_w], center=true); // horizontal bar
-        square([arm_w, arm_len], center=true); // vertical bar
+        bar_x();
+        bar_y();
     }
 }
 
-module chamfered_2d(c) {
-    // Corner bevel approximation via in-out offset (keeps silhouette stable)
-    cc = clamp(c, 0, arm_w * 0.25);
-    offset(delta=cc, join_type="miter")
-        offset(delta=-cc, join_type="miter")
-            children();
+module center_pad() {
+    // Slightly thickened/rounded center intersection (rounded only at center)
+    // Keep centered at origin.
+    minkowski() {
+        cube([center_size, center_size, center_t], center=true);
+        sphere(r=center_round_r, $fn=48);
+    }
 }
 
-module arms_solid() {
-    // Flat plate-like cross with consistent small chamfers
-    linear_extrude(height=arm_t, center=true, convexity=10)
-        chamfered_2d(chamfer)
-            cross_2d();
+module cross_raw() {
+    // Ensure one connected solid:
+    // - Arms and center are centered at origin
+    // - Add a small bridge slab to guarantee intersection even after rounding ops
+    union() {
+        cross_arms();
+        center_pad();
+
+        // Bridge slab: guarantees strong connectivity between arms and center pad
+        cube([center_size + 2*overlap,
+              center_size + 2*overlap,
+              max(arm_t, center_t) + 2*overlap], center=true);
+    }
 }
 
-module center_pad_solid() {
-    // Slightly thickened/rounded center boss; overlaps arms in Z for solid connection
-    // Keep it subtle so the planform remains an obvious '+' (not a dominant block).
-    r = clamp(chamfer * 1.8, 0, center_size * 0.25);
-
-    // Ensure overlap with arms in Z (no floating): center=true so both share Z=0.
-    // Height is slightly extended by overlap to guarantee a watertight union.
-    h = center_t + overlap;
-
-    linear_extrude(height=h, center=true, convexity=10)
-        offset(r=r)
-            square([center_size, center_size], center=true);
+module chamfered_cross() {
+    // IMPORTANT: Minkowski with a sphere rounds ALL edges and can "square off"
+    // the plus silhouette visually if the rounding is too large relative to arm gaps.
+    // Keep chamfer small and apply it to the already-plus-shaped solid.
+    minkowski() {
+        cross_raw();
+        sphere(r=chamfer, $fn=32);
+    }
 }
 
-// ---- Final model (one connected solid) ----
-union() {
-    // Both solids are centered at origin; no translate() needed, so no risk of gaps.
-    arms_solid();
-    center_pad_solid();
-}
+// Final output: true plus-shaped cross with a slightly thicker/rounded center
+chamfered_cross();
 }

@@ -1,56 +1,67 @@
-// Dimension-calibrated (target: 0.30 x 0.32 x 0.01 mm)
-scale([0.990625, 0.953125, 1.300218])
-{
-// Thin keyed plate with centered edge tabs (single connected solid)
+// Thin keyed plate with asymmetric tabs on opposite Z faces
+// Goal: one connected solid; visible asymmetry between front/back and left/right views.
 
-// Overall target bounding box ~0.3 x 0.3 x ~0.01 mm
-plate_X = 0.30;   // width (left-right)
-plate_Y = 0.30;   // length (front-back)
-plate_Z = 0.01;   // thickness
+// Parameters (mm)
+plate_W = 0.30;
+plate_H = 0.30;
+plate_T = 0.01;
 
-// Tab geometry (protrude outward from edges)
-tab_out = 0.01;   // protrusion distance outward from the plate edge
-tab_len = 0.08;   // length along the edge (centered)
-tab_Z   = plate_Z;
+// Tab sizes
+tab_out    = 0.01;   // protrusion outward from edge (in XY)
+tab_w      = 0.06;   // width of top/bottom tabs (along X)
+tab_side_h = 0.06;   // height of side tabs (along Y)
+
+// Make face-specific tabs clearly visible in orthographic views
+tab_face_T = plate_T * 0.90;   // thickness of a tab on one face (along Z)
 
 // Small overlap to guarantee manifold union
-eps = 0.002;
+overlap = 0.001;
 
 // Base plate
 module base_plate() {
-    cube([plate_X, plate_Y, plate_Z], center=true);
+    cube([plate_W, plate_H, plate_T], center=true);
 }
 
-// Centered tab on +Y edge
-module tab_posY() {
-    translate([0, plate_Y/2 + tab_out/2 - eps, 0])
-        cube([tab_len, tab_out + 2*eps, tab_Z], center=true);
+// Helper: Z-center for a tab that sits on +Z or -Z face and overlaps into plate
+function zc(sign) = sign * (plate_T/2 - tab_face_T/2 + overlap);
+
+// +Y edge tab on +Z face (front)
+module top_tab_front_face() {
+    translate([0,
+               plate_H/2 + tab_out/2 - overlap,
+               zc(+1)])
+        cube([tab_w, tab_out + 2*overlap, tab_face_T], center=true);
 }
 
-// Centered tab on -Y edge
-module tab_negY() {
-    translate([0, -(plate_Y/2 + tab_out/2 - eps), 0])
-        cube([tab_len, tab_out + 2*eps, tab_Z], center=true);
+// -Y edge tab on -Z face (back)
+module bottom_tab_back_face() {
+    translate([0,
+               -(plate_H/2 + tab_out/2 - overlap),
+               zc(-1)])
+        cube([tab_w, tab_out + 2*overlap, tab_face_T], center=true);
 }
 
-// Centered tab on -X edge
-module tab_negX() {
-    translate([-(plate_X/2 + tab_out/2 - eps), 0, 0])
-        cube([tab_out + 2*eps, tab_len, tab_Z], center=true);
+// -X edge tab on +Z face (front)
+module left_mid_tab_front_face() {
+    translate([-(plate_W/2 + tab_out/2 - overlap),
+               0,
+               zc(+1)])
+        cube([tab_out + 2*overlap, tab_side_h, tab_face_T], center=true);
 }
 
-// Centered tab on +X edge
-module tab_posX() {
-    translate([plate_X/2 + tab_out/2 - eps, 0, 0])
-        cube([tab_out + 2*eps, tab_len, tab_Z], center=true);
+// +X edge tab on -Z face (back)
+module right_mid_tab_back_face() {
+    translate([+(plate_W/2 + tab_out/2 - overlap),
+               0,
+               zc(-1)])
+        cube([tab_out + 2*overlap, tab_side_h, tab_face_T], center=true);
 }
 
-// Build: include all tabs so silhouette matches; front/back "difference" is view-dependent.
+// Final connected solid
 union() {
     base_plate();
-    tab_posY();
-    tab_negY();
-    tab_negX();
-    tab_posX();
-}
+    top_tab_front_face();
+    bottom_tab_back_face();
+    left_mid_tab_front_face();
+    right_mid_tab_back_face();
 }

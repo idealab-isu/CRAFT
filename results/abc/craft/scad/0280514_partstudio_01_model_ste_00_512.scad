@@ -1,107 +1,128 @@
 // Dimension-calibrated (target: 0.08 x 0.09 x 0.09 mm)
-scale([0.822442, 0.803750, 0.757021])
+scale([0.727273, 0.710744, 0.669421])
 {
-// Textured/studded micro-cube (0.1 x 0.1 x 0.1 mm bounding box)
-// One connected solid; all protrusions overlap into the base slightly.
+// Textured studded micro-cube with pyramidal/diamond bosses on each face
+// Bounding box target: 0.1 x 0.1 x 0.1 mm
 
-// ---------- Global quality ----------
-$fn = 24;
+$fn = 4; // faceted "diamond" look for pyramids
 
-// ---------- Target bounding box ----------
-bbox = 0.1;                 // mm (X=Y=Z)
-block = bbox;               // base cube size
+// Overall size (exact 0.1mm cube)
+block_x = 0.1;
+block_y = 0.1;
+block_z = 0.1;
 
-// ---------- Boss geometry (faceted "diamond" bosses) ----------
-boss_corner_d = 0.018;      // across flats (approx) of corner bosses
-boss_corner_h = 0.010;
+// Boss geometry
+boss_h = 0.012;
+boss_base = 0.020;
+boss_top  = 0.001;   // near-point apex
+boss_offset_xy = 0.030; // corner-adjacent placement on faces
+center_boss_scale = 0.65;
 
-boss_center_d = 0.012;
-boss_center_h = 0.007;
+// Extra small edge/corner protrusions (subtle)
+edge_boss_scale = 0.45;
+edge_boss_h_scale = 0.75;
 
-extra_d = 0.010;
-extra_h = 0.006;
+// Connectivity / overlap (ensures one connected solid)
+boss_overlap = 0.0015;
 
-// Placement (corner-adjacent)
-corner_off = 0.032;         // distance from center along face axes
-
-// Small overlap to guarantee connectivity
-overlap = 0.0015;
-
-// Slight per-face variation (kept deterministic)
-j = 0.0015;
+// Small edge chamfer (keeps cube-like but slightly softened)
+edge_chamfer = 0.0015;
 
 // ---------- Helpers ----------
-module octa_boss(d, h) {
-    // Faceted diamond-like boss: octahedron scaled to height h and width d
-    // Octahedron points at +/-Z and +/-X +/-Y (8 faces).
-    scale([d/2, d/2, h/2])
-        polyhedron(
-            points=[
-                [ 1, 0, 0], [-1, 0, 0],
-                [ 0, 1, 0], [ 0,-1, 0],
-                [ 0, 0, 1], [ 0, 0,-1]
-            ],
-            faces=[
-                [4,0,2],[4,2,1],[4,1,3],[4,3,0],
-                [5,2,0],[5,1,2],[5,3,1],[5,0,3]
-            ]
-        );
+module pyramid_boss(h, base, top) {
+    // 4-sided pyramid/frustum (diamond-like)
+    cylinder(h=h, r1=base/2, r2=top/2, center=true, $fn=4);
 }
 
-module face_pattern() {
-    // 4 corner-adjacent + 1 center
-    union() {
-        for (sx=[-1,1], sy=[-1,1])
-            translate([sx*corner_off, sy*corner_off, 0])
-                octa_boss(boss_corner_d, boss_corner_h);
-        translate([0,0,0]) octa_boss(boss_center_d, boss_center_h);
+module chamfered_block(size=[block_x, block_y, block_z], c=edge_chamfer) {
+    // Chamfer by subtracting small corner cubes (keeps single solid)
+    difference() {
+        cube(size, center=true);
+        for (sx=[-1,1], sy=[-1,1], sz=[-1,1]) {
+            translate([sx*(size[0]/2 - c), sy*(size[1]/2 - c), sz*(size[2]/2 - c)])
+                rotate([45,45,45])
+                    cube([2*c,2*c,2*c], center=true);
+        }
     }
 }
 
-module face_pattern_with_extras() {
-    // Adds a few edge-near extras (still connected via overlap)
-    union() {
-        face_pattern();
-        translate([ 0.0,  0.040, 0]) octa_boss(extra_d, extra_h);
-        translate([ 0.0, -0.040, 0]) octa_boss(extra_d, extra_h);
-        translate([ 0.040, 0.0, 0]) octa_boss(extra_d, extra_h);
-        translate([-0.040, 0.0, 0]) octa_boss(extra_d, extra_h);
+// Place a boss on a given face with correct outward normal and guaranteed overlap
+module place_boss_on_face(face="zp", u=0, v=0, s=1.0, h=boss_h, base=boss_base, top=boss_top) {
+    // face: zp, zm, xp, xm, yp, ym
+    // u,v are in-plane offsets (x/y for z faces, y/z for x faces, x/z for y faces)
+    if (face=="zp") {
+        translate([u, v, block_z/2 + h/2 - boss_overlap])
+            scale([s,s,s]) pyramid_boss(h, base, top);
+    } else if (face=="zm") {
+        translate([u, v, -block_z/2 - h/2 + boss_overlap])
+            rotate([180,0,0])
+                scale([s,s,s]) pyramid_boss(h, base, top);
+    } else if (face=="xp") {
+        translate([block_x/2 + h/2 - boss_overlap, u, v])
+            rotate([0,-90,0])
+                scale([s,s,s]) pyramid_boss(h, base, top);
+    } else if (face=="xm") {
+        translate([-block_x/2 - h/2 + boss_overlap, u, v])
+            rotate([0,90,0])
+                scale([s,s,s]) pyramid_boss(h, base, top);
+    } else if (face=="yp") {
+        translate([u, block_y/2 + h/2 - boss_overlap, v])
+            rotate([90,0,0])
+                scale([s,s,s]) pyramid_boss(h, base, top);
+    } else if (face=="ym") {
+        translate([u, -block_y/2 - h/2 + boss_overlap, v])
+            rotate([-90,0,0])
+                scale([s,s,s]) pyramid_boss(h, base, top);
     }
 }
 
-// Place a pattern onto a given face with correct outward direction.
-// We place bosses so their center is slightly inside the cube (overlap),
-// ensuring a single connected solid.
-module on_face_zp(var=0) {
-    translate([var, -var, block/2 - overlap]) face_pattern_with_extras();
-}
-module on_face_zn(var=0) {
-    mirror([0,0,1]) translate([var, var, block/2 - overlap]) face_pattern_with_extras();
-}
-module on_face_xp(var=0) {
-    rotate([0,90,0]) translate([var, -var, block/2 - overlap]) face_pattern_with_extras();
-}
-module on_face_xn(var=0) {
-    rotate([0,-90,0]) translate([var, var, block/2 - overlap]) face_pattern_with_extras();
-}
-module on_face_yp(var=0) {
-    rotate([-90,0,0]) translate([var, -var, block/2 - overlap]) face_pattern_with_extras();
-}
-module on_face_yn(var=0) {
-    rotate([90,0,0]) translate([var, var, block/2 - overlap]) face_pattern_with_extras();
+module face_pattern(face) {
+    // 4 corner-adjacent bosses + smaller central boss
+    union() {
+        // central boss
+        place_boss_on_face(face, 0, 0, center_boss_scale);
+
+        // four corner-adjacent bosses
+        for (a=[-1,1], b=[-1,1])
+            place_boss_on_face(face, a*boss_offset_xy, b*boss_offset_xy, 1.0);
+    }
 }
 
-// ---------- Model ----------
+module extra_edge_protrusions() {
+    // Small additional protrusions near some edges/corners (subtle, not star-like)
+    // Put them on a subset of edges to mimic "additional protrusions visible near some edges/corners"
+    eh = boss_h * edge_boss_h_scale;
+    eb = boss_base * edge_boss_scale;
+    et = boss_top;
+
+    // Along +Z top edges (midpoints)
+    place_boss_on_face("zp",  block_x*0.25, 0, 0.55, eh, eb, et);
+    place_boss_on_face("zp", -block_x*0.25, 0, 0.55, eh, eb, et);
+    place_boss_on_face("zp", 0,  block_y*0.25, 0.55, eh, eb, et);
+    place_boss_on_face("zp", 0, -block_y*0.25, 0.55, eh, eb, et);
+
+    // Along -Z bottom edges (fewer)
+    place_boss_on_face("zm",  block_x*0.25, 0, 0.50, eh, eb, et);
+    place_boss_on_face("zm", 0, -block_y*0.25, 0.50, eh, eb, et);
+
+    // A couple on side faces near edges
+    place_boss_on_face("xp", 0,  block_z*0.25, 0.50, eh, eb, et);
+    place_boss_on_face("ym", -block_x*0.25, 0, 0.50, eh, eb, et);
+}
+
+// ---------- Final solid ----------
 union() {
-    // Base cube
-    cube([block, block, block], center=true);
+    chamfered_block([block_x, block_y, block_z], edge_chamfer);
 
-    // Six faces (slight deterministic variation per face)
-    on_face_zp( 0.0);
-    on_face_zn( j);
-    on_face_xp(-j);
-    on_face_xn( 0.5*j);
-    on_face_yp(-0.5*j);
-    on_face_yn( 0.25*j);
+    // Boss patterns on all 6 faces (includes central boss on each face)
+    face_pattern("zp");
+    face_pattern("zm");
+    face_pattern("xp");
+    face_pattern("xm");
+    face_pattern("yp");
+    face_pattern("ym");
+
+    // Additional subtle edge/corner protrusions
+    extra_edge_protrusions();
 }
 }

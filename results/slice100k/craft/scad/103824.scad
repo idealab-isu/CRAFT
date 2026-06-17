@@ -1,179 +1,138 @@
-// Small U-shaped bracket/clip with rounded outer back, open front channel,
-// opposing internal bosses/holes, and front-edge tabs/lips.
-// Bounding box target: 22.1 x 24.3 x 79.0 mm (X x Y x Z)
-
-$fn = 96;
-
 // Parameters
-bbox_x = 22.15;
-bbox_y = 24.3;
-bbox_z = 79;
+bbox_x = 22.15; //[11.08:44.3:0.01]
+bbox_y = 24.3; //[12.15:48.6:0.01]
+bbox_z = 79; //[39.5:158:0.1]
+wall_t = 2; //[1:4:0.1]
+channel_w = 16; //[8:20.15:0.1]
+channel_d = 14; //[7:22.3:0.1]
+back_round_r = 11.075; //[5.54:22.15:0.01]
+front_open_w = 14; //[6:20.15:0.1]
+pin_hole_d = 4; //[2:8:0.1]
+pin_feature_len = 6; //[3:12:0.1]
+pin_z_upper = 58; //[39.5:75:0.1]
+pin_z_lower = 21; //[4:39.5:0.1]
+pin_y_offset_from_inner_face = 0; //[-2:2:0.1]
+tab_len = 2; //[1:6:0.1]
+tab_thk = 1.5; //[0.8:3:0.1]
+tab_z_pos = 39.5; //[10:69:0.1]
+tab_z_h = 10; //[4:20:0.1]
+overlap = 1; //[0.5:2:0.1]
+pin_clear = 0.2; //[0:0.6:0.05]
+rib_thk = 1.2; //[0.8:2.5:0.1]
+rib_z_h = 8; //[4:16:0.1]
+edge_round_r = 0.8; //[0.3:2:0.1]
 
-wall_t = 1.6;
+// Base Shapes
+module u_channel_body_outer_box() {
+  cube([bbox_x, bbox_y, bbox_z], center=true);
+}
 
-channel_w = 14;          // inner channel width (X)
-channel_d = 16;          // inner channel depth from front opening inward (Y)
+module rounded_outer_back_cyl() {
+  rotate([90, 0, 0])
+    cylinder(r=back_round_r, h=bbox_z, center=true);
+}
 
-back_outer_r = 11;       // outer back rounding radius (approx bbox_x/2)
+module open_front_gap_box() {
+  translate([0, (bbox_y - channel_d)/2 + overlap, 0])
+    cube([front_open_w, bbox_y + overlap*2, bbox_z + overlap*2], center=true);
+}
 
-front_opening_w = 12;    // opening width at front (X), leaves lips
+module inner_channel_void_box() {
+  translate([0, (bbox_y - channel_d)/2, wall_t/2])
+    cube([channel_w, channel_d, bbox_z - wall_t], center=true);
+}
 
-boss_outer_d = 6;
-boss_hole_d  = 3.2;
-boss_len_each_side = 3;  // boss protrusion into channel from each side wall
+module side_wall_pin_feature(pos_x, pos_z) {
+  translate([pos_x, -bbox_y/2 + wall_t + pin_hole_d/2 + pin_y_offset_from_inner_face, pos_z])
+    rotate([0, 90, 0])
+      cylinder(r=(pin_hole_d + pin_clear)/2, h=pin_feature_len, center=true);
+}
 
-boss_z_offset_top = 14;
-boss_z_offset_bottom = 14;
+module front_edge_tab(pos_x) {
+  translate([pos_x, bbox_y/2 - tab_thk/2, tab_z_pos - bbox_z/2])
+    cube([tab_len, tab_thk, tab_z_h], center=true);
+}
 
-tab_thickness = 1.2;     // along Y at the front edge
-tab_depth_inward = 1.5;  // along X (lip width)
-tab_height = 6;          // along Z
+module boss_reinforcement_rib(pos_x, pos_z) {
+  translate([pos_x, -bbox_y/2 + wall_t + rib_thk/2, pos_z])
+    cube([wall_t + overlap*2, rib_thk, rib_z_h], center=true);
+}
 
-clearance = 0.3;
-overlap = 0.6;           // small overlap to ensure watertight unions/differences
-
-// Derived
-outer_x = bbox_x;
-outer_y = bbox_y;
-outer_z = bbox_z;
-
-inner_x = channel_w;
-inner_y = channel_d;
-inner_z = outer_z + 2*overlap;
-
-// Place the inner channel so it opens at the front face ( +Y )
-inner_center_y = outer_y/2 - inner_y/2 + overlap;
-
-// Rounded back: add a cylinder at the back ( -Y ) to make the exterior rounded
-back_cyl_r = back_outer_r;
-back_cyl_center_y = -outer_y/2 + back_cyl_r;
-
-// Boss centerline Y: inside the channel, near the back of the channel
-boss_center_y = (outer_y/2 - inner_y) + boss_outer_d/2 + wall_t;
-
-// Boss Z positions
-boss_z_top =  outer_z/2 - boss_z_offset_top;
-boss_z_bot = -outer_z/2 + boss_z_offset_bottom;
-
-// Boss X positions (inside faces of side walls)
-boss_x_left  = -inner_x/2 + boss_len_each_side/2 - overlap;
-boss_x_right =  inner_x/2 - boss_len_each_side/2 + overlap;
-
-// Front tabs: small lips at the open end, near +Y face, centered around Z=0
-tab_center_y = outer_y/2 - tab_thickness/2 + overlap;
-tab_z_center = 0;
-
-// --- Base solids/cutters ---
-
-module outer_shell() {
-  // Outer body with rounded back
+// Operations
+module u_channel_body_outer_union() {
   union() {
-    cube([outer_x, outer_y, outer_z], center=true);
-    translate([0, back_cyl_center_y, 0])
-      cylinder(r=back_cyl_r, h=outer_z, center=true);
+    u_channel_body_outer_box();
+    rounded_outer_back_cyl();
   }
 }
 
-module inner_channel_cut() {
-  // Main U-channel void (open at +Y)
-  translate([0, inner_center_y, 0])
-    cube([inner_x, inner_y, inner_z], center=true);
-}
-
-module front_opening_relief_cut() {
-  // Widen the opening slightly to make the "U" read clearly in silhouette
-  // (keeps lips by using front_opening_w < channel_w)
-  translate([0, 0, 0])
-    translate([0, outer_y/2 - inner_y/2 + overlap, 0])
-      cube([front_opening_w, inner_y + 2*overlap, inner_z], center=true);
-}
-
-module boss_solid_at(zpos) {
-  // Two opposing cylindrical bosses protruding inward from side walls
-  union() {
-    translate([boss_x_left,  boss_center_y, zpos])
-      rotate([0,90,0])
-        cylinder(d=boss_outer_d, h=boss_len_each_side + 2*overlap, center=true);
-
-    translate([boss_x_right, boss_center_y, zpos])
-      rotate([0,90,0])
-        cylinder(d=boss_outer_d, h=boss_len_each_side + 2*overlap, center=true);
+module u_channel_body() {
+  intersection() {
+    u_channel_body_outer_union();
+    u_channel_body_outer_box();
   }
 }
 
-module boss_hole_cut_at(zpos) {
-  // Through-hole across the channel (X direction), passing through both bosses
-  translate([0, boss_center_y, zpos])
-    rotate([0,90,0])
-      cylinder(d=boss_hole_d, h=inner_x + 2*boss_len_each_side + 6*overlap, center=true);
-}
-
-module front_tabs() {
-  // Two small lips at the front opening edges (left/right)
-  union() {
-    translate([-front_opening_w/2 + tab_depth_inward/2 - overlap, tab_center_y, tab_z_center])
-      cube([tab_depth_inward + 2*overlap, tab_thickness + 2*overlap, tab_height], center=true);
-
-    translate([ front_opening_w/2 - tab_depth_inward/2 + overlap, tab_center_y, tab_z_center])
-      cube([tab_depth_inward + 2*overlap, tab_thickness + 2*overlap, tab_height], center=true);
-  }
-}
-
-module lead_in_taper_cut() {
-  // Small lead-in chamfer at the front opening to emphasize the open channel
-  // Implemented as a wedge cut that removes material just inside the front face.
-  taper_len = 8;
-  taper_h = wall_t + tab_thickness;
-
-  translate([0, outer_y/2 - taper_h/2 + overlap, 0])
-    rotate([90,0,90])
-      linear_extrude(height=front_opening_w + 2*tab_depth_inward + 4*overlap, center=true)
-        polygon(points=[
-          [0, 0],
-          [taper_len, 0],
-          [taper_len, taper_h],
-          [0, wall_t]
-        ]);
-}
-
-module lightening_cutout() {
-  // Optional internal window from the back side (kept conservative to avoid breaking walls)
-  lighten_window_w = 10;
-  lighten_window_h = 18;
-  lighten_window_depth = 6;
-
-  translate([0, -outer_y/2 + (lighten_window_depth/2 + wall_t), 0])
-    cube([lighten_window_w, lighten_window_depth, lighten_window_h], center=true);
-}
-
-// --- Final model ---
-
-module model() {
+module u_channel_body_hollowed() {
   difference() {
-    union() {
-      // Main outer shell
-      outer_shell();
-
-      // Add bosses and tabs as positive features (connected to shell)
-      boss_solid_at(boss_z_top);
-      boss_solid_at(boss_z_bot);
-      front_tabs();
-    }
-
-    // Carve the U-channel and opening
-    inner_channel_cut();
-    front_opening_relief_cut();
-
-    // Boss holes
-    boss_hole_cut_at(boss_z_top);
-    boss_hole_cut_at(boss_z_bot);
-
-    // Lead-in taper at opening
-    lead_in_taper_cut();
-
-    // Lightening window (kept inside)
-    lightening_cutout();
+    u_channel_body();
+    inner_channel_void_box();
+    open_front_gap_box();
   }
 }
 
-model();
+module tabs_union_raw() {
+  union() {
+    front_edge_tab(-front_open_w/2 + tab_len/2 - overlap);
+    front_edge_tab(front_open_w/2 - tab_len/2 + overlap);
+  }
+}
+
+module edge_rounding_on_tabs() {
+  minkowski() {
+    tabs_union_raw();
+    sphere(r=edge_round_r);
+  }
+}
+
+module boss_reinforcement_ribs() {
+  union() {
+    boss_reinforcement_rib(-channel_w/2 - wall_t/2, pin_z_upper - bbox_z/2);
+    boss_reinforcement_rib(channel_w/2 + wall_t/2, pin_z_upper - bbox_z/2);
+    boss_reinforcement_rib(-channel_w/2 - wall_t/2, pin_z_lower - bbox_z/2);
+    boss_reinforcement_rib(channel_w/2 + wall_t/2, pin_z_lower - bbox_z/2);
+  }
+}
+
+module clip_with_tabs_and_ribs() {
+  union() {
+    u_channel_body_hollowed();
+    edge_rounding_on_tabs();
+    boss_reinforcement_ribs();
+  }
+}
+
+module pin_holes_all() {
+  union() {
+    side_wall_pin_feature(-channel_w/2 - wall_t/2, pin_z_upper - bbox_z/2);
+    side_wall_pin_feature(channel_w/2 + wall_t/2, pin_z_upper - bbox_z/2);
+    side_wall_pin_feature(-channel_w/2 - wall_t/2, pin_z_lower - bbox_z/2);
+    side_wall_pin_feature(channel_w/2 + wall_t/2, pin_z_lower - bbox_z/2);
+  }
+}
+
+module clip_with_pin_holes() {
+  difference() {
+    clip_with_tabs_and_ribs();
+    pin_holes_all();
+  }
+}
+
+module draft_angles() {
+  union() {
+    clip_with_pin_holes();
+  }
+}
+
+// Final Output
+draft_angles();

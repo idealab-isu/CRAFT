@@ -1,122 +1,148 @@
 // Dimension-calibrated (target: 0.06 x 0.01 x 0.05 mm)
-scale([0.708870, 0.433351, 0.960015])
+scale([0.949153, 1.300000, 0.960000])
 {
-// U-shaped clamp/bracket with semicircular saddle cutout, forked prongs, chamfered outer facets, and end through-holes.
-// All translations are derived from dimensions; model is one connected solid.
+// U-shaped clamp / forked saddle clip (single connected solid)
+// Structural fixes:
+// - Ensure TWO end through-holes (one near -X end, one near +X end of main body)
+// - Holes are clearly through along Y and positioned near the ends (not mid-body)
+// - Keep all parts connected with small overlap
+// - All translate() values derived from dimensions
 
 $fn = 96;
 
-// -------------------- Parameters (mm) --------------------
-body_L = 0.060;   // main body length (X)
-body_W = 0.030;   // main body width  (Y)
-body_H = 0.050;   // main body height (Z)
+// -------------------- Parameters --------------------
+L = 0.06;  // overall length along X (body + prongs)
+W = 0.01;  // overall width along Y
+H = 0.05;  // overall height along Z
 
-fork_len = 0.020; // prong extension length (X)
-prong_W  = 0.010; // each prong width (Y)
-slot_W   = 0.010; // gap between prongs (Y)
-prong_H  = 0.030; // prong height (Z)
+body_L = 0.034;
+body_W = W;
+body_H = H;
 
-cutout_R = 0.018; // saddle radius (semi-cylindrical cut)
-cutout_z = 0.026; // saddle center height from bottom (Z)
+prong_L = 0.026;
+prong_W = 0.0032;
+prong_H = H;
+gap_W   = 0.0036;
 
-hole_d = 0.003;        // through-hole diameter
-hole_end_offset = 0.008; // from each end along X
+cutout_R = 0.018;          // saddle radius
+cutout_center_z = 0.025;   // center height of saddle from bottom of body
 
-chamfer = 0.003; // heavy facet amount
-overlap = 0.001; // boolean overlap
+hole_D = 0.0016;
+// Place holes near each end, but keep them inside the chamfered body
+hole_offset_from_end = 0.004;
 
-// -------------------- Derived --------------------
-total_L = body_L + fork_len;
-
-prong_center_y = (slot_W/2 + prong_W/2);
-prong_center_x = body_L/2 + fork_len/2 - overlap;
-prong_center_z = -body_H/2 + prong_H/2;
-
-slot_center_x  = prong_center_x;
-slot_center_z  = prong_center_z;
-
-hole1_x = -body_L/2 + hole_end_offset;
-hole2_x =  body_L/2 - hole_end_offset;
+chamfer = 0.0016;          // heavier faceting amount
+overlap = 0.0010;
 
 // -------------------- Helpers --------------------
-module chamfered_box(size=[10,10,10], c=1) {
-    // Faceted/chamfered look by subtracting 45° wedges from a box.
-    // Works best with relatively large c.
-    sx=size[0]; sy=size[1]; sz=size[2];
-    difference() {
-        cube([sx,sy,sz], center=true);
+module octahedron(r=1) {
+  polyhedron(
+    points=[
+      [ r, 0, 0], [-r, 0, 0],
+      [ 0, r, 0], [ 0,-r, 0],
+      [ 0, 0, r], [ 0, 0,-r]
+    ],
+    faces=[
+      [0,2,4],[2,1,4],[1,3,4],[3,0,4],
+      [2,0,5],[1,2,5],[3,1,5],[0,3,5]
+    ]
+  );
+}
 
-        // 12 edge chamfers (approx): subtract long rotated boxes along edges
-        // Along X edges (vary Y/Z)
-        for (yy=[-1,1], zz=[-1,1])
-            translate([0, yy*(sy/2 - c/2), zz*(sz/2 - c/2)])
-                rotate([45,0,0])
-                    cube([sx+2*overlap, c*2, c*2], center=true);
+module chamfered_box(size=[10,10,10], c=1, center=true) {
+  // Faceted/chamfered look via Minkowski with an octahedron (planar facets)
+  minkowski() {
+    cube([max(0.001, size[0]-2*c), max(0.001, size[1]-2*c), max(0.001, size[2]-2*c)], center=center);
+    octahedron(c);
+  }
+}
 
-        // Along Y edges (vary X/Z)
-        for (xx=[-1,1], zz=[-1,1])
-            translate([xx*(sx/2 - c/2), 0, zz*(sz/2 - c/2)])
-                rotate([0,45,0])
-                    cube([c*2, sy+2*overlap, c*2], center=true);
+module prongs_solid() {
+  // Two parallel rectangular prongs extending from +X side of body
+  // Ensure they overlap into the body for a solid connection.
+  x_prongs = body_L/2 + prong_L/2 - overlap;
 
-        // Along Z edges (vary X/Y)
-        for (xx=[-1,1], yy=[-1,1])
-            translate([xx*(sx/2 - c/2), yy*(sy/2 - c/2), 0])
-                rotate([0,0,45])
-                    cube([c*2, c*2, sz+2*overlap], center=true);
+  translate([x_prongs, 0, 0]) {
+    translate([0, -(gap_W/2 + prong_W/2), 0])
+      chamfered_box([prong_L, prong_W, prong_H], c=min(chamfer, prong_W/3), center=true);
+    translate([0,  (gap_W/2 + prong_W/2), 0])
+      chamfered_box([prong_L, prong_W, prong_H], c=min(chamfer, prong_W/3), center=true);
+  }
+}
+
+module fork_gap_cut() {
+  // Slot between prongs (open from +X end)
+  x_gap = body_L/2 + prong_L/2 - overlap;
+  translate([x_gap, 0, 0])
+    cube([prong_L + 4*overlap, gap_W, prong_H + 4*overlap], center=true);
+}
+
+module u_saddle_cut() {
+  // U-shaped clamp cut: cylindrical cutout that OPENS to -X side
+  // Cylinder axis along Y; subtract only the upper half (semi) and only for x <= x_center.
+  zc = -body_H/2 + cutout_center_z;
+
+  // Center one radius in from the -X face so it opens to -X.
+  x_center = -body_L/2 + cutout_R;
+
+  intersection() {
+    // Full cylinder through Y
+    translate([x_center, 0, zc])
+      rotate([90, 0, 0])
+        cylinder(r=cutout_R, h=body_W + 6*overlap, center=true);
+
+    // Keep only the top half (semi-circle)
+    translate([x_center, 0, zc + cutout_R/2])
+      cube([2*cutout_R + 6*overlap, body_W + 6*overlap, body_H + 2*cutout_R + 6*overlap], center=true);
+
+    // Keep only the portion that reaches the -X face (open to -X): half-space x <= x_center
+    // Implemented as a large cube whose +X face is at x_center.
+    translate([x_center - (body_L + prong_L)/2, 0, 0])
+      cube([body_L + prong_L + 8*overlap, body_W + 8*overlap, body_H + 8*overlap], center=true);
+  }
+}
+
+module end_holes_cut() {
+  // Through-holes at each end of the MAIN BODY (axis along Y)
+  // Explicitly compute each end position to avoid "only one visible" ambiguity.
+  x_left  = -body_L/2 + hole_offset_from_end;
+  x_right =  body_L/2 - hole_offset_from_end;
+
+  for (xpos = [x_left, x_right]) {
+    translate([xpos, 0, 0])
+      rotate([90, 0, 0])
+        cylinder(r=hole_D/2, h=body_W + 10*overlap, center=true);
+  }
+}
+
+// -------------------- Main solid --------------------
+module clamp_solid() {
+  union() {
+    chamfered_box([body_L, body_W, body_H], c=chamfer, center=true);
+    prongs_solid();
+
+    // Optional extension to reach overall L if body_L+prong_L < L (kept connected)
+    extra_L = max(0, L - (body_L + prong_L));
+    if (extra_L > 0) {
+      // Attach to -X side of body with overlap
+      x_extra = -(body_L/2) - extra_L/2 + overlap;
+      translate([x_extra, 0, 0])
+        chamfered_box([extra_L + 2*overlap, body_W, body_H], c=chamfer, center=true);
     }
+  }
 }
 
-module main_body() {
-    chamfered_box([body_L, body_W, body_H], chamfer);
-}
-
-module prong_block() {
-    // Prong itself is chamfered for faceted look
-    chamfered_box([fork_len, prong_W, prong_H], chamfer);
-}
-
-module fork_prongs() {
-    union() {
-        translate([prong_center_x,  prong_center_y, prong_center_z]) prong_block();
-        translate([prong_center_x, -prong_center_y, prong_center_z]) prong_block();
-    }
-}
-
-module fork_slot_cut() {
-    translate([slot_center_x, 0, slot_center_z])
-        cube([fork_len + 2*overlap, slot_W, prong_H + 2*overlap], center=true);
-}
-
-module saddle_cut() {
-    // True semicircular internal cutout: subtract a cylinder and clip to half-space.
-    // Cylinder axis along Y, so top view shows a circle/arc rather than polygon.
-    translate([0, 0, -body_H/2 + cutout_z])
-        rotate([90,0,0])
-            intersection() {
-                cylinder(r=cutout_R, h=body_W + 2*overlap, center=true);
-                // keep only the upper half (Z >= center) to make a semicircular "U" saddle
-                translate([0,0, cutout_R/2])
-                    cube([2*cutout_R + 2*overlap, body_W + 4*overlap, cutout_R + 2*overlap], center=true);
-            }
-}
-
-module end_holes() {
-    // Through holes along Y (appear diamond-ish in some views when chamfered body is present)
-    for (xx=[hole1_x, hole2_x])
-        translate([xx, 0, 0])
-            rotate([90,0,0])
-                cylinder(d=hole_d, h=body_W + 2*overlap, center=true);
-}
-
-// -------------------- Final --------------------
+// -------------------- Final boolean --------------------
 difference() {
-    union() {
-        main_body();
-        fork_prongs();
-    }
-    fork_slot_cut();
-    saddle_cut();
-    end_holes();
+  clamp_solid();
+
+  // Fork opening
+  fork_gap_cut();
+
+  // U-shaped saddle cutout (open to -X)
+  u_saddle_cut();
+
+  // End through-holes (both ends)
+  end_holes_cut();
 }
 }

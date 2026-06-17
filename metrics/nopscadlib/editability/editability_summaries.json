@@ -1,0 +1,102 @@
+{
+  "produced_at": "2026-06-04T02:28:19.061627",
+  "perturbations": [
+    10,
+    50
+  ],
+  "render_enabled": true,
+  "methods": {
+    "craft": {
+      "n_samples": 468,
+      "mean_exposed_parameters": 13.13888888888889,
+      "symbolic_preservation_rate": 0.6682304097213548,
+      "edit_success_rate": 0.9985309829059829,
+      "post_edit_render_validity": 0.9910968660968661
+    },
+    "gpt4o": {
+      "n_samples": 468,
+      "mean_exposed_parameters": 0.13034188034188035,
+      "symbolic_preservation_rate": 0.030448717948717948,
+      "edit_success_rate": 0.95,
+      "post_edit_render_validity": 0.95
+    },
+    "gpt52": {
+      "n_samples": 468,
+      "mean_exposed_parameters": 4.228632478632479,
+      "symbolic_preservation_rate": 0.47667058131801726,
+      "edit_success_rate": 0.9917355371900827,
+      "post_edit_render_validity": 0.9772727272727274
+    }
+  },
+  "methods_by_tier": {
+    "craft": {
+      "Simple": {
+        "n_samples": 159,
+        "mean_exposed_parameters": 10.176100628930818,
+        "symbolic_preservation_rate": 0.5921117728577379,
+        "edit_success_rate": 0.9960691823899371,
+        "post_edit_render_validity": 0.9823113207547169
+      },
+      "Medium": {
+        "n_samples": 160,
+        "mean_exposed_parameters": 11.91875,
+        "symbolic_preservation_rate": 0.6386730490616831,
+        "edit_success_rate": 0.999609375,
+        "post_edit_render_validity": 0.9915364583333333
+      },
+      "Complex": {
+        "n_samples": 149,
+        "mean_exposed_parameters": 17.610738255033556,
+        "symbolic_preservation_rate": 0.7811971276197607,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 1.0
+      }
+    },
+    "gpt4o": {
+      "Simple": {
+        "n_samples": 159,
+        "mean_exposed_parameters": 0.11949685534591195,
+        "symbolic_preservation_rate": 0.006289308176100629,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 1.0
+      },
+      "Medium": {
+        "n_samples": 160,
+        "mean_exposed_parameters": 0.1125,
+        "symbolic_preservation_rate": 0.0,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 1.0
+      },
+      "Complex": {
+        "n_samples": 149,
+        "mean_exposed_parameters": 0.1610738255033557,
+        "symbolic_preservation_rate": 0.08892617449664429,
+        "edit_success_rate": 0.9285714285714286,
+        "post_edit_render_validity": 0.9285714285714286
+      }
+    },
+    "gpt52": {
+      "Simple": {
+        "n_samples": 159,
+        "mean_exposed_parameters": 2.157232704402516,
+        "symbolic_preservation_rate": 0.38171185907034966,
+        "edit_success_rate": 0.9803921568627451,
+        "post_edit_render_validity": 0.9546568627450981
+      },
+      "Medium": {
+        "n_samples": 160,
+        "mean_exposed_parameters": 4.9625,
+        "symbolic_preservation_rate": 0.5016639610389609,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 0.9881249999999998
+      },
+      "Complex": {
+        "n_samples": 149,
+        "mean_exposed_parameters": 5.651006711409396,
+        "symbolic_preservation_rate": 0.5511638436135081,
+        "edit_success_rate": 0.989010989010989,
+        "post_edit_render_validity": 0.978021978021978
+      }
+    }
+  }
+}

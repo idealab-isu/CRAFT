@@ -1,4 +1,0 @@
-id   : axial__DO_35
-tier : Simple
-
-A through-hole axial electronic component: 0.55 mm body length.

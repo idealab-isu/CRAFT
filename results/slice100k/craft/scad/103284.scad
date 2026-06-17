@@ -1,59 +1,67 @@
 // Faceted truncated polyhedral solid (single connected piece)
 // Bounding box target: 39.4 x 37.68 x 36.4 mm
 
-// Parameters
 bbox_X = 39.4;   //[19.7:78.8:0.01]
 bbox_Y = 37.68;  //[18.84:75.36:0.01]
 bbox_Z = 36.4;   //[18.2:72.8:0.01]
 
-n_sides = 8;          //[6:16:1]
-top_scale_xy = 1.0;   //[0.7:1.2:0.01]
-bottom_scale_xy = 0.72; //[0.4:1.0:0.01]
+n_sides = 8;     //[6:16:1]
 
-// Height split: vertical upper band + tapered lower band (continuous, no step)
-upper_wall_h = 12.0;  //[6.0:24.0:0.1]
-lower_slope_h = 24.4; //[12.2:48.8:0.1]
+// Top (largest) polygon scale relative to bbox
+top_scale_X = 1; //[0.8:1.2:0.01]
+top_scale_Y = 1; //[0.8:1.2:0.01]
 
-// Small overlap to guarantee manifold union if needed
-eps_overlap = 0.2; //[0.0:1.0:0.05]
+// Bottom (smallest) polygon scale relative to bbox
+bottom_scale_X = 0.72; //[0.36:1.44:0.01]
+bottom_scale_Y = 0.72; //[0.36:1.44:0.01]
 
-$fn = 96;
+// Height of near-vertical upper band (rest is tapered)
+z_upper_wall = 14; //[7:28:0.1]
 
-// Regular n-gon profile sized to bbox_X/Y (supports non-square bbox)
-module ngon_profile(scale_xy=1.0, n=n_sides) {
-    rx = (bbox_X/2) * scale_xy;
-    ry = (bbox_Y/2) * scale_xy;
-    polygon(points=[
-        for (i=[0:n-1])
-            [ rx*cos(360*i/n), ry*sin(360*i/n) ]
-    ]);
-}
+// Small overlap to guarantee watertight union
+eps_overlap = 0.6; //[0.2:2:0.1]
 
-// Main solid: top vertical band + lower tapered frustum, sharing the same interface plane
-module complete_model() {
-    // Clamp heights to avoid invalid geometry
-    uw = max(0, min(upper_wall_h, bbox_Z));
-    lh = max(0, min(lower_slope_h, bbox_Z - uw));
-    // If user sets heights that don't sum to bbox_Z, fill remainder into lower section
-    lh2 = (uw + lh < bbox_Z) ? (bbox_Z - uw) : lh;
+function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
+
+// Regular n-gon points with independent X/Y scaling (ellipse-like scaling)
+function ngon_pts(n, rx, ry, rot=0) =
+    [ for (i = [0:n-1])
+        [ rx * cos(rot + 360*i/n), ry * sin(rot + 360*i/n) ]
+    ];
+
+module truncated_faceted_solid() {
+    // Derived dimensions
+    z_upper = clamp(z_upper_wall, 0, bbox_Z);
+    z_lower = bbox_Z - z_upper;
+
+    rx_top = (bbox_X * top_scale_X) / 2;
+    ry_top = (bbox_Y * top_scale_Y) / 2;
+
+    rx_bot = (bbox_X * bottom_scale_X) / 2;
+    ry_bot = (bbox_Y * bottom_scale_Y) / 2;
+
+    // Slight rotation so front/back/left/right read as regular polygon silhouette
+    rot = 180 / n_sides;
 
     union() {
-        // Upper vertical walls (constant cross-section)
-        translate([0,0, bbox_Z/2 - uw/2])
-            linear_extrude(height=uw + eps_overlap, center=true, convexity=10)
-                ngon_profile(top_scale_xy, n_sides);
+        // Upper near-vertical band: straight extrusion of the top polygon
+        translate([0, 0, bbox_Z/2 - z_upper/2])
+            linear_extrude(height = z_upper + eps_overlap, center = true, convexity = 10)
+                polygon(points = ngon_pts(n_sides, rx_top, ry_top, rot));
 
-        // Lower tapered section (continuous transition to smaller bottom face)
-        // Starts exactly at z = bbox_Z/2 - uw and ends at z = -bbox_Z/2
-        translate([0,0, -bbox_Z/2 + lh2/2])
-            linear_extrude(
-                height=lh2 + eps_overlap,
-                center=true,
-                convexity=10,
-                scale=bottom_scale_xy
-            )
-                ngon_profile(top_scale_xy, n_sides);
+        // Lower tapered band: hull between a top polygon (at transition) and smaller bottom polygon
+        hull() {
+            // Transition ring (same as top polygon) at z = -bbox_Z/2 + z_lower
+            translate([0, 0, -bbox_Z/2 + z_lower])
+                linear_extrude(height = eps_overlap, center = true, convexity = 10)
+                    polygon(points = ngon_pts(n_sides, rx_top, ry_top, rot));
+
+            // Bottom polygon at z = -bbox_Z/2
+            translate([0, 0, -bbox_Z/2])
+                linear_extrude(height = eps_overlap, center = true, convexity = 10)
+                    polygon(points = ngon_pts(n_sides, rx_bot, ry_bot, rot));
+        }
     }
 }
 
-complete_model();
+truncated_faceted_solid();

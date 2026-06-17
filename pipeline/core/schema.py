@@ -171,13 +171,7 @@ CAD_PLAN_SCHEMA: Dict[str, Any] = {
                                 "enum": [
                                     "union", "difference", "intersection",
                                     "translate", "rotate", "scale", "mirror",
-                                    "hull"
-                                    # v2: "minkowski" removed — it consistently
-                                    # causes 60s+ per-view render timeouts.
-                                    # The planner prompt bans it; the
-                                    # preemptive render-safety scan strips it
-                                    # if it slips through; the schema now
-                                    # rejects it at the validation boundary.
+                                    "hull", "minkowski"
                                 ]
                             },
                             "target": {"type": ["string", "array"]},
@@ -189,7 +183,7 @@ CAD_PLAN_SCHEMA: Dict[str, Any] = {
                                 "if": {
                                     "properties": {
                                         "type": {
-                                            "enum": ["union", "difference", "intersection", "hull"]
+                                            "enum": ["union", "difference", "intersection", "hull", "minkowski"]
                                         }
                                     }
                                 },

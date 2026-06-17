@@ -11,166 +11,8 @@ Key features:
 
 import json
 import re
-from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, List, Optional, Tuple
-from .schema import extract_parameters, extract_parameter_metadata, extract_shape_ids
-from .smooth_surface_optimizer import detect_curved_surface_need, get_smooth_surface_code_pattern
-
-
-# =============================================================================
-# ROUND-TRIP AUDIT (CRAFT v2, Phase B.6)
-# =============================================================================
-
-_SCAD_MODULE_RE = re.compile(r'module\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(')
-_SCAD_CALL_RE = re.compile(r'\b([A-Za-z_][A-Za-z0-9_]*)\s*\(')
-_SCAD_PARAM_RE = re.compile(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([^;]+?);', re.MULTILINE)
-
-# Builtins we never want the audit to flag as "undefined modules"
-_SCAD_BUILTINS = {
-    "cube", "sphere", "cylinder", "square", "circle", "polygon", "polyhedron",
-    "linear_extrude", "rotate_extrude", "translate", "rotate", "scale",
-    "mirror", "resize", "hull", "minkowski", "union", "difference",
-    "intersection", "color", "offset", "projection", "import", "surface",
-    "render", "echo", "children", "for", "if", "let", "each", "assert",
-    "text", "include", "use", "module", "function",
-    "abs", "ceil", "floor", "round", "min", "max", "sqrt", "pow",
-    "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "ln", "log",
-    "len", "str", "concat", "is_num", "is_list", "is_string",
-    "norm", "cross", "lookup", "rands", "sign", "exp", "version",
-}
-
-
-@dataclass
-class CompileAudit:
-    """
-    Result of a round-trip audit between a CAD plan and the SCAD that the
-    compiler produced for it. CRAFT v2 Phase B.6.
-
-    ``ok``: True when no hard violations were detected (missing essential
-    shapes / undefined modules / empty output). Used by the planner to
-    decide whether to try another strategy.
-    """
-    ok: bool = True
-    # Hard violations — should trigger fallback / another strategy
-    missing_shape_ids: List[str] = field(default_factory=list)
-    undefined_module_calls: List[str] = field(default_factory=list)
-    empty_output: bool = False
-    # Soft observations — logged, not fatal
-    missing_parameters: List[str] = field(default_factory=list)
-    extra_modules: List[str] = field(default_factory=list)
-    renamed_shape_ids: List[Tuple[str, str]] = field(default_factory=list)
-    # Summary stats
-    plan_shape_count: int = 0
-    scad_module_count: int = 0
-    scad_loc: int = 0
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-    def summary(self) -> str:
-        if self.ok and not self.missing_parameters:
-            return (
-                f"audit=OK shapes={self.plan_shape_count} "
-                f"modules={self.scad_module_count} loc={self.scad_loc}"
-            )
-        parts = [f"audit={'OK' if self.ok else 'FAIL'}"]
-        if self.missing_shape_ids:
-            parts.append(f"missing_shapes={self.missing_shape_ids}")
-        if self.undefined_module_calls:
-            parts.append(f"undefined_calls={self.undefined_module_calls}")
-        if self.missing_parameters:
-            parts.append(f"missing_params={self.missing_parameters}")
-        if self.empty_output:
-            parts.append("empty_output")
-        return " ".join(parts)
-
-
-def audit_roundtrip(plan: Dict[str, Any], scad_code: str) -> CompileAudit:
-    """
-    Compare a CAD plan against the SCAD the compiler produced.
-
-    Checks:
-      - Output is non-empty (not just a header comment).
-      - Every plan shape id either appears as a SCAD module or is referenced
-        via a recognizable name. Missing ones count as hard failures.
-      - Every invoked module either has a definition, is an OpenSCAD builtin,
-        or matches a plan shape id. Undefined calls count as hard failures.
-      - Every plan parameter appears either as a ``name = value;`` top-level
-        definition or is referenced by name (soft check — models frequently
-        inline constants).
-
-    Returns:
-        CompileAudit with ``ok=True`` when no hard failures were found.
-    """
-    audit = CompileAudit()
-    code = scad_code or ""
-    audit.scad_loc = len([ln for ln in code.splitlines() if ln.strip()])
-
-    # Strip line comments for symbol extraction
-    stripped = re.sub(r'//[^\n]*', '', code)
-    stripped = re.sub(r'/\*.*?\*/', '', stripped, flags=re.DOTALL)
-
-    # Hard: empty compiler output (truly empty, or a comment-only stub)
-    if not stripped.strip() or len(stripped.strip()) < 20:
-        audit.empty_output = True
-        audit.ok = False
-
-    # Collected SCAD symbols
-    defined_modules = set(_SCAD_MODULE_RE.findall(stripped))
-    audit.scad_module_count = len(defined_modules)
-
-    called_names = set(_SCAD_CALL_RE.findall(stripped))
-    # Strip out module *definitions* from called names (the re matches both)
-    called_names = called_names - defined_modules
-
-    top_level_params = {m.group(1) for m in _SCAD_PARAM_RE.finditer(stripped)}
-
-    # Plan-side expectations
-    plan_shape_ids = extract_shape_ids(plan)
-    audit.plan_shape_count = len(plan_shape_ids)
-    plan_params = set(extract_parameters(plan).keys())
-
-    # Hard check 1: every plan shape id should survive to the SCAD
-    # (either as a module definition, or referenced somewhere in the code).
-    for sid in plan_shape_ids:
-        if sid in defined_modules:
-            continue
-        if re.search(rf'\b{re.escape(sid)}\b', stripped):
-            continue
-        audit.missing_shape_ids.append(sid)
-    if audit.missing_shape_ids:
-        audit.ok = False
-
-    # Hard check 2: undefined module calls that aren't builtins
-    undefined = []
-    for name in called_names:
-        if name in _SCAD_BUILTINS:
-            continue
-        if name in defined_modules:
-            continue
-        # Plan-side shapes are allowed (they might be referenced before a
-        # module block in a flattened codegen) — but only if the plan knows
-        # about them.
-        if name in plan_shape_ids:
-            continue
-        undefined.append(name)
-    # Cap the list so the log stays readable
-    audit.undefined_module_calls = sorted(set(undefined))[:10]
-    if audit.undefined_module_calls:
-        audit.ok = False
-
-    # Soft check: parameters referenced but never defined at the top level
-    for p in plan_params:
-        if p in top_level_params:
-            continue
-        if re.search(rf'\b{re.escape(p)}\b', stripped):
-            continue
-        audit.missing_parameters.append(p)
-
-    # Soft observation: "extra" user-defined modules (noise, not a failure)
-    audit.extra_modules = sorted(defined_modules - set(plan_shape_ids))
-
-    return audit
+from typing import Any, Dict, List, Optional
+from .schema import extract_parameters, extract_parameter_metadata
 
 
 def add_smart_parameter_ranges(params: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
@@ -249,8 +91,6 @@ def add_smart_parameter_ranges(params: Dict[str, Any]) -> Dict[str, Dict[str, An
 # =============================================================================
 
 COMPILER_SYSTEM_PROMPT = """You are an OpenSCAD COMPILER. Convert JSON CAD plans into clean OpenSCAD code.
-
-MINIMAL SCOPE: Implement only what the plan describes. Do not add display stands, mounting blocks, PCBs, or "scene" geometry unless the plan includes those parts.
 
 CRITICAL REQUIREMENT - GENERATE COMPLETE GEOMETRY FOR KB COMPONENTS:
 When Knowledge Base (KB) components are provided (marked as [MANDATORY]):
@@ -496,23 +336,7 @@ class Compiler:
         except Exception as e:
             # Fallback: generate basic code from plan directly
             return self._fallback_compile(plan, str(e))
-
-    def compile_with_audit(
-        self,
-        plan: Dict[str, Any],
-        kb_components: List[Any] = None,
-    ) -> Tuple[str, CompileAudit]:
-        """
-        Compile a plan and run a round-trip audit against the produced SCAD.
-
-        CRAFT v2 Phase B.6. Callers can inspect ``audit.ok`` to decide whether
-        to try another planning strategy instead of committing to this SCAD.
-        """
-        code = self.compile(plan, kb_components=kb_components)
-        audit = audit_roundtrip(plan, code)
-        print(f"[Compiler] roundtrip {audit.summary()}")
-        return code, audit
-
+    
     def _build_kb_code_section(self, kb_components: List[Any]) -> str:
         """
         Build KB component specifications section.
@@ -1004,22 +828,8 @@ def compile_plan(
 def compile_plan_fallback(plan: Dict[str, Any]) -> str:
     """
     Compile using only the fallback (no LLM).
-
+    
     Useful for testing or when LLM is unavailable.
     """
     compiler = Compiler(None)
     return compiler._fallback_compile(plan)
-
-
-def compile_plan_with_audit(
-    client,
-    plan: Dict[str, Any],
-    model: str = "gpt-4o",
-    kb_components: List[Any] = None,
-) -> Tuple[str, CompileAudit]:
-    """
-    Convenience wrapper for Compiler.compile_with_audit (Phase B.6).
-    Returns (scad_code, CompileAudit).
-    """
-    compiler = Compiler(client, model)
-    return compiler.compile_with_audit(plan, kb_components=kb_components)

@@ -1,151 +1,93 @@
 // Dimension-calibrated (target: 0.06 x 0.10 x 0.01 mm)
-scale([1.051083, 1.029671, 0.453066])
+scale([0.997015, 0.598209, 5.003214])
 {
-// Parameters
-bbox_X = 0.06; //[0.03:0.12:0.001]
-bbox_Y = 0.1; //[0.05:0.2:0.001]
-T = 0.01; //[0.005:0.02:0.001]
-outline_margin = 0.002; //[0.001:0.004:0.0005]
-step_inset_1 = 0.006; //[0.003:0.012:0.001]
-step_inset_2 = 0.01; //[0.005:0.02:0.001]
-corner_r = 0.003; //[0.0015:0.006:0.0005]
-corner_ch = 0.002; //[0.001:0.004:0.0005]
-edge_break_r = 0.0006; //[0.0002:0.0012:0.0001]
-hole_sq = 0.008; //[0.004:0.016:0.001]
-hole_rot_deg = 45; //[0:90:1]
-hole_group_dx = 0.02; //[0.01:0.04:0.001]
-hole_group_dy = 0.028; //[0.014:0.056:0.001]
-hole_pitch_y = 0.014; //[0.007:0.028:0.001]
-hole_pitch_x = 0.01; //[0.005:0.02:0.001]
-hole_center_offset_x = 0.0; //[-0.01:0.01:0.001]
-hole_center_offset_y = 0.0; //[-0.01:0.01:0.001]
-hole_clear_z = 0.002; //[0.001:0.004:0.0005]
-overlap = 0.001; //[0.0005:0.002:0.0005]
+// Thin stepped mounting plate with 6 diamond (rotated-square) through-holes
+// Bounding box target: 0.1 x 0.1 x ~0 (very thin plate)
 
-// Base Shapes
-module plate_main_profile() {
-  linear_extrude(height=T, center=true) {
-    polygon(points=[
-      [-bbox_X/2 + outline_margin + corner_ch, -bbox_Y/2 + outline_margin],
-      [bbox_X/2 - outline_margin - step_inset_1, -bbox_Y/2 + outline_margin],
-      [bbox_X/2 - outline_margin, -bbox_Y/2 + outline_margin + step_inset_1],
-      [bbox_X/2 - outline_margin, -bbox_Y/2 + outline_margin + bbox_Y*0.28],
-      [bbox_X/2 - outline_margin - step_inset_2, -bbox_Y/2 + outline_margin + bbox_Y*0.28],
-      [bbox_X/2 - outline_margin - step_inset_2, bbox_Y/2 - outline_margin - bbox_Y*0.22],
-      [bbox_X/2 - outline_margin, bbox_Y/2 - outline_margin - bbox_Y*0.22],
-      [bbox_X/2 - outline_margin, bbox_Y/2 - outline_margin - step_inset_1],
-      [bbox_X/2 - outline_margin - step_inset_1, bbox_Y/2 - outline_margin],
-      [-bbox_X/2 + outline_margin + step_inset_2, bbox_Y/2 - outline_margin],
-      [-bbox_X/2 + outline_margin, bbox_Y/2 - outline_margin - step_inset_2],
-      [-bbox_X/2 + outline_margin, bbox_Y/2 - outline_margin - bbox_Y*0.35],
-      [-bbox_X/2 + outline_margin + step_inset_1, bbox_Y/2 - outline_margin - bbox_Y*0.35],
-      [-bbox_X/2 + outline_margin + step_inset_1, -bbox_Y/2 + outline_margin + bbox_Y*0.18],
-      [-bbox_X/2 + outline_margin, -bbox_Y/2 + outline_margin + bbox_Y*0.18],
-      [-bbox_X/2 + outline_margin, -bbox_Y/2 + outline_margin + corner_ch]
-    ]);
-  }
+$fn = 48;
+
+// --- Parameters (mm) ---
+bbox_X = 0.10;
+bbox_Y = 0.10;
+T      = 0.001;          // very thin plate (keeps Z ~ 0.0 in many viewers)
+
+step_depth  = 0.018;     // side notch depth
+step_length = 0.028;     // notch length from each end
+
+// Outer corner rounding (2D) and small Z fillet (kept tiny to preserve thinness)
+corner_r_2d = 0.004;
+z_fillet_r  = 0.00015;
+
+// Holes (diamond appearance = rotated square)
+hole_square_side = 0.010;
+hole_rotation_deg = 45;
+hole_pitch_Y = 0.020;
+group_offset_X = 0.028;
+
+// Small overlap for robust boolean cuts
+cut_overlap = 0.002;
+
+// --- Helpers ---
+module rounded_polygon_2d(pts, r) {
+    // Offset out then in to round/chamfer corners in 2D
+    // (works well for plate-like parts)
+    offset(delta = r) offset(delta = -r) polygon(points = pts);
 }
 
-module stepped_outline_segments() {
-  linear_extrude(height=T, center=true) {
-    polygon(points=[
-      [bbox_X/2 - outline_margin - step_inset_1, -bbox_Y/2 + outline_margin],
-      [bbox_X/2 - outline_margin, -bbox_Y/2 + outline_margin + step_inset_1],
-      [bbox_X/2 - outline_margin, -bbox_Y/2 + outline_margin + bbox_Y*0.28],
-      [bbox_X/2 - outline_margin - step_inset_2, -bbox_Y/2 + outline_margin + bbox_Y*0.28],
-      [bbox_X/2 - outline_margin - step_inset_2, bbox_Y/2 - outline_margin - bbox_Y*0.22],
-      [bbox_X/2 - outline_margin, bbox_Y/2 - outline_margin - bbox_Y*0.22],
-      [bbox_X/2 - outline_margin, bbox_Y/2 - outline_margin - step_inset_1],
-      [bbox_X/2 - outline_margin - step_inset_1, bbox_Y/2 - outline_margin],
-      [-bbox_X/2 + outline_margin + step_inset_2, bbox_Y/2 - outline_margin],
-      [-bbox_X/2 + outline_margin, bbox_Y/2 - outline_margin - step_inset_2],
-      [-bbox_X/2 + outline_margin, bbox_Y/2 - outline_margin - bbox_Y*0.35],
-      [-bbox_X/2 + outline_margin + step_inset_1, bbox_Y/2 - outline_margin - bbox_Y*0.35],
-      [-bbox_X/2 + outline_margin + step_inset_1, -bbox_Y/2 + outline_margin + bbox_Y*0.18],
-      [-bbox_X/2 + outline_margin, -bbox_Y/2 + outline_margin + bbox_Y*0.18],
-      [-bbox_X/2 + outline_margin, -bbox_Y/2 + outline_margin]
-    ]);
-  }
+module plate_profile_2d() {
+    // Stepped outline: rectangular plate with side notches centered in Y
+    // Points are CCW
+    pts = [
+        [-bbox_X/2, -bbox_Y/2],
+        [ bbox_X/2, -bbox_Y/2],
+        [ bbox_X/2, -bbox_Y/2 + step_length],
+        [ bbox_X/2 - step_depth, -bbox_Y/2 + step_length],
+        [ bbox_X/2 - step_depth,  bbox_Y/2 - step_length],
+        [ bbox_X/2,  bbox_Y/2 - step_length],
+        [ bbox_X/2,  bbox_Y/2],
+        [-bbox_X/2,  bbox_Y/2],
+        [-bbox_X/2,  bbox_Y/2 - step_length],
+        [-bbox_X/2 + step_depth,  bbox_Y/2 - step_length],
+        [-bbox_X/2 + step_depth, -bbox_Y/2 + step_length],
+        [-bbox_X/2, -bbox_Y/2 + step_length]
+    ];
+
+    rounded_polygon_2d(pts, corner_r_2d);
 }
 
-module corner_rounds_or_chamfers() {
-  linear_extrude(height=T, center=true) {
-    polygon(points=[
-      [-bbox_X/2 + outline_margin, -bbox_Y/2 + outline_margin],
-      [-bbox_X/2 + outline_margin + corner_ch, -bbox_Y/2 + outline_margin],
-      [-bbox_X/2 + outline_margin, -bbox_Y/2 + outline_margin + corner_ch]
-    ]);
-  }
-}
-
-module mixed_corner_treatments_per_corner() {
-  linear_extrude(height=T, center=true) {
-    polygon(points=[
-      [bbox_X/2 - outline_margin, bbox_Y/2 - outline_margin],
-      [bbox_X/2 - outline_margin - corner_ch, bbox_Y/2 - outline_margin],
-      [bbox_X/2 - outline_margin, bbox_Y/2 - outline_margin - corner_ch]
-    ]);
-  }
-}
-
-module through_hole(position_x, position_y) {
-  rotate([0, 0, hole_rot_deg]) {
-    translate([position_x, position_y, 0]) {
-      cube([hole_sq, hole_sq, T + hole_clear_z], center=true);
+module plate_solid() {
+    // Keep as a constant-thickness plate; optional tiny Z fillet via minkowski
+    // (z_fillet_r is tiny so it still reads as flat)
+    if (z_fillet_r > 0) {
+        minkowski() {
+            linear_extrude(height = max(T - 2*z_fillet_r, 0.0001), center = true)
+                plate_profile_2d();
+            sphere(r = z_fillet_r);
+        }
+    } else {
+        linear_extrude(height = T, center = true)
+            plate_profile_2d();
     }
-  }
 }
 
-module small_edge_break_chamfer() {
-  sphere(r=edge_break_r, center=true);
+module diamond_hole_tool() {
+    rotate([0,0,hole_rotation_deg])
+        cube([hole_square_side, hole_square_side, T + 2*cut_overlap], center = true);
 }
 
-module hole_edge_chamfer_or_countersink_suggestion() {
-  cylinder(h=T, r1=hole_sq/2, r2=0, center=true);
+module holes_all() {
+    // Two groups of 3 holes each, symmetric about X=0, centered about Y=0
+    for (sx = [-1, 1]) {
+        for (iy = [-1, 0, 1]) {
+            translate([sx*group_offset_X, iy*hole_pitch_Y, 0])
+                diamond_hole_tool();
+        }
+    }
 }
 
-// Operations
-module plate_minus_corner_chamfers() {
-  difference() {
-    plate_main_profile();
-    corner_rounds_or_chamfers();
-    mixed_corner_treatments_per_corner();
-  }
+// --- Final model (ONE connected solid) ---
+difference() {
+    plate_solid();
+    holes_all();
 }
-
-module plate_with_edge_break() {
-  minkowski() {
-    plate_minus_corner_chamfers();
-    small_edge_break_chamfer();
-  }
-}
-
-module plate_with_steps_and_edge_break() {
-  union() {
-    plate_with_edge_break();
-    stepped_outline_segments();
-  }
-}
-
-module plate_with_holes() {
-  difference() {
-    plate_with_steps_and_edge_break();
-    through_hole(-hole_group_dx/2 - hole_pitch_x/2 + hole_center_offset_x, -hole_group_dy/2 - hole_pitch_y + hole_center_offset_y);
-    through_hole(-hole_group_dx/2 + hole_center_offset_x, -hole_group_dy/2 + hole_center_offset_y);
-    through_hole(-hole_group_dx/2 + hole_pitch_x/2 + hole_center_offset_x, -hole_group_dy/2 + hole_pitch_y + hole_center_offset_y);
-    through_hole(hole_group_dx/2 - hole_pitch_x/2 + hole_center_offset_x, hole_group_dy/2 - hole_pitch_y + hole_center_offset_y);
-    through_hole(hole_group_dx/2 + hole_center_offset_x, hole_group_dy/2 + hole_center_offset_y);
-    through_hole(hole_group_dx/2 + hole_pitch_x/2 + hole_center_offset_x, hole_group_dy/2 + hole_pitch_y + hole_center_offset_y);
-  }
-}
-
-module final_model() {
-  union() {
-    plate_with_holes();
-    hole_edge_chamfer_or_countersink_suggestion();
-  }
-}
-
-// Final Output
-final_model();
 }

@@ -1,0 +1,89 @@
+{
+  "craft": {
+    "model_name": "craft",
+    "n_evaluated": 85,
+    "n_failed": 15,
+    "cd_mean": 0.06124650506754831,
+    "cd_std": 0.0602493051285411,
+    "cd_median": 0.03821477312571721,
+    "f1_1pct_mean": 0.29235035235257767,
+    "f1_5pct_mean": 0.6600341036280606,
+    "voxel_iou_mean": 0.061591451808504255,
+    "ssim_mean": NaN,
+    "silhouette_iou_mean": NaN,
+    "cd_by_tier": {
+      "Simple": 0.07184049946418088,
+      "Medium": 0.05527223870219452,
+      "Complex": 0.05684014369217504
+    },
+    "f1_1pct_by_tier": {
+      "Simple": 0.2593417315628439,
+      "Medium": 0.3033672957162714,
+      "Complex": 0.3139485675156289
+    },
+    "voxel_iou_by_tier": {
+      "Simple": 0.052164675417157726,
+      "Medium": 0.06166792804219176,
+      "Complex": 0.07093902067210302
+    },
+    "ssim_by_tier": {}
+  },
+  "gpt4o": {
+    "model_name": "gpt4o",
+    "n_evaluated": 93,
+    "n_failed": 7,
+    "cd_mean": 0.07513037359091182,
+    "cd_std": 0.06458375745838373,
+    "cd_median": 0.05383737545194642,
+    "f1_1pct_mean": 0.21221480706353557,
+    "f1_5pct_mean": 0.5787388113913645,
+    "voxel_iou_mean": 0.07107503092839436,
+    "ssim_mean": NaN,
+    "silhouette_iou_mean": NaN,
+    "cd_by_tier": {
+      "Simple": 0.07955029808567579,
+      "Medium": 0.07149144338096489,
+      "Complex": 0.07434937930609475
+    },
+    "f1_1pct_by_tier": {
+      "Simple": 0.20174035378744712,
+      "Medium": 0.2067096481982211,
+      "Complex": 0.2281944192049386
+    },
+    "voxel_iou_by_tier": {
+      "Simple": 0.05041777602164322,
+      "Medium": 0.08405255179607002,
+      "Complex": 0.07875476496746987
+    },
+    "ssim_by_tier": {}
+  },
+  "gpt52": {
+    "model_name": "gpt52",
+    "n_evaluated": 96,
+    "n_failed": 4,
+    "cd_mean": 0.06218688692775959,
+    "cd_std": 0.057726600706501104,
+    "cd_median": 0.038752207566286744,
+    "f1_1pct_mean": 0.2767809373573554,
+    "f1_5pct_mean": 0.6471661418959324,
+    "voxel_iou_mean": 0.06359487128478426,
+    "ssim_mean": NaN,
+    "silhouette_iou_mean": NaN,
+    "cd_by_tier": {
+      "Simple": 0.06551257953292586,
+      "Medium": 0.06411791976276456,
+      "Complex": 0.05693016148758835
+    },
+    "f1_1pct_by_tier": {
+      "Simple": 0.2451712187690102,
+      "Medium": 0.27870099644398016,
+      "Complex": 0.30647059685907585
+    },
+    "voxel_iou_by_tier": {
+      "Simple": 0.055603943145663984,
+      "Medium": 0.06451791868758161,
+      "Complex": 0.07066275202110722
+    },
+    "ssim_by_tier": {}
+  }
+}

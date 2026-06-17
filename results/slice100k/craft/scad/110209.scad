@@ -1,76 +1,132 @@
 // Dimension-calibrated (target: 12.00 x 22.98 x 24.00 mm)
-scale([0.999087, 1.043261, 0.495868])
+scale([0.999087, 1.043261, 0.500000])
 {
-// Spool-like turned sleeve (no bore), rotationally symmetric
-// Bounding box target: 12.0 x 23.0 x 24.0 mm  (X=12, Y=23, Z=24)
+// Rotationally symmetric spool-like turned sleeve/roller
+// FIX: Replace frustum/cone-looking artifacts with a clean stepped cylindrical profile
+// using a single continuous r-z polygon (rotate_extrude).
+// Target bounding box: 23 x 23 x 24 mm (X x Y x Z), elongated along Z
 
-$fn = 160;
+$fn = 200;
 
 // --- Parameters (mm) ---
-L = 24.0;                 // overall length (Z)
-OD_max = 23.0;            // maximum diameter (Y)
-OD_mid = 18.0;            // intermediate diameter
-OD_min = 12.0;            // minimum diameter (X)
-end_band_len = 4.0;       // raised band length at each end
-groove_len = 3.5;         // recessed groove length next to center band
-center_band_len = 5.0;    // raised band length at center
-fillet_r = 0.6;           // smooth transition radius (approx via hull)
-overlap = 0.2;            // small overlap to ensure connectivity
+L = 24;                 // overall length (Z)
+D_max = 23;             // max OD (raised bands)
+D_min = 12;             // min OD (grooves)
+end_land_L = 4;         // raised end land length (each end)
+groove_L = 3;           // recessed groove length (each groove)
+band_L = 5;             // raised band length (between grooves)
+fillet_r = 0.8;         // fillet radius at steps (r-z profile)
+end_edge_r = 0.4;       // end edge rounding (r-z profile)
 
-// --- Derived lengths (ensure exact total length) ---
-min_len_total = L - (2*end_band_len + 2*groove_len + center_band_len);
-min_len_each  = min_len_total/2;
+// --- Derived radii ---
+R_max = D_max/2;
+R_min = D_min/2;
 
-// Guard against invalid parameter combinations
-assert(min_len_total >= 0, "Invalid lengths: 2*end_band_len + 2*groove_len + center_band_len must be <= L");
+// --- Axial layout (exactly fills L) ---
+center_band_L = L - (2*end_land_L + 2*groove_L + band_L);
+center_band_L = (center_band_L < 0) ? 0 : center_band_L;
 
-// --- Helper: rounded step between two radii over a short axial span ---
-module rounded_step(z0, z1, r0, r1, rr=0.6) {
-    // z0 < z1, radii r0->r1
-    // Use hull of two short cylinders to approximate a filleted transition.
-    hull() {
-        translate([0,0,z0]) cylinder(h=2*rr, r=r0, center=true);
-        translate([0,0,z1]) cylinder(h=2*rr, r=r1, center=true);
-    }
+z0 = -L/2;
+z1 = z0 + end_land_L;
+z2 = z1 + groove_L;
+z3 = z2 + band_L;
+z4 = z3 + groove_L;
+z5 = z4 + center_band_L;
+z6 = z0 + L;
+
+// --- Helpers ---
+function min3(a,b,c) = min(a, min(b,c));
+
+// Rounded outer edge at left end: from (R-fe, z0) to (R, z0+fe)
+function end_round_left(R, z0, fe, nsteps) =
+    (fe <= 0) ? [] :
+    [ for (i=[0:nsteps])
+        let(t = i*90/nsteps)
+        [ (R - fe) + fe*cos(t), z0 + fe*sin(t) ]
+    ];
+
+// Rounded outer edge at right end: from (R, z6-fe) to (R-fe, z6)
+function end_round_right(R, z6, fe, nsteps) =
+    (fe <= 0) ? [] :
+    [ for (i=[0:nsteps])
+        let(t = i*90/nsteps)
+        [ R - fe*sin(t), (z6 - fe) + fe*cos(t) ]
+    ];
+
+module spool_profile() {
+    // Clamp fillets so they fit within adjacent axial segments
+    f1 = min3(fillet_r, end_land_L/2, groove_L/2);
+    f2 = min3(fillet_r, groove_L/2, band_L/2);
+    f3 = min3(fillet_r, band_L/2, groove_L/2);
+    f4 = min3(fillet_r, groove_L/2, center_band_L/2);
+    fe = min(end_edge_r, end_land_L/2);
+
+    n  = 24;
+    ne = max(10, floor(n/2));
+
+    // Build ONE continuous, monotonic-in-z outer contour with explicit cylindrical steps.
+    // Each shoulder uses a quarter-circle fillet that advances in z (no backwards arcs),
+    // preventing self-intersections and "split/frustum" artifacts.
+
+    pts = concat(
+        // Start on axis at left end
+        [[0, z0]],
+
+        // Move to outer surface with end rounding
+        [[R_max - fe, z0]],
+        end_round_left(R_max, z0, fe, ne),
+
+        // --- Segment A: left end land (R_max) ---
+        [[R_max, z1 - f1]],
+
+        // Fillet down: R_max -> R_min across z1..z1+f1
+        [ for (i=[0:n])
+            let(t = i*90/n)
+            [ R_max - (R_max - R_min)*sin(t), (z1 - f1) + f1*(1 - cos(t)) ]
+        ],
+
+        // --- Segment B: groove 1 (R_min) ---
+        [[R_min, z2 - f2]],
+
+        // Fillet up: R_min -> R_max across z2..z2+f2
+        [ for (i=[0:n])
+            let(t = i*90/n)
+            [ R_min + (R_max - R_min)*sin(t), (z2 - f2) + f2*(1 - cos(t)) ]
+        ],
+
+        // --- Segment C: raised band (R_max) ---
+        [[R_max, z3 - f3]],
+
+        // Fillet down: R_max -> R_min across z3..z3+f3
+        [ for (i=[0:n])
+            let(t = i*90/n)
+            [ R_max - (R_max - R_min)*sin(t), (z3 - f3) + f3*(1 - cos(t)) ]
+        ],
+
+        // --- Segment D: groove 2 (R_min) ---
+        [[R_min, z4 - f4]],
+
+        // Fillet up: R_min -> R_max across z4..z4+f4
+        [ for (i=[0:n])
+            let(t = i*90/n)
+            [ R_min + (R_max - R_min)*sin(t), (z4 - f4) + f4*(1 - cos(t)) ]
+        ],
+
+        // --- Segment E: final raised section (R_max) to right end rounding ---
+        [[R_max, z6 - fe]],
+        end_round_right(R_max, z6, fe, ne),
+        [[R_max - fe, z6]],
+
+        // Close back to axis at right end
+        [[0, z6]]
+    );
+
+    rotate_extrude(convexity=12)
+        polygon(points=pts);
 }
 
-// --- Main body via rotate_extrude of a 2D profile with rounded corners ---
-module spool_body() {
-    rMax = OD_max/2;
-    rMid = OD_mid/2;
-    rMin = OD_min/2;
-
-    // Axial landmarks (Z)
-    z0 = -L/2;
-    z1 = z0 + end_band_len;          // end band -> min
-    z2 = z1 + min_len_each;          // min -> mid
-    z3 = z2 + groove_len;            // mid -> max (center band start)
-    z4 = z3 + center_band_len;       // max -> mid
-    z5 = z4 + groove_len;            // mid -> min
-    z6 = z5 + min_len_each;          // min -> end band
-    z7 = L/2;
-
-    // Build as union of straight sections + rounded transitions (all connected)
-    union() {
-        // Straight sections
-        translate([0,0,(z0+z1)/2]) cylinder(h=(z1-z0)+overlap, r=rMax, center=true);
-        translate([0,0,(z1+z2)/2]) cylinder(h=(z2-z1)+overlap, r=rMin, center=true);
-        translate([0,0,(z2+z3)/2]) cylinder(h=(z3-z2)+overlap, r=rMid, center=true);
-        translate([0,0,(z3+z4)/2]) cylinder(h=(z4-z3)+overlap, r=rMax, center=true);
-        translate([0,0,(z4+z5)/2]) cylinder(h=(z5-z4)+overlap, r=rMid, center=true);
-        translate([0,0,(z5+z6)/2]) cylinder(h=(z6-z5)+overlap, r=rMin, center=true);
-        translate([0,0,(z6+z7)/2]) cylinder(h=(z7-z6)+overlap, r=rMax, center=true);
-
-        // Rounded transitions (fillet-like)
-        rounded_step(z1, z1, rMax, rMin, fillet_r); // local reinforcement at step
-        rounded_step(z2, z2, rMin, rMid, fillet_r);
-        rounded_step(z3, z3, rMid, rMax, fillet_r);
-        rounded_step(z4, z4, rMax, rMid, fillet_r);
-        rounded_step(z5, z5, rMid, rMin, fillet_r);
-        rounded_step(z6, z6, rMin, rMax, fillet_r);
-    }
+// --- Final model: ONE connected solid (single body) ---
+union() {
+    spool_profile();
 }
-
-// Final output: single connected solid, no holes, no textures/engraving
-spool_body();
 }

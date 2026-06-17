@@ -1,139 +1,112 @@
+// Dimension-calibrated (target: 46.19 x 40.00 x 10.00 mm)
+scale([1.000000, 1.000000, 0.833333])
+{
 // Parameters
-bbox_L = 46.19; //[23.1:92.38:0.01]
-bbox_W = 40.0; //[20.0:80.0:0.01]
-H = 10.0; //[5.0:20.0:0.1]
-outer_hex_flat_to_flat = 40.0; //[20.0:80.0:0.01]
-outer_hex_point_to_point = 46.19; //[23.1:92.38:0.01]
-bore_d = 26.0; //[13.0:52.0:0.1]
+bbox_X = 46.19; //[23.095:92.38:0.01]
+bbox_Y = 40; //[20:80:0.01]
+H = 10; //[5:20:0.1]
+outer_hex_flat_to_flat_Y = 40; //[20:80:0.01]
+outer_hex_flat_to_flat_X = 46.19; //[23.095:92.38:0.01]
+hole_d = 26; //[13:52:0.1]
 lug_count = 10; //[6:24:1]
 lug_radial_depth = 2.2; //[1.1:4.4:0.1]
-lug_tangential_width = 4.0; //[2.0:8.0:0.1]
-lug_height = 10.0; //[5.0:20.0:0.1]
-recess_depth = 2.0; //[1.0:4.0:0.1]
-recess_ID = 28.0; //[14.0:56.0:0.1]
-recess_OD = 36.0; //[18.0:72.0:0.1]
-eps_overlap = 0.8; //[0.2:2.0:0.1]
-chamfer_size = 0.8; //[0.0:2.0:0.1]
-fillet_r = 0.6; //[0.0:2.0:0.1]
-lug_relief_r = 0.5; //[0.0:1.5:0.1]
+lug_tangential_w = 3; //[1.5:6:0.1]
+lug_height = 10; //[5:20:0.1]
+pocket_depth = 2; //[1:4:0.1]
+pocket_outer_d = 34; //[17:68:0.1]
+pocket_inner_d = 28; //[14:56:0.1]
+overlap = 1; //[0.5:2:0.1]
+edge_chamfer = 0.8; //[0.3:2:0.1]
+edge_fillet_r = 0.6; //[0.3:2:0.1]
+lug_lead_in = 0.6; //[0.2:1.5:0.1]
 
-// Base Shapes
-module outer_hex_profile() {
-  linear_extrude(height=H) {
-    polygon(points=[
-      [outer_hex_point_to_point/2, 0],
-      [outer_hex_point_to_point/4, outer_hex_flat_to_flat/2],
-      [-outer_hex_point_to_point/4, outer_hex_flat_to_flat/2],
-      [-outer_hex_point_to_point/2, 0],
-      [-outer_hex_point_to_point/4, -outer_hex_flat_to_flat/2],
-      [outer_hex_point_to_point/4, -outer_hex_flat_to_flat/2]
-    ]);
-  }
-}
-
-module central_bore_cyl() {
-  translate([0, 0, 0])
-    cylinder(r=bore_d/2, h=H + 2*eps_overlap, center=true);
-}
-
-module recess_outer_cyl() {
-  translate([0, 0, H/2 - (recess_depth + eps_overlap)/2])
-    cylinder(r=recess_OD/2, h=recess_depth + eps_overlap, center=true);
-}
-
-module recess_inner_cyl() {
-  translate([0, 0, H/2 - (recess_depth + eps_overlap)/2])
-    cylinder(r=recess_ID/2, h=recess_depth + 2*eps_overlap, center=true);
-}
-
-module lug_tooth_base() {
-  translate([bore_d/2 - lug_radial_depth/2 + eps_overlap, 0, 0])
-    cube([lug_radial_depth, lug_tangential_width, lug_height + 2*eps_overlap], center=true);
-}
-
-module lug_relief_cyl_base() {
-  translate([bore_d/2 + eps_overlap, 0, 0])
-    cylinder(r=lug_relief_r, h=lug_height + 2*eps_overlap, center=true);
-}
-
-module chamfer_top_frustum() {
-  translate([0, 0, H/2 - (chamfer_size + eps_overlap)/2])
-    cylinder(r1=outer_hex_point_to_point/2 + chamfer_size, r2=outer_hex_point_to_point/2 - chamfer_size, h=chamfer_size + eps_overlap, center=true);
-}
-
-module chamfer_bottom_frustum() {
-  translate([0, 0, -H/2 + (chamfer_size + eps_overlap)/2])
-    cylinder(r1=outer_hex_point_to_point/2 + chamfer_size, r2=outer_hex_point_to_point/2 - chamfer_size, h=chamfer_size + eps_overlap, center=true);
-}
-
-module fillet_sphere() {
-  sphere(r=fillet_r, center=true);
-}
-
-module alignment_mark_dummy() {
-  cube([eps_overlap, eps_overlap, eps_overlap], center=true);
-}
-
-// Operations
-module outer_hex_centered() {
-  translate([0, 0, -H/2])
-    outer_hex_profile();
-}
-
-module recess_annulus_pocket() {
-  difference() {
-    recess_outer_cyl();
-    recess_inner_cyl();
-  }
-}
-
-module internal_rectangular_lugs_teeth_array() {
-  union() {
-    for (i = [0:lug_count-1]) {
-      rotate([0, 0, i*360/lug_count])
-        lug_tooth_base();
-    }
-  }
-}
-
-module small_relief_radii_on_lugs() {
-  union() {
-    for (i = [0:lug_count-1]) {
-      rotate([0, 0, i*360/lug_count])
-        lug_relief_cyl_base();
-    }
-  }
-}
-
-module outer_hex_collar_body_raw() {
-  difference() {
-    outer_hex_centered();
-    central_bore_cyl();
-    recess_annulus_pocket();
-    chamfer_top_frustum();
-    chamfer_bottom_frustum();
-    small_relief_radii_on_lugs();
-  }
-}
-
+// Hexagonal Collar Body
 module outer_hex_collar_body() {
+  linear_extrude(height=H, center=true)
+    polygon(points=[
+      [outer_hex_flat_to_flat_Y/sqrt(3), 0],
+      [outer_hex_flat_to_flat_Y/(2*sqrt(3)), outer_hex_flat_to_flat_Y/2],
+      [-outer_hex_flat_to_flat_Y/(2*sqrt(3)), outer_hex_flat_to_flat_Y/2],
+      [-outer_hex_flat_to_flat_Y/sqrt(3), 0],
+      [-outer_hex_flat_to_flat_Y/(2*sqrt(3)), -outer_hex_flat_to_flat_Y/2],
+      [outer_hex_flat_to_flat_Y/(2*sqrt(3)), -outer_hex_flat_to_flat_Y/2]
+    ]);
+}
+
+// Central Circular Through Opening
+module central_circular_through_opening() {
+  cylinder(r=hole_d/2, h=H + 2*overlap, center=true);
+}
+
+// Recessed Inner Annulus Pocket
+module recessed_inner_annulus_pocket() {
+  difference() {
+    translate([0, 0, H/2 - pocket_depth/2])
+      cylinder(r=pocket_outer_d/2, h=pocket_depth + overlap, center=true);
+    translate([0, 0, H/2 - pocket_depth/2])
+      cylinder(r=pocket_inner_d/2, h=pocket_depth + 2*overlap, center=true);
+  }
+}
+
+// Internal Rectangular Lugs with Lead-in Chamfers
+module internal_rectangular_lugs_castellation() {
+  hull() {
+    translate([hole_d/2 - (lug_radial_depth + overlap)/2, 0, 0])
+      cube([lug_radial_depth + overlap, lug_tangential_w, lug_height + 2*overlap], center=true);
+    translate([hole_d/2 - (lug_radial_depth + overlap)/2 + lug_lead_in/2, 0, 0])
+      cube([max(lug_radial_depth - lug_lead_in, lug_radial_depth*0.2) + overlap, max(lug_tangential_w - 2*lug_lead_in, lug_tangential_w*0.4), lug_height + 2*overlap], center=true);
+  }
+}
+
+// Full Lug Assembly
+module lugs() {
   union() {
-    outer_hex_collar_body_raw();
-    internal_rectangular_lugs_teeth_array();
-    alignment_mark_dummy();
+    for (i = [0:lug_count-1]) {
+      rotate([0, 0, i*360/lug_count])
+        internal_rectangular_lugs_castellation();
+    }
   }
 }
 
-module edge_fillets() {
-  minkowski() {
-    outer_hex_collar_body();
-    fillet_sphere();
+// Edge Chamfer
+module edge_chamfer_hex(position_z) {
+  translate([0, 0, position_z])
+    linear_extrude(height=edge_chamfer, center=true)
+      polygon(points=[
+        [(outer_hex_flat_to_flat_Y - 2*edge_chamfer)/sqrt(3), 0],
+        [(outer_hex_flat_to_flat_Y - 2*edge_chamfer)/(2*sqrt(3)), (outer_hex_flat_to_flat_Y - 2*edge_chamfer)/2],
+        [-(outer_hex_flat_to_flat_Y - 2*edge_chamfer)/(2*sqrt(3)), (outer_hex_flat_to_flat_Y - 2*edge_chamfer)/2],
+        [-(outer_hex_flat_to_flat_Y - 2*edge_chamfer)/sqrt(3), 0],
+        [-(outer_hex_flat_to_flat_Y - 2*edge_chamfer)/(2*sqrt(3)), -(outer_hex_flat_to_flat_Y - 2*edge_chamfer)/2],
+        [(outer_hex_flat_to_flat_Y - 2*edge_chamfer)/(2*sqrt(3)), -(outer_hex_flat_to_flat_Y - 2*edge_chamfer)/2]
+      ]);
+}
+
+// Edge Fillet Kernel
+module fillet_kernel_sphere() {
+  sphere(r=edge_fillet_r);
+}
+
+// Complete Model
+module complete_model_no_markings() {
+  difference() {
+    union() {
+      // Outer Hex with Edge Chamfers
+      hull() {
+        outer_hex_collar_body();
+        edge_chamfer_hex(H/2 - edge_chamfer/2);
+        edge_chamfer_hex(-H/2 + edge_chamfer/2);
+      }
+      // Internal Lugs
+      lugs();
+    }
+    // Recessed Pocket
+    recessed_inner_annulus_pocket();
+    // Central Through Hole
+    central_circular_through_opening();
   }
 }
 
-module complete_model() {
-  edge_fillets();
+// Render the complete model
+complete_model_no_markings();
 }
-
-// Final Output
-complete_model();

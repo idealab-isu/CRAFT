@@ -1,165 +1,183 @@
 // Dimension-calibrated (target: 0.31 x 0.08 x 0.31 mm)
-scale([0.914797, 0.592924, 3.070049])
+scale([0.840541, 0.518750, 3.790123])
 {
-$fn = 64;
+// Shallow vented tray with rounded corners + wide outward flange + diamond side perforations
+// Units: mm (very small part as requested)
 
-// Bounding box target (mm): 0.3 x 0.1 x 0.3, elongated along one axis
-// Make it a SHALLOW tray: long in X, narrow in Y, shallow in Z
-L = 0.30;   // X (elongated axis)
-W = 0.10;   // Y
-H = 0.10;   // Z (shallow height)
+// ---------------- Parameters ----------------
+L = 0.31;   //[0.155:0.62:0.001]  // overall length (elongated axis)
+W = 0.10;   //[0.05:0.20:0.001]   // overall width  (short axis)
+H = 0.08;   //[0.04:0.16:0.001]   // overall height
 
-corner_r = 0.012;
-wall_t   = 0.006;
-bottom_t = 0.010;
+corner_r = 0.02; //[0.01:0.05:0.001]
+wall_t   = 0.006; //[0.003:0.012:0.001]
+bottom_t = 0.010; //[0.004:0.020:0.001]
 
-flange_w = 0.020;   // outward lip width
-flange_t = 0.004;
+flange_w = 0.03;  //[0.01:0.06:0.001]  // outward lip width
+flange_t = 0.004; //[0.002:0.010:0.001]
 
-side_opening_bottom_margin = 0.012;
-side_opening_top_margin    = 0.012;
+draft = 0.010; //[0.0:0.03:0.001] // outward draft amount from bottom to top (per side)
 
-hole_diamond_w = 0.018;  // along horizontal direction on each face
-hole_diamond_h = 0.012;  // along vertical direction
-hole_pitch_u   = 0.026;
-hole_pitch_z   = 0.020;
+hole_w = 0.018; //[0.009:0.036:0.001] // diamond width
+hole_h = 0.012; //[0.005:0.024:0.001] // diamond height
+hole_pitch_x = 0.030; //[0.014:0.060:0.001] // along length
+hole_pitch_z = 0.022; //[0.010:0.050:0.001] // along height
+
+hole_margin_top = 0.012;    //[0.006:0.030:0.001]
+hole_margin_bottom = 0.012; //[0.006:0.030:0.001]
+hole_margin_corners = 0.020; //[0.010:0.050:0.001]
 
 eps = 0.001;
 
-// Ensure through-holes fully cut the wall even with rounding/offsets
-hole_depth = wall_t + 4*eps;
+// ---------------- Helpers ----------------
+function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
 
-// ---------- Helpers ----------
-module rounded_rect_2d(x, y, r) {
-    offset(r=r)
-        square([max(eps, x-2*r), max(eps, y-2*r)], center=true);
+module rounded_rect_2d(x, y, r){
+  r2 = clamp(r, 0, min(x,y)/2);
+  offset(r=r2) square([x-2*r2, y-2*r2], center=true);
 }
 
-module rounded_rect_prism(x, y, z, r) {
-    linear_extrude(height=z, center=true)
-        rounded_rect_2d(x, y, r);
+module diamond_2d(w,h){
+  polygon(points=[[0,h/2],[w/2,0],[0,-h/2],[-w/2,0]]);
 }
 
-module diamond_prism(depth, w, h) {
+// Tray outer: rounded rectangle, drafted (top larger than bottom)
+module outer_shell(){
+  // bottom outer dims
+  Lb = L - 2*draft;
+  Wb = W - 2*draft;
+  // keep valid
+  Lb2 = max(Lb, 2*corner_r + 2*wall_t + 0.01);
+  Wb2 = max(Wb, 2*corner_r + 2*wall_t + 0.01);
+
+  hull(){
+    translate([0,0,-H/2]) linear_extrude(height=eps, center=false)
+      rounded_rect_2d(Lb2, Wb2, max(corner_r - draft, 0.001));
+    translate([0,0, H/2]) linear_extrude(height=eps, center=false)
+      rounded_rect_2d(L, W, corner_r);
+  }
+}
+
+// Inner void: drafted, starts above bottom_t to keep solid bottom
+module inner_void(){
+  // inner top dims
+  Lt = L - 2*wall_t;
+  Wt = W - 2*wall_t;
+
+  // inner bottom dims (smaller due to draft)
+  Lb = (L - 2*draft) - 2*wall_t;
+  Wb = (W - 2*draft) - 2*wall_t;
+
+  // keep valid
+  Lt2 = max(Lt, 0.02);
+  Wt2 = max(Wt, 0.02);
+  Lb2 = max(Lb, 0.02);
+  Wb2 = max(Wb, 0.02);
+
+  // inner corner radii
+  rt = max(corner_r - wall_t, 0.001);
+  rb = max(corner_r - wall_t - draft, 0.001);
+
+  hull(){
+    translate([0,0,-H/2 + bottom_t]) linear_extrude(height=eps, center=false)
+      rounded_rect_2d(Lb2, Wb2, rb);
+    translate([0,0, H/2 + eps]) linear_extrude(height=eps, center=false)
+      rounded_rect_2d(Lt2, Wt2, rt);
+  }
+}
+
+// Wide outward flange/lip around top perimeter
+module top_flange(){
+  translate([0,0, H/2 - flange_t/2])
+  difference(){
+    linear_extrude(height=flange_t, center=true)
+      rounded_rect_2d(L + 2*flange_w, W + 2*flange_w, corner_r + flange_w);
+    translate([0,0,0])
+      linear_extrude(height=flange_t + 2*eps, center=true)
+        rounded_rect_2d(L, W, corner_r);
+  }
+}
+
+// Diamond hole cutter oriented to cut through a wall
+module diamond_cutter_x(depth){
+  rotate([0,90,0])
     linear_extrude(height=depth, center=true)
-        polygon(points=[
-            [0,  h/2],
-            [w/2, 0],
-            [0, -h/2],
-            [-w/2, 0]
-        ]);
+      diamond_2d(hole_w, hole_h);
+}
+module diamond_cutter_y(depth){
+  rotate([90,0,0])
+    linear_extrude(height=depth, center=true)
+      diamond_2d(hole_w, hole_h);
 }
 
-// ---------- Main solids ----------
-module outer_body() {
-    rounded_rect_prism(L, W, H, corner_r);
-}
+// Perforation pattern on all four side walls (through-holes), leaving bottom solid
+module side_perforations(){
+  // z range for holes (avoid top flange and bottom)
+  z0 = -H/2 + bottom_t + hole_margin_bottom + hole_h/2;
+  z1 =  H/2 - flange_t - hole_margin_top - hole_h/2;
+  zspan = max(z1 - z0, 0);
 
-module inner_cavity() {
-    // Open top, solid bottom
-    inner_h = H - bottom_t + eps; // cavity reaches near top; flange is separate
-    translate([0, 0, -H/2 + bottom_t + inner_h/2])
-        rounded_rect_prism(L - 2*wall_t, W - 2*wall_t, inner_h, max(eps, corner_r - wall_t));
-}
+  // x/y ranges (avoid rounded corners)
+  x0 = -L/2 + hole_margin_corners + hole_w/2;
+  x1 =  L/2 - hole_margin_corners - hole_w/2;
+  y0 = -W/2 + hole_margin_corners + hole_w/2;
+  y1 =  W/2 - hole_margin_corners - hole_w/2;
 
-module flange() {
-    // Wide outward lip around top perimeter, connected to body
-    zf = H/2 - flange_t/2;
-    difference() {
-        translate([0, 0, zf])
-            rounded_rect_prism(L + 2*flange_w, W + 2*flange_w, flange_t, corner_r + flange_w);
-        translate([0, 0, zf])
-            rounded_rect_prism(L + 2*eps, W + 2*eps, flange_t + 2*eps, corner_r);
-    }
-}
+  // counts
+  nx = max(1, floor((x1 - x0)/hole_pitch_x) + 1);
+  ny = max(1, floor((y1 - y0)/hole_pitch_x) + 1);
+  nz = max(1, floor(zspan/hole_pitch_z) + 1);
 
-module tray_solid() {
-    union() {
-        difference() {
-            outer_body();
-            inner_cavity();
+  // wall mid-planes (approx; cutters are deep enough to pass through drafted walls)
+  xwall = L/2 - wall_t/2;
+  ywall = W/2 - wall_t/2;
+
+  depth = wall_t + 2*draft + 4*eps;
+
+  union(){
+    // +X and -X walls (vary along Y and Z)
+    for (iz = [0:nz-1]){
+      z = z0 + iz*hole_pitch_z;
+      // stagger every other row
+      yshift = (iz % 2) * (hole_pitch_x/2);
+      for (iy = [0:ny-1]){
+        y = (y0 + iy*hole_pitch_x) + yshift;
+        if (y >= y0 && y <= y1){
+          translate([ xwall, y, z]) diamond_cutter_x(depth);
+          translate([-xwall, y, z]) diamond_cutter_x(depth);
         }
-        flange();
+      }
     }
-}
 
-// ---------- Perforations (SIDE WALLS ONLY) ----------
-module side_hole_field_on_face(face="x+") {
-    // Z band for holes (avoid bottom and flange/top rim)
-    z0 = -H/2 + bottom_t + side_opening_bottom_margin + hole_diamond_h/2;
-    z1 =  H/2 - flange_t - side_opening_top_margin - hole_diamond_h/2;
-
-    // usable spans along face direction (avoid rounded corners)
-    x_span = L - 2*corner_r - 2*wall_t;
-    y_span = W - 2*corner_r - 2*wall_t;
-
-    if (z1 <= z0) children(); // no holes if margins too large
-
-    if (face=="x+" || face=="x-") {
-        // holes distributed along Y and Z, cut through X wall
-        nu = max(1, floor(y_span / hole_pitch_u));
-        nz = max(1, floor((z1 - z0) / hole_pitch_z));
-        for (iu = [0:nu]) for (iz = [0:nz]) {
-            u = -y_span/2 + iu*hole_pitch_u;
-            z = z0 + iz*hole_pitch_z;
-            u2 = u + ((iz % 2) ? hole_pitch_u/2 : 0);
-            if (abs(u2) <= y_span/2)
-                translate([0, u2, z])
-                    rotate([0, 90, 0])
-                        diamond_prism(hole_depth, hole_diamond_w, hole_diamond_h);
+    // +Y and -Y walls (vary along X and Z)
+    for (iz = [0:nz-1]){
+      z = z0 + iz*hole_pitch_z;
+      xshift = (iz % 2) * (hole_pitch_x/2);
+      for (ix = [0:nx-1]){
+        x = (x0 + ix*hole_pitch_x) + xshift;
+        if (x >= x0 && x <= x1){
+          translate([x,  ywall, z]) diamond_cutter_y(depth);
+          translate([x, -ywall, z]) diamond_cutter_y(depth);
         }
-    } else if (face=="y+" || face=="y-") {
-        // holes distributed along X and Z, cut through Y wall
-        nu = max(1, floor(x_span / hole_pitch_u));
-        nz = max(1, floor((z1 - z0) / hole_pitch_z));
-        for (iu = [0:nu]) for (iz = [0:nz]) {
-            u = -x_span/2 + iu*hole_pitch_u;
-            z = z0 + iz*hole_pitch_z;
-            u2 = u + ((iz % 2) ? hole_pitch_u/2 : 0);
-            if (abs(u2) <= x_span/2)
-                translate([u2, 0, z])
-                    rotate([90, 0, 0])
-                        diamond_prism(hole_depth, hole_diamond_w, hole_diamond_h);
-        }
+      }
     }
+  }
 }
 
-module all_side_holes() {
-    union() {
-        // Place cutters centered on each wall thickness so they pass through
-        translate([ L/2 - wall_t/2, 0, 0]) side_hole_field_on_face("x+");
-        translate([-L/2 + wall_t/2, 0, 0]) side_hole_field_on_face("x-");
-
-        translate([0,  W/2 - wall_t/2, 0]) side_hole_field_on_face("y+");
-        translate([0, -W/2 + wall_t/2, 0]) side_hole_field_on_face("y-");
+// ---------------- Final model ----------------
+module tray(){
+  difference(){
+    union(){
+      difference(){
+        outer_shell();
+        inner_void();
+      }
+      top_flange();
     }
+    side_perforations();
+  }
 }
 
-// Clip holes to side-wall band only AND exclude bottom area explicitly
-module hole_band_clip() {
-    z_low  = -H/2 + bottom_t + side_opening_bottom_margin;
-    z_high =  H/2 - flange_t - side_opening_top_margin;
-
-    // Only allow cutters in a thin shell region around the outside (prevents any bottom perforation artifacts)
-    intersection() {
-        // Z band
-        translate([0, 0, (z_low+z_high)/2])
-            cube([L + 2*flange_w + 4*eps, W + 2*flange_w + 4*eps, (z_high - z_low) + 4*eps], center=true);
-
-        // Radial shell around outer body (approx via difference of two rounded prisms)
-        difference() {
-            rounded_rect_prism(L + 2*eps, W + 2*eps, H + 4*eps, corner_r);
-            rounded_rect_prism(L - 2*wall_t - 2*eps, W - 2*wall_t - 2*eps, H + 6*eps, max(eps, corner_r - wall_t));
-        }
-    }
-}
-
-// ---------- Final ----------
-difference() {
-    tray_solid();
-    intersection() {
-        all_side_holes();
-        hole_band_clip();
-    }
-}
+color([0.85, 0.85, 0.8])
+tray();
 }

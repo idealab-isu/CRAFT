@@ -42,82 +42,6 @@ class VerificationThresholds:
 
 
 @dataclass
-class DetectionStrategiesConfig:
-    """
-    Enable/disable individual component-detection strategies.
-
-    Used for v2 ablation experiments. Default keeps all five strategies on
-    (matching v1 behaviour). Set individual flags to False to disable, or
-    use the presets below.
-
-    Strategies:
-      - ``exact``    : exact module + name substring match (high precision)
-      - ``alias``    : manually curated alias table (``COMPONENT_ALIASES``)
-      - ``keyword``  : single-word keyword index (noisy, high recall)
-      - ``fuzzy``    : SequenceMatcher string similarity (forgiving typos)
-      - ``semantic`` : ChromaDB/OpenAI embedding search (retriever-level)
-    """
-    exact: bool = True
-    alias: bool = True
-    keyword: bool = True
-    fuzzy: bool = True
-    semantic: bool = True
-
-    def as_dict(self) -> Dict[str, bool]:
-        return {
-            "exact": self.exact,
-            "alias": self.alias,
-            "keyword": self.keyword,
-            "fuzzy": self.fuzzy,
-            "semantic": self.semantic,
-        }
-
-    def enabled_names(self) -> List[str]:
-        return [k for k, v in self.as_dict().items() if v]
-
-    @classmethod
-    def from_env(cls, env_var: str = "CRAFT_KB_STRATEGIES") -> "DetectionStrategiesConfig":
-        """
-        Build a config from a comma-separated env var.
-
-        Example::
-
-            CRAFT_KB_STRATEGIES=exact,semantic   # v2 ablation preset
-            CRAFT_KB_STRATEGIES=all              # keep defaults (all on)
-            CRAFT_KB_STRATEGIES=none             # disable all
-
-        Unknown names are ignored with a warning.
-        """
-        raw = os.environ.get(env_var, "").strip().lower()
-        if not raw or raw == "all":
-            return cls()
-        if raw == "none":
-            return cls(exact=False, alias=False, keyword=False,
-                       fuzzy=False, semantic=False)
-
-        requested = {t.strip() for t in raw.split(",") if t.strip()}
-        known = {"exact", "alias", "keyword", "fuzzy", "semantic"}
-        unknown = requested - known
-        if unknown:
-            print(f"[KBConfig] Ignoring unknown detection strategies: {unknown}")
-            requested = requested & known
-
-        return cls(
-            exact="exact" in requested,
-            alias="alias" in requested,
-            keyword="keyword" in requested,
-            fuzzy="fuzzy" in requested,
-            semantic="semantic" in requested,
-        )
-
-    @classmethod
-    def exact_and_semantic_only(cls) -> "DetectionStrategiesConfig":
-        """V2 ablation preset: only exact match + semantic embedding."""
-        return cls(exact=True, alias=False, keyword=False,
-                   fuzzy=False, semantic=True)
-
-
-@dataclass
 class KBConfig:
     """Main Knowledge Base configuration."""
 
@@ -160,12 +84,6 @@ class KBConfig:
     verification: VerificationThresholds = field(default_factory=VerificationThresholds)
     max_repair_attempts: int = 3
 
-    # Detection strategy ablation (v2): which ComponentDetector passes to run.
-    # Honors the ``CRAFT_KB_STRATEGIES`` env var (see DetectionStrategiesConfig.from_env).
-    detection_strategies: DetectionStrategiesConfig = field(
-        default_factory=lambda: DetectionStrategiesConfig.from_env()
-    )
-
     # Retrieval settings
     retrieval_top_k: int = 3
     hybrid_alpha: float = 0.7  # Weight for text vs vision (0.7 = 70% text, 30% vision)
@@ -179,20 +97,13 @@ KB_CONFIG = KBConfig()
 CATEGORY_KEYWORDS = {
     "motors": ["motor", "stepper", "servo", "nema", "dc motor", "bldc"],
     "bearings": ["bearing", "ball bearing", "linear bearing", "lm8uu", "608", "625"],
-    "electronics": [
-        "arduino", "raspberry", "pi", "esp32", "esp8266", "pcb", "led",
-        "through-hole", "through hole", "axial", "diode", "resistor", "capacitor",
-    ],
+    "electronics": ["arduino", "raspberry", "pi", "esp32", "esp8266", "pcb", "led"],
     "fasteners": ["screw", "bolt", "nut", "washer", "m3", "m4", "m5", "m6", "m8"],
     "belts": ["belt", "gt2", "timing belt", "pulley"],
     "rails": ["rail", "linear rail", "mgn", "extrusion", "v-slot", "2020", "2040"],
-    "connectors": ["connector", "jst", "dupont", "terminal", "wire", "d-sub", "dsub"],
+    "connectors": ["connector", "jst", "dupont", "terminal", "wire"],
     "fans": ["fan", "blower", "cooling", "40mm fan", "30mm fan"],
-    "displays": [
-        "display", "lcd", "oled", "screen",
-        "seven segment", "seven-segment", "7 segment", "7-segment",
-        "segment display", "led digit",
-    ],
+    "displays": ["display", "lcd", "oled", "screen"],
     "switches": ["switch", "button", "microswitch", "limit switch"],
     "power": ["psu", "power supply", "buck", "boost", "voltage regulator"],
     "pneumatics": ["pneumatic", "solenoid", "valve", "cylinder"],

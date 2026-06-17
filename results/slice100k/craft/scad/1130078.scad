@@ -1,134 +1,169 @@
+// Corrected OpenSCAD model: flared V-plate with central ridge/crease, stepped side profiles,
+// rectangular stem with through-hole near stem end. One connected solid.
+// Bounding box target: 52.33 x 50.0 x 38.77 mm (X x Y x Z)
+
+$fn = 96;
+
 // Parameters
-bbox_X = 52.33; //[26.165:104.66:0.01]
-bbox_Y = 50; //[25:100:0.01]
-bbox_Z = 38.77; //[19.385:77.54:0.01]
-plate_len_X = 34; //[17:68:0.01]
-plate_max_W_Y = 50; //[25:100:0.01]
-plate_min_W_Y = 26; //[13:52:0.01]
-plate_H_Z = 12; //[6:24:0.01]
-stem_len_X = 18.33; //[9.165:36.66:0.01]
-stem_W_Y = 18; //[9:36:0.01]
-stem_H_Z = 38.77; //[19.385:77.54:0.01]
-neck_len_X = 4; //[2:8:0.01]
-hole_d = 8; //[4:16:0.01]
-hole_center_from_stem_end_X = 6; //[3:12:0.01]
-hole_center_Z = 19.385; //[9.6925:38.77:0.01]
-ridge_height_Z = 2; //[1:4:0.01]
-ridge_base_W_Y = 10; //[5:20:0.01]
-step_depth_Y = 4; //[2:8:0.01]
-step_height_Z = 6; //[3:12:0.01]
-wall_t = 2.2; //[1.1:4.4:0.01]
-relief_margin = 2.5; //[1.25:5:0.01]
-overlap = 1; //[0.5:2:0.01]
-chamfer_r = 1.2; //[0.6:2.4:0.01]
-lip_thk_X = 2; //[1:4:0.01]
-lip_H_Z = 2.5; //[1.25:5:0.01]
-lip_inset_Y = 1.5; //[0.75:3:0.01]
+bbox_x = 52.33;
+bbox_y = 50.0;
+bbox_z = 38.77;
 
-// Base Shapes
-module v_flared_plate_main_body() {
-  linear_extrude(height=plate_H_Z)
-    polygon(points=[
-      [-plate_len_X/2, -plate_max_W_Y/2],
-      [-plate_len_X/2, plate_max_W_Y/2],
-      [plate_len_X/2, plate_min_W_Y/2],
-      [plate_len_X/2, -plate_min_W_Y/2]
-    ]);
+thickness_z = bbox_z;
+
+v_len_x = 34.0;
+v_width_wide_y = bbox_y;
+v_width_narrow_y = 26.0;
+
+stem_len_x = bbox_x - v_len_x;          // ensures overall X matches bbox_x
+stem_width_y = 22.0;
+
+transition_len_x = 6.0;
+overlap = 0.6;
+
+// Stepped side profile (creates prismatic detailing on the V-plate)
+step1_depth_y = 3.0;
+step2_depth_y = 6.0;
+step1_start_x = 6.0;
+step1_end_x   = v_len_x - 2.0;
+step2_start_x = 14.0;
+step2_end_x   = v_len_x - 4.0;
+
+// Central ridge/crease on V-plate (raised rib)
+ridge_height_z = 2.0;
+ridge_base_width_y = 10.0;
+ridge_len_x = v_len_x - 2.0;
+ridge_start_x = 1.0;
+
+// Hole
+hole_d = 8.0;
+hole_center_from_stem_end_x = 6.0;
+
+// Small bottom corner notches near stem end (as seen in top view)
+notch_w_y = 3.0;
+notch_d_x = 2.0;
+notch_h_z = 6.0;
+stem_end_margin_x = 3.0;
+
+// Small edge rounding (keep light to avoid distorting bbox too much)
+chamfer_xy = 0.6;
+
+// ---------- Helpers ----------
+function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
+
+module v_plate_2d() {
+  polygon(points=[
+    [0, -v_width_wide_y/2],
+    [0,  v_width_wide_y/2],
+    [v_len_x,  v_width_narrow_y/2],
+    [v_len_x, -v_width_narrow_y/2]
+  ]);
 }
 
-module rectangular_stem() {
-  translate([plate_len_X/2 + neck_len_X + stem_len_X/2 - overlap, 0, stem_H_Z/2 - plate_H_Z/2])
-    cube([stem_len_X, stem_W_Y, stem_H_Z], center=true);
+module stem_2d() {
+  polygon(points=[
+    [v_len_x, -stem_width_y/2],
+    [v_len_x,  stem_width_y/2],
+    [v_len_x + stem_len_x,  stem_width_y/2],
+    [v_len_x + stem_len_x, -stem_width_y/2]
+  ]);
 }
 
-module transition_neck_between_v_plate_and_stem() {
-  translate([plate_len_X/2 + neck_len_X/2 - overlap, 0, 0])
-    linear_extrude(height=plate_H_Z)
+module transition_2d() {
+  // Blend from V-plate narrow end to stem width over transition_len_x
+  polygon(points=[
+    [v_len_x - transition_len_x, -v_width_narrow_y/2],
+    [v_len_x - transition_len_x,  v_width_narrow_y/2],
+    [v_len_x,  stem_width_y/2],
+    [v_len_x, -stem_width_y/2]
+  ]);
+}
+
+module base_body() {
+  // Main prismatic body (V-plate + transition + stem), all connected
+  linear_extrude(height=thickness_z, center=true)
+    union() {
+      v_plate_2d();
+      transition_2d();
+      stem_2d();
+    }
+}
+
+module side_step_cut(depth_y, x0, x1) {
+  // Cuts a "step" along both long sides of the V-plate region only
+  // by removing a band near +/-Y edges between x0..x1.
+  x0c = clamp(x0, 0, v_len_x);
+  x1c = clamp(x1, 0, v_len_x);
+  if (x1c > x0c)
+    linear_extrude(height=thickness_z + 2*overlap, center=true)
+      union() {
+        // top band
+        polygon(points=[
+          [x0c,  bbox_y/2 - depth_y],
+          [x1c,  bbox_y/2 - depth_y],
+          [x1c,  bbox_y/2 + 0.01],
+          [x0c,  bbox_y/2 + 0.01]
+        ]);
+        // bottom band
+        polygon(points=[
+          [x0c, -bbox_y/2 - 0.01],
+          [x1c, -bbox_y/2 - 0.01],
+          [x1c, -bbox_y/2 + depth_y],
+          [x0c, -bbox_y/2 + depth_y]
+        ]);
+      }
+}
+
+module central_ridge() {
+  // Raised triangular rib along the centerline of the V-plate
+  translate([ridge_start_x, 0, thickness_z/2 - ridge_height_z/2])
+    linear_extrude(height=ridge_height_z, center=true)
       polygon(points=[
-        [-neck_len_X/2, -plate_min_W_Y/2],
-        [-neck_len_X/2, plate_min_W_Y/2],
-        [neck_len_X/2, stem_W_Y/2],
-        [neck_len_X/2, -stem_W_Y/2]
+        [0, -ridge_base_width_y/2],
+        [0,  ridge_base_width_y/2],
+        [ridge_len_x, 0]
       ]);
 }
 
-module v_plate_central_ridge() {
-  translate([0, 0, plate_H_Z/2 + ridge_height_Z/2 - overlap])
-    linear_extrude(height=ridge_height_Z)
-      polygon(points=[
-        [-plate_len_X/2, -ridge_base_W_Y/2],
-        [-plate_len_X/2, ridge_base_W_Y/2],
-        [plate_len_X/2, 0]
-      ]);
+module through_hole() {
+  // Hole near stem end
+  hole_x = v_len_x + stem_len_x - hole_center_from_stem_end_x;
+  translate([hole_x, 0, 0])
+    cylinder(d=hole_d, h=thickness_z + 2*overlap, center=true);
 }
 
-module stepped_side_profiles() {
-  cube([plate_len_X, step_depth_Y, step_height_Z], center=true);
+module alignment_notch(sign_y=1) {
+  // Small notch at bottom corner near stem end (two mirrored)
+  notch_x = v_len_x + stem_len_x - stem_end_margin_x - notch_d_x/2;
+  notch_y = sign_y*(stem_width_y/2 - notch_w_y/2);
+  notch_z = -thickness_z/2 + notch_h_z/2;
+  translate([notch_x, notch_y, notch_z])
+    cube([notch_d_x, notch_w_y, notch_h_z], center=true);
 }
 
-module internal_relief_pockets_to_reduce_solidity_plate() {
-  translate([0, 0, wall_t/2])
-    linear_extrude(height=plate_H_Z - wall_t)
-      polygon(points=[
-        [-plate_len_X/2 + relief_margin, -plate_max_W_Y/2 + relief_margin],
-        [-plate_len_X/2 + relief_margin, plate_max_W_Y/2 - relief_margin],
-        [plate_len_X/2 - relief_margin, plate_min_W_Y/2 - relief_margin],
-        [plate_len_X/2 - relief_margin, -plate_min_W_Y/2 + relief_margin]
-      ]);
-}
-
-module internal_relief_pockets_to_reduce_solidity_stem() {
-  translate([plate_len_X/2 + neck_len_X + stem_len_X/2 - overlap, 0, stem_H_Z/2 - plate_H_Z/2])
-    cube([stem_len_X - 2*relief_margin, stem_W_Y - 2*relief_margin, stem_H_Z - 2*relief_margin], center=true);
-}
-
-module stem_through_hole() {
-  translate([plate_len_X/2 + neck_len_X + stem_len_X - hole_center_from_stem_end_X, 0, hole_center_Z - plate_H_Z/2])
-    rotate([90, 0, 0])
-      cylinder(r=hole_d/2, h=stem_W_Y + 2*overlap, center=true);
-}
-
-module small_locating_lips_or_stops() {
-  translate([-plate_len_X/2 + lip_thk_X/2 - overlap, 0, -plate_H_Z/2 + lip_H_Z/2])
-    cube([lip_thk_X, plate_max_W_Y - 2*lip_inset_Y, lip_H_Z], center=true);
-}
-
-module edge_chamfers_or_fillets_sphere() {
-  sphere(r=chamfer_r, center=true);
-}
-
-// Assembly
-module main_union_pre_relief() {
-  union() {
-    v_flared_plate_main_body();
-    transition_neck_between_v_plate_and_stem();
-    rectangular_stem();
-    v_plate_central_ridge();
-    translate([0, plate_max_W_Y/2 - step_depth_Y/2 - overlap, plate_H_Z/2 - step_height_Z/2])
-      stepped_side_profiles();
-    translate([0, -(plate_max_W_Y/2 - step_depth_Y/2 - overlap), plate_H_Z/2 - step_height_Z/2])
-      stepped_side_profiles();
-    small_locating_lips_or_stops();
-  }
-}
-
-module main_with_reliefs() {
+// ---------- Build ----------
+module part_raw() {
   difference() {
-    main_union_pre_relief();
-    internal_relief_pockets_to_reduce_solidity_plate();
-    internal_relief_pockets_to_reduce_solidity_stem();
+    union() {
+      base_body();
+      central_ridge();
+    }
+
+    // Stepped side profiles (two levels) on V-plate
+    side_step_cut(step1_depth_y, step1_start_x, step1_end_x);
+    side_step_cut(step2_depth_y, step2_start_x, step2_end_x);
+
+    // Hole
+    through_hole();
+
+    // Notches
+    alignment_notch( 1);
+    alignment_notch(-1);
   }
 }
 
-module main_with_reliefs_and_hole() {
-  difference() {
-    main_with_reliefs();
-    stem_through_hole();
-  }
-}
-
-// Final Output
-difference() {
-  main_with_reliefs_and_hole();
-  edge_chamfers_or_fillets_sphere();
+// Light rounding without breaking connectivity
+minkowski() {
+  part_raw();
+  sphere(r=chamfer_xy);
 }

@@ -1,161 +1,155 @@
 // Dimension-calibrated (target: 96.60 x 19.00 x 123.00 mm)
-scale([1.073298, 1.380043, 0.138182])
+scale([0.947088, 1.055556, 0.756923])
 {
+// Fixed: connected, braced/open diamond loop + integrated eyelets + connected end boss
+// Bounding box target: 96.6 x 19.0 x 123.0 mm (X x Y x Z)
+
 $fn = 96;
 
-// -------------------- Parameters (target bbox: 96.6 x 19.0 x 123.0) --------------------
+// Parameters
 bbox_X = 96.6;
 bbox_Y = 19.0;
 bbox_Z = 123.0;
 
-thk = bbox_Y;                 // plate thickness (Y)
-spine_W = 12.0;               // spine width (X)
-spine_L = bbox_Z;             // spine length (Z)
+plate_t = 8.0;          // main thickness (Y direction)
+spine_w = 14.0;         // spine width (X)
+spine_Z = 123.0;        // overall length (Z)
 
-boss_D = 16.0;                // boss diameter (axis along Y)
-boss_Z = 8.0;                 // boss extent along Z (cap length)
+diamond_center_Z = 62.0;
+diamond_W = 86.0;       // diamond overall width (X)
+diamond_H = 70.0;       // diamond overall height (Z)
+brace_w = 8.0;          // frame/brace width
 
-diamond_W = bbox_X;           // diamond overall width (X)
-diamond_H = 70.0;             // diamond overall height (Z)
-brace_W = 8.0;                // diamond ring wall thickness (in 2D)
+eyelet_OD = 16.0;
+eyelet_ID = 8.0;
+eyelet_t  = plate_t;    // eyelets same thickness as plate
 
-corner_eyelet_OD = 18.0;
-corner_eyelet_ID = 10.0;
+spine_eyelet_spacing = 28.0;
+spine_eyelet_offset_top = 18.0;
 
-spine_eyelet_count = 4;       // multiple eyelets along spine
-spine_eyelet_OD = 16.0;
-spine_eyelet_ID = 8.0;
-spine_eyelet_spacing = 22.0;
-spine_eyelet_offset_from_end = 18.0;
+boss_D = 18.0;
+boss_L = 10.0;
 
-junction_web_W = 10.0;        // web from spine to diamond (X)
 overlap = 1.0;
 
-rib_w = 4.0;                  // internal brace width (2D)
-lighten_slot_W = 6.0;
-lighten_slot_L = 18.0;
+// Helpers
+function z_top() =  bbox_Z/2;
+function z_bot() = -bbox_Z/2;
 
-// Place diamond so its TOP is at +spine_L/2 (spine end), making an elongated spine + loop
-diamond_center_z = spine_L/2 - diamond_H/2;
-
-// -------------------- Helpers --------------------
-module ring_y(od, id, y=thk, center=true) {
+module ring_y(od, id, h) {
+  // Ring axis along Y (thickness direction), centered at origin
   difference() {
-    cylinder(r=od/2, h=y, center=center);
-    cylinder(r=id/2, h=y + 2*overlap, center=center);
+    cylinder(r=od/2, h=h, center=true);
+    cylinder(r=id/2, h=h + 2*overlap, center=true);
   }
 }
 
-module diamond_2d(w, h) {
-  polygon(points=[
-    [0,  h/2],
-    [w/2, 0],
-    [0, -h/2],
-    [-w/2, 0]
-  ]);
+module spine_main() {
+  cube([spine_w, plate_t, spine_Z], center=true);
 }
 
-module spine_box() {
-  cube([spine_W, thk, spine_L], center=true);
+module diamond_frame_2d() {
+  // Outer diamond minus inner diamond => open loop
+  difference() {
+    polygon(points=[
+      [ diamond_W/2, 0],
+      [ 0,          diamond_H/2],
+      [-diamond_W/2, 0],
+      [ 0,         -diamond_H/2]
+    ]);
+    polygon(points=[
+      [ diamond_W/2 - brace_w, 0],
+      [ 0,          diamond_H/2 - brace_w],
+      [-diamond_W/2 + brace_w, 0],
+      [ 0,         -diamond_H/2 + brace_w]
+    ]);
+  }
 }
 
-// Boss/cap at bottom end of spine (connected with overlap)
-module boss_cap() {
-  // short cylindrical boss whose axis is along Y, located at bottom end of spine
-  translate([0, 0, -spine_L/2 + boss_Z/2 - overlap])
-    rotate([90, 0, 0])
-      cylinder(r=boss_D/2, h=thk, center=true);
-}
-
-// Diamond ring (loop) in XZ plane, extruded along Y
 module diamond_loop() {
-  translate([0, 0, diamond_center_z])
-    linear_extrude(height=thk, center=true)
-      difference() {
-        diamond_2d(diamond_W, diamond_H);
-        offset(delta=-brace_W) diamond_2d(diamond_W, diamond_H);
-      }
+  // Extrude in Y, place in XZ plane at diamond_center_Z
+  translate([0, 0, diamond_center_Z])
+    rotate([90, 0, 0])
+      linear_extrude(height=plate_t, center=true)
+        diamond_frame_2d();
 }
 
-// Corner eyelets at all four diamond corners (connected to ring)
-module corner_eyelets() {
-  translate([0, 0, diamond_center_z + diamond_H/2]) ring_y(corner_eyelet_OD, corner_eyelet_ID, thk, true); // top
-  translate([0, 0, diamond_center_z - diamond_H/2]) ring_y(corner_eyelet_OD, corner_eyelet_ID, thk, true); // bottom
-  translate([ diamond_W/2, 0, diamond_center_z])    ring_y(corner_eyelet_OD, corner_eyelet_ID, thk, true); // right
-  translate([-diamond_W/2, 0, diamond_center_z])    ring_y(corner_eyelet_OD, corner_eyelet_ID, thk, true); // left
+module diamond_internal_braces() {
+  // Two diagonal struts inside the diamond, leaving it linkage-like (not a solid plate)
+  // Struts are rectangles in 2D, rotated, then extruded in Y.
+  // Keep them within the inner opening by using a slightly smaller length.
+  inner_W = diamond_W - 2*brace_w;
+  inner_H = diamond_H - 2*brace_w;
+  strut_len = min(inner_W, inner_H) * 0.92;
+  strut_w   = brace_w;
+
+  translate([0, 0, diamond_center_Z])
+    rotate([90, 0, 0])
+      linear_extrude(height=plate_t, center=true)
+        union() {
+          rotate( 45) square([strut_len, strut_w], center=true);
+          rotate(-45) square([strut_len, strut_w], center=true);
+        }
 }
 
-// Webs to ensure spine-to-diamond connectivity (connect at diamond bottom vertex region)
-module junction_webs() {
-  // connect spine to diamond at its bottom vertex (where spine meets loop)
-  z_bot = diamond_center_z - diamond_H/2;
-  // small Z extent to overlap both spine and ring
-  web_Z = brace_W;
-
-  translate([ spine_W/2 + junction_web_W/2 - overlap, 0, z_bot + web_Z/2])
-    cube([junction_web_W, thk, web_Z], center=true);
-  translate([-spine_W/2 - junction_web_W/2 + overlap, 0, z_bot + web_Z/2])
-    cube([junction_web_W, thk, web_Z], center=true);
-
-  // secondary web slightly above for robustness (still within diamond)
-  z_mid = z_bot + diamond_H*0.25;
-  translate([ spine_W/2 + junction_web_W/2 - overlap, 0, z_mid])
-    cube([junction_web_W, thk, web_Z], center=true);
-  translate([-spine_W/2 - junction_web_W/2 + overlap, 0, z_mid])
-    cube([junction_web_W, thk, web_Z], center=true);
-}
-
-// Internal diamond braces (flat, symmetric) using 2D offset then extrude
-module diamond_braces() {
-  translate([0, 0, diamond_center_z])
-    linear_extrude(height=thk, center=true)
-      union() {
-        // vertical brace
-        offset(delta=rib_w/2)
-          polygon(points=[[0, diamond_H/2 - brace_W], [0, -diamond_H/2 + brace_W]]);
-        // horizontal brace
-        offset(delta=rib_w/2)
-          polygon(points=[[ diamond_W/2 - brace_W, 0], [-diamond_W/2 + brace_W, 0]]);
-      }
-}
-
-// Spine eyelets (rings) along spine (connected to spine)
-module spine_eyelets() {
-  for (i = [0:spine_eyelet_count-1]) {
-    zpos = -spine_L/2 + spine_eyelet_offset_from_end + i*spine_eyelet_spacing;
-    translate([0, 0, zpos]) ring_y(spine_eyelet_OD, spine_eyelet_ID, thk, true);
-  }
-}
-
-// Lightening slots in spine (do not break connectivity)
-module spine_lightening_slots() {
-  for (i = [0:spine_eyelet_count-2]) {
-    zmid = -spine_L/2 + spine_eyelet_offset_from_end + (i+0.5)*spine_eyelet_spacing;
-    translate([0, 0, zmid])
-      cube([lighten_slot_W, thk + 2*overlap, lighten_slot_L], center=true);
-  }
-}
-
-// -------------------- Final Model (ONE connected solid) --------------------
-difference() {
+module diamond_corner_eyelets() {
+  // Eyelets at the four diamond corners, integrated by overlapping into the frame
+  // Diamond corners in XZ:
+  // East/West: (±W/2, 0), North/South: (0, ±H/2)
+  // Place at diamond_center_Z in Z.
   union() {
-    // central vertical spine
-    spine_box();
-
-    // boss/cap at one end of spine
-    boss_cap();
-
-    // diamond loop at top end of spine
-    diamond_loop();
-    corner_eyelets();
-    junction_webs();
-    diamond_braces();
-
-    // multiple eyelets along spine
-    spine_eyelets();
+    translate([ diamond_W/2, 0, diamond_center_Z]) ring_y(eyelet_OD, eyelet_ID, eyelet_t);
+    translate([-diamond_W/2, 0, diamond_center_Z]) ring_y(eyelet_OD, eyelet_ID, eyelet_t);
+    translate([0, 0, diamond_center_Z + diamond_H/2]) ring_y(eyelet_OD, eyelet_ID, eyelet_t);
+    translate([0, 0, diamond_center_Z - diamond_H/2]) ring_y(eyelet_OD, eyelet_ID, eyelet_t);
   }
-
-  // lightening cutouts
-  spine_lightening_slots();
 }
+
+module spine_eyelets() {
+  // Three eyelets along the spine, integrated by overlap
+  z1 = z_top() - spine_eyelet_offset_top;
+  z2 = z1 - spine_eyelet_spacing;
+  z3 = z2 - spine_eyelet_spacing;
+
+  union() {
+    translate([0, 0, z1]) ring_y(eyelet_OD, eyelet_ID, eyelet_t);
+    translate([0, 0, z2]) ring_y(eyelet_OD, eyelet_ID, eyelet_t);
+    translate([0, 0, z3]) ring_y(eyelet_OD, eyelet_ID, eyelet_t);
+  }
+}
+
+module spine_to_diamond_gusset() {
+  // Ensure robust connection between spine and diamond loop
+  // A short widening block centered at diamond_center_Z
+  gusset_z = diamond_center_Z;
+  gusset_h = diamond_H*0.35;
+  gusset_w = spine_w + 2*brace_w;
+
+  translate([0, 0, gusset_z])
+    cube([gusset_w, plate_t, gusset_h], center=true);
+}
+
+module end_boss_cap() {
+  // Boss at the TOP end of the spine, axis along Y, connected by overlap
+  // Place so its top is near z_top(), but still within bbox_Z.
+  zc = z_top() - boss_D/2; // keep within Z while looking like a cap
+  translate([0, 0, zc])
+    cylinder(r=boss_D/2, h=boss_L, center=true);
+}
+
+module model() {
+  // One connected solid: spine + diamond loop + braces + eyelets + gusset + boss
+  union() {
+    spine_main();
+    diamond_loop();
+    diamond_internal_braces();
+    spine_to_diamond_gusset();
+    diamond_corner_eyelets();
+    spine_eyelets();
+    end_boss_cap();
+  }
+}
+
+// Final
+model();
 }

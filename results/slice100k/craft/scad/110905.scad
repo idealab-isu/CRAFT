@@ -1,92 +1,65 @@
-// Paddle-like solid: rectangular body + stepped shoulder + obround peg
-// Bounding box target: X=43.5, Y=26, Z=10 (elongated along X)
+$fn = 64;
 
-$fn = 96;
+// Bounding box targets (X x Y x Z): 43.5 x 26.0 x 10.0 mm
+L_total = 43.5;
+W_total = 26;
+T_total = 10;
 
-// Parameters (mm)
-bbox_X = 43.5;
-bbox_Y = 26;
-bbox_Z = 10;
+// Main rectangular body (flat rear end)
+L_body = 33.5;
+W_body = 26;
+T_body = 10;
 
-body_L = 30;
-body_W = 26;
-body_T = 10;
+// Stepped shoulder (reduced width/height section before peg)
+shoulder_step_L = 2;
+shoulder_step_W = 18;
+shoulder_step_T = 8;
 
-shoulder_L = 3;
-shoulder_W = 18;
-shoulder_T = 10;
+// Peg (obround/capsule) protruding from front
+L_peg = 10;
+W_peg = 14;
+T_peg = 6;
 
-peg_L = 13.5;
-peg_W = 12;   // obround width (diameter of end caps)
-peg_T = 8;    // peg thickness (Z)
-
-hole_d = 6;
-hole_axis_offset_from_center_Y = 0;
-hole_axis_offset_from_center_Z = 0;
-hole_center_from_flat_end_X = 15;
-
-notch_W = 4;
-notch_L = 3;
-notch_D = 2;
-
-eps = 0.2;
+// Small overlap to guarantee watertight union
+overlap = 0.6;
 
 // --- Helpers ---
-module obround_2d(L, W) {
-    // 2D obround along X, centered at origin
-    hull() {
-        translate([-(L - W)/2, 0]) circle(r=W/2);
-        translate([ +(L - W)/2, 0]) circle(r=W/2);
+module capsule_x(len, w, t) {
+    // Obround/capsule along X, with rectangular mid + semicircular ends.
+    // len must be >= w.
+    union() {
+        cube([len - w, w, t], center=true);
+        translate([ (len - w)/2, 0, 0]) cylinder(h=t, r=w/2, center=true);
+        translate([-(len - w)/2, 0, 0]) cylinder(h=t, r=w/2, center=true);
     }
 }
 
-module peg_obround_3d(L, W, T) {
-    // 3D obround extruded in Z, centered at origin
-    linear_extrude(height=T, center=true)
-        obround_2d(L, W);
+// --- Parts placed to exactly fill the 43.5mm length ---
+module main_body() {
+    // Rear face at x = -L_total/2, front face at x = -L_total/2 + L_body
+    translate([-L_total/2 + L_body/2, 0, 0])
+        cube([L_body, W_body, T_body], center=true);
 }
 
-// --- Main solids (all centered in Y and Z, start at X=0 flat end) ---
-module main_body_block() {
-    translate([body_L/2, 0, 0])
-        cube([body_L, body_W, body_T], center=true);
+module shoulder() {
+    // Immediately after body, connected with overlap
+    // Shoulder spans: [body_end - overlap, body_end + shoulder_step_L]
+    body_end = -L_total/2 + L_body;
+    translate([body_end + shoulder_step_L/2 - overlap/2, 0, 0])
+        cube([shoulder_step_L + overlap, shoulder_step_W, shoulder_step_T], center=true);
 }
 
-module shoulder_step_transition() {
-    translate([body_L + shoulder_L/2 - eps, 0, 0])
-        cube([shoulder_L, shoulder_W, shoulder_T], center=true);
+module peg() {
+    // Peg starts right after shoulder, ends at +L_total/2
+    // Ensure connection by overlapping into shoulder by 'overlap'
+    peg_start = -L_total/2 + L_body + shoulder_step_L;
+    translate([peg_start + L_peg/2 - overlap/2, 0, 0])
+        capsule_x(L_peg + overlap, W_peg, T_peg);
 }
 
-module protruding_peg_obround() {
-    // Place peg so it starts at end of shoulder and protrudes outward
-    translate([body_L + shoulder_L + peg_L/2 - 2*eps, 0, 0])
-        peg_obround_3d(peg_L, peg_W, peg_T);
+// --- Final solid ---
+union() {
+    main_body();
+    shoulder();
+    peg();
 }
-
-// --- Subtractive features ---
-module internal_hole() {
-    // Through-hole along Z
-    translate([hole_center_from_flat_end_X, hole_axis_offset_from_center_Y, hole_axis_offset_from_center_Z])
-        cylinder(d=hole_d, h=bbox_Z + 4*eps, center=true);
-}
-
-module small_alignment_notch() {
-    // Small notch on bottom near shoulder end of main body
-    translate([body_L - notch_L/2, 0, -body_T/2 - notch_D/2 + eps])
-        cube([notch_L, notch_W, notch_D + 2*eps], center=true);
-}
-
-// --- Final model ---
-module final_model() {
-    difference() {
-        union() {
-            main_body_block();
-            shoulder_step_transition();
-            protruding_peg_obround();
-        }
-        internal_hole();
-        small_alignment_notch();
-    }
-}
-
-final_model();

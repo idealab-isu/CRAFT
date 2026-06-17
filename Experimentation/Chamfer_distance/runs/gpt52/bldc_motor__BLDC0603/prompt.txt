@@ -1,4 +1,0 @@
-id   : bldc_motor__BLDC0603
-tier : Complex
-
-A brushless DC outrunner motor: 9 mm body diameter, 8 mm body height, 10 mm base plate diameter, 1 mm shaft diameter, 15.5 mm shaft length.

@@ -1,0 +1,132 @@
+{
+  "produced_at": "2026-06-11T04:22:34.913987",
+  "perturbations": [
+    10,
+    50
+  ],
+  "render_enabled": true,
+  "methods": {
+    "craft": {
+      "n_samples": 468,
+      "mean_exposed_parameters": 13.13888888888889,
+      "symbolic_preservation_rate": 0.6682304097213548,
+      "edit_success_rate": 0.9995993589743589,
+      "post_edit_render_validity": 0.9921652421652422
+    },
+    "direct_repair": {
+      "n_samples": 468,
+      "mean_exposed_parameters": 6.0085470085470085,
+      "symbolic_preservation_rate": 0.5732232908703498,
+      "edit_success_rate": 1.0,
+      "post_edit_render_validity": 0.9892631993695823
+    },
+    "direct_vlm": {
+      "n_samples": 468,
+      "mean_exposed_parameters": 8.788461538461538,
+      "symbolic_preservation_rate": 0.6905852826318507,
+      "edit_success_rate": 0.9937923250564334,
+      "post_edit_render_validity": 0.9857035364936042
+    },
+    "direct_matched_calls": {
+      "n_samples": 468,
+      "mean_exposed_parameters": 5.97008547008547,
+      "symbolic_preservation_rate": 0.5939007395738164,
+      "edit_success_rate": 1.0,
+      "post_edit_render_validity": 0.9921750398724082
+    }
+  },
+  "methods_by_tier": {
+    "craft": {
+      "Simple": {
+        "n_samples": 159,
+        "mean_exposed_parameters": 10.176100628930818,
+        "symbolic_preservation_rate": 0.5921117728577379,
+        "edit_success_rate": 0.9988207547169812,
+        "post_edit_render_validity": 0.985062893081761
+      },
+      "Medium": {
+        "n_samples": 160,
+        "mean_exposed_parameters": 11.91875,
+        "symbolic_preservation_rate": 0.6386730490616831,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 0.9919270833333332
+      },
+      "Complex": {
+        "n_samples": 149,
+        "mean_exposed_parameters": 17.610738255033556,
+        "symbolic_preservation_rate": 0.7811971276197607,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 1.0
+      }
+    },
+    "direct_repair": {
+      "Simple": {
+        "n_samples": 159,
+        "mean_exposed_parameters": 4.918238993710692,
+        "symbolic_preservation_rate": 0.6097683937306579,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 0.9893817204301074
+      },
+      "Medium": {
+        "n_samples": 160,
+        "mean_exposed_parameters": 5.31875,
+        "symbolic_preservation_rate": 0.5154173032849503,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 0.9855279898218828
+      },
+      "Complex": {
+        "n_samples": 149,
+        "mean_exposed_parameters": 7.912751677852349,
+        "symbolic_preservation_rate": 0.5962990402587717,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 0.9927007299270073
+      }
+    },
+    "direct_vlm": {
+      "Simple": {
+        "n_samples": 159,
+        "mean_exposed_parameters": 6.2075471698113205,
+        "symbolic_preservation_rate": 0.6866560773053557,
+        "edit_success_rate": 0.9995993589743589,
+        "post_edit_render_validity": 0.9963942307692307
+      },
+      "Medium": {
+        "n_samples": 160,
+        "mean_exposed_parameters": 7.53125,
+        "symbolic_preservation_rate": 0.6562003149944662,
+        "edit_success_rate": 0.9913793103448276,
+        "post_edit_render_validity": 0.9709770114942526
+      },
+      "Complex": {
+        "n_samples": 149,
+        "mean_exposed_parameters": 12.89261744966443,
+        "symbolic_preservation_rate": 0.7317016481948982,
+        "edit_success_rate": 0.9898767605633803,
+        "post_edit_render_validity": 0.9889964788732394
+      }
+    },
+    "direct_matched_calls": {
+      "Simple": {
+        "n_samples": 159,
+        "mean_exposed_parameters": 4.8930817610062896,
+        "symbolic_preservation_rate": 0.6415618448637316,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 0.9939692982456139
+      },
+      "Medium": {
+        "n_samples": 160,
+        "mean_exposed_parameters": 5.49375,
+        "symbolic_preservation_rate": 0.5005383158508158,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 0.9821654040404039
+      },
+      "Complex": {
+        "n_samples": 149,
+        "mean_exposed_parameters": 7.630872483221476,
+        "symbolic_preservation_rate": 0.6432958540341089,
+        "edit_success_rate": 1.0,
+        "post_edit_render_validity": 1.0
+      }
+    }
+  }
+}

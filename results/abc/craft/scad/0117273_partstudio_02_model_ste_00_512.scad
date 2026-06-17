@@ -1,198 +1,179 @@
 // Dimension-calibrated (target: 0.02 x 0.02 x 0.05 mm)
-scale([1.167921, 1.218975, 0.940015])
+scale([0.001411, 0.000534, 0.000284])
 {
-// Faceted lantern/pendant shell (single connected solid)
-// Fixes: ensure a coherent faceted spherical/tapered shell, connected cap+tip+loop,
-// and cutouts that carve into the shell (not fragment it).
+// Faceted lantern/pendant shell with deep cutouts (render-safe, no minkowski)
 
-// -------------------- Parameters --------------------
-bbox_x = 0.02; //[0.01:0.04:0.001]
-bbox_y = 0.02; //[0.01:0.04:0.001]
-bbox_z = 0.05; //[0.025:0.1:0.001]
+$fn = 48;
 
-shell_t = 0.0012; //[0.0006:0.0024:0.0001]
+// -------------------- Parameters (mm) --------------------
+shell_h = 50;
+outer_r = 18;                 // overall "sphere-ish" radius
+facet_sides = 8;              // low-poly feel
+wall_t = 1.6;
 
-taper_top_scale = 0.85; //[0.6:1.0:0.01]
-taper_bottom_scale = 0.55; //[0.3:0.9:0.01]
+taper_top_r = 16;
+taper_bottom_r = 13;
 
-tip_h = 0.008; //[0.004:0.016:0.0005]
-tip_base_r = 0.006; //[0.003:0.012:0.0005]
+cap_h = 6;
+cap_sides = 6;
 
-cap_h = 0.004; //[0.002:0.008:0.0005]
-cap_sides = 6; //[3:12:1]
-cap_inset = 0.001; //[0.0005:0.002:0.0001]
+tip_h = 10;
+tip_base_r = 9;
 
-hslot_len = 0.018; //[0.009:0.02:0.0005]
-hslot_h = 0.004; //[0.002:0.008:0.0005]
-hslot_depth = 0.012; //[0.003:0.02:0.0005]
-hslot_z = 0.0; //[-0.01:0.01:0.0005]
+overlap = 0.6;                // boolean overlap (slightly larger for robustness)
 
-vcut_count = 6; //[1:12:1]
-vcut_w = 0.003; //[0.0015:0.006:0.0005]
-vcut_len = 0.07; //[0.02:0.09:0.001]
-vcut_depth = 0.02; //[0.004:0.03:0.0005]
-vcut_tilt_deg = 0; //[-45:45:1]
+// Openings
+slot_h = 6;
+slot_w = 30;
+slot_depth = 44;              // exceed diameter to cut through
+slot_z = 0;                   // centered
 
-dcut_count = 4; //[1:12:1]
-dcut_w = 0.003; //[0.0015:0.006:0.0005]
-dcut_len = 0.07; //[0.02:0.09:0.001]
-dcut_depth = 0.02; //[0.004:0.03:0.0005]
-dcut_tilt_deg = 25; //[0:60:1]
+cutout_count = 6;
+cutout_w = 5;
+cutout_h = 34;
+cutout_depth = 54;
+cutout_tilt_deg = 22;
 
-overlap = 0.001; //[0.0005:0.002:0.0001]
-facet_scale_xy = 0.92; //[0.8:1.0:0.01]
+// Grooves (recessed pockets)
+groove_w = 2.2;
+groove_h = 3.0;
+groove_depth = 10;
 
-loop_major_r = 0.003; //[0.0015:0.006:0.0005]
-loop_minor_r = 0.0007; //[0.0004:0.0014:0.0001]
-loop_hole_r  = 0.0009; //[0.0005:0.0018:0.0001]
-
-// -------------------- Derived --------------------
-outer_r = min(bbox_x, bbox_y, bbox_z) * 0.52;
-z_top =  bbox_z/2;
-z_bot = -bbox_z/2;
-r_edge = min(bbox_x,bbox_y)/2;
+// Eyelet
+eyelet_major_r = 4.2;         // ring centerline radius
+eyelet_tube_r  = 1.4;         // ring thickness
+eyelet_clear_r = 1.0;         // inner hole radius (subtracted)
 
 // -------------------- Helpers --------------------
-module faceted_ellipsoid(r=outer_r, fn=14) {
-  scale([bbox_x/(2*r), bbox_y/(2*r), bbox_z/(2*r)])
-    sphere(r=r, $fn=fn);
+module ngon2d(r, n) {
+  polygon(points=[for (i=[0:n-1]) [r*cos(360*i/n), r*sin(360*i/n)]]);
 }
 
-module tapered_profile() {
-  cylinder(
-    h=bbox_z + 2*overlap,
-    r1=r_edge * taper_bottom_scale,
-    r2=r_edge * taper_top_scale,
-    center=true,
-    $fn=12
-  );
+// Faceted "spherical" body: hull of three thin extrusions (tapered + bulge)
+module faceted_body_outer() {
+  hull() {
+    translate([0,0, shell_h/2 - overlap])
+      linear_extrude(height=overlap*2, center=true)
+        ngon2d(taper_top_r, facet_sides);
+
+    translate([0,0,-shell_h/2 + overlap])
+      linear_extrude(height=overlap*2, center=true)
+        ngon2d(taper_bottom_r, facet_sides);
+
+    linear_extrude(height=overlap*2, center=true)
+      ngon2d(outer_r, facet_sides);
+  }
 }
 
-module shell_body() {
-  // Coherent faceted spherical/tapered shell (hollow)
+module faceted_body_inner() {
+  inner_h = shell_h - 2*wall_t;
+  hull() {
+    translate([0,0, inner_h/2 - overlap])
+      linear_extrude(height=overlap*2, center=true)
+        ngon2d(max(taper_top_r - wall_t, 0.2), facet_sides);
+
+    translate([0,0,-inner_h/2 + overlap])
+      linear_extrude(height=overlap*2, center=true)
+        ngon2d(max(taper_bottom_r - wall_t, 0.2), facet_sides);
+
+    linear_extrude(height=overlap*2, center=true)
+      ngon2d(max(outer_r - wall_t, 0.2), facet_sides);
+  }
+}
+
+module main_shell() {
   difference() {
-    intersection() {
-      scale([facet_scale_xy, facet_scale_xy, 1])
-        faceted_ellipsoid(fn=14);
-      tapered_profile();
-    }
-    // inner cavity: slightly smaller and slightly more tapered to preserve wall
-    intersection() {
-      scale([facet_scale_xy, facet_scale_xy, 1])
-        faceted_ellipsoid(r=max(outer_r - shell_t, outer_r*0.65), fn=14);
-      scale([0.97,0.97,1])
-        tapered_profile();
-    }
+    faceted_body_outer();
+    faceted_body_inner();
   }
 }
 
-module top_cap_connected() {
-  cap_r = max(r_edge - cap_inset, shell_t*2);
-  // Overlap into shell to guarantee connectivity
-  translate([0,0, z_top - cap_h/2 - overlap])
-    cylinder(h=cap_h + 2*overlap, r=cap_r, center=true, $fn=cap_sides);
+// -------------------- Add-ons (cap, tip, eyelet) --------------------
+module top_polygonal_cap() {
+  translate([0,0, shell_h/2 - cap_h/2 - overlap])
+    linear_extrude(height=cap_h, center=true)
+      ngon2d(taper_top_r*0.92, cap_sides);
 }
 
-module bottom_tip_connected() {
-  // Overlap into shell to guarantee connectivity
-  translate([0,0, z_bot + tip_h/2 + overlap])
-    cylinder(h=tip_h + 2*overlap, r1=tip_base_r, r2=0, center=true, $fn=4);
+module bottom_pyramidal_tip() {
+  translate([0,0, -shell_h/2 - tip_h/2 + overlap])
+    cylinder(h=tip_h, r1=tip_base_r, r2=0, center=true, $fn=cap_sides);
 }
 
-module mounting_loop_connected() {
-  // Place loop so it intersects the cap (not floating)
-  loop_z = z_top - cap_h + loop_minor_r; // intersects cap volume
-  translate([0,0, loop_z])
-    rotate([90,0,0])
-      rotate_extrude($fn=64)
-        translate([loop_major_r,0,0])
-          circle(r=loop_minor_r, $fn=24);
-}
-
-module mounting_loop_hole() {
-  loop_z = z_top - cap_h + loop_minor_r;
-  translate([0,0, loop_z])
-    rotate([90,0,0])
-      cylinder(r=loop_hole_r,
-               h=2*(loop_major_r + loop_minor_r + 2*overlap),
-               center=true, $fn=40);
-}
-
-// -------------------- Cutouts / Grooves --------------------
-module long_horizontal_slot_cut() {
-  // Long horizontal recessed/through slot across the shell
-  // Depth spans beyond body so it reliably cuts into the curved surface.
-  translate([0,0,hslot_z])
-    cube([hslot_len, max(hslot_depth, 2*r_edge + 2*overlap), hslot_h], center=true);
-}
-
-module radial_vertical_cutouts() {
-  // Planar cutouts around the body; positioned to bite into shell (not separate parts)
-  // Use a large Z length so they cut through the shell height.
-  for (i=[0:vcut_count-1]) {
-    ang = i*360/vcut_count;
-    rotate([0,0,ang])
-      rotate([0,vcut_tilt_deg,0])
-        translate([r_edge - vcut_depth/2 + overlap, 0, 0])
-          cube([vcut_depth, vcut_w, vcut_len], center=true);
-  }
-}
-
-module radial_diagonal_cutouts() {
-  for (i=[0:dcut_count-1]) {
-    ang = i*360/dcut_count + 360/(2*dcut_count);
-    rotate([0,0,ang])
-      rotate([0,dcut_tilt_deg,45])
-        translate([r_edge - dcut_depth/2 + overlap, 0, 0])
-          cube([dcut_depth, dcut_w, dcut_len], center=true);
-  }
-}
-
-module recessed_groove_rings() {
-  // Recessed circumferential grooves (shallow pockets)
-  groove_r = max(shell_t*0.55, 0.00035);
-  major = r_edge * 0.78;
-
-  for (zpos = [bbox_z*0.18, -bbox_z*0.12]) {
-    translate([0,0,zpos])
-      rotate_extrude($fn=84)
-        translate([major,0,0])
-          circle(r=groove_r, $fn=24);
-  }
-}
-
-module symmetry_break_cut() {
-  translate([bbox_x*0.18, 0, bbox_z*0.10])
-    rotate([0,0,20])
-      cube([bbox_x*0.25, bbox_y*0.18, bbox_z*0.18], center=true);
-}
-
-// -------------------- Final Model --------------------
-module pendant_shell() {
+module hanging_loop_eyelet() {
+  z0 = shell_h/2 + eyelet_tube_r + overlap;
   difference() {
-    // One connected solid: shell + cap + tip + loop
-    union() {
-      shell_body();
-      top_cap_connected();
-      bottom_tip_connected();
-      mounting_loop_connected();
-    }
+    translate([0,0,z0])
+      rotate([90,0,0])
+        rotate_extrude($fn=64)
+          translate([eyelet_major_r,0,0])
+            circle(r=eyelet_tube_r, $fn=24);
 
-    // Openings / slots carved into the shell
-    long_horizontal_slot_cut();
-    radial_vertical_cutouts();
-    radial_diagonal_cutouts();
-
-    // Recessed grooves
-    recessed_groove_rings();
-
-    // Loop hole
-    mounting_loop_hole();
-
-    // Asymmetry pocket
-    symmetry_break_cut();
+    translate([0,0,z0])
+      rotate([90,0,0])
+        rotate_extrude($fn=64)
+          translate([eyelet_major_r,0,0])
+            circle(r=eyelet_clear_r, $fn=24);
   }
 }
 
-pendant_shell();
+// -------------------- Subtractive openings --------------------
+module primary_horizontal_slot_cut() {
+  translate([0,0,slot_z])
+    cube([slot_w, slot_depth, slot_h], center=true);
+}
+
+module vertical_planar_cutouts() {
+  union() {
+    for (i=[0:cutout_count-1]) {
+      ang = i*360/cutout_count;
+      rotate([0,0,ang])
+        translate([outer_r*0.55, 0, 0])
+          cube([cutout_w, cutout_depth, cutout_h], center=true);
+    }
+
+    rotate([ cutout_tilt_deg, 0, 30])
+      cube([cutout_w, cutout_depth, cutout_h*1.05], center=true);
+
+    rotate([-cutout_tilt_deg, 0, 110])
+      cube([cutout_w, cutout_depth, cutout_h*1.05], center=true);
+  }
+}
+
+module recessed_grooves() {
+  union() {
+    translate([0,0,-shell_h/2 + tip_h + groove_h/2 + wall_t])
+      cube([outer_r*1.6, groove_depth, groove_h], center=true);
+
+    translate([0,0, shell_h/2 - cap_h - groove_h/2 - wall_t])
+      cube([outer_r*1.6, groove_depth, groove_h], center=true);
+
+    translate([outer_r*0.75, 0, 0])
+      cube([groove_w, outer_r*1.6, cutout_h*0.7], center=true);
+  }
+}
+
+module all_openings() {
+  union() {
+    primary_horizontal_slot_cut();
+    vertical_planar_cutouts();
+    recessed_grooves();
+  }
+}
+
+// -------------------- Assembly --------------------
+module lantern() {
+  union() {
+    difference() {
+      main_shell();
+      all_openings();
+    }
+    top_polygonal_cap();
+    bottom_pyramidal_tip();
+    hanging_loop_eyelet();
+  }
+}
+
+// -------------------- Final (no minkowski) --------------------
+lantern();
 }

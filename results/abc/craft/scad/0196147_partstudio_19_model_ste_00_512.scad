@@ -1,47 +1,66 @@
 // Dimension-calibrated (target: 0.01 x 0.01 x 0.01 mm)
-scale([0.000693, 0.000700, 0.000833])
+scale([0.000729, 0.000737, 0.001250])
 {
 // Hex nut-like ring with circular through-hole and slight top/bottom chamfers
-// (Fixes: non-empty geometry, truly circular bore, consistent hole in all views, connected solid)
+// Units: mm
 
-// Parameters (mm)
-outer_flat_to_flat = 10;     // across flats
-height            = 6;       // overall thickness
-hole_d            = 4;       // circular through-hole diameter
-chamfer_h         = 0.5;     // chamfer height (top and bottom)
-chamfer_inset     = 0.5;     // chamfer inset (radial shrink at chamfer)
-eps               = 0.02;    // small overlap for robust booleans
+$fn = 96; // smooth circular bore
 
-$fn = 96;
+// Parameters (reasonable, non-zero defaults)
+across_flats   = 9.5;
+height         = 4.0;
+bore_d         = 5.0;
+chamfer_h      = 0.6;   // vertical height of chamfer band (each side)
+chamfer_inset  = 0.5;   // radial inset of chamfer at outer perimeter
+eps            = 0.02;
 
 // Derived
-outer_R = outer_flat_to_flat / sqrt(3);                 // circumradius for hex with given across-flats
-inner_R = max(0.01, outer_R - chamfer_inset);           // chamfered hex circumradius (slightly smaller)
+outer_R = across_flats / sqrt(3); // circumradius for hex with given across-flats
 
-// 2D hex helper (pointy-top orientation; still yields 6 flat wrench faces)
 module hex2d(R) {
-    polygon([ for (i=[0:5]) [ R*cos(60*i), R*sin(60*i) ] ]);
+    polygon(points=[
+        [ R, 0],
+        [ R/2,  R*sqrt(3)/2],
+        [-R/2,  R*sqrt(3)/2],
+        [-R, 0],
+        [-R/2, -R*sqrt(3)/2],
+        [ R/2, -R*sqrt(3)/2]
+    ]);
 }
 
-// Main model
-module hex_nut() {
-    difference() {
-        // Outer body with top/bottom chamfers via hull of two hex slices
-        hull() {
-            // bottom slice
-            translate([0,0,-height/2]) linear_extrude(height=eps) hex2d(inner_R);
-            // middle slice (full size)
-            translate([0,0,-height/2 + chamfer_h]) linear_extrude(height=eps) hex2d(outer_R);
-            // top slice (full size)
-            translate([0,0, height/2 - chamfer_h - eps]) linear_extrude(height=eps) hex2d(outer_R);
-            // top chamfer slice
-            translate([0,0, height/2 - eps]) linear_extrude(height=eps) hex2d(inner_R);
-        }
+module outer_with_chamfers() {
+    // Build as 3 stacked frustums/prisms to create clear bevels
+    union() {
+        // Middle straight section
+        translate([0,0,0])
+            linear_extrude(height=max(height - 2*chamfer_h, eps), center=true)
+                hex2d(outer_R);
 
-        // Circular through-hole (guaranteed round)
-        cylinder(d=hole_d, h=height + 2*eps, center=true);
+        // Top chamfer band (tapers inward)
+        translate([0,0, (height/2 - chamfer_h/2)])
+            linear_extrude(height=chamfer_h, center=true, scale=(outer_R - chamfer_inset)/outer_R)
+                hex2d(outer_R);
+
+        // Bottom chamfer band (tapers inward)
+        translate([0,0, -(height/2 - chamfer_h/2)])
+            linear_extrude(height=chamfer_h, center=true, scale=(outer_R - chamfer_inset)/outer_R)
+                hex2d(outer_R);
     }
 }
 
-hex_nut();
+difference() {
+    outer_with_chamfers();
+
+    // Circular through-hole (ensure it fully cuts through)
+    cylinder(h=height + 2*eps, r=bore_d/2, center=true);
+
+    // Optional slight inner bevels (kept subtle, still circular)
+    // Top inner relief
+    translate([0,0, (height/2 - chamfer_h/2)])
+        cylinder(h=chamfer_h + eps, r1=bore_d/2, r2=bore_d/2 + chamfer_inset, center=true);
+
+    // Bottom inner relief
+    translate([0,0, -(height/2 - chamfer_h/2)])
+        cylinder(h=chamfer_h + eps, r1=bore_d/2 + chamfer_inset, r2=bore_d/2, center=true);
+}
 }

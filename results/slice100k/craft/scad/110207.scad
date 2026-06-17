@@ -1,169 +1,145 @@
-// Parameters
-L = 12.0; //[6.0:24.0:0.1]
-OD_max = 27.23; //[13.615:54.46:0.01]
-OD_mid = 24.8; //[12.4:49.6:0.1]
-OD_end_collar = 26.2; //[13.1:52.4:0.1]
-OD_recess = 22.6; //[11.3:45.2:0.1]
-bore_D = 14.0; //[7.0:28.0:0.1]
-collar_len = 1.2; //[0.6:2.4:0.05]
-mid_len = 7.2; //[3.6:14.4:0.1]
-recess_band_w = 1.4; //[0.7:2.8:0.05]
-recess_band_gap = 1.2; //[0.6:2.4:0.05]
-groove_w_small = 0.8; //[0.4:1.6:0.05]
-groove_depth_small = 0.6; //[0.3:1.2:0.05]
-rib_w_small = 0.7; //[0.35:1.4:0.05]
-rib_height_small = 0.5; //[0.25:1.0:0.05]
-eps = 0.8; //[0.2:2.0:0.1]
-chamfer_z = 0.6; //[0.2:1.2:0.05]
-chamfer_rad = 0.6; //[0.2:1.2:0.05]
-micro_rib_count = 10; //[4:24:1]
-micro_groove_w = 0.25; //[0.1:0.6:0.01]
-micro_groove_depth = 0.15; //[0.05:0.4:0.01]
+// Render-safe stepped sleeve/connector (rotationally symmetric)
+$fn = 48;
 
-// Base shapes
-module outer_mid_cyl() {
-  cylinder(r=OD_mid/2, h=mid_len, center=true);
+// Target bounding box (approx): 12.0 x 27.2 x 27.2 mm (elongated along Z)
+L = 12.0;                 // overall length (Z)
+D_max = 27.2;             // maximum OD (ribs)
+D_mid = 24.8;             // main body OD
+D_neck = 22.6;            // neck OD (between collars and mid)
+D_end_collar = 26.2;      // end collar OD
+
+L_end_collar = 1.2;       // each end collar axial length
+L_mid_section = 6.6;      // central section axial length
+overlap = 0.10;           // small overlap to guarantee connectivity
+
+// Two prominent recessed bands near midsection (grooves)
+band_w = 1.25;
+band_gap = 1.10;
+band_depth_rad = 1.10;
+
+// Small end relief grooves
+end_relief_w = 0.65;
+end_relief_depth_rad = 0.65;
+
+// Raised ribs (circumferential rings) near ends of mid section
+rib_count = 6;
+rib_w = 0.55;
+rib_h_rad = 0.55;
+
+// Edge chamfer (simple conical cut)
+chamfer_ax = 0.55;
+
+// Derived lengths
+L_neck_total = max(0, L - L_mid_section - 2*L_end_collar);
+L_neck_each  = L_neck_total/2;
+
+// Axial landmarks (centered at Z=0)
+z_left_end        = -L/2;
+z_right_end       =  L/2;
+
+z_left_collar_c   = z_left_end  + L_end_collar/2;
+z_right_collar_c  = z_right_end - L_end_collar/2;
+
+z_left_neck_c     = z_left_end  + L_end_collar + L_neck_each/2;
+z_right_neck_c    = z_right_end - L_end_collar - L_neck_each/2;
+
+module outer_profile_union() {
+    union() {
+        // Mid section (main body)
+        cylinder(r=D_mid/2, h=L_mid_section + 2*overlap, center=true);
+
+        // Necks
+        if (L_neck_each > 0) {
+            translate([0,0,z_left_neck_c])
+                cylinder(r=D_neck/2, h=L_neck_each + 2*overlap, center=true);
+            translate([0,0,z_right_neck_c])
+                cylinder(r=D_neck/2, h=L_neck_each + 2*overlap, center=true);
+        }
+
+        // End collars
+        translate([0,0,z_left_collar_c])
+            cylinder(r=D_end_collar/2, h=L_end_collar + 2*overlap, center=true);
+
+        translate([0,0,z_right_collar_c])
+            cylinder(r=D_end_collar/2, h=L_end_collar + 2*overlap, center=true);
+    }
 }
 
-module left_collar_cyl() {
-  translate([0, 0, -(mid_len/2 + collar_len/2 - eps)])
-    cylinder(r=OD_end_collar/2, h=collar_len, center=true);
+module raised_ribs() {
+    if (rib_count <= 0) { /* no ribs */ }
+    else {
+        margin = 0.25;
+        z_min = -L_mid_section/2 + margin + rib_w/2;
+        z_max =  L_mid_section/2 - margin - rib_w/2;
+
+        // Groove centers
+        z_g1 = -(band_gap/2 + band_w/2);
+        z_g2 =  (band_gap/2 + band_w/2);
+
+        // Exclusion half-span around each groove
+        excl = band_w/2 + 0.20;
+
+        for (i = [0:rib_count-1]) {
+            t = (rib_count==1) ? 0.5 : i/(rib_count-1);
+            zi = z_min + t*(z_max - z_min);
+
+            ok = (abs(zi - z_g1) > (excl + rib_w/2)) && (abs(zi - z_g2) > (excl + rib_w/2));
+            if (ok)
+                translate([0,0,zi])
+                    cylinder(r=min(D_max/2, D_mid/2 + rib_h_rad),
+                             h=rib_w + 2*overlap, center=true);
+        }
+    }
 }
 
-module right_collar_cyl() {
-  translate([0, 0, (mid_len/2 + collar_len/2 - eps)])
-    cylinder(r=OD_end_collar/2, h=collar_len, center=true);
+module recessed_mid_bands_cuts() {
+    z1 = -(band_gap/2 + band_w/2);
+    z2 =  (band_gap/2 + band_w/2);
+
+    // Cut rings: subtract only the outer annulus (avoid coplanar/degenerate booleans)
+    for (zv = [z1, z2]) {
+        translate([0,0,zv])
+            difference() {
+                cylinder(r=D_mid/2 + 0.02, h=band_w + 2*overlap, center=true);
+                cylinder(r=max(0.01, D_mid/2 - band_depth_rad),
+                         h=band_w + 2*overlap + 0.04, center=true);
+            }
+    }
 }
 
-module left_end_cap_max() {
-  translate([0, 0, -(L/2 - chamfer_z)])
-    cylinder(r=OD_max/2, h=chamfer_z*2, center=true);
+module end_relief_grooves_cuts() {
+    zL = z_left_end + L_end_collar + end_relief_w/2;
+    zR = z_right_end - L_end_collar - end_relief_w/2;
+
+    for (zv = [zL, zR]) {
+        translate([0,0,zv])
+            difference() {
+                cylinder(r=D_neck/2 + 0.02, h=end_relief_w + 2*overlap, center=true);
+                cylinder(r=max(0.01, D_neck/2 - end_relief_depth_rad),
+                         h=end_relief_w + 2*overlap + 0.04, center=true);
+            }
+    }
 }
 
-module right_end_cap_max() {
-  translate([0, 0, (L/2 - chamfer_z)])
-    cylinder(r=OD_max/2, h=chamfer_z*2, center=true);
+module end_chamfer_cuts() {
+    // Slightly oversize radii to ensure clean subtraction
+    translate([0,0,z_left_end + chamfer_ax/2])
+        cylinder(r1=0.01, r2=D_end_collar/2 + 0.05, h=chamfer_ax + 2*overlap, center=true);
+
+    translate([0,0,z_right_end - chamfer_ax/2])
+        cylinder(r1=D_end_collar/2 + 0.05, r2=0.01, h=chamfer_ax + 2*overlap, center=true);
 }
 
-module recess_band1_cut() {
-  translate([0, 0, -(recess_band_gap/2 + recess_band_w/2)])
-    cylinder(r=OD_mid/2, h=recess_band_w, center=true);
+module solid_connector() {
+    difference() {
+        union() {
+            outer_profile_union();
+            raised_ribs();
+        }
+        recessed_mid_bands_cuts();
+        end_relief_grooves_cuts();
+        end_chamfer_cuts();
+    }
 }
 
-module recess_band2_cut() {
-  translate([0, 0, (recess_band_gap/2 + recess_band_w/2)])
-    cylinder(r=OD_mid/2, h=recess_band_w, center=true);
-}
-
-module small_groove_left_cut() {
-  translate([0, 0, -(mid_len/2 - groove_w_small/2)])
-    cylinder(r=OD_end_collar/2, h=groove_w_small, center=true);
-}
-
-module small_groove_right_cut() {
-  translate([0, 0, (mid_len/2 - groove_w_small/2)])
-    cylinder(r=OD_end_collar/2, h=groove_w_small, center=true);
-}
-
-module rib_left_ring() {
-  translate([0, 0, -(mid_len/2 - rib_w_small/2 - groove_w_small - eps)])
-    cylinder(r=(OD_mid/2 + rib_height_small), h=rib_w_small, center=true);
-}
-
-module rib_right_ring() {
-  translate([0, 0, (mid_len/2 - rib_w_small/2 - groove_w_small - eps)])
-    cylinder(r=(OD_mid/2 + rib_height_small), h=rib_w_small, center=true);
-}
-
-module micro_groove_cut(n) {
-  translate([0, 0, -(mid_len/2) + (mid_len/(micro_rib_count+1))*n])
-    cylinder(r=OD_mid/2, h=micro_groove_w, center=true);
-}
-
-module bore_cyl() {
-  cylinder(r=bore_D/2, h=L + 2*eps, center=true);
-}
-
-module chamfer_left_cone_cut() {
-  translate([0, 0, -(L/2 - chamfer_z/2)])
-    rotate([180, 0, 0])
-    cylinder(r1=OD_max/2, r2=0, h=chamfer_z, center=true);
-}
-
-module chamfer_right_cone_cut() {
-  translate([0, 0, (L/2 - chamfer_z/2)])
-    cylinder(r1=OD_max/2, r2=0, h=chamfer_z, center=true);
-}
-
-// Operations
-module outer_stepped_cylindrical_body() {
-  union() {
-    outer_mid_cyl();
-    left_collar_cyl();
-    right_collar_cyl();
-    left_end_cap_max();
-    right_end_cap_max();
-  }
-}
-
-module additional_circumferential_grooves_ribs() {
-  union() {
-    rib_left_ring();
-    rib_right_ring();
-  }
-}
-
-module outer_with_ribs() {
-  union() {
-    outer_stepped_cylindrical_body();
-    additional_circumferential_grooves_ribs();
-  }
-}
-
-module midsection_recessed_band_1() {
-  difference() {
-    outer_with_ribs();
-    recess_band1_cut();
-  }
-}
-
-module midsection_recessed_band_2() {
-  difference() {
-    midsection_recessed_band_1();
-    recess_band2_cut();
-  }
-}
-
-module outer_with_small_grooves() {
-  difference() {
-    midsection_recessed_band_2();
-    small_groove_left_cut();
-    small_groove_right_cut();
-  }
-}
-
-module micro_ribbing_texture() {
-  difference() {
-    outer_with_small_grooves();
-    for (i = [1:micro_rib_count])
-      micro_groove_cut(i);
-  }
-}
-
-module small_edge_chamfers_fillets() {
-  difference() {
-    micro_ribbing_texture();
-    chamfer_left_cone_cut();
-    chamfer_right_cone_cut();
-  }
-}
-
-module internal_axial_bore() {
-  difference() {
-    small_edge_chamfers_fillets();
-    bore_cyl();
-  }
-}
-
-// Final output
-internal_axial_bore();
+solid_connector();

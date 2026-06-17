@@ -1,0 +1,292 @@
+{
+  "dataset": "nopscadlib",
+  "source_file": "metrics\\nopscadlib\\editability\\editability_detailed.json",
+  "n_resamples": 1000,
+  "alpha": 0.05,
+  "per_method": {
+    "craft": {
+      "symbolic_preservation_rate": {
+        "n": 468,
+        "mean": 0.668230409721355,
+        "median": 0.8571428571428571,
+        "ci_low": 0.6356264298019332,
+        "ci_high": 0.7032591167368024
+      },
+      "edit_success_rate": {
+        "n": 468,
+        "mean": 0.9985309829059829,
+        "median": 1.0,
+        "ci_low": 0.9961271367521367,
+        "ci_high": 1.0
+      },
+      "post_edit_render_validity": {
+        "n": 468,
+        "mean": 0.9910968660968662,
+        "median": 1.0,
+        "ci_low": 0.9845074341168092,
+        "ci_high": 0.9961271367521367
+      }
+    },
+    "gpt4o": {
+      "symbolic_preservation_rate": {
+        "n": 468,
+        "mean": 0.030448717948717948,
+        "median": 0.0,
+        "ci_low": 0.015491452991452992,
+        "ci_high": 0.04754273504273504
+      },
+      "edit_success_rate": {
+        "n": 20,
+        "mean": 0.95,
+        "median": 1.0,
+        "ci_low": 0.85,
+        "ci_high": 1.0
+      },
+      "post_edit_render_validity": {
+        "n": 20,
+        "mean": 0.95,
+        "median": 1.0,
+        "ci_low": 0.85,
+        "ci_high": 1.0
+      }
+    },
+    "gpt52": {
+      "symbolic_preservation_rate": {
+        "n": 468,
+        "mean": 0.47667058131801726,
+        "median": 0.16666666666666666,
+        "ci_low": 0.43116515429015434,
+        "ci_high": 0.5188909164790575
+      },
+      "edit_success_rate": {
+        "n": 242,
+        "mean": 0.9917355371900827,
+        "median": 1.0,
+        "ci_low": 0.9792355371900826,
+        "ci_high": 1.0
+      },
+      "post_edit_render_validity": {
+        "n": 242,
+        "mean": 0.9772727272727273,
+        "median": 1.0,
+        "ci_low": 0.9617747073002755,
+        "ci_high": 0.9901020144628101
+      }
+    }
+  },
+  "per_method_tier": {
+    "craft": {
+      "Simple": {
+        "symbolic_preservation_rate": {
+          "n": 159,
+          "mean": 0.5921117728577382,
+          "median": 0.8,
+          "ci_low": 0.5300169210920893,
+          "ci_high": 0.6565860328603066
+        },
+        "edit_success_rate": {
+          "n": 159,
+          "mean": 0.9960691823899371,
+          "median": 1.0,
+          "ci_low": 0.9897798742138365,
+          "ci_high": 1.0
+        },
+        "post_edit_render_validity": {
+          "n": 159,
+          "mean": 0.9823113207547169,
+          "median": 1.0,
+          "ci_low": 0.9634433962264151,
+          "ci_high": 0.9952830188679245
+        }
+      },
+      "Medium": {
+        "symbolic_preservation_rate": {
+          "n": 160,
+          "mean": 0.6386730490616832,
+          "median": 0.8516483516483516,
+          "ci_low": 0.5753965843771693,
+          "ci_high": 0.6977253058951424
+        },
+        "edit_success_rate": {
+          "n": 160,
+          "mean": 0.999609375,
+          "median": 1.0,
+          "ci_low": 0.998828125,
+          "ci_high": 1.0
+        },
+        "post_edit_render_validity": {
+          "n": 160,
+          "mean": 0.9915364583333333,
+          "median": 1.0,
+          "ci_low": 0.9868489583333334,
+          "ci_high": 0.994921875
+        }
+      },
+      "Complex": {
+        "symbolic_preservation_rate": {
+          "n": 149,
+          "mean": 0.781197127619761,
+          "median": 0.9090909090909091,
+          "ci_low": 0.7264864296537709,
+          "ci_high": 0.8317314717707557
+        },
+        "edit_success_rate": {
+          "n": 149,
+          "mean": 1.0,
+          "median": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0
+        },
+        "post_edit_render_validity": {
+          "n": 149,
+          "mean": 1.0,
+          "median": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0
+        }
+      }
+    },
+    "gpt4o": {
+      "Simple": {
+        "symbolic_preservation_rate": {
+          "n": 159,
+          "mean": 0.006289308176100629,
+          "median": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.018867924528301886
+        },
+        "edit_success_rate": {
+          "n": 4,
+          "mean": 1.0,
+          "median": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0
+        },
+        "post_edit_render_validity": {
+          "n": 4,
+          "mean": 1.0,
+          "median": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0
+        }
+      },
+      "Medium": {
+        "symbolic_preservation_rate": {
+          "n": 160,
+          "mean": 0.0,
+          "median": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0
+        },
+        "edit_success_rate": {
+          "n": 2,
+          "mean": 1.0,
+          "median": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0
+        },
+        "post_edit_render_validity": {
+          "n": 2,
+          "mean": 1.0,
+          "median": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0
+        }
+      },
+      "Complex": {
+        "symbolic_preservation_rate": {
+          "n": 149,
+          "mean": 0.08892617449664429,
+          "median": 0.0,
+          "ci_low": 0.04693791946308725,
+          "ci_high": 0.13590604026845637
+        },
+        "edit_success_rate": {
+          "n": 14,
+          "mean": 0.9285714285714286,
+          "median": 1.0,
+          "ci_low": 0.7857142857142857,
+          "ci_high": 1.0
+        },
+        "post_edit_render_validity": {
+          "n": 14,
+          "mean": 0.9285714285714286,
+          "median": 1.0,
+          "ci_low": 0.7857142857142857,
+          "ci_high": 1.0
+        }
+      }
+    },
+    "gpt52": {
+      "Simple": {
+        "symbolic_preservation_rate": {
+          "n": 159,
+          "mean": 0.38171185907034966,
+          "median": 0.0,
+          "ci_low": 0.3081848357791754,
+          "ci_high": 0.4582282811528095
+        },
+        "edit_success_rate": {
+          "n": 51,
+          "mean": 0.9803921568627451,
+          "median": 1.0,
+          "ci_low": 0.9411764705882353,
+          "ci_high": 1.0
+        },
+        "post_edit_render_validity": {
+          "n": 51,
+          "mean": 0.9546568627450981,
+          "median": 1.0,
+          "ci_low": 0.9093137254901961,
+          "ci_high": 0.9852941176470589
+        }
+      },
+      "Medium": {
+        "symbolic_preservation_rate": {
+          "n": 160,
+          "mean": 0.501663961038961,
+          "median": 0.5,
+          "ci_low": 0.42524546807359315,
+          "ci_high": 0.5738570075757575
+        },
+        "edit_success_rate": {
+          "n": 100,
+          "mean": 1.0,
+          "median": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0
+        },
+        "post_edit_render_validity": {
+          "n": 100,
+          "mean": 0.988125,
+          "median": 1.0,
+          "ci_low": 0.981453125,
+          "ci_high": 0.9935416666666665
+        }
+      },
+      "Complex": {
+        "symbolic_preservation_rate": {
+          "n": 149,
+          "mean": 0.551163843613508,
+          "median": 1.0,
+          "ci_low": 0.4772432619580271,
+          "ci_high": 0.6274119127516778
+        },
+        "edit_success_rate": {
+          "n": 91,
+          "mean": 0.989010989010989,
+          "median": 1.0,
+          "ci_low": 0.967032967032967,
+          "ci_high": 1.0
+        },
+        "post_edit_render_validity": {
+          "n": 91,
+          "mean": 0.978021978021978,
+          "median": 1.0,
+          "ci_low": 0.945054945054945,
+          "ci_high": 1.0
+        }
+      }
+    }
+  }
+}

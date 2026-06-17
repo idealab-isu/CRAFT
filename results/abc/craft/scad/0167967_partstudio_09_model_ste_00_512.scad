@@ -1,44 +1,45 @@
 // Dimension-calibrated (target: 0.09 x 0.09 x 0.03 mm)
-scale([0.931080, 0.931080, 0.833333])
+scale([1.033333, 1.033333, 8.333333])
 {
-// Flat toothed rosette / gear-like disk (solid, no cutouts)
-// Target bbox ~0.1 x 0.1 x thin Z
+// Flat rosette/gear-like disk with evenly spaced triangular teeth
+// Target: uniform thin plate, circular core, no cutouts, one connected solid
 
 $fn = 180;
 
 // Parameters (mm)
-bbox_xy      = 0.10;
-thickness_z  = 0.03;
+bbox_x = 0.09;                 //[0.045:0.18:0.001]
+bbox_y = 0.09;                 //[0.045:0.18:0.001]
+thickness_z = 0.003;           //[0.001:0.01:0.0005]  // thin, constant thickness
 
-tooth_count  = 36;          // many evenly spaced teeth
-outer_radius = bbox_xy/2;   // tooth tip radius
-root_radius  = outer_radius * 0.82;  // base disk radius (between teeth)
+tooth_count = 24;              //[6:96:1]
+tooth_depth = 0.009;           //[0.0045:0.018:0.0005]
+tooth_half_width = 0.004;      //[0.001:0.01:0.0005]
+overlap = 0.001;               //[0.0005:0.002:0.0001]
 
-// Tooth shape control (2D)
-tooth_angle_frac = 0.55;    // fraction of pitch occupied by tooth (0..1)
-tooth_overlap    = outer_radius * 0.01; // small overlap into root for watertight union
+// Derived radii to respect bounding box (outer diameter = min(bbox_x,bbox_y))
+outer_radius = min(bbox_x, bbox_y) / 2;
+core_radius  = outer_radius - tooth_depth;
 
+// 2D tooth (triangle) placed so it overlaps into the core for guaranteed connectivity
+module tooth_2d() {
+    polygon(points=[
+        [core_radius - overlap, -tooth_half_width],
+        [core_radius - overlap,  tooth_half_width],
+        [outer_radius,           0]
+    ]);
+}
+
+// 2D outline: circular disk + radial teeth
 module rosette_2d() {
-    pitch = 360 / tooth_count;
-    half_tooth = (pitch * tooth_angle_frac) / 2;
-
     union() {
-        // Base circular disk (ensures round body, not polygonal)
-        circle(r = root_radius);
-
-        // Triangular teeth (2D), then extruded uniformly
-        for (i = [0:tooth_count-1]) {
-            rotate(i * pitch)
-                polygon(points = [
-                    // two base points slightly inside root radius for solid connectivity
-                    [root_radius - tooth_overlap, 0],
-                    [outer_radius * cos( half_tooth), outer_radius * sin( half_tooth)],
-                    [outer_radius * cos(-half_tooth), outer_radius * sin(-half_tooth)]
-                ]);
-        }
+        circle(r=core_radius);
+        for (i = [0:tooth_count-1])
+            rotate(i * 360 / tooth_count)
+                tooth_2d();
     }
 }
 
-linear_extrude(height = thickness_z, center = true, convexity = 10)
+// Final solid: uniform extrusion (flat plate)
+linear_extrude(height=thickness_z, center=true, convexity=10)
     rosette_2d();
 }

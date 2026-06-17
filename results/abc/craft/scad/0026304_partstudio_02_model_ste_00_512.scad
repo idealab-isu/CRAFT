@@ -1,159 +1,111 @@
 // Dimension-calibrated (target: 0.93 x 0.35 x 1.43 mm)
-scale([1.000006, 2.665730, 1.009168])
+scale([0.730470, 2.795051, 0.996890])
 {
-// Elongated ribbed shaft with polygonal end caps, DISCRETE radial tabs, and a single side nub
-// Target bounding box ~0.9 x 0.3 x 1.4 mm (Z is long axis)
+// Parameters
+bbox_x = 0.93; //[0.465:1.86:0.01]
+bbox_y = 0.35; //[0.175:0.7:0.01]
+bbox_z = 1.43; //[0.715:2.86:0.01]
+shaft_r = 0.12; //[0.06:0.24:0.005]
+shaft_len = 1.43; //[0.715:2.86:0.01]
+fin_r = 0.165; //[0.0825:0.33:0.005]
+fin_thk = 0.03; //[0.015:0.06:0.001]
+fin_pitch = 0.06; //[0.03:0.12:0.001]
+fin_count = 12; //[6:24:1]
+fin_section_len = 0.84; //[0.42:1.68:0.01]
+cap_len = 0.18; //[0.09:0.36:0.005]
+cap_flat_d = 0.33; //[0.165:0.35:0.005]
+cap_sides = 6; //[6:8:1]
+tab_len_radial = 0.045; //[0.02:0.09:0.001]
+tab_thk_tangential = 0.05; //[0.02:0.1:0.001]
+tab_h_axial = 0.03; //[0.015:0.06:0.001]
+tab_count = 10; //[4:20:1]
+tab_span_len = 0.9; //[0.45:1.2:0.01]
+nub_r = 0.03; //[0.015:0.06:0.001]
+nub_len_radial = 0.05; //[0.02:0.1:0.001]
+nub_z_from_end = 0.12; //[0.06:0.24:0.005]
+overlap = 0.001; //[0.0005:0.01:0.0005]
+chamfer_len = 0.03; //[0.01:0.06:0.001]
+chamfer_scale = 0.85; //[0.7:0.95:0.01]
+fillet_r = 0.006; //[0.002:0.02:0.001]
+texture_r = 0.002; //[0.001:0.006:0.0005]
 
-$fn = 72;
+// Main shaft
+module main_shaft() {
+  color("DimGray")
+  cylinder(h=shaft_len, r=shaft_r, center=true);
+}
 
-// -------------------- Parameters (mm) --------------------
-bbox_x = 0.93;
-bbox_y = 0.35;
-bbox_z = 1.43;
-
-mid_len = 0.95;
-mid_r   = 0.12;
-
-// Ribbed midsection (stacked thin discs)
-fin_count = 14;
-fin_thk   = 0.02;
-fin_r     = 0.165;
+// Fins
+module fins() {
+  color("Silver")
+  for (i = [0:fin_count-1]) {
+    translate([0, 0, (-fin_section_len/2) + (i*fin_pitch)])
+      cylinder(h=fin_thk, r=fin_r, center=true);
+  }
+}
 
 // End caps
-cap_len   = 0.24;
-cap_sides = 8;
-cap_r     = 0.175;
-
-// Discrete radial tabs along length (not continuous fins)
-tab_count  = 10;
-tab_len    = 0.045;   // radial protrusion length
-tab_w      = 0.05;    // tangential width
-tab_h      = 0.03;    // axial height
-tab_z_span = 0.80;    // span along Z where tabs appear
-tab_ring_n = 4;       // number of tabs around circumference per Z station
-
-// Single side nub near one end
-nub_r          = 0.03;
-nub_len        = 0.04;
-nub_z_from_end = 0.18; // measured from very bottom end toward center
-
-// NOTE: model is in mm; use small overlaps appropriate to this scale
-overlap   = 0.006;   // robust unions at this tiny scale
-chamfer_h = 0.02;
-
-// -------------------- Helpers --------------------
-module mid_cyl_body() {
-  cylinder(h=mid_len, r=mid_r, center=true);
+module end_cap() {
+  color("Silver")
+  cylinder(h=cap_len, r=(cap_flat_d/2)/cos(180/cap_sides), center=true, $fn=cap_sides);
 }
 
-module fin_at(zpos) {
-  translate([0,0,zpos])
-    cylinder(h=fin_thk, r=fin_r, center=true);
+// Tabs
+module tab() {
+  color("Black")
+  cube([tab_len_radial + shaft_r + overlap, tab_thk_tangential, tab_h_axial], center=true);
 }
 
-module ribbed_fins_midsection() {
-  union() {
-    if (fin_count <= 1) {
-      fin_at(0);
-    } else {
-      for (i = [0:fin_count-1]) {
-        fin_at((-mid_len/2) + fin_thk/2 + i*(mid_len - fin_thk)/(fin_count-1));
-      }
-    }
+module tabs() {
+  for (i = [0:tab_count-1]) {
+    translate([(shaft_r + (tab_len_radial + shaft_r + overlap)/2) - overlap, 0, (-tab_span_len/2) + (i*(tab_span_len/(tab_count-1)))])
+      tab();
   }
 }
 
-module end_cap(zsign=1) { // zsign: -1 bottom, +1 top
-  // Centered so it overlaps slightly into the midsection for a watertight union
-  translate([0,0, zsign*(mid_len/2 + cap_len/2 - overlap)])
-    cylinder(h=cap_len, r=cap_r, center=true, $fn=cap_sides);
+// Side nub
+module side_nub() {
+  color("Black")
+  translate([(shaft_r + nub_len_radial/2) - overlap, 0, (shaft_len/2) - nub_z_from_end])
+    rotate([0, 90, 0])
+      cylinder(h=nub_len_radial, r=nub_r, center=true);
 }
 
-// One tab, oriented radially outward along +X, centered at given z
-module tab_primitive(zpos) {
-  // Inner face overlaps into shaft for connectivity
-  translate([mid_r + tab_len/2 - overlap, 0, zpos])
-    cube([tab_len + 2*overlap, tab_w, tab_h], center=true);
+// Chamfer cuts
+module chamfer_cut() {
+  color("Silver")
+  cylinder(h=chamfer_len, r=((cap_flat_d/2)/cos(180/cap_sides))*chamfer_scale, center=true);
 }
 
-// Tabs: discrete protrusions (small blocks) at multiple Z positions and multiple angles
-module radial_tabs_array() {
-  union() {
-    if (tab_count <= 1) {
-      for (a = [0:tab_ring_n-1])
-        rotate([0,0,a*360/tab_ring_n]) tab_primitive(0);
-    } else {
-      for (i = [0:tab_count-1]) {
-        zpos = (-tab_z_span/2) + i*(tab_z_span)/(tab_count-1);
-        for (a = [0:tab_ring_n-1])
-          rotate([0,0,a*360/tab_ring_n]) tab_primitive(zpos);
-      }
-    }
-  }
+// Fillet sphere
+module fillet_sphere() {
+  sphere(r=fillet_r, center=true);
 }
 
-module single_side_nub() {
-  // Whole part extents (with caps) along Z:
-  // bottom end = -(mid_len/2 + cap_len)
-  // top end    = +(mid_len/2 + cap_len)
-  z_bottom = -(mid_len/2 + cap_len);
-  z0 = z_bottom + nub_z_from_end;
-
-  // Clamp nub Z so it stays on/near the bottom cap region and remains connected
-  // (prevents accidental placement outside the solid if parameters change)
-  z0c = min(z0, -(mid_len/2) + cap_len - overlap);
-  z0cc = max(z0c, z_bottom + overlap);
-
-  // Attach on +X side; overlap into shaft/cap region
-  translate([mid_r + nub_len/2 - overlap, 0, z0cc])
-    rotate([0,90,0])
-      cylinder(h=nub_len + 2*overlap, r=nub_r, center=true, $fn=36);
+// Texture sphere
+module texture_sphere() {
+  sphere(r=texture_r, center=true);
 }
 
-module cap_chamfer_cutter(zpos, flip=false) {
-  translate([0,0,zpos])
-    rotate([flip ? 180 : 0, 0, 0])
-      cylinder(h=chamfer_h, r1=cap_r + 0.02, r2=0, center=true, $fn=cap_sides*2);
-}
-
-module main_union_pre_chamfer() {
-  union() {
-    // Core
-    mid_cyl_body();
-
-    // Ribbed/grip texture (circumferential rings)
-    ribbed_fins_midsection();
-
-    // Enlarged polygonal end housings/collars
-    end_cap(-1);
-    end_cap( 1);
-
-    // Discrete side tabs/protrusions along the length
-    radial_tabs_array();
-
-    // Single asymmetrical side nub near one end
-    single_side_nub();
-  }
-}
-
-module final_part() {
+// Assemble component
+module elongated_micro_rod() {
   difference() {
-    main_union_pre_chamfer();
-
-    // Bottom cap chamfer (outer end)
-    cap_chamfer_cutter(
-      zpos = (-(mid_len/2 + cap_len)) + chamfer_h/2,
-      flip = true
-    );
-
-    // Top cap chamfer (outer end)
-    cap_chamfer_cutter(
-      zpos = ( (mid_len/2 + cap_len)) - chamfer_h/2,
-      flip = false
-    );
+    union() {
+      main_shaft();
+      fins();
+      translate([0, 0, (-shaft_len/2) + (cap_len/2) - overlap]) end_cap();
+      translate([0, 0, (shaft_len/2) - (cap_len/2) + overlap]) end_cap();
+      tabs();
+      side_nub();
+    }
+    translate([0, 0, (-shaft_len/2) + chamfer_len/2]) chamfer_cut();
+    translate([0, 0, (shaft_len/2) - chamfer_len/2]) chamfer_cut();
   }
 }
 
-// Output: one connected solid
-final_part();
+// Final output with texture
+minkowski() {
+  elongated_micro_rod();
+  texture_sphere();
+}
 }

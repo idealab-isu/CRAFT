@@ -1,104 +1,124 @@
-// Dimension-calibrated (target: 0.03 x 0.04 x 0.01 mm)
-scale([0.001333, 0.000425, 0.003667])
-{
-$fn = 96;
+// Parameters
+bbox_x = 0.03; //[0.015:0.06:0.001]
+bbox_y = 0.04; //[0.02:0.08:0.001]
+bbox_z = 0.01; //[0.005:0.02:0.001]
+plate_thk = 0.01; //[0.005:0.02:0.001]
+body_w = 0.022; //[0.011:0.044:0.001]
+body_l = 0.026; //[0.013:0.052:0.001]
+flange_w = 0.03; //[0.015:0.06:0.001]
+flange_l = 0.014; //[0.007:0.028:0.001]
+chamfer = 0.004; //[0.002:0.008:0.001]
+hole_d = 0.004; //[0.002:0.008:0.001]
+hole_edge_offset_x = 0.004; //[0.002:0.008:0.001]
+hole_edge_offset_y = 0.004; //[0.002:0.008:0.001]
+v_depth = 0.001; //[0.0005:0.002:0.0005]
+v_len = 0.012; //[0.006:0.024:0.001]
+v_w = 0.006; //[0.003:0.012:0.001]
+overlap = 0.001; //[0.0005:0.002:0.0005]
+countersink_d = 0.006; //[0.003:0.012:0.001]
+countersink_depth = 0.002; //[0.001:0.004:0.0005]
+fillet_r = 0.001; //[0.0005:0.002:0.0005]
 
-// Units: mm
-thickness_z = 3.0;
-
-body_w   = 22.0;
-body_l   = 56.0;
-
-flange_w = 30.0;
-flange_l = 24.0;
-
-hole_d = 4.0;
-hole_edge_margin_x = 4.0;
-hole_edge_margin_y = 4.0;
-
-chamfer_len = 6.0;
-
-feature_depth = 0.6;   // shallow recess
-overlap = 0.2;
-
-// Derived
-total_l = body_l + flange_l;
-
-// 2D outline (top view) with stepped flange and chamfered far end corners
-module outline_2d() {
-    // Coordinate system: Y along length, flange at +Y end
-    // Body spans: y = [-total_l/2, +total_l/2 - flange_l]
-    // Flange spans: y = [+total_l/2 - flange_l, +total_l/2]
-    y_body_min = -total_l/2;
-    y_body_max =  total_l/2 - flange_l;
-    y_flange_min = y_body_max;
-    y_flange_max = total_l/2;
-
-    // Chamfer only on the far (non-flange) end: y_body_min corners
-    polygon(points=[
-        // start at left edge near flange, go CCW
-        [-body_w/2, y_body_max],
-        [-body_w/2, y_body_min + chamfer_len],
-        [-body_w/2 + chamfer_len, y_body_min],
-        [ body_w/2 - chamfer_len, y_body_min],
-        [ body_w/2, y_body_min + chamfer_len],
-        [ body_w/2, y_body_max],
-
-        // step out to flange width
-        [ flange_w/2, y_flange_min],
-        [ flange_w/2, y_flange_max],
-        [-flange_w/2, y_flange_max],
-        [-flange_w/2, y_flange_min]
-    ]);
+// Base Shapes
+module plate_body_main() {
+  translate([0, flange_l/2, 0])
+    cube([body_w, body_l, plate_thk], center=true);
 }
 
-// Through holes in flange (near its two top corners)
-module flange_holes() {
-    y_flange_center = total_l/2 - flange_l/2;
-    y_hole = y_flange_center + (flange_l/2 - hole_edge_margin_y);
-
-    for (sx = [-1, 1]) {
-        translate([sx*(flange_w/2 - hole_edge_margin_x), y_hole, 0])
-            cylinder(h=thickness_z + 2*overlap, d=hole_d, center=true);
-    }
+module plate_body_flange() {
+  translate([0, -body_l/2 + flange_l/2, 0])
+    cube([flange_w, flange_l, plate_thk], center=true);
 }
 
-// Shallow V/arrow recess on both broad faces (top and bottom)
-module v_recess(zsign=1) {
-    // Place on body area, slightly toward the middle
-    y0 = -total_l/2 + body_l*0.55;
-
-    // 2D V shape
-    v_w = body_w * 0.45;
-    v_h = body_w * 0.22;
-    v_th = body_w * 0.10;
-
-    translate([0, y0, zsign*(thickness_z/2 - feature_depth/2)])
-        linear_extrude(height=feature_depth + overlap, center=true)
-            polygon(points=[
-                [0,  v_h],
-                [ v_w/2, -v_h],
-                [ v_w/2 - v_th, -v_h],
-                [0,  v_h*0.15],
-                [-v_w/2 + v_th, -v_h],
-                [-v_w/2, -v_h]
-            ]);
+module chamfer_wedge_left() {
+  translate([-body_w/2 + chamfer/2, flange_l + body_l/2 - chamfer/2, 0])
+    rotate([0, 0, 45])
+      cube([chamfer, chamfer, plate_thk + 2*overlap], center=true);
 }
 
-module complete_model() {
-    difference() {
-        // Main plate as a single connected solid
-        linear_extrude(height=thickness_z, center=true)
-            outline_2d();
-
-        // Holes
-        flange_holes();
-
-        // Face features (recessed on both sides)
-        v_recess( 1);
-        v_recess(-1);
-    }
+module chamfer_wedge_right() {
+  translate([body_w/2 - chamfer/2, flange_l + body_l/2 - chamfer/2, 0])
+    rotate([0, 0, 45])
+      cube([chamfer, chamfer, plate_thk + 2*overlap], center=true);
 }
 
-color("Silver") complete_model();
+module through_hole_1() {
+  translate([-flange_w/2 + hole_edge_offset_x, -body_l/2 + hole_edge_offset_y, 0])
+    cylinder(h=plate_thk + 2*overlap, r=hole_d/2, center=true);
 }
+
+module through_hole_2() {
+  translate([flange_w/2 - hole_edge_offset_x, -body_l/2 + hole_edge_offset_y, 0])
+    cylinder(h=plate_thk + 2*overlap, r=hole_d/2, center=true);
+}
+
+module counterbore_1() {
+  translate([-flange_w/2 + hole_edge_offset_x, -body_l/2 + hole_edge_offset_y, plate_thk/2 - (countersink_depth + overlap)/2])
+    cylinder(h=countersink_depth + overlap, r=countersink_d/2, center=true);
+}
+
+module counterbore_2() {
+  translate([flange_w/2 - hole_edge_offset_x, -body_l/2 + hole_edge_offset_y, plate_thk/2 - (countersink_depth + overlap)/2])
+    cylinder(h=countersink_depth + overlap, r=countersink_d/2, center=true);
+}
+
+module v_arrow_face_feature_1() {
+  translate([0, flange_l/2 + body_l*0.15, plate_thk/2 - (v_depth + overlap)/2])
+    linear_extrude(height=v_depth + overlap, center=true)
+      polygon(points=[[-v_w/2, -v_len/2], [v_w/2, -v_len/2], [0, v_len/2]]);
+}
+
+module v_arrow_face_feature_2() {
+  translate([0, flange_l/2 + body_l*0.35, plate_thk/2 - (v_depth + overlap)/2])
+    rotate([0, 0, 180])
+      linear_extrude(height=v_depth + overlap, center=true)
+        polygon(points=[[-v_w/2, -v_len/2], [v_w/2, -v_len/2], [0, v_len/2]]);
+}
+
+module edge_fillet_sphere() {
+  sphere(r=fillet_r, center=true);
+}
+
+// Operations
+module plate_body_with_stepped_flange() {
+  union() {
+    plate_body_main();
+    plate_body_flange();
+  }
+}
+
+module chamfered_end_corners() {
+  difference() {
+    plate_body_with_stepped_flange();
+    chamfer_wedge_left();
+    chamfer_wedge_right();
+  }
+}
+
+module holes_and_counterbores() {
+  difference() {
+    chamfered_end_corners();
+    through_hole_1();
+    through_hole_2();
+    counterbore_1();
+    counterbore_2();
+  }
+}
+
+module face_v_features_recessed() {
+  difference() {
+    holes_and_counterbores();
+    v_arrow_face_feature_1();
+    v_arrow_face_feature_2();
+  }
+}
+
+module edge_fillets() {
+  minkowski() {
+    face_v_features_recessed();
+    edge_fillet_sphere();
+  }
+}
+
+// Final Output
+edge_fillets();

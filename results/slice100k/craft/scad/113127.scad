@@ -1,150 +1,136 @@
 // Blocky C-shaped bracket/frame with stepped outer perimeter and inner step transitions
-// Bounding box: 31.8 x 31.8 x 15.8 mm
+// Target bounding box: 31.8 x 31.8 x 15.8 mm
 
-// Parameters
-bbox_x = 31.8;
-bbox_y = 31.8;
-bbox_z = 15.8;
+$fn = 48;
 
-frame_thk_z = bbox_z;
+// --- Parameters (mm) ---
+outer_x = 31.8;
+outer_y = 31.8;
+thk     = 15.8;
 
-outer_step_depth = 2.0;
-outer_step_margin = 3.0;
+// Main inner opening (rectangular)
+inner_x = 18.0;
+inner_y = 20.0;
 
-opening_x = 20.0;
-opening_y = 20.0;
+// C-gap (opens to the bottom edge)
+gap_w   = 8.0;
 
-inner_step_depth = 1.5;
-inner_step_width = 1.5;
+// Outer stepped perimeter (a shallow recess on the top face)
+outer_step_depth = 2.0;     // inset from outer edges
+outer_step_drop  = 1.2;     // depth of recess from top face
 
-c_gap_w = 8.0;
+// Inner step transitions (small ledges around inner opening)
+inner_step_w    = 1.2;
+inner_step_len  = 10.0;
+inner_step_drop = 0.8;      // depth of inner ledges from top face
 
+// Boss pads (reinforced pads on top face)
 boss_w = 6.0;
-boss_h = 6.0;
-boss_z = bbox_z;
-boss_inset = 0.0;
+boss_l = 6.0;
+boss_drop = 0.0;            // 0 => bosses are full thickness (flush); increase to make them top-only
 
-overlap = 0.6;
+// Robust boolean overlap
+eps = 0.05;
 
-chamfer = 0.8;
-
-nub_d = 2.0;
-nub_h = 1.2;
-
-relief_d = 3.0;
-relief_depth = 1.0;
-
-// Helpers
-module box(sz, pos=[0,0,0]) { translate(pos) cube(sz, center=true); }
-module cyl(r,h,pos=[0,0,0]) { translate(pos) cylinder(r=r, h=h, center=true, $fn=48); }
-
-// Base solids
-module outer_frame_plate() {
-  box([bbox_x, bbox_y, frame_thk_z]);
+// --- Helpers ---
+module box_at(x, y, z, sx, sy, sz) {
+    translate([x,y,z]) cube([sx,sy,sz], center=true);
 }
 
-// Outer stepped perimeter (a shallow "ring" on the top face)
-module outer_perimeter_step_ring() {
-  difference() {
-    // slightly oversized in Z to avoid coplanar artifacts
-    box([bbox_x, bbox_y, outer_step_depth + 2*overlap],
-        [0,0, frame_thk_z/2 - outer_step_depth/2]);
-    box([bbox_x - 2*outer_step_margin, bbox_y - 2*outer_step_margin, outer_step_depth + 4*overlap],
-        [0,0, frame_thk_z/2 - outer_step_depth/2]);
-  }
+// --- Core geometry ---
+module base_plate() {
+    cube([outer_x, outer_y, thk], center=true);
 }
 
-// Inner step transitions around the opening (a shallow ledge on the top face)
-module inner_opening_step_ring() {
-  difference() {
-    box([opening_x + 2*inner_step_width, opening_y + 2*inner_step_width, inner_step_depth + 2*overlap],
-        [0,0, frame_thk_z/2 - inner_step_depth/2]);
-    box([opening_x, opening_y, inner_step_depth + 4*overlap],
-        [0,0, frame_thk_z/2 - inner_step_depth/2]);
-  }
+// Through openings to create the C-shape
+module cut_inner_opening() {
+    cube([inner_x, inner_y, thk + 2*eps], center=true);
 }
 
-// Boss pads at corners (reinforced pads)
-module union_boss_pads() {
-  union() {
-    box([boss_w, boss_h, boss_z],
-        [-bbox_x/2 + boss_w/2 + boss_inset,  bbox_y/2 - boss_h/2 - boss_inset, 0]);
-    box([boss_w, boss_h, boss_z],
-        [-bbox_x/2 + boss_w/2 + boss_inset, -bbox_y/2 + boss_h/2 + boss_inset, 0]);
-    box([boss_w, boss_h, boss_z],
-        [ bbox_x/2 - boss_w/2 - boss_inset,  bbox_y/2 - boss_h/2 - boss_inset, 0]);
-    box([boss_w, boss_h, boss_z],
-        [ bbox_x/2 - boss_w/2 - boss_inset, -bbox_y/2 + boss_h/2 + boss_inset, 0]);
-  }
+module cut_bottom_gap() {
+    // Ensure the gap actually reaches the outer bottom edge and intersects the inner opening.
+    // Make it slightly wider in Y than the outer plate so it always cuts through.
+    translate([0, -outer_y/2, 0])
+        cube([gap_w, outer_y + 2*eps, thk + 2*eps], center=true);
 }
 
-// Small alignment nubs (kept connected by placing on faces with slight overlap)
-module union_alignment_nubs() {
-  union() {
-    cyl(nub_d/2, nub_h + 2*overlap,
-        [-bbox_x/2 + outer_step_margin + nub_d/2, 0,  frame_thk_z/2 - nub_h/2]);
-    cyl(nub_d/2, nub_h + 2*overlap,
-        [-bbox_x/2 + outer_step_margin + nub_d/2, 0, -frame_thk_z/2 + nub_h/2]);
-  }
+// Top-face recess (outer perimeter step)
+module cut_outer_top_recess() {
+    recess_x = outer_x - 2*outer_step_depth;
+    recess_y = outer_y - 2*outer_step_depth;
+    recess_h = outer_step_drop;
+
+    translate([0,0, thk/2 - recess_h/2 + eps])
+        cube([recess_x, recess_y, recess_h + 2*eps], center=true);
 }
 
-// Subtractive features
-module central_rectangular_opening() {
-  box([opening_x, opening_y, frame_thk_z + 4*overlap]);
+// Inner step transitions (small top-face ledges around inner opening)
+module cut_inner_step_transitions() {
+    h = inner_step_drop;
+
+    // Place these cuts so they nibble into the frame around the opening (not floating).
+    // Keep them shallow and on the top face.
+    zc = thk/2 - h/2 + eps;
+
+    // Top ledge cut
+    translate([0,  inner_y/2 + inner_step_w/2, zc])
+        cube([inner_step_len, inner_step_w, h + 2*eps], center=true);
+
+    // Bottom ledge cut (still fine; the C-gap is separate and will open the bottom)
+    translate([0, -inner_y/2 - inner_step_w/2, zc])
+        cube([inner_step_len, inner_step_w, h + 2*eps], center=true);
+
+    // Left ledge cut
+    translate([-inner_x/2 - inner_step_w/2, 0, zc])
+        cube([inner_step_w, inner_step_len, h + 2*eps], center=true);
+
+    // Right ledge cut
+    translate([ inner_x/2 + inner_step_w/2, 0, zc])
+        cube([inner_step_w, inner_step_len, h + 2*eps], center=true);
 }
 
-// C-gap that opens the inner opening to the outside on the +X side
-module c_shape_side_gap() {
-  // Ensure it reaches the outer boundary and overlaps slightly
-  gap_len_x = (bbox_x/2 - opening_x/2) + c_gap_w + 2*overlap;
-  box([gap_len_x, opening_y + 2*inner_step_width + 2*overlap, frame_thk_z + 4*overlap],
-      [opening_x/2 + gap_len_x/2 - overlap, 0, 0]);
+// Boss pads (add material; keep connected by overlapping with base)
+module boss_pads() {
+    boss_h = (boss_drop <= 0) ? thk : (thk - boss_drop);
+    boss_z = (boss_drop <= 0) ? 0 : (boss_drop/2);
+
+    // Corner bosses
+    x0 = outer_x/2 - boss_w/2;
+    y0 = outer_y/2 - boss_l/2;
+
+    box_at(-x0,  y0, boss_z, boss_w, boss_l, boss_h);
+    box_at(-x0, -y0, boss_z, boss_w, boss_l, boss_h);
+    box_at( x0,  y0, boss_z, boss_w, boss_l, boss_h);
+    box_at( x0, -y0, boss_z, boss_w, boss_l, boss_h);
+
+    // Small mid bosses on left side (reinforced pads near the "legs")
+    sm_w = boss_w*0.7;
+    sm_l = boss_l*0.5;
+
+    xl = -outer_x/2 + sm_w/2;
+    yt =  outer_y/2 - sm_l/2;
+    yb = -outer_y/2 + sm_l/2;
+
+    box_at(xl, yt, boss_z, sm_w, sm_l, boss_h);
+    box_at(xl, yb, boss_z, sm_w, sm_l, boss_h);
 }
 
-// Corner chamfers (small corner nips)
-module chamfer_cut(pos) {
-  translate(pos)
-    rotate([0,0,45])
-      cube([chamfer, chamfer, frame_thk_z + 4*overlap], center=true);
+// --- Final model ---
+module bracket() {
+    difference() {
+        union() {
+            base_plate();
+            boss_pads(); // additive, overlaps base => one connected solid
+        }
+
+        // Through cuts for C-shape
+        cut_inner_opening();
+        cut_bottom_gap();
+
+        // Top-face stepped details
+        cut_outer_top_recess();
+        cut_inner_step_transitions();
+    }
 }
 
-// Cosmetic reliefs on top face
-module cosmetic_reliefs() {
-  union() {
-    cyl(relief_d/2, relief_depth + 2*overlap,
-        [0,  bbox_y/2 - outer_step_margin - relief_d/2, frame_thk_z/2 - relief_depth/2]);
-    cyl(relief_d/2, relief_depth + 2*overlap,
-        [0, -bbox_y/2 + outer_step_margin + relief_d/2, frame_thk_z/2 - relief_depth/2]);
-  }
-}
-
-// Build
-module union_additive_features() {
-  union() {
-    outer_frame_plate();
-    outer_perimeter_step_ring();
-    inner_opening_step_ring();
-    union_boss_pads();
-    union_alignment_nubs();
-  }
-}
-
-module final_part() {
-  difference() {
-    union_additive_features();
-
-    // Main through opening + C-gap
-    central_rectangular_opening();
-    c_shape_side_gap();
-
-    // Reliefs and chamfers
-    cosmetic_reliefs();
-
-    chamfer_cut([-bbox_x/2 + chamfer/2,  bbox_y/2 - chamfer/2, 0]);
-    chamfer_cut([ bbox_x/2 - chamfer/2,  bbox_y/2 - chamfer/2, 0]);
-    chamfer_cut([-bbox_x/2 + chamfer/2, -bbox_y/2 + chamfer/2, 0]);
-    chamfer_cut([ bbox_x/2 - chamfer/2, -bbox_y/2 + chamfer/2, 0]);
-  }
-}
-
-final_part();
+bracket();

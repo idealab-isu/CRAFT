@@ -418,47 +418,20 @@ class PromptEnhancer:
         # 2. A vague single-component prompt (no specific model)
         return len(components) > 0
 
-    def enhance(
-        self,
-        prompt: str,
-        detection_bundle: Optional[Any] = None,
-    ) -> EnhancementResult:
+    def enhance(self, prompt: str) -> EnhancementResult:
         """
         Enhance a prompt with specific details from the Knowledge Base.
 
         Args:
-            prompt: User's original prompt.
-            detection_bundle: Optional shared KB detection bundle produced by
-                ``TextReasoner.detect(...)``. If provided, the enhancer reuses
-                its component list instead of calling ``detect_components``
-                itself — removing CRAFT v1's duplicate detection pass
-                (see §2.2 item 1 of CRAFT_v2_research_plan.md).
+            prompt: User's original prompt
 
         Returns:
             EnhancementResult with enhanced prompt and metadata
         """
-        # Step 1: Detect components (reuse shared bundle if provided).
-        if detection_bundle is not None and hasattr(
-            detection_bundle, "component_details_for_enhancer"
-        ):
-            components = detection_bundle.component_details_for_enhancer()
-            detection = getattr(detection_bundle, "detection", None)
-            print(
-                f"[PromptEnhancer] Reusing shared KB detection "
-                f"({len(components)} components) — skipped own detection pass"
-            )
-        else:
-            components, detection = self._detect_components(prompt)
+        # Step 1: Detect components
+        components, detection = self._detect_components(prompt)
 
         if not components:
-            # v2 fix: even without KB matches, short/vague prompts (e.g. "A watch",
-            # "A vase") benefit from a generic concretization pass. NopSCADlib is
-            # mechanical-parts only — every non-mechanical object used to land here
-            # and go straight to the planner with no decomposition hint.
-            if self._is_vague_out_of_kb(prompt):
-                generic = self._generic_concretize(prompt)
-                if generic is not None:
-                    return generic
             print(f"[PromptEnhancer] No KB components detected, returning original")
             return EnhancementResult(
                 original_prompt=prompt,
@@ -555,91 +528,6 @@ class PromptEnhancer:
             print(f"[PromptEnhancer] LLM enhancement failed: {e}")
             # Fallback: simple enhancement without LLM
             return self._fallback_enhance(prompt, components)
-
-    # ------------------------------------------------------------------
-    # v2: generic out-of-KB concretization
-    # ------------------------------------------------------------------
-
-    def _is_vague_out_of_kb(self, prompt: str) -> bool:
-        """Heuristic: treat short, dimensionless 'A/An X' prompts as vague."""
-        p = prompt.strip()
-        if not p:
-            return False
-        lower = p.lower()
-        has_numbers = any(ch.isdigit() for ch in lower)
-        has_hint = any(kw in lower for kw in (
-            "mm", "cm", "inch", "diameter", "radius", "height", "width",
-            "thickness", "aluminum", "plastic", "steel", "pla", "abs",
-        ))
-        # Concrete dimensions/materials present → caller clearly has intent,
-        # skip the concretization pass.
-        if has_numbers or has_hint:
-            return False
-        words = p.split()
-        # Short prompts with no numbers or material hints → underspec.
-        if len(words) <= 6:
-            return True
-        return False
-
-    _GENERIC_SYSTEM_PROMPT = (
-        "You are a CAD design assistant. The user's prompt is for a concrete "
-        "physical object that isn't a standard mechanical/electronic component. "
-        "Rewrite it into a precise design brief suitable for parametric CAD, "
-        "but DO NOT invent features the user didn't imply. Respond as JSON.\n\n"
-        "Rules:\n"
-        "- List 2-6 canonical parts the object MUST have (e.g. a wristwatch: "
-        "  case, bezel, dial/face, crown, lugs, strap).\n"
-        "- Provide rough real-world dimensions in millimeters for the overall "
-        "  bounding box.\n"
-        "- Stay faithful to a typical, recognizable instance of the object.\n"
-        "- Keep the enhanced prompt under ~60 words.\n\n"
-        "OUTPUT JSON:\n"
-        "{\n"
-        '  "enhanced_prompt": "…one-paragraph brief with parts + mm dims…",\n'
-        '  "must_have_parts": ["part1", "part2", …],\n'
-        '  "overall_dimensions_mm": {"length": 40, "width": 40, "height": 12}\n'
-        "}"
-    )
-
-    def _generic_concretize(self, prompt: str) -> Optional[EnhancementResult]:
-        """Concretize a vague out-of-KB prompt using a small LLM call."""
-        try:
-            resp = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": self._GENERIC_SYSTEM_PROMPT},
-                    {"role": "user", "content": f"ORIGINAL PROMPT: {prompt}"},
-                ],
-                response_format={"type": "json_object"},
-                temperature=0.2,
-            )
-            raw = resp.choices[0].message.content or "{}"
-            data = json.loads(raw)
-            enhanced = (data.get("enhanced_prompt") or "").strip()
-            if not enhanced:
-                return None
-            parts = data.get("must_have_parts") or []
-            dims = data.get("overall_dimensions_mm") or {}
-            notes = [
-                "Non-KB object — concretized via generic LLM pass",
-                f"Suggested canonical parts: {', '.join(parts) if parts else '(none)'}",
-            ]
-            if dims:
-                notes.append(f"Suggested bbox (mm): {dims}")
-            print(
-                f"[PromptEnhancer] Generic concretization: "
-                f"{prompt[:40]}... → {enhanced[:80]}..."
-            )
-            return EnhancementResult(
-                original_prompt=prompt,
-                enhanced_prompt=enhanced,
-                was_enhanced=True,
-                components_found=[],
-                enhancement_notes=notes,
-            )
-        except Exception as e:
-            print(f"[PromptEnhancer] Generic concretization failed: {e}")
-            return None
 
     def _fallback_enhance(
         self,

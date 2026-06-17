@@ -90,57 +90,6 @@ class KBComponentContext:
 
 
 @dataclass
-class AcceptanceCriteria:
-    """
-    Explicit pass/fail requirements for a generated design (CRAFT v2, Phase B.5).
-
-    Populated by TextReasoner in Stage 1, consumed by:
-      - Stage 3 (plan ranking / pre-render critic) to score candidates.
-      - Stage 6 (unified visual feedback) to decide what to flag.
-      - Stage 7 (targeted patch repair) to target fixes at specific violations.
-
-    Fields:
-      must_have_parts: parts whose absence counts as a hard fail.
-      should_have_parts: parts whose absence counts as a partial fail.
-      dimensional_tolerances: parameter_name → fractional tolerance
-          (e.g. {"body_length": 0.10} means ±10% of brief value).
-      topology_constraints: short natural-language rules the VLM can check
-          (e.g. "base must fully support body", "wheels attach below chassis").
-      notes: free-form clarifications for downstream critics.
-    """
-    must_have_parts: List[str] = field(default_factory=list)
-    should_have_parts: List[str] = field(default_factory=list)
-    dimensional_tolerances: Dict[str, float] = field(default_factory=dict)
-    topology_constraints: List[str] = field(default_factory=list)
-    notes: str = ""
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def derive_from_tiered_parts(
-        cls,
-        essential_parts: List[str],
-        secondary_parts: List[str],
-        default_tolerance: float = 0.15,
-        parameters: Optional[Dict[str, float]] = None,
-    ) -> "AcceptanceCriteria":
-        """Build a baseline AcceptanceCriteria from tiered parts when the LLM
-        didn't produce one explicitly. Backward-compat shim."""
-        tolerances: Dict[str, float] = {}
-        if parameters:
-            for name in parameters:
-                tolerances[name] = default_tolerance
-        return cls(
-            must_have_parts=list(essential_parts),
-            should_have_parts=list(secondary_parts),
-            dimensional_tolerances=tolerances,
-            topology_constraints=[],
-            notes="",
-        )
-
-
-@dataclass
 class DesignBrief:
     """Unified design brief structure with tiered part prioritization."""
     description: str
@@ -160,14 +109,6 @@ class DesignBrief:
     is_assembly: bool = False                    # True if multiple distinct KB components
     assembly_description: str = ""               # LLM-generated description of assembly
     kb_primary_component: Optional[str] = None   # Module name of primary component
-    # v2: Acceptance criteria driving Stages 3 / 6 / 7
-    acceptance_criteria: AcceptanceCriteria = field(default_factory=AcceptanceCriteria)
-    # v2: user-specified total size ("10cm car", "40mm watch") surfaced for the
-    # planner's proportional-reasoning block. Populated by
-    # ``detect_primary_dimension`` when the prompt mentions an explicit size.
-    # Shape: {"label": "total_length", "value_mm": 100.0, "unit_raw": "10cm",
-    #          "category": "car"}
-    primary_dimension: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -212,57 +153,6 @@ class DesignBrief:
             if part not in all_parts:
                 all_parts.append(part)
         return all_parts
-
-
-# =============================================================================
-# UNIFIED KB DETECTION BUNDLE (CRAFT v2, Phase A.2)
-# =============================================================================
-
-@dataclass
-class KBDetectionBundle:
-    """Shared output of a single KB-detection + filtering pass.
-
-    CRAFT v1 ran ``detect_components()`` twice per prompt — once from the
-    prompt-enhancer and once from the reasoner. v2 performs detection +
-    filtering + dimensional matching exactly once and returns this bundle
-    so any downstream consumer (prompt enhancer, reasoner LLM call, ablation
-    tooling) can reuse it. See §2.2 item 1 of CRAFT_v2_research_plan.md.
-    """
-    prompt: str
-    original_prompt: str
-    detection: Any = None          # DetectionResult or None
-    retrieval: Any = None          # RetrievalContext or None
-    kb_contexts: List[KBComponentContext] = field(default_factory=list)
-    kb_context_str: str = ""
-    filter_result: Any = None      # FilterResult or None
-    dim_match: Any = None          # DimensionalMatchResult or None
-    has_kb: bool = False
-
-    def component_details_for_enhancer(self) -> List[Dict[str, Any]]:
-        """Render the same dict-list that PromptEnhancer._detect_components
-        historically produced, so the enhancer can skip its own detection."""
-        details: List[Dict[str, Any]] = []
-        for kb_ctx in self.kb_contexts:
-            if kb_ctx.is_subpart:
-                continue
-            key_params: Dict[str, Any] = {}
-            for p in (kb_ctx.parameters or [])[:10]:
-                default = p.get("default") if isinstance(p, dict) else None
-                name = p.get("name") if isinstance(p, dict) else None
-                if name and default:
-                    key_params[name] = default
-            details.append({
-                "detected_text": kb_ctx.component_name,
-                "module_name": kb_ctx.module_name,
-                "name": kb_ctx.component_name,
-                "category": getattr(kb_ctx, "category", "") or "",
-                "subcategory": getattr(kb_ctx, "subcategory", "") or "",
-                "description": kb_ctx.description or "",
-                "parameters": key_params,
-                "confidence": kb_ctx.confidence,
-                "match_type": "shared-bundle",
-            })
-        return details
 
 
 # =============================================================================
@@ -344,23 +234,8 @@ OUTPUT FORMAT (strict JSON):
         "body_width": 50,
         "wheel_radius": 15,
         ...
-    },
-    "acceptance_criteria": {
-        "must_have_parts": ["main_body", "wheel_1", "wheel_2"],
-        "should_have_parts": ["bumper"],
-        "dimensional_tolerances": {"body_length": 0.15, "wheel_radius": 0.10},
-        "topology_constraints": ["wheels attach under chassis", "body rests on wheels"],
-        "notes": ""
     }
 }
-
-Guidance for acceptance_criteria:
-- must_have_parts: ALL essential parts (mirror essential_parts).
-- should_have_parts: ALL secondary parts (mirror secondary_parts).
-- dimensional_tolerances: fractional tolerance (0.10 = ±10%) for each key parameter.
-  Tight parts (wheels, holes) → 0.05–0.10. Loose outer shell → 0.15–0.25.
-- topology_constraints: short natural-language rules a vision model could check.
-- Keep acceptance_criteria consistent with the parts and parameters you listed above.
 
 Respond ONLY with valid JSON, no explanations."""
 
@@ -393,23 +268,8 @@ OUTPUT FORMAT (strict JSON):
         "height": 50,
         ...
     }},
-    "kb_modules_to_use": [],
-    "acceptance_criteria": {{
-        "must_have_parts": ["main_body"],
-        "should_have_parts": ["feature1"],
-        "dimensional_tolerances": {{"width": 0.15, "height": 0.15}},
-        "topology_constraints": [],
-        "notes": ""
-    }}
+    "kb_modules_to_use": []
 }}
-
-Guidance for acceptance_criteria:
-- must_have_parts: mirror essential_parts (include any KB module names that
-  are essential).
-- should_have_parts: mirror secondary_parts.
-- dimensional_tolerances: fractional (0.10 = ±10%); tighter for KB/reference
-  components (0.05), looser for free-form parts (0.15–0.25).
-- topology_constraints: natural-language rules a vision model could check.
 
 Respond ONLY with valid JSON, no explanations."""
 
@@ -426,144 +286,6 @@ Think about:
 - Decorative elements (if mentioned)
 
 Output as JSON array: ["part1", "part2", ...]"""
-
-
-# =============================================================================
-# PRIMARY DIMENSION DETECTOR
-# =============================================================================
-
-import re as _re
-
-# Rough category classifier from a few salient nouns in the user prompt.
-# Kept deliberately small; the planner prompt already knows how to interpret
-# the "category" string.
-_CATEGORY_KEYWORDS: Dict[str, List[str]] = {
-    "car": ["car", "sedan", "hatchback", "suv", "truck", "van", "coupe", "vehicle",
-            "automobile", "pickup", "lorry"],
-    "watch": ["watch", "wristwatch", "timepiece"],
-    "chair": ["chair", "stool", "armchair", "seat"],
-    "table": ["table", "desk"],
-    "mug": ["mug", "cup", "teacup", "coffee cup"],
-    "bottle": ["bottle", "flask", "jar"],
-    "phone": ["phone", "smartphone", "cellphone", "handset"],
-    "bolt": ["bolt", "screw", "fastener"],
-    "gear": ["gear", "cog", "sprocket"],
-    "fan": ["fan", "propeller", "impeller"],
-    "box": ["box", "crate", "case", "enclosure", "container"],
-    "bracket": ["bracket", "mount", "holder"],
-}
-
-# What kind of "total size" label makes sense for a given category. This
-# answers: when the user says "10cm X", is the primary dimension the length,
-# diameter, or height of X?
-_CATEGORY_DIMENSION_LABEL: Dict[str, str] = {
-    "car": "total_length",
-    "watch": "case_diameter",
-    "chair": "seat_width",
-    "table": "tabletop_length",
-    "mug": "outer_diameter",
-    "bottle": "total_height",
-    "phone": "total_length",
-    "bolt": "total_length",
-    "gear": "outer_diameter",
-    "fan": "outer_diameter",
-    "box": "total_length",
-    "bracket": "total_length",
-}
-
-_UNIT_TO_MM: Dict[str, float] = {
-    "mm": 1.0,
-    "millimeter": 1.0, "millimeters": 1.0, "millimetre": 1.0, "millimetres": 1.0,
-    "cm": 10.0,
-    "centimeter": 10.0, "centimeters": 10.0, "centimetre": 10.0, "centimetres": 10.0,
-    "m": 1000.0,
-    "meter": 1000.0, "meters": 1000.0, "metre": 1000.0, "metres": 1000.0,
-    "in": 25.4, "inch": 25.4, "inches": 25.4, '"': 25.4,
-    "ft": 304.8, "foot": 304.8, "feet": 304.8, "'": 304.8,
-}
-
-# Pattern: <number> optional-space <unit>. Permits decimals and commas.
-_DIMENSION_PATTERN = _re.compile(
-    r"""
-    (?P<value>\d+(?:[.,]\d+)?)      # 10, 10.5, 10,5
-    \s*
-    (?P<unit>
-        mm|cm|m|
-        millimet(?:er|re)s?|
-        centimet(?:er|re)s?|
-        met(?:er|re)s?|
-        in|inch(?:es)?|"|
-        ft|foot|feet|'
-    )
-    \b
-    """,
-    _re.IGNORECASE | _re.VERBOSE,
-)
-
-
-def _classify_category(prompt: str) -> Optional[str]:
-    """Best-effort object-category guess from the prompt. Returns None if
-    nothing matches, letting callers fall back to the generic planner rules."""
-    text = prompt.lower()
-    # Prefer the LAST keyword hit — prompts like "A 10cm toy car" should land
-    # on 'car', not 'toy' (if 'toy' were ever added here).
-    best: Optional[str] = None
-    for category, keywords in _CATEGORY_KEYWORDS.items():
-        for kw in keywords:
-            if _re.search(rf"\b{_re.escape(kw)}\b", text):
-                best = category
-    return best
-
-
-def detect_primary_dimension(prompt: str) -> Optional[Dict[str, Any]]:
-    """Best-effort extraction of a user-specified total size from the prompt.
-
-    Detects patterns like "10cm", "40 mm", "1.5 inch", "2 m" and returns a
-    dict describing the primary dimension so the planner can enforce
-    proportional sizing:
-
-        {"label": "total_length", "value_mm": 100.0,
-         "unit_raw": "10cm", "category": "car"}
-
-    Returns None when no clear dimensional anchor is found. Strategy: take
-    the FIRST valid <number><unit> hit in the prompt; pair it with the
-    category-appropriate label ('total_length' for cars, 'case_diameter' for
-    watches, etc.). If category is unknown the label defaults to
-    'primary_dimension'.
-    """
-    if not prompt:
-        return None
-    m = _DIMENSION_PATTERN.search(prompt)
-    if not m:
-        return None
-    raw_val = m.group("value").replace(",", ".")
-    try:
-        val = float(raw_val)
-    except ValueError:
-        return None
-    unit = m.group("unit").lower()
-    mult = _UNIT_TO_MM.get(unit)
-    if mult is None:
-        # some regex units need trimming (e.g. '"')
-        mult = _UNIT_TO_MM.get(unit.strip())
-    if mult is None:
-        return None
-
-    value_mm = round(val * mult, 3)
-    # Sanity filter: ignore tiny (<1 mm) or huge (>50 m) values which likely
-    # came from unrelated text (e.g. "0.5mm tolerance" in a long prompt).
-    if value_mm < 1.0 or value_mm > 50_000.0:
-        return None
-
-    category = _classify_category(prompt) or "generic"
-    label = _CATEGORY_DIMENSION_LABEL.get(category, "primary_dimension")
-
-    return {
-        "label": label,
-        "value_mm": value_mm,
-        "unit_raw": m.group(0),
-        "category": category,
-    }
 
 
 # =============================================================================
@@ -739,49 +461,55 @@ class TextReasoner:
             print(f"[DimensionalMatcher] Error: {e}")
             return None
 
-    # ------------------------------------------------------------------
-    # v2 Phase A.2: split detection from LLM analysis so prompt_enhancer
-    # and reasoner can share a single detection bundle.
-    # ------------------------------------------------------------------
-
-    def detect(self, prompt: str, original_prompt: str = None) -> KBDetectionBundle:
-        """Run KB detection + filtering + dimensional matching ONCE.
-
-        Returns a :class:`KBDetectionBundle` that the prompt-enhancer and
-        the reasoner LLM call both consume. Safe to call with ``use_kb=False``;
-        the returned bundle is empty in that case.
+    def analyze(self, prompt: str, original_prompt: str = None) -> DesignBrief:
         """
-        bundle = KBDetectionBundle(
-            prompt=prompt,
-            original_prompt=original_prompt or prompt,
-        )
+        Analyze a text prompt and create a design brief.
 
-        # Dimensional matching (fast, deterministic, no LLM)
-        bundle.dim_match = self._try_dimensional_match(prompt)
+        Automatically detects and incorporates KB components if available.
+        Uses component filtering to remove sub-parts and prioritize main components.
+        Uses dimensional matching to find exact NopSCADlib type constants.
+        RAG is purely additive - if KB fails, generation continues without it.
 
-        # KB component detection + filtering
-        kb_contexts: List[KBComponentContext] = []
-        detection = None
-        retrieval = None
+        Args:
+            prompt: Natural language description of desired CAD model (may be enhanced)
+            original_prompt: The user's original prompt (before enhancement).
+                           Used to filter out hardware that wasn't explicitly requested.
+
+        Returns:
+            DesignBrief with extracted information and KB context
+        """
+        # Step 0: Try dimensional matching first (fast, deterministic).
+        # This is part of the KB pathway — gate behind self.use_kb so that
+        # the no_retrieval / use_kb=False ablation is genuinely KB-free.
+        dim_match = self._try_dimensional_match(prompt) if self.use_kb else None
+
+        # Step 1: Try to detect KB components with filtering (safely)
+        kb_contexts = []
+        kb_context_str = ""
+        has_kb = False
         filter_result = None
+
         if self.use_kb:
             try:
                 detection, retrieval, kb_contexts, filter_result = self._detect_kb_components(
                     prompt, original_prompt=original_prompt
                 )
-                if kb_contexts:
+                has_kb = len(kb_contexts) > 0
+                if has_kb:
+                    kb_context_str = self._build_kb_context_string(retrieval)
+                    # Log with role information
                     comp_info = [f"{c.module_name}({c.role})" for c in kb_contexts]
                     print(f"[KB] Using {len(kb_contexts)} filtered components: {comp_info}")
             except Exception as e:
                 print(f"[KB] Detection failed (continuing without KB): {e}")
+                has_kb = False
                 kb_contexts = []
-                detection = None
-                retrieval = None
-                filter_result = None
 
-        # Dimensional-match injection (same logic as analyze() used to do)
-        if bundle.dim_match and bundle.dim_match.has_match:
-            bm = bundle.dim_match.best_match
+        # Step 1.5: If dimensional matcher found a high-confidence match,
+        # inject it as a KB component context (overrides text-based detection)
+        if dim_match and dim_match.has_match:
+            bm = dim_match.best_match
+            # Build a KBComponentContext from the dimensional match
             dim_kb_ctx = KBComponentContext(
                 component_id=bm.component_id,
                 component_name=bm.type_constant,
@@ -795,66 +523,22 @@ class TextReasoner:
                 description=f"Dimensionally matched {bm.component_family}: {bm.type_constant}",
                 confidence=bm.confidence,
                 role="primary",
-                priority=0,
+                priority=0,  # Highest priority (above all others)
                 is_subpart=False,
             )
+            # Store the exact SCAD call for the compiler to use
             dim_kb_ctx._dimensional_match = bm
+
+            # Replace or prepend to KB contexts
             kb_contexts = [dim_kb_ctx] + [
-                c for c in kb_contexts if c.module_name != bm.module_function
+                c for c in kb_contexts
+                if c.module_name != bm.module_function
             ]
+            has_kb = True
             print(f"[DimensionalMatcher] Injected {bm.type_constant} as primary KB component")
 
-        bundle.detection = detection
-        bundle.retrieval = retrieval
-        bundle.kb_contexts = kb_contexts
-        bundle.filter_result = filter_result
-        bundle.has_kb = bool(kb_contexts)
-        bundle.kb_context_str = (
-            self._build_kb_context_string(retrieval) if bundle.has_kb else ""
-        )
-        return bundle
-
-    def analyze_with_bundle(
-        self,
-        prompt: str,
-        bundle: "KBDetectionBundle",
-    ) -> DesignBrief:
-        """LLM analysis using a pre-computed :class:`KBDetectionBundle`.
-
-        Used when the prompt-enhancer has already run detection; avoids a
-        duplicate KB pass.
-        """
-        return self._analyze_with_fallback(
-            prompt,
-            bundle.has_kb,
-            bundle.kb_contexts,
-            bundle.kb_context_str,
-            bundle.filter_result,
-        )
-
-    def analyze(self, prompt: str, original_prompt: str = None) -> DesignBrief:
-        """
-        Analyze a text prompt and create a design brief.
-
-        Automatically detects and incorporates KB components if available.
-        Uses component filtering to remove sub-parts and prioritize main components.
-        Uses dimensional matching to find exact NopSCADlib type constants.
-        RAG is purely additive - if KB fails, generation continues without it.
-
-        In CRAFT v2 this is a thin wrapper over :meth:`detect` +
-        :meth:`analyze_with_bundle` so the prompt-enhancer can share the
-        detection bundle and avoid a duplicate KB pass.
-
-        Args:
-            prompt: Natural language description of desired CAD model (may be enhanced)
-            original_prompt: The user's original prompt (before enhancement).
-                           Used to filter out hardware that wasn't explicitly requested.
-
-        Returns:
-            DesignBrief with extracted information and KB context
-        """
-        bundle = self.detect(prompt, original_prompt=original_prompt)
-        return self.analyze_with_bundle(prompt, bundle)
+        # Step 2: Try LLM analysis (with KB if available, fallback to without KB)
+        return self._analyze_with_fallback(prompt, has_kb, kb_contexts, kb_context_str, filter_result)
 
     def _analyze_with_fallback(
         self,
@@ -949,52 +633,10 @@ class TextReasoner:
                     primary_component = fc.module_name
                     break
 
-        # v2 Phase B.5: parse acceptance criteria (with graceful fallback)
-        params_final = data.get("parameters", {"W": 100, "H": 100, "D": 100})
-        ac_raw = data.get("acceptance_criteria") or {}
-        if isinstance(ac_raw, dict) and ac_raw:
-            # LLM produced explicit criteria — use them, but guarantee
-            # must_have_parts is at least a superset of essential_parts so
-            # downstream stages never see a contradictory brief.
-            must_have = list(ac_raw.get("must_have_parts") or [])
-            for p in essential_parts:
-                if p not in must_have:
-                    must_have.append(p)
-            should_have = list(ac_raw.get("should_have_parts") or secondary_parts)
-            tolerances = dict(ac_raw.get("dimensional_tolerances") or {})
-            # Fill in any missing param tolerances with a sensible default
-            for name in params_final:
-                tolerances.setdefault(name, 0.15)
-            topology = list(ac_raw.get("topology_constraints") or [])
-            notes = str(ac_raw.get("notes") or "")
-            acceptance = AcceptanceCriteria(
-                must_have_parts=must_have,
-                should_have_parts=should_have,
-                dimensional_tolerances=tolerances,
-                topology_constraints=topology,
-                notes=notes,
-            )
-        else:
-            # Model didn't return acceptance_criteria — derive a baseline.
-            acceptance = AcceptanceCriteria.derive_from_tiered_parts(
-                essential_parts=essential_parts,
-                secondary_parts=secondary_parts,
-                parameters=params_final,
-            )
-
-        # v2: surface any user-specified total size so the planner can enforce
-        # proportional sizing (e.g. "A 10cm car" → body_length=100, derived
-        # wheel/cabin/window dims). Checks the original prompt first because
-        # enhancement may strip numeric anchors.
-        primary_dim = (
-            detect_primary_dimension(prompt)
-            or detect_primary_dimension(data.get("brief", ""))
-        )
-
         return DesignBrief(
             description=data.get("brief", prompt),
             expected_parts=expected_parts,
-            parameters=params_final,
+            parameters=data.get("parameters", {"W": 100, "H": 100, "D": 100}),
             source="text",
             original_input=prompt,
             essential_parts=essential_parts,
@@ -1005,9 +647,7 @@ class TextReasoner:
             kb_context_prompt=kb_context_str,
             is_assembly=is_assembly,
             assembly_description=assembly_description,
-            kb_primary_component=primary_component,
-            acceptance_criteria=acceptance,
-            primary_dimension=primary_dim,
+            kb_primary_component=primary_component
         )
 
     def _fallback_analysis(
@@ -1047,16 +687,6 @@ class TextReasoner:
                     primary_component = fc.module_name
                     break
 
-        # v2 Phase B.5: derive baseline acceptance criteria from heuristic parts
-        acceptance = AcceptanceCriteria.derive_from_tiered_parts(
-            essential_parts=parts,
-            secondary_parts=[],
-            parameters=params,
-        )
-
-        # v2: surface primary dimension even in the heuristic/fallback path.
-        primary_dim = detect_primary_dimension(prompt)
-
         return DesignBrief(
             description=f"CAD model of: {prompt}" + (f" (LLM error: {error})" if error else ""),
             expected_parts=parts,
@@ -1068,9 +698,7 @@ class TextReasoner:
             kb_context_prompt="",
             is_assembly=is_assembly,
             assembly_description=assembly_description,
-            kb_primary_component=primary_component,
-            acceptance_criteria=acceptance,
-            primary_dimension=primary_dim,
+            kb_primary_component=primary_component
         )
     
     def _extract_parts_heuristic(self, prompt: str) -> List[str]:

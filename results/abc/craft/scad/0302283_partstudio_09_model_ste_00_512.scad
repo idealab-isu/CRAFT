@@ -1,152 +1,134 @@
 // Dimension-calibrated (target: 0.25 x 0.07 x 0.09 mm)
-scale([0.840000, 1.112500, 0.797623])
+scale([0.840000, 0.593333, 0.638095])
 {
+// Mirrored L-shaped sheet-metal bracket pair (single connected solid)
+// Units: mm
+
 $fn = 64;
 
-// Target bounding box (approx, in mm)
+// Target bounding box (approx): 0.3 x 0.1 x 0.1
 bbox_L = 0.30;
 bbox_W = 0.10;
 bbox_H = 0.10;
 
-// Sheet metal + bracket geometry
-t        = 0.006;   // sheet thickness
-leg_L    = bbox_L;  // length along X
-leg_H    = 0.084;   // vertical plate height along Z
-flange_W = 0.030;   // flange depth along Y
-bend_r   = 0.010;   // bend radius (visual)
+// Sheet metal + features
+t = 0.005;
 
-// Pair spacing and connection bridge (to ensure ONE connected solid)
-bracket_gap = 0.010;  // clear gap between inner faces of the two vertical plates
-bridge_t    = 0.002;  // thin connector thickness (kept small)
+plate_L = bbox_L;     // along X
+plate_H = bbox_H;     // along Z
+flange_L = bbox_L;    // along X
+flange_W = 0.07;      // along Y (each bracket)
 
-// Holes (4-hole rectangular pattern on each vertical plate)
-hole_d       = 0.008;
-hole_pitch_x = 0.060;
-hole_pitch_z = 0.030;
-hole_edge_x  = 0.030;
-hole_edge_z  = 0.020;
+bend_r = 0.01;
 
-// Flange slot near bend (centered in X, near bend in Y)
-slot_L = 0.020;
+hole_d = 0.008;
+hole_pitch_x = 0.06;
+hole_pitch_z = 0.03;
+hole_edge_x = 0.03;
+hole_edge_z = 0.02;
+
+slot_L = 0.02;
 slot_W = 0.008;
-slot_offset_from_bend = 0.004;
+slot_offset_from_bend = 0.008; // from inside corner along flange Y
 
-// Robust boolean overlap (small, relative to tiny model)
+pair_gap = 0.01;      // gap between the two mirrored brackets (air gap)
+bridge_t = 0.001;     // thin connector to ensure ONE connected solid
+
 overlap = 0.001;
 
-// --- Derived placement (recalculated so parts TOUCH with slight overlap) ---
-// Coordinate convention:
-// X = long axis (elongated)
-// Y = bracket-to-bracket separation (mirrored pair)
-// Z = vertical plate height
+// Derived placement
+// Each bracket occupies Y in [y0, y0+flange_W], with vertical plate centered at y0 + t/2
+y0_left  = -(pair_gap/2 + flange_W);
+y0_right =  (pair_gap/2);
 
-// Vertical plates: inner faces separated by bracket_gap
-y_plate_center_L =  (bracket_gap/2 + t/2);
-y_plate_center_R = -(bracket_gap/2 + t/2);
-
-// Flanges are perpendicular to plates and extend OUTWARD from each plate.
-// Place flange so its inner edge slightly overlaps the plate outer face.
-y_flange_center_L =  y_plate_center_L + (t/2 + flange_W/2) - overlap;
-y_flange_center_R =  y_plate_center_R - (t/2 + flange_W/2) + overlap;
-
-// Bend cylinder center: at inside corner between plate outer face and flange inner edge
-y_bend_center_L =  y_plate_center_L + (t/2) + (bend_r - overlap);
-y_bend_center_R =  y_plate_center_R - (t/2) - (bend_r - overlap);
-z_bend_center   =  (t/2) + (bend_r - overlap);
-
-// --- Geometry modules ---
-module vertical_plate(yc) {
-    // Plate lies in XZ, thickness along Y
-    translate([0, yc, leg_H/2])
-        cube([leg_L, t, leg_H], center=true);
+// ---------- Helpers ----------
+module rounded_bend_solid(len_x, r, th) {
+    // Quarter-cylinder "bend" volume that connects plate and flange.
+    // Axis along X, quarter in +Y/+Z from the inside corner.
+    // Built as intersection of a cylinder with a cube to keep only the quadrant.
+    intersection() {
+        rotate([0,90,0]) cylinder(r=r+th, h=len_x, center=true);
+        // Keep +Y and +Z quadrant relative to local origin
+        translate([0, (r+th)/2, (r+th)/2])
+            cube([len_x + 2*overlap, r+th + 2*overlap, r+th + 2*overlap], center=true);
+    }
 }
 
-module horizontal_flange(yc) {
-    // Flange lies in XY, thickness along Z
-    translate([0, yc, t/2])
-        cube([leg_L, flange_W, t], center=true);
-}
+module bracket_at_y(y0) {
+    // Inside corner (bend) reference:
+    // - Flange top surface at z = t
+    // - Plate starts at z = t (so plate does not extend below flange)
+    // - Inside corner line at y = y0 + t
+    y_inside = y0 + t;
 
-module bend_radius(yc) {
-    // Visual fillet along X at the inside corner
-    translate([0, yc, z_bend_center])
-        rotate([0, 90, 0])
-            cylinder(r=bend_r, h=leg_L, center=true);
-}
-
-module hole_at(xc, yc, zc) {
-    // Drill through the vertical plate thickness (along Y)
-    translate([xc, yc, zc])
-        rotate([90, 0, 0])
-            cylinder(d=hole_d, h=t + 6*overlap, center=true);
-}
-
-module flange_slot(yc, side=1) {
-    // side=+1 for left (positive Y), side=-1 for right (negative Y)
-    // Slot near bend: close to inner edge of flange (toward plate)
-    y_inner_edge   = yc - side*(flange_W/2);
-    y_slot_center  = y_inner_edge + side*(slot_offset_from_bend + slot_W/2);
-
-    translate([0, y_slot_center, t/2])
-        cube([slot_L, slot_W, t + 6*overlap], center=true);
-}
-
-module bracket_one(yc_plate, yc_flange, yc_bend, side=1) {
-    difference() {
+    module raw_body() {
         union() {
-            // Clear L-profile: vertical plate + perpendicular flange + bend radius
-            vertical_plate(yc_plate);
-            horizontal_flange(yc_flange);
-            bend_radius(yc_bend);
+            // Horizontal flange: spans y0..y0+flange_W, thickness t at z=0..t
+            translate([0, y0 + flange_W/2, t/2])
+                cube([flange_L, flange_W, t], center=true);
+
+            // Vertical plate: thickness t in Y, height plate_H above flange (z=t..t+plate_H)
+            translate([0, y0 + t/2, t + plate_H/2])
+                cube([plate_L, t, plate_H], center=true);
+
+            // Radiused bend volume at inside corner (y=y_inside, z=t)
+            translate([0, y_inside, t])
+                rounded_bend_solid(plate_L, bend_r, t);
         }
+    }
 
-        // 4 through-holes on vertical plate (2x2 rectangular pattern)
-        // Centered in Z within the plate height, and inset from X ends.
-        x0 = -leg_L/2 + hole_edge_x;
-        x1 = x0 + hole_pitch_x;
+    module hole_pattern_cut() {
+        // Holes through the vertical plate (along Y)
+        // Place on plate mid-thickness at y = y0 + t/2, with Z measured from bottom of plate (z=t)
+        y_hole = y0 + t/2;
+        z0 = t + hole_edge_z;
+        x0 = -plate_L/2 + hole_edge_x;
 
-        z0 = hole_edge_z;
-        z1 = z0 + hole_pitch_z;
+        for (ix = [0,1])
+            for (iz = [0,1])
+                translate([x0 + ix*hole_pitch_x, y_hole, z0 + iz*hole_pitch_z])
+                    rotate([90,0,0])
+                        cylinder(d=hole_d, h=t + 2*overlap, center=true);
+    }
 
-        hole_at(x0, yc_plate, z0);
-        hole_at(x1, yc_plate, z0);
-        hole_at(x0, yc_plate, z1);
-        hole_at(x1, yc_plate, z1);
+    module flange_slot_cut() {
+        // Small central slot on flange near the bend (through thickness)
+        // Centered in X, located near inside corner along Y.
+        y_slot = y_inside + slot_offset_from_bend;
+        translate([0, y_slot, t/2])
+            cube([slot_L, slot_W, t + 2*overlap], center=true);
+    }
 
-        // Central slot on flange near bend
-        flange_slot(yc_flange, side);
+    difference() {
+        raw_body();
+        union() {
+            hole_pattern_cut();
+            flange_slot_cut();
+        }
     }
 }
 
 module connector_bridge() {
-    // Thin bridge inside the gap, near the bend region, to make the whole model ONE connected solid.
-    // It must overlap both plates in Y and overlap the flange plane in Z.
-    bridge_x = slot_L;                         // small in X, centered
-    bridge_y = bracket_gap + 2*t + 8*overlap;  // spans gap + overlaps into both plates
-    bridge_z = bridge_t + 4*overlap;           // ensure overlap into flange/plate region
+    // Thin bridge between the two brackets to make the overall model ONE connected solid.
+    // Placed near the inside corners, low profile so it doesn't dominate the shape.
+    // Spans the air gap between brackets.
+    y_left_inner  = y0_left  + flange_W; // left bracket inner edge at y = -pair_gap/2
+    y_right_inner = y0_right;            // right bracket inner edge at y = +pair_gap/2
+    y_mid = (y_left_inner + y_right_inner)/2;
 
-    // Place at the inside corner region (near bend), slightly above flange plane for overlap
-    translate([0, 0, t/2 + bridge_z/2 - 2*overlap])
-        cube([bridge_x, bridge_y, bridge_z], center=true);
+    // Bridge spans across the gap plus a tiny overlap into each bracket
+    bridge_w = (y_right_inner - y_left_inner) + 2*overlap;
+
+    // Put bridge near the bend region (z around t) and centered in X
+    translate([0, y_mid, t/2])
+        cube([bbox_L*0.25, bridge_w, bridge_t], center=true);
 }
 
-module complete_model() {
-    // Build pair + connector, then clip to bounding box
-    intersection() {
-        union() {
-            // Pair of mirrored L-shaped brackets (two distinct parts)
-            bracket_one(y_plate_center_L, y_flange_center_L, y_bend_center_L, side=+1);
-            bracket_one(y_plate_center_R, y_flange_center_R, y_bend_center_R, side=-1);
-
-            // Connector to keep as ONE connected solid
-            connector_bridge();
-        }
-
-        // Bounding box clip (centered)
-        translate([0, 0, bbox_H/2])
-            cube([bbox_L, bbox_W, bbox_H], center=true);
-    }
+// ---------- Final model ----------
+color("Silver")
+union() {
+    bracket_at_y(y0_left);
+    bracket_at_y(y0_right);
+    connector_bridge();
 }
-
-complete_model();
 }

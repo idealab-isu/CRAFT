@@ -1,4 +1,0 @@
-id   : 7_segment__WT5011BSR
-tier : Medium
-
-A seven-segment LED display module: 12.7 mm x 19 mm body, 8.2 mm thick, 7.2 mm wide x 12.7 mm tall digits, 1.2 mm segment width, 5 x 2 pin grid.

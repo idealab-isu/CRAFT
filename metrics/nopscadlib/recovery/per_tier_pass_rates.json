@@ -1,0 +1,17 @@
+{
+  "essential": {
+    "n": 92,
+    "pass_rate": 0.9456521739130435,
+    "n_passed": 87
+  },
+  "secondary": {
+    "n": 353,
+    "pass_rate": 0.9716713881019831,
+    "n_passed": 343
+  },
+  "optional": {
+    "n": 0,
+    "pass_rate": 0.0,
+    "n_passed": 0
+  }
+}

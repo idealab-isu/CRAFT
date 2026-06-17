@@ -1,312 +1,157 @@
-// Parameters
-L = 0.12; //[0.06:0.24:0.001]
-W = 0.05; //[0.025:0.1:0.001]
-T = 0.02; //[0.01:0.04:0.001]
-corner_r = 0.006; //[0.003:0.012:0.001]
-edge_margin_x = 0.008; //[0.004:0.016:0.001]
-edge_margin_y = 0.006; //[0.003:0.012:0.001]
-slot_len = 0.02; //[0.01:0.04:0.001]
-slot_w = 0.006; //[0.003:0.012:0.001]
-slot_hex_flat = 0.006; //[0.003:0.012:0.001]
-slot_row_pitch_y = 0.012; //[0.006:0.024:0.001]
-slot_col_pitch_x = 0.024; //[0.012:0.048:0.001]
-diamond_w = 0.01; //[0.005:0.02:0.001]
-diamond_h = 0.01; //[0.005:0.02:0.001]
-diamond_offset_x = 0.0; //[0.0:0.02:0.001]
-diamond_offset_y = 0.0; //[0.0:0.02:0.001]
-tri_side = 0.01; //[0.005:0.02:0.001]
-tri_offset_x = 0.038; //[0.019:0.076:0.001]
-tri_offset_y = 0.016; //[0.008:0.032:0.001]
-step_len = 0.09; //[0.045:0.18:0.001]
-step_w = 0.01; //[0.005:0.02:0.001]
-step_h = 0.006; //[0.003:0.012:0.001]
-step_edge_offset_y = 0.0; //[-0.01:0.01:0.001]
-end_block_len = 0.01; //[0.005:0.02:0.001]
-end_block_w = 0.012; //[0.006:0.024:0.001]
-end_block_h = 0.006; //[0.003:0.012:0.001]
-end_block_chamfer = 0.003; //[0.0015:0.006:0.0005]
-micro_round_r = 0.001; //[0.0005:0.002:0.0005]
-overlap = 0.001; //[0.0005:0.002:0.0005]
-cut_extra_z = 0.01; //[0.005:0.02:0.001]
-rib_w = 0.002; //[0.001:0.004:0.0005]
-rib_h = 0.002; //[0.001:0.004:0.0005]
-notch_w = 0.004; //[0.002:0.008:0.001]
-notch_d = 0.002; //[0.001:0.004:0.0005]
+// Dimension-calibrated (target: 0.12 x 0.05 x 0.02 mm)
+scale([0.000958, 0.001020, 0.008571])
+{
+$fn = 64;
 
-// Base Shapes
-module rr_corner_cyl_1() {
-  translate([L/2 - corner_r, W/2 - corner_r, 0])
-    cylinder(r=corner_r, h=T, center=true);
-}
+// -------------------- Parameters (mm) --------------------
+L = 120;
+W = 50;
+T = 2.0;
 
-module rr_corner_cyl_2() {
-  translate([-L/2 + corner_r, W/2 - corner_r, 0])
-    cylinder(r=corner_r, h=T, center=true);
-}
+corner_r = 12;
 
-module rr_corner_cyl_3() {
-  translate([-L/2 + corner_r, -W/2 + corner_r, 0])
-    cylinder(r=corner_r, h=T, center=true);
-}
+// overlap for solid connections (1–2mm requested)
+overlap = 1.2;
 
-module rr_corner_cyl_4() {
-  translate([L/2 - corner_r, -W/2 + corner_r, 0])
-    cylinder(r=corner_r, h=T, center=true);
-}
+// stepped base along one long edge (underside)
+step_len = L - 2*corner_r;
+step_w   = 8;
+step_h   = 0.8;
 
-module step_base_raw() {
-  translate([0, -W/2 + step_w/2 + step_edge_offset_y - overlap, T/2 + step_h/2 - overlap])
-    cube([step_len, step_w, step_h], center=true);
-}
+// chamfered corner blocks (underside, both ends)
+corner_block_len = 14;
+corner_block_w   = 14;
+corner_block_h   = 0.8;
+corner_chamfer   = 3;
 
-module end_block_left_big() {
-  translate([-L/2 + end_block_len/2 - overlap, 0, T/2 + end_block_h/2 - overlap])
-    cube([end_block_len, end_block_w, end_block_h], center=true);
-}
+// cutouts
+cut_through = T + 4;     // ensure full cut through everything
+slot_len = 30;
+slot_w   = 8;
+slot_hex_flat = 10;      // controls "hex/slot" end facets
 
-module end_block_left_small() {
-  translate([-L/2 + end_block_len/2 - overlap, 0, T/2 + end_block_h/2 - overlap])
-    cube([end_block_len - 2*end_block_chamfer, end_block_w - 2*end_block_chamfer, end_block_h], center=true);
-}
+diamond_w = 10;
+diamond_h = 14;
 
-module end_block_right_big() {
-  translate([L/2 - end_block_len/2 + overlap, 0, T/2 + end_block_h/2 - overlap])
-    cube([end_block_len, end_block_w, end_block_h], center=true);
-}
+tri_side = 10;
 
-module end_block_right_small() {
-  translate([L/2 - end_block_len/2 + overlap, 0, T/2 + end_block_h/2 - overlap])
-    cube([end_block_len - 2*end_block_chamfer, end_block_w - 2*end_block_chamfer, end_block_h], center=true);
-}
-
-module rib_between_rows_1() {
-  translate([0, 0, T/2 + rib_h/2 - overlap])
-    cube([L - 2*edge_margin_x, rib_w, rib_h], center=true);
-}
-
-module rib_between_cols_1() {
-  translate([-slot_col_pitch_x/2, 0, T/2 + rib_h/2 - overlap])
-    cube([rib_w, W - 2*edge_margin_y, rib_h], center=true);
-}
-
-module rib_between_cols_2() {
-  translate([slot_col_pitch_x/2, 0, T/2 + rib_h/2 - overlap])
-    cube([rib_w, W - 2*edge_margin_y, rib_h], center=true);
-}
-
-module notch_cut_left() {
-  translate([-L/2 + notch_w/2, W/2 - notch_d/2, 0])
-    cube([notch_w, notch_d, T + cut_extra_z], center=true);
-}
-
-module notch_cut_right() {
-  translate([L/2 - notch_w/2, W/2 - notch_d/2, 0])
-    cube([notch_w, notch_d, T + cut_extra_z], center=true);
-}
-
-module slot_cut_r1c1() {
-  translate([-slot_col_pitch_x, slot_row_pitch_y/2, 0])
-    cube([slot_len, slot_w, T + cut_extra_z], center=true);
-}
-
-module slot_cut_r1c2() {
-  translate([0, slot_row_pitch_y/2, 0])
-    cube([slot_len, slot_w, T + cut_extra_z], center=true);
-}
-
-module slot_cut_r1c3() {
-  translate([slot_col_pitch_x, slot_row_pitch_y/2, 0])
-    cube([slot_len, slot_w, T + cut_extra_z], center=true);
-}
-
-module slot_cut_r2c1() {
-  translate([-slot_col_pitch_x, -slot_row_pitch_y/2, 0])
-    cube([slot_len, slot_w, T + cut_extra_z], center=true);
-}
-
-module slot_cut_r2c2() {
-  translate([0, -slot_row_pitch_y/2, 0])
-    cube([slot_len, slot_w, T + cut_extra_z], center=true);
-}
-
-module slot_cut_r2c3() {
-  translate([slot_col_pitch_x, -slot_row_pitch_y/2, 0])
-    cube([slot_len, slot_w, T + cut_extra_z], center=true);
-}
-
-module hex_like_cut_center() {
-  translate([0, 0, 0])
-    cube([slot_len*0.6, slot_hex_flat, T + cut_extra_z], center=true);
-}
-
-module diamond_cut_1_raw() {
-  translate([diamond_offset_x - slot_col_pitch_x/2, diamond_offset_y, 0])
-    cube([diamond_w, diamond_h, T + cut_extra_z], center=true);
-}
-
-module diamond_cut_2_raw() {
-  translate([diamond_offset_x + slot_col_pitch_x/2, diamond_offset_y, 0])
-    cube([diamond_w, diamond_h, T + cut_extra_z], center=true);
-}
-
-module tri_cut_1_raw() {
-  translate([tri_offset_x, tri_offset_y, 0])
-    cube([tri_side, tri_side, T + cut_extra_z], center=true);
-}
-
-module tri_cut_2_raw() {
-  translate([-tri_offset_x, tri_offset_y, 0])
-    cube([tri_side, tri_side, T + cut_extra_z], center=true);
-}
-
-module tri_cut_3_raw() {
-  translate([tri_offset_x, -tri_offset_y, 0])
-    cube([tri_side, tri_side, T + cut_extra_z], center=true);
-}
-
-module tri_cut_4_raw() {
-  translate([-tri_offset_x, -tri_offset_y, 0])
-    cube([tri_side, tri_side, T + cut_extra_z], center=true);
-}
-
-module micro_round_sphere() {
-  translate([0, 0, 0])
-    sphere(r=micro_round_r, center=true);
-}
-
-// Operations
-module main_plate_rounded_rectangle() {
+// -------------------- Helpers --------------------
+module rounded_rect_2d(l, w, r){
   hull() {
-    rr_corner_cyl_1();
-    rr_corner_cyl_2();
-    rr_corner_cyl_3();
-    rr_corner_cyl_4();
+    for (sx = [-1, 1], sy = [-1, 1])
+      translate([sx*(l/2 - r), sy*(w/2 - r)]) circle(r=r);
   }
 }
 
-module chamfered_corner_end_block_left() {
-  hull() {
-    end_block_left_big();
-    end_block_left_small();
-  }
+module main_plate(){
+  linear_extrude(height=T, center=true)
+    rounded_rect_2d(L, W, corner_r);
 }
 
-module chamfered_corner_end_block_right() {
-  hull() {
-    end_block_right_big();
-    end_block_right_small();
-  }
+module stepped_base(){
+  // Make the step clearly visible: a shallow ledge along ONE long edge (underside),
+  // slightly inset from the rounded perimeter and overlapping into the plate.
+  // Place it along y = -W/2 edge.
+  translate([0,
+             -W/2 + step_w/2,
+             -T/2 - step_h/2 + overlap/2])
+    cube([step_len, step_w, step_h + overlap], center=true);
 }
 
-module chamfered_corner_end_blocks() {
-  union() {
-    chamfered_corner_end_block_left();
-    chamfered_corner_end_block_right();
-  }
-}
-
-module stepped_base_along_long_edge() {
-  step_base_raw();
-}
-
-module decorative_spacing_ribs_between_cutouts() {
-  union() {
-    rib_between_rows_1();
-    rib_between_cols_1();
-    rib_between_cols_2();
-  }
-}
-
-module panel_with_addons_union() {
-  union() {
-    main_plate_rounded_rectangle();
-    stepped_base_along_long_edge();
-    chamfered_corner_end_blocks();
-    decorative_spacing_ribs_between_cutouts();
-  }
-}
-
-module edge_fillet_micro_rounding() {
-  minkowski() {
-    panel_with_addons_union();
-    micro_round_sphere();
-  }
-}
-
-module through_cutout_pattern_slots_hex() {
-  union() {
-    slot_cut_r1c1();
-    slot_cut_r1c2();
-    slot_cut_r1c3();
-    slot_cut_r2c1();
-    slot_cut_r2c2();
-    slot_cut_r2c3();
-    hex_like_cut_center();
-  }
-}
-
-module diamond_cut_1_rot() {
-  rotate([0, 0, 45]) diamond_cut_1_raw();
-}
-
-module diamond_cut_2_rot() {
-  rotate([0, 0, 45]) diamond_cut_2_raw();
-}
-
-module through_cutout_pattern_diamonds() {
-  union() {
-    diamond_cut_1_rot();
-    diamond_cut_2_rot();
-  }
-}
-
-module tri_cut_1_rot() {
-  rotate([0, 0, 45]) tri_cut_1_raw();
-}
-
-module tri_cut_2_rot() {
-  rotate([0, 0, 45]) tri_cut_2_raw();
-}
-
-module tri_cut_3_rot() {
-  rotate([0, 0, 45]) tri_cut_3_raw();
-}
-
-module tri_cut_4_rot() {
-  rotate([0, 0, 45]) tri_cut_4_raw();
-}
-
-module through_cutout_pattern_triangles() {
-  union() {
-    tri_cut_1_rot();
-    tri_cut_2_rot();
-    tri_cut_3_rot();
-    tri_cut_4_rot();
-  }
-}
-
-module tiny_alignment_notches() {
-  union() {
-    notch_cut_left();
-    notch_cut_right();
-  }
-}
-
-module all_through_cutouts_union() {
-  union() {
-    through_cutout_pattern_slots_hex();
-    through_cutout_pattern_diamonds();
-    through_cutout_pattern_triangles();
-    tiny_alignment_notches();
-  }
-}
-
-module final_panel_with_cutouts() {
+module chamfered_block_at(xc){
+  // Distinct chamfered corner blocks at BOTH ends, on the same long edge as the step (underside).
+  // These are separate from the rounded perimeter but overlap into the plate for a solid union.
   difference() {
-    edge_fillet_micro_rounding();
-    all_through_cutouts_union();
+    translate([xc,
+               -W/2 + corner_block_w/2,
+               -T/2 - corner_block_h/2 + overlap/2])
+      cube([corner_block_len, corner_block_w, corner_block_h + overlap], center=true);
+
+    // Chamfer the OUTER corner (towards -y and towards the end +/-x)
+    // Use a rotated cube to cut a 45° chamfer.
+    translate([xc + sign(xc)*(corner_block_len/2 - corner_chamfer/2),
+               -W/2 + corner_chamfer/2,
+               -T/2 - corner_block_h/2 + overlap/2])
+      rotate([0,0,45])
+        cube([corner_chamfer*2, corner_chamfer*2, corner_block_h + 2*overlap], center=true);
   }
 }
 
-// Final Output
-final_panel_with_cutouts();
+module slot_hex(){
+  linear_extrude(height=cut_through, center=true)
+    polygon(points=[
+      [-slot_len/2,                 -slot_hex_flat/2],
+      [-slot_len/2+slot_hex_flat/2, -slot_w/2],
+      [ slot_len/2-slot_hex_flat/2, -slot_w/2],
+      [ slot_len/2,                 -slot_hex_flat/2],
+      [ slot_len/2,                  slot_hex_flat/2],
+      [ slot_len/2-slot_hex_flat/2,  slot_w/2],
+      [-slot_len/2+slot_hex_flat/2,  slot_w/2],
+      [-slot_len/2,                  slot_hex_flat/2]
+    ]);
+}
+
+module diamond(){
+  linear_extrude(height=cut_through, center=true)
+    polygon(points=[
+      [0,  diamond_h/2],
+      [diamond_w/2, 0],
+      [0, -diamond_h/2],
+      [-diamond_w/2, 0]
+    ]);
+}
+
+module triangle(){
+  linear_extrude(height=cut_through, center=true)
+    polygon(points=[
+      [-tri_side/2, -tri_side*0.288675],
+      [ tri_side/2, -tri_side*0.288675],
+      [0,            tri_side*0.57735]
+    ]);
+}
+
+// -------------------- Cutout Layout --------------------
+module cutouts(){
+  // Two rows of elongated hex/slot openings
+  y_row1 =  W*0.18;
+  y_row2 = -W*0.18;
+
+  x_slots = [-L*0.28, 0, L*0.28];
+  for (x = x_slots) {
+    translate([x, y_row1, 0]) slot_hex();
+    translate([x, y_row2, 0]) slot_hex();
+  }
+
+  // Two distinct diamonds near center (not an hourglass)
+  translate([-L*0.08, 0, 0]) diamond();
+  translate([ L*0.08, 0, 0]) diamond();
+
+  // Four triangles (two near top, two near bottom)
+  x_tri = [-L*0.22, L*0.22];
+  y_tri_top =  W*0.34;
+  y_tri_bot = -W*0.34;
+
+  translate([x_tri[0], y_tri_top, 0]) triangle();
+  translate([x_tri[1], y_tri_top, 0]) rotate([0,0,180]) triangle();
+
+  translate([x_tri[0], y_tri_bot, 0]) rotate([0,0,180]) triangle();
+  translate([x_tri[1], y_tri_bot, 0]) triangle();
+}
+
+// -------------------- Final Assembly (ONE connected solid) --------------------
+difference() {
+  union() {
+    main_plate();
+
+    // Shallow stepped base along one long edge (clearly present)
+    stepped_base();
+
+    // Chamfered corner blocks at both ends (same long edge as step)
+    chamfered_block_at(-L/2 + corner_r + corner_block_len/2);
+    chamfered_block_at( L/2 - corner_r - corner_block_len/2);
+  }
+
+  // through cutouts
+  cutouts();
+}
+}

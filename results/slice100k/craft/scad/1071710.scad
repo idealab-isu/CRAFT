@@ -1,89 +1,202 @@
 // Dimension-calibrated (target: 10.97 x 43.93 x 10.92 mm)
-scale([1.000365, 1.068425, 1.797943])
+scale([0.972265, 0.906098, 1.535292])
 {
-// Thin constant-thickness bracket-like part:
-// central rectangular pad + two long arms angled (shallow V/boomerang in side view)
-// with large blended/concave-looking transitions. No holes/cutouts.
-// Target bbox: 11.0 x 43.9 x 10.9 mm (X x Y x Z)
+// Parameters
+L_total = 43.93; //[21.97:87.86:0.01]
+W_max = 10.97; //[5.49:21.94:0.01]
+H_max = 10.92; //[5.46:21.84:0.01]
+t = 1.2; //[0.6:2.4:0.05]
+pad_L = 12.0; //[6.0:24.0:0.1]
+pad_W = 10.97; //[5.49:21.94:0.01]
+arm_L = 15.965; //[7.98:31.93:0.01]
+arm_W = 8.0; //[4.0:16.0:0.1]
+arm_angle_deg = 18.0; //[5.0:35.0:0.5]
+blend_R = 6.0; //[3.0:12.0:0.1]
+small_fillet_r = 0.6; //[0.3:1.2:0.05]
+tip_round_r = 1.2; //[0.6:2.4:0.05]
+overlap = 1.0; //[0.5:2.0:0.1]
+blend_span_x = 6.0; //[3.0:12.0:0.1]
 
-$fn = 96;
-
-// ---------------- Parameters ----------------
-bbox_X = 10.97;   // overall width (X)
-bbox_Y = 43.93;   // overall length (Y)
-bbox_Z = 10.92;   // overall height (Z) due to arm angle
-
-thk    = 1.20;    // constant sheet thickness (extrusion height)
-
-pad_L  = 12.0;    // central pad length along Y (distinct pad)
-pad_W  = bbox_X;  // pad width along X
-
-arm_angle_deg = 18.0;  // arm tilt about X (creates shallow V in side view)
-end_R   = 5.0;         // rounded arm ends in plan
-
-// Overlap for robust manifold unions (1–2mm)
-overlap = 1.2;
-
-// Derived arm length so overall Y matches bbox_Y
-arm_L = (bbox_Y - pad_L)/2;
-
-// Blend length near the root (make it large/visible)
-blend_L = min(12, arm_L);
-
-// ---------------- Helpers ----------------
-module rrect2d(w, l, r) {
-    r2 = min(r, w/2, l/2);
-    hull() {
-        for (sx=[-1,1], sy=[-1,1])
-            translate([sx*(w/2 - r2), sy*(l/2 - r2)]) circle(r=r2);
-    }
+// Base Shapes
+module central_pad() {
+  translate([0, 0, 0])
+    cube([pad_L, pad_W, t], center=true);
 }
 
-// 3D strap with angled arms and large blended transitions
-module strap3d() {
-    union() {
-        // Central pad (flat, distinct)
-        linear_extrude(height=thk, center=true, convexity=10)
-            square([pad_W, pad_L], center=true);
-
-        // Arms: place their root edge at the pad edge (with overlap), then rotate about X.
-        // Use center=true extrusions; translate in Y by half-length so the root aligns.
-        for (s=[-1,1]) {
-            // Root alignment:
-            // pad edge at y = s*pad_L/2
-            // arm local root edge at y = -s*arm_L/2 (because arm is centered)
-            // so translate by y = s*(pad_L/2 - overlap) + s*(arm_L/2)
-            translate([0, s*(pad_L/2 - overlap + arm_L/2), 0])
-                rotate([s*arm_angle_deg, 0, 0])
-                    linear_extrude(height=thk, center=true, convexity=10)
-                        rrect2d(pad_W, arm_L, end_R);
-
-            // Large blended/concave-looking transition:
-            // Hull between a wider pad "tab" and a short rotated arm segment near the root.
-            hull() {
-                // Pad-side tab (flat) slightly longer to read as a filleted/concave blend region
-                linear_extrude(height=thk, center=true, convexity=10)
-                    translate([0, s*(pad_L/2 - overlap/2)])
-                        square([pad_W, blend_L], center=true);
-
-                // Arm-side short segment near root:
-                // Place a short segment so its root overlaps the pad edge region.
-                // Segment length = blend_L; align its root edge to pad edge with overlap.
-                translate([0, s*(pad_L/2 - overlap + blend_L/2), 0])
-                    rotate([s*arm_angle_deg, 0, 0])
-                        linear_extrude(height=thk, center=true, convexity=10)
-                            rrect2d(pad_W, blend_L + overlap, end_R);
-            }
-        }
-    }
+module arm_left_raw() {
+  translate([0, 0, 0])
+    cube([arm_L, arm_W, t], center=true);
 }
 
-// Clip to requested bounding box while keeping one connected solid
-module bbox_clip() { cube([bbox_X, bbox_Y, bbox_Z], center=true); }
-
-// ---------------- Final ----------------
-intersection() {
-    strap3d();
-    bbox_clip();
+module arm_right_raw() {
+  translate([0, 0, 0])
+    cube([arm_L, arm_W, t], center=true);
 }
+
+module blend_left_pad_stub() {
+  translate([0, 0, 0])
+    cube([blend_span_x, arm_W, t], center=true);
+}
+
+module blend_left_arm_stub() {
+  translate([0, 0, 0])
+    cube([blend_span_x, arm_W, t], center=true);
+}
+
+module blend_right_pad_stub() {
+  translate([0, 0, 0])
+    cube([blend_span_x, arm_W, t], center=true);
+}
+
+module blend_right_arm_stub() {
+  translate([0, 0, 0])
+    cube([blend_span_x, arm_W, t], center=true);
+}
+
+module tip_round_sphere() {
+  sphere(r=tip_round_r, center=true);
+}
+
+module small_fillet_sphere() {
+  sphere(r=small_fillet_r, center=true);
+}
+
+// Operations
+module arm_left_bent() {
+  rotate([0, arm_angle_deg, 0])
+    arm_left_raw();
+}
+
+module arm_left() {
+  translate([-(pad_L/2 + arm_L/2 - overlap), 0, 0])
+    arm_left_bent();
+}
+
+module arm_right_bent() {
+  rotate([0, -arm_angle_deg, 0])
+    arm_right_raw();
+}
+
+module arm_right() {
+  translate([(pad_L/2 + arm_L/2 - overlap), 0, 0])
+    arm_right_bent();
+}
+
+module blend_left_pad_stub_pos() {
+  translate([-(pad_L/2 - blend_span_x/2), 0, 0])
+    blend_left_pad_stub();
+}
+
+module blend_left_arm_stub_rot() {
+  rotate([0, arm_angle_deg, 0])
+    blend_left_arm_stub();
+}
+
+module blend_left_arm_stub_pos() {
+  translate([-(pad_L/2 + blend_span_x/2 - overlap), 0, 0])
+    blend_left_arm_stub_rot();
+}
+
+module large_blend_transitions_pad_to_arms_left() {
+  hull() {
+    blend_left_pad_stub_pos();
+    blend_left_arm_stub_pos();
+  }
+}
+
+module blend_right_pad_stub_pos() {
+  translate([(pad_L/2 - blend_span_x/2), 0, 0])
+    blend_right_pad_stub();
+}
+
+module blend_right_arm_stub_rot() {
+  rotate([0, -arm_angle_deg, 0])
+    blend_right_arm_stub();
+}
+
+module blend_right_arm_stub_pos() {
+  translate([(pad_L/2 + blend_span_x/2 - overlap), 0, 0])
+    blend_right_arm_stub_rot();
+}
+
+module large_blend_transitions_pad_to_arms_right() {
+  hull() {
+    blend_right_pad_stub_pos();
+    blend_right_arm_stub_pos();
+  }
+}
+
+module arm_left_tip_sphere_pos() {
+  translate([-(pad_L/2 + arm_L - overlap), 0, 0])
+    tip_round_sphere();
+}
+
+module arm_left_tip_rounding() {
+  hull() {
+    arm_left();
+    arm_left_tip_sphere_pos();
+  }
+}
+
+module arm_right_tip_sphere_pos() {
+  translate([(pad_L/2 + arm_L - overlap), 0, 0])
+    tip_round_sphere();
+}
+
+module arm_right_tip_rounding() {
+  hull() {
+    arm_right();
+    arm_right_tip_sphere_pos();
+  }
+}
+
+module constant_thickness_profile() {
+  union() {
+    central_pad();
+    arm_left_tip_rounding();
+    arm_right_tip_rounding();
+    large_blend_transitions_pad_to_arms_left();
+    large_blend_transitions_pad_to_arms_right();
+  }
+}
+
+module edge_rounding_small_fillets() {
+  minkowski() {
+    constant_thickness_profile();
+    small_fillet_sphere();
+  }
+}
+
+module arm_angle_bend() {
+  union() {
+    arm_left();
+    arm_right();
+  }
+}
+
+module large_blend_transitions_pad_to_arms() {
+  union() {
+    large_blend_transitions_pad_to_arms_left();
+    large_blend_transitions_pad_to_arms_right();
+  }
+}
+
+module slight_end_rounding_on_arm_tips() {
+  union() {
+    arm_left_tip_rounding();
+    arm_right_tip_rounding();
+  }
+}
+
+module complete_model() {
+  union() {
+    edge_rounding_small_fillets();
+    arm_angle_bend();
+    large_blend_transitions_pad_to_arms();
+    slight_end_rounding_on_arm_tips();
+  }
+}
+
+// Final Output
+complete_model();
 }

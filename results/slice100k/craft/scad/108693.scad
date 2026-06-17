@@ -1,70 +1,107 @@
-// Dimension-calibrated (target: 37.70 x 40.00 x 5.00 mm)
-scale([1.000000, 0.231481, 8.000000])
-{
-// Radial starburst / asterisk-like spacer (connected solid)
-// Target bounding box: 37.7 x 40.0 x 5.0 mm
+// Radial starburst / asterisk-like spacer (single connected solid)
+// Bounding box target: ~37.7 x 40.0 x 5.0 mm
 
-$fn = 96;
+// Parameters
+bbox_X = 37.7; //[20.0:80.0:0.1]
+bbox_Y = 40.0; //[20.0:80.0:0.1]
+bbox_Z = 5.0;  //[2.5:10.0:0.1]
 
-// Bounding box
-bbox_x = 37.7;
-bbox_y = 40.0;
-bbox_z = 5.0;
+hub_D = 12.0;  //[6.0:24.0:0.1]
+hub_Z = bbox_Z;
 
-// Thickness
-thickness = bbox_z;
+long_L = bbox_Y; //[20.0:80.0:0.1]   // dominant bar spans the Y dimension
+long_W = 6.0;    //[3.0:12.0:0.1]
+long_Z = bbox_Z;
 
-// Central hub (solid, no holes)
-hub_d = 14.0;
+spoke_count = 6; //[3:12:1]
+spoke_L = 18.0;  //[9.0:36.0:0.1]
+spoke_W = 5.0;   //[2.5:10.0:0.1]
+spoke_Z = bbox_Z;
 
-// Dominant long bar (spans X)
-bar_len = bbox_x;
-bar_w   = 7.0;
+// Explicit angles (degrees) for "several shorter spokes arranged around it"
+spoke_angle_0 = 30.0;  //[0.0:360.0:1]
+spoke_angle_1 = 60.0;  //[0.0:360.0:1]
+spoke_angle_2 = 90.0;  //[0.0:360.0:1]
+spoke_angle_3 = 120.0; //[0.0:360.0:1]
+spoke_angle_4 = 150.0; //[0.0:360.0:1]
+spoke_angle_5 = 210.0; //[0.0:360.0:1]
 
-// Fewer distinct spokes at varied angles (not evenly spaced teeth)
-spoke_angles_deg = [25, 55, 90, 125, 155, 205, 235];  // varied, not uniform
-spoke_lens       = [18.0, 16.5, 20.0, 15.5, 17.0, 14.5, 16.0];
-spoke_ws         = [4.2,  3.8,  4.6,  3.6,  4.0,  3.6,  3.8];
+// Per-spoke length scaling
+spoke_tier_scale_0 = 1.0;  //[0.6:1.4:0.05]
+spoke_tier_scale_1 = 0.95; //[0.6:1.4:0.05]
+spoke_tier_scale_2 = 0.9;  //[0.6:1.4:0.05]
+spoke_tier_scale_3 = 0.9;  //[0.6:1.4:0.05]
+spoke_tier_scale_4 = 0.95; //[0.6:1.4:0.05]
+spoke_tier_scale_5 = 1.0;  //[0.6:1.4:0.05]
 
-connect_overlap = 0.8; // overlap into hub for robust union
+overlap = 1.0;      //[0.5:2.0:0.1]  // ensures spokes intersect hub
+edge_round_r = 0.6; //[0.0:1.5:0.1]
 
-// Helpers
-function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
+// Helpers to avoid eval()
+function spoke_angle(i) =
+    (i==0)?spoke_angle_0:
+    (i==1)?spoke_angle_1:
+    (i==2)?spoke_angle_2:
+    (i==3)?spoke_angle_3:
+    (i==4)?spoke_angle_4:
+           spoke_angle_5;
 
-// Keep rotated rectangles safely within bbox by limiting half-length
-diag_xy = sqrt(bbox_x*bbox_x + bbox_y*bbox_y);
-max_len = diag_xy - 1.0;
+function spoke_scale(i) =
+    (i==0)?spoke_tier_scale_0:
+    (i==1)?spoke_tier_scale_1:
+    (i==2)?spoke_tier_scale_2:
+    (i==3)?spoke_tier_scale_3:
+    (i==4)?spoke_tier_scale_4:
+           spoke_tier_scale_5;
 
+// Central Hub
 module central_hub() {
-    cylinder(d=hub_d, h=thickness, center=true);
+    cylinder(r=hub_D/2, h=hub_Z, center=true, $fn=64);
 }
 
-module rect_spoke(len, w) {
-    // Centered at origin so it intersects hub; extend slightly for overlap
-    cube([len + 2*connect_overlap, w, thickness], center=true);
-}
-
+// Dominant Long Bar (aligned along Y)
 module dominant_long_bar() {
-    rect_spoke(bar_len, bar_w);
+    cube([long_W, long_L, long_Z], center=true);
 }
 
-module angled_spoke(a, len, w) {
-    rotate([0, 0, a])
-        rect_spoke(clamp(len, 0, max_len), w);
+// One rectangular spoke, placed so it overlaps into the hub (connected solid)
+module spoke_rect(len, ang) {
+    rotate([0,0,ang])
+        translate([hub_D/2 + len/2 - overlap, 0, 0])
+            cube([len, spoke_W, spoke_Z], center=true);
 }
 
-module starburst() {
+// Core (no rounding)
+module core_shape() {
     union() {
         central_hub();
         dominant_long_bar();
-        for (i = [0 : len(spoke_angles_deg)-1])
-            angled_spoke(spoke_angles_deg[i], spoke_lens[i], spoke_ws[i]);
+        for (i = [0:spoke_count-1]) {
+            spoke_rect(spoke_L * spoke_scale(i), spoke_angle(i));
+        }
     }
 }
 
-// Final: clip to exact bounding box (keeps one connected solid)
-intersection() {
-    starburst();
-    cube([bbox_x, bbox_y, bbox_z], center=true);
+// Scale to hit requested XY bounding box (keeps Z at bbox_Z)
+module scaled_to_bbox() {
+    // Approximate extents before scaling:
+    // X extent dominated by max radial reach of spokes: hub_D/2 + maxLen - overlap
+    maxScale = max(
+        spoke_tier_scale_0, spoke_tier_scale_1, spoke_tier_scale_2,
+        spoke_tier_scale_3, spoke_tier_scale_4, spoke_tier_scale_5
+    );
+    maxLen = spoke_L * maxScale;
+    approx_X = 2 * (hub_D/2 + maxLen - overlap);
+    approx_Y = long_L;
+
+    sx = bbox_X / approx_X;
+    sy = bbox_Y / approx_Y;
+
+    scale([sx, sy, 1]) children();
 }
+
+// Final Output (single connected solid, no holes)
+minkowski() {
+    scaled_to_bbox() core_shape();
+    sphere(r=edge_round_r, $fn=32);
 }

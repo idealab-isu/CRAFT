@@ -1,5 +1,5 @@
 /**
- * CRAFT Parameter Customizer
+ * CADence Parameter Customizer
  *
  * Generates interactive UI controls for OpenSCAD parameters
  * Supports sliders with ranges and real-time updates

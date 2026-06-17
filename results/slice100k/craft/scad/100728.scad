@@ -1,14 +1,9 @@
-// Parameters
-rod_length = 26;    // mm
-rod_diameter = 3;   // mm
+// Simple solid right circular cylinder (rod)
+// Bounding box: 3.0 x 3.0 x 26.0 mm
 
-// Ensure a smooth, truly circular cylinder in all views
-$fn = 96;
+$fn = 128;  // ensure circular appearance in orthographic views
 
-// Geometry
-module cylindrical_shaft(len, dia) {
-    cylinder(h = len, d = dia, center = true);
-}
+shaft_diameter = 3.0; //[1.5:6.0:0.1]
+shaft_length   = 26.0; //[13.0:52.0:0.5]
 
-// Final Model (single connected solid)
-cylindrical_shaft(rod_length, rod_diameter);
+cylinder(h = shaft_length, d = shaft_diameter, center = true);

@@ -1,114 +1,71 @@
+// Thin rectangular faceplate/frame with rounded corners and cutouts
+// Bounding box: 65 x 20 x 4 mm
+
+$fn = 64;
+
 // Parameters
-plate_L = 65; //[32.5:130:0.5]
-plate_W = 20; //[10:40:0.5]
-plate_T = 4; //[2:8:0.25]
-outer_corner_R = 2; //[1:4:0.25]
-window_W = 22; //[11:44:0.5]
-window_H = 12; //[6:24:0.5]
-window_corner_R = 1; //[0.5:2:0.25]
-window_gap = 5; //[2.5:10:0.5]
-window_center_Y = 0; //[-5:5:0.5]
-center_hole_d = 2; //[1:4:0.25]
-center_hole_pitch_Y = 6; //[3:12:0.5]
-mount_hole_d = 3; //[1.5:6:0.25]
-mount_hole_offset_X = 5; //[2.5:10:0.5]
-mount_hole_center_Y = 0; //[-5:5:0.5]
-through_cut_h = 6; //[4:12:0.5]
-cut_z_overlap = 1; //[0.5:2:0.25]
-outer_round_tool_r = 2; //[1:4:0.25]
-window_round_tool_r = 1; //[0.5:2:0.25]
-edge_chamfer_size = 0; //[0:1.5:0.25]
-engrave_depth = 0; //[0:1:0.25]
-engrave_L = 20; //[10:40:0.5]
-engrave_W = 6; //[3:12:0.5]
-engrave_center_Y = 0; //[-5:5:0.5]
-eps = 0.01; //[0.001:0.1:0.001]
+plate_L = 65.0;                 // overall length (X)
+plate_W = 20.0;                 // overall width  (Y)
+plate_T = 4.0;                  // thickness      (Z)
+corner_R = 2.5;                 // outer corner radius
 
-// Base Shapes
-module outer_plate() {
-  cube([plate_L, plate_W, plate_T], center=true);
+win_W = 22.0;                   // window width (X)
+win_H = 12.0;                   // window height (Y)
+win_gap = 5.0;                  // gap between windows (X)
+win_y_offset = 0.0;             // window center offset (Y)
+
+center_hole_d = 2.0;            // two small holes between windows
+center_hole_pitch_y = 6.0;      // spacing in Y between the two center holes
+
+mount_hole_d = 3.0;             // mounting holes near ends
+mount_hole_x_inset = 5.0;       // inset from each end in X
+mount_hole_y_offset = 0.0;      // mounting hole offset in Y
+
+cut_through_extra = 1.0;        // extra cut depth to ensure through-cuts
+
+// Helpers
+module rounded_rect_2d(L, W, R) {
+    // Robust rounded rectangle in 2D
+    R2 = min(R, min(L, W)/2);
+    hull() {
+        for (sx = [-1, 1], sy = [-1, 1])
+            translate([sx*(L/2 - R2), sy*(W/2 - R2)])
+                circle(r=R2);
+    }
 }
 
-module outer_corner_rounding(pos) {
-  translate(pos)
-    cylinder(r=outer_round_tool_r, h=plate_T + 2*cut_z_overlap, center=true);
+module plate_solid() {
+    linear_extrude(height=plate_T, center=true)
+        rounded_rect_2d(plate_L, plate_W, corner_R);
 }
 
-module outer_corner_square(pos) {
-  translate(pos)
-    cube([outer_corner_R*2, outer_corner_R*2, plate_T + 2*cut_z_overlap], center=true);
+module window_cutout(xc) {
+    translate([xc, win_y_offset, 0])
+        cube([win_W, win_H, plate_T + 2*cut_through_extra], center=true);
 }
 
-module window_cutout(pos) {
-  translate(pos)
-    cube([window_W, window_H, plate_T + 2*cut_z_overlap], center=true);
+module hole_cutout(x, y, d) {
+    translate([x, y, 0])
+        cylinder(d=d, h=plate_T + 2*cut_through_extra, center=true);
 }
 
-module window_corner_rounding(pos) {
-  translate(pos)
-    cylinder(r=window_round_tool_r, h=plate_T + 2*cut_z_overlap, center=true);
-}
+// Derived positions
+win_center_offset_x = (win_gap/2 + win_W/2);
+mount_x = plate_L/2 - mount_hole_x_inset;
 
-module center_hole(pos) {
-  translate(pos)
-    cylinder(r=center_hole_d/2, h=plate_T + 2*cut_z_overlap, center=true);
-}
-
-module mount_hole(pos) {
-  translate(pos)
-    cylinder(r=mount_hole_d/2, h=plate_T + 2*cut_z_overlap, center=true);
-}
-
-module edge_chamfer() {
-  translate([0, 0, plate_T/2 - edge_chamfer_size/2])
-    cube([plate_L + eps, plate_W + eps, edge_chamfer_size], center=true);
-}
-
-module engraving_or_label_recess() {
-  translate([0, engrave_center_Y, plate_T/2 - engrave_depth/2])
-    cube([engrave_L, engrave_W, engrave_depth], center=true);
-}
-
-// Operations
-module outer_plate_rounded() {
-  difference() {
-    outer_plate();
-    outer_corner_rounding([plate_L/2 - outer_corner_R, plate_W/2 - outer_corner_R, 0]);
-    outer_corner_rounding([-(plate_L/2 - outer_corner_R), plate_W/2 - outer_corner_R, 0]);
-    outer_corner_rounding([plate_L/2 - outer_corner_R, -(plate_W/2 - outer_corner_R), 0]);
-    outer_corner_rounding([-(plate_L/2 - outer_corner_R), -(plate_W/2 - outer_corner_R), 0]);
-  }
-}
-
-module window_corner_rounding_all() {
-  union() {
-    window_corner_rounding([-(window_gap/2 + window_W/2) + (window_W/2 - window_corner_R), window_center_Y + (window_H/2 - window_corner_R), 0]);
-    window_corner_rounding([-(window_gap/2 + window_W/2) - (window_W/2 - window_corner_R), window_center_Y + (window_H/2 - window_corner_R), 0]);
-    window_corner_rounding([-(window_gap/2 + window_W/2) + (window_W/2 - window_corner_R), window_center_Y - (window_H/2 - window_corner_R), 0]);
-    window_corner_rounding([-(window_gap/2 + window_W/2) - (window_W/2 - window_corner_R), window_center_Y - (window_H/2 - window_corner_R), 0]);
-    window_corner_rounding([window_gap/2 + window_W/2 - (window_W/2 - window_corner_R), window_center_Y + (window_H/2 - window_corner_R), 0]);
-    window_corner_rounding([window_gap/2 + window_W/2 + (window_W/2 - window_corner_R), window_center_Y + (window_H/2 - window_corner_R), 0]);
-    window_corner_rounding([window_gap/2 + window_W/2 - (window_W/2 - window_corner_R), window_center_Y - (window_H/2 - window_corner_R), 0]);
-    window_corner_rounding([window_gap/2 + window_W/2 + (window_W/2 - window_corner_R), window_center_Y - (window_H/2 - window_corner_R), 0]);
-  }
-}
-
-module all_cutouts() {
-  union() {
-    window_cutout([-(window_gap/2 + window_W/2), window_center_Y, 0]);
-    window_cutout([window_gap/2 + window_W/2, window_center_Y, 0]);
-    window_corner_rounding_all();
-    center_hole([0, window_center_Y + center_hole_pitch_Y/2, 0]);
-    center_hole([0, window_center_Y - center_hole_pitch_Y/2, 0]);
-    mount_hole([-(plate_L/2 - mount_hole_offset_X), mount_hole_center_Y, 0]);
-    mount_hole([plate_L/2 - mount_hole_offset_X, mount_hole_center_Y, 0]);
-    engraving_or_label_recess();
-    edge_chamfer();
-  }
-}
-
-// Final Output
+// Final model
 difference() {
-  outer_plate_rounded();
-  all_cutouts();
+    plate_solid();
+
+    // Two rectangular windows
+    window_cutout(-win_center_offset_x);
+    window_cutout( win_center_offset_x);
+
+    // Two small circular holes centered between windows (stacked in Y)
+    hole_cutout(0,  center_hole_pitch_y/2, center_hole_d);
+    hole_cutout(0, -center_hole_pitch_y/2, center_hole_d);
+
+    // Mounting holes near each end
+    hole_cutout(-mount_x, mount_hole_y_offset, mount_hole_d);
+    hole_cutout( mount_x, mount_hole_y_offset, mount_hole_d);
 }

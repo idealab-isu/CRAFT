@@ -1,43 +1,40 @@
-// Flat link/strap plate with rounded (capsule) ends and two through-holes
-// Bounding box target: 44.4 x 7.6 x 2.5 mm
+// Flat link/strap plate with rounded ends and two through-holes
+// Bounding box: 44.4 x 7.6 x 2.5 mm
 
 $fn = 96;
 
 // Parameters (mm)
-L = 44.4;
-W = 7.6;
-T = 2.5;
+L = 44.42;
+W = 7.62;
+T = 2.54;
 
-hole_D = 3.2;
-hole_offset_from_end = 5;   // hole center distance from each end along length
-hole_clearance = 0.05;
+end_radius = W/2;          // capsule ends match width
+hole_d = 3;
+hole_offset_from_end = 5;  // hole center distance from each end along length
+overlap = 0.2;             // small overlap for clean boolean cuts
 
-overlap = 0.8;              // used only to ensure clean boolean cuts
-
-// Derived
-end_R = W/2;                // capsule ends match width
-rect_L = L - 2*end_R;       // center rectangle length (tangent-to-tangent)
-
-// Capsule body (one connected solid)
-module strap_body() {
-    union() {
-        cube([rect_L, W, T], center=true);
-        translate([ rect_L/2, 0, 0]) cylinder(r=end_R, h=T, center=true);
-        translate([-rect_L/2, 0, 0]) cylinder(r=end_R, h=T, center=true);
+module capsule_2d(len, wid) {
+    r = wid/2;
+    hull() {
+        translate([-(len/2 - r), 0]) circle(r=r);
+        translate([ (len/2 - r), 0]) circle(r=r);
     }
 }
 
-// Through-holes (aligned on long axis)
-module strap_holes() {
-    for (sx = [-1, 1]) {
-        translate([sx*(L/2 - hole_offset_from_end), 0, 0])
-            cylinder(r=hole_D/2 + hole_clearance, h=T + 2*overlap, center=true);
-    }
+module link_plate() {
+    linear_extrude(height=T, center=true)
+        capsule_2d(L, W);
 }
 
-// Final model
-color("Silver")
+module hole_at_end(sign=1) {
+    // sign = -1 (left), +1 (right)
+    x = sign * (L/2 - hole_offset_from_end);
+    translate([x, 0, 0])
+        cylinder(h=T + 2*overlap, r=hole_d/2, center=true);
+}
+
 difference() {
-    strap_body();
-    strap_holes();
+    link_plate();
+    hole_at_end(-1);
+    hole_at_end( 1);
 }

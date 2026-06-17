@@ -1,0 +1,106 @@
+{
+  "gt": {
+    "source_name": "gt",
+    "clip_model": "ViT-L-14/openai",
+    "n_evaluated": 468,
+    "n_skipped": 0,
+    "clip_mean": 0.23415762313410768,
+    "clip_std": 0.033701656781903865,
+    "clip_median": 0.23191843181848526,
+    "clip_min": 0.10848429799079895,
+    "clip_max": 0.3094673752784729,
+    "clip_by_tier": {
+      "Simple": 0.22785081925257197,
+      "Medium": 0.23417247254401446,
+      "Complex": 0.24087175676886668
+    },
+    "clip_std_by_tier": {
+      "Simple": 0.03639177183339658,
+      "Medium": 0.03190428910189005,
+      "Complex": 0.031203934615140403
+    },
+    "clip_count_by_tier": {
+      "Simple": 159,
+      "Medium": 160,
+      "Complex": 149
+    }
+  },
+  "craft": {
+    "source_name": "craft",
+    "clip_model": "ViT-L-14/openai",
+    "n_evaluated": 467,
+    "n_skipped": 1,
+    "clip_mean": 0.22263169923609788,
+    "clip_std": 0.029117989060223618,
+    "clip_median": 0.2220155894756317,
+    "clip_min": 0.1309712529182434,
+    "clip_max": 0.29489415884017944,
+    "clip_by_tier": {
+      "Simple": 0.22723899649668344,
+      "Medium": 0.21317337434738876,
+      "Complex": 0.2279026993369096
+    },
+    "clip_std_by_tier": {
+      "Simple": 0.027730302406356707,
+      "Medium": 0.02670937495289504,
+      "Complex": 0.030488463776280936
+    },
+    "clip_count_by_tier": {
+      "Simple": 158,
+      "Medium": 160,
+      "Complex": 149
+    }
+  },
+  "gpt4o": {
+    "source_name": "gpt4o",
+    "clip_model": "ViT-L-14/openai",
+    "n_evaluated": 467,
+    "n_skipped": 1,
+    "clip_mean": 0.20328022550783525,
+    "clip_std": 0.028898895273464176,
+    "clip_median": 0.20413315296173096,
+    "clip_min": 0.11776720732450485,
+    "clip_max": 0.2744317650794983,
+    "clip_by_tier": {
+      "Simple": 0.20984819587671533,
+      "Medium": 0.2013530537020415,
+      "Complex": 0.19830752415834246
+    },
+    "clip_std_by_tier": {
+      "Simple": 0.0247715008438529,
+      "Medium": 0.0282367226421814,
+      "Complex": 0.032232641529742416
+    },
+    "clip_count_by_tier": {
+      "Simple": 159,
+      "Medium": 160,
+      "Complex": 148
+    }
+  },
+  "gpt52": {
+    "source_name": "gpt52",
+    "clip_model": "ViT-L-14/openai",
+    "n_evaluated": 462,
+    "n_skipped": 6,
+    "clip_mean": 0.21454371382921805,
+    "clip_std": 0.027620386722872047,
+    "clip_median": 0.2154565304517746,
+    "clip_min": 0.12171497941017151,
+    "clip_max": 0.29733777046203613,
+    "clip_by_tier": {
+      "Simple": 0.21737486358333682,
+      "Medium": 0.21439970294131508,
+      "Complex": 0.21159613389393378
+    },
+    "clip_std_by_tier": {
+      "Simple": 0.023770007824529763,
+      "Medium": 0.02861330212764987,
+      "Complex": 0.030025353089190184
+    },
+    "clip_count_by_tier": {
+      "Simple": 159,
+      "Medium": 158,
+      "Complex": 145
+    }
+  }
+}

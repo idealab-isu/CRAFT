@@ -1,0 +1,16 @@
+\begin{table}[t]
+\centering
+\caption{Per-stage recovery statistics on NopSCADlib (5 layers, 10-attempt shared budget).}
+\label{tab:recovery_stats}
+\begin{tabular}{lrrr}
+\toprule
+Layer & Trigger rate & Mean retries & Post-recovery success \\
+\midrule
+schema\_repair & 0.072 & 1.00 & 1.000 \\
+scad\_autofix & 0.007 & 1.00 & 1.000 \\
+vlm\_correction & 0.804 & 1.62 & 0.503 \\
+component\_verification & 0.173 & 1.61 & 0.000 \\
+manual\_repair & 0.000 & 0.00 & 0.000 \\
+\bottomrule
+\end{tabular}
+\end{table}

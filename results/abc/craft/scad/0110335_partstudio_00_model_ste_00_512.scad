@@ -1,171 +1,143 @@
 // Dimension-calibrated (target: 0.15 x 0.38 x 0.06 mm)
-scale([0.947500, 0.590009, 1.293112])
+scale([0.590000, 0.947500, 1.250000])
 {
-// Long prismatic bar with recessed panels on broad faces,
-// chamfered/mitred perimeter corners, and shallow concave top/bottom
-// across width with a central longitudinal rib/step.
-//
-// Target bounding box (approx): 0.1 x 0.4 x 0.1 mm  =>  H x L x W
-// Here: L=0.40, W=0.10, H=0.10 (mm)
+// Long prismatic bar with recessed panels, perimeter chamfer/mitre,
+// and shallow arched (concave) top/bottom with a central rectangular rib/step.
+// Bounding box target: ~0.1 x 0.4 x 0.1 mm (X x Y x Z)
 
-$fn = 128;
-
-// -------------------- Parameters (mm) --------------------
-L = 0.40;   // length (X)
-W = 0.10;   // width  (Y)
+L = 0.40;   // length (Y)
+W = 0.10;   // width  (X)
 H = 0.10;   // height (Z)
 
-// Recessed panel on broad faces (top & bottom)
-recess_margin_L = 0.03;
-recess_margin_W = 0.015;
-recess_depth    = 0.010;
+panel_margin_L = 0.03;   // margin from ends (Y)
+panel_margin_W = 0.015;  // margin from sides (X)
+panel_depth    = 0.010;  // recess depth into face (Z)
 
-// Perimeter chamfer (mitred corners around full perimeter)
-chamfer = 0.010;
+rib_W = 0.030;  // central rib width across X
+rib_H = 0.010;  // rib height above top face and below bottom face
 
-// Shallow concave curvature across width (top & bottom)
-concave_sag = 0.006;   // sagitta across chord W (per face)
+// Make the arched/concave curvature clearly visible in orthographic views
+arch_sag = 0.012; // concave sag into the face (Z) (increased for recognizability)
+arch_R   = 0.45;  // large radius for shallow concavity
 
-// Central longitudinal rib/step on top and bottom
-rib_W = 0.030;         // rib width across Y
-rib_H = 0.008;         // rib height above the concave surface
-rib_margin_L = 0.03;   // keep rib away from ends
+chamfer = 0.006;  // perimeter chamfer amount (45deg)
 
-// Small epsilon for robust booleans (tiny, since model is tiny)
+recess_corner_r = 0.004; // rounded corners for recessed panel
+$fn = 128;
+
 eps = 0.0005;
+overlap = 0.0015; // small overlap to guarantee watertight unions/differences
 
-// -------------------- Helpers --------------------
-function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
-
-recess_L = clamp(L - 2*recess_margin_L, eps, L - eps);
-recess_W = clamp(W - 2*recess_margin_W, eps, W - eps);
-rib_L    = clamp(L - 2*rib_margin_L, eps, L - eps);
-
-// Radius for a circular arc that gives sagitta = concave_sag over chord W
-// R = W^2/(8s) + s/2
-R = (W*W)/(8*concave_sag) + concave_sag/2;
-
-// -------------------- Geometry modules --------------------
-module base_block() {
-    cube([L, W, H], center=true);
+// ---------- Helpers ----------
+module rounded_rect_prism(size=[10,10,1], r=1, center=true) {
+  x = size[0]; y = size[1]; z = size[2];
+  r2 = max(0, min(r, x/2 - eps, y/2 - eps));
+  linear_extrude(height=z, center=center)
+    offset(r=r2)
+      square([x-2*r2, y-2*r2], center=true);
 }
 
-// Perimeter chamfer wedges (subtractive)
-module perimeter_chamfers() {
-    // Long edges along X (at Y=±W/2, Z=±H/2)
-    for (sy = [-1, 1], sz = [-1, 1]) {
-        translate([0, sy*(W/2 - chamfer/2), sz*(H/2 - chamfer/2)])
-            rotate([0, 90, 0])
-                linear_extrude(height=L + 2*eps, center=true)
-                    polygon(points=[
-                        [-chamfer/2 - eps, -chamfer/2 - eps],
-                        [ chamfer/2 + eps, -chamfer/2 - eps],
-                        [-chamfer/2 - eps,  chamfer/2 + eps]
-                    ]);
+module base_bar() {
+  cube([W, L, H], center=true);
+}
+
+module top_rib() {
+  // Overlap slightly into the base so it is unquestionably connected
+  translate([0, 0, H/2 + rib_H/2 - overlap])
+    cube([rib_W, L, rib_H + 2*overlap], center=true);
+}
+
+module bottom_rib() {
+  // Overlap slightly into the base so it is unquestionably connected
+  translate([0, 0, -H/2 - rib_H/2 + overlap])
+    cube([rib_W, L, rib_H + 2*overlap], center=true);
+}
+
+module recessed_panel_top() {
+  // Cut into the top face (do not reach the rib peak)
+  translate([0, 0, H/2 - panel_depth/2 + overlap])
+    rounded_rect_prism(
+      size=[W - 2*panel_margin_W, L - 2*panel_margin_L, panel_depth + 2*overlap],
+      r=recess_corner_r,
+      center=true
+    );
+}
+
+module recessed_panel_bottom() {
+  // Cut into the bottom face (do not reach the rib peak)
+  translate([0, 0, -H/2 + panel_depth/2 - overlap])
+    rounded_rect_prism(
+      size=[W - 2*panel_margin_W, L - 2*panel_margin_L, panel_depth + 2*overlap],
+      r=recess_corner_r,
+      center=true
+    );
+}
+
+module concave_cutter_top() {
+  // Cylinder axis along Y; subtract to create shallow concavity across X on top.
+  // Positioned so the cylinder intrudes by arch_sag at the top face (z=+H/2).
+  rotate([90, 0, 0])
+    translate([0, 0, H/2 + arch_R - arch_sag])
+      cylinder(r=arch_R, h=L + 6*overlap, center=true);
+}
+
+module concave_cutter_bottom() {
+  // Cylinder axis along Y; subtract to create shallow concavity across X on bottom.
+  rotate([90, 0, 0])
+    translate([0, 0, -H/2 - arch_R + arch_sag])
+      cylinder(r=arch_R, h=L + 6*overlap, center=true);
+}
+
+module chamfered_box_mask() {
+  // Chamfered prism mask (trims edges/corners) using Minkowski with an octahedron.
+  ztot = H + 2*rib_H;
+  c = chamfer;
+
+  ix = max(eps, W - 2*c);
+  iy = max(eps, L - 2*c);
+  iz = max(eps, ztot - 2*c);
+
+  minkowski() {
+    cube([ix, iy, iz], center=true);
+    polyhedron(
+      points=[
+        [ c, 0, 0], [-c, 0, 0],
+        [ 0, c, 0], [ 0,-c, 0],
+        [ 0, 0, c], [ 0, 0,-c]
+      ],
+      faces=[
+        [0,2,4],[2,1,4],[1,3,4],[3,0,4],
+        [2,0,5],[1,2,5],[3,1,5],[0,3,5]
+      ]
+    );
+  }
+}
+
+// ---------- Model ----------
+module model() {
+  // Build bar + ribs, carve recesses and concavity, then apply chamfer mask.
+  intersection() {
+    difference() {
+      union() {
+        base_bar();
+        top_rib();
+        bottom_rib();
+      }
+
+      // Decorative recessed panels on broad faces
+      recessed_panel_top();
+      recessed_panel_bottom();
+
+      // Shallow concave curvature across width on top/bottom
+      // (kept after ribs are added so the rib remains as a central step)
+      concave_cutter_top();
+      concave_cutter_bottom();
     }
 
-    // End edges along Y (at X=±L/2, Z=±H/2)
-    for (sx = [-1, 1], sz = [-1, 1]) {
-        translate([sx*(L/2 - chamfer/2), 0, sz*(H/2 - chamfer/2)])
-            rotate([90, 0, 0])
-                linear_extrude(height=W + 2*eps, center=true)
-                    polygon(points=[
-                        [-chamfer/2 - eps, -chamfer/2 - eps],
-                        [ chamfer/2 + eps, -chamfer/2 - eps],
-                        [-chamfer/2 - eps,  chamfer/2 + eps]
-                    ]);
-    }
-
-    // Vertical edges along Z (at X=±L/2, Y=±W/2)
-    for (sx = [-1, 1], sy = [-1, 1]) {
-        translate([sx*(L/2 - chamfer/2), sy*(W/2 - chamfer/2), 0])
-            linear_extrude(height=H + 2*eps, center=true)
-                polygon(points=[
-                    [-chamfer/2 - eps, -chamfer/2 - eps],
-                    [ chamfer/2 + eps, -chamfer/2 - eps],
-                    [-chamfer/2 - eps,  chamfer/2 + eps]
-                ]);
-    }
+    // Apply chamfer/mitre around the perimeter (including rib height)
+    chamfered_box_mask();
+  }
 }
 
-// Recessed rectangular panel on top face (subtractive)
-module top_recess() {
-    // Cut starts at top surface and goes downward
-    translate([0, 0, H/2 - recess_depth/2])
-        cube([recess_L, recess_W, recess_depth + 2*eps], center=true);
-}
-
-// Recessed rectangular panel on bottom face (subtractive)
-module bottom_recess() {
-    // Cut starts at bottom surface and goes upward
-    translate([0, 0, -H/2 + recess_depth/2])
-        cube([recess_L, recess_W, recess_depth + 2*eps], center=true);
-}
-
-// Concave cut across width on top face (cylindrical surface along X).
-// IMPORTANT FIX: limit the cutter to only the top region so we don't remove the whole block.
-// We intersect the cylinder with a thin "cap" volume above the top face.
-module top_concave_cut() {
-    cap_h = concave_sag + 4*eps; // only remove a shallow band
-    intersection() {
-        // Cylinder positioned so it just kisses the top plane at the edges (y=±W/2)
-        translate([0, 0, H/2 + (R - concave_sag)])
-            rotate([0, 90, 0])
-                cylinder(r=R, h=L + 2*eps, center=true);
-
-        // Limit to a thin slab at the top surface
-        translate([0, 0, H/2 - cap_h/2 + eps])
-            cube([L + 4*eps, W + 4*eps, cap_h], center=true);
-    }
-}
-
-// Concave cut across width on bottom face (limited to bottom region)
-module bottom_concave_cut() {
-    cap_h = concave_sag + 4*eps;
-    intersection() {
-        translate([0, 0, -H/2 - (R - concave_sag)])
-            rotate([0, 90, 0])
-                cylinder(r=R, h=L + 2*eps, center=true);
-
-        translate([0, 0, -H/2 + cap_h/2 - eps])
-            cube([L + 4*eps, W + 4*eps, cap_h], center=true);
-    }
-}
-
-// Central longitudinal rib/step on top and bottom (additive)
-// IMPORTANT FIX: place ribs ON the concave faces (not embedded inside the block).
-module ribs() {
-    overlap = 2*eps;
-
-    // Top rib: sits above the (now concave) top surface, with slight overlap into body
-    translate([0, 0, H/2 + rib_H/2 - overlap])
-        cube([rib_L, rib_W, rib_H + 2*overlap], center=true);
-
-    // Bottom rib: sits below the concave bottom surface, with slight overlap into body
-    translate([0, 0, -H/2 - rib_H/2 + overlap])
-        cube([rib_L, rib_W, rib_H + 2*overlap], center=true);
-}
-
-// -------------------- Final solid --------------------
-module part() {
-    union() {
-        // Main body with chamfers, recesses, and concave top/bottom
-        difference() {
-            base_block();
-
-            perimeter_chamfers();
-
-            top_recess();
-            bottom_recess();
-
-            top_concave_cut();
-            bottom_concave_cut();
-        }
-
-        // Add ribs after concave cuts so they remain visible and create the arched/stepped profile
-        ribs();
-    }
-}
-
-part();
+model();
 }

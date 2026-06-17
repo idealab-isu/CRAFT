@@ -1,99 +1,77 @@
-// Parameters
-bbox_x = 46.19; //[23.095:92.38:0.01]
-bbox_y = 40; //[20:80:0.01]
-bbox_z = 29.88; //[14.94:59.76:0.01]
-hex_flat_to_flat = 40; //[20:80:0.01]
-plate_thickness = 6; //[3:12:0.1]
-dome_radius = 23.88; //[11.94:47.76:0.01]
-hole_diameter = 4; //[1:10:0.1]
-blend_height = 1; //[0.5:3:0.1]
-blend_radius = 2; //[0.5:6:0.1]
-edge_chamfer = 0.8; //[0.2:2:0.1]
-edge_fillet = 0.6; //[0.2:2:0.1]
-top_rounding = 0.8; //[0.2:3:0.1]
-overlap = 1; //[0.5:2:0.1]
-eps = 0.2; //[0.05:0.5:0.01]
+// Dimension-calibrated (target: 46.19 x 40.00 x 29.88 mm)
+scale([0.967562, 0.838011, 0.974055])
+{
+$fn = 96;
 
-// Hexagonal Plate
-module hex_plate_prism() {
-  linear_extrude(height=plate_thickness, center=true)
-    polygon(points=[
-      [(hex_flat_to_flat/2) * (2/sqrt(3)) * 1, (hex_flat_to_flat/2) * (2/sqrt(3)) * 0],
-      [(hex_flat_to_flat/2) * (2/sqrt(3)) * 0.5, (hex_flat_to_flat/2) * (2/sqrt(3)) * (sqrt(3)/2)],
-      [(hex_flat_to_flat/2) * (2/sqrt(3)) * -0.5, (hex_flat_to_flat/2) * (2/sqrt(3)) * (sqrt(3)/2)],
-      [(hex_flat_to_flat/2) * (2/sqrt(3)) * -1, (hex_flat_to_flat/2) * (2/sqrt(3)) * 0],
-      [(hex_flat_to_flat/2) * (2/sqrt(3)) * -0.5, (hex_flat_to_flat/2) * (2/sqrt(3)) * (-sqrt(3)/2)],
-      [(hex_flat_to_flat/2) * (2/sqrt(3)) * 0.5, (hex_flat_to_flat/2) * (2/sqrt(3)) * (-sqrt(3)/2)]
+// Target bounding box (approx): 46.2 x 40.0 x 29.9 mm
+bbox_x = 46.19;
+bbox_y = 40.00;
+bbox_z = 29.88;
+
+// Primary dimensions
+hex_flat_to_flat = 40.00;     // across flats (clear hex footprint)
+plate_thickness  = 6.00;
+
+dome_radius      = 23.88;     // hemisphere radius (convex boss)
+hole_diameter    = 4.00;
+
+// Overlap to guarantee watertight unions/differences (1–2mm)
+overlap = 1.20;
+
+// --- Helpers ---
+function hex_R_from_flat(flat) = flat / sqrt(3); // circumradius for flat-to-flat hex
+
+module hex2d(flat_to_flat) {
+    R = hex_R_from_flat(flat_to_flat);
+    polygon(points = [
+        [ R, 0],
+        [ R/2,  flat_to_flat/2],
+        [-R/2,  flat_to_flat/2],
+        [-R, 0],
+        [-R/2, -flat_to_flat/2],
+        [ R/2, -flat_to_flat/2]
     ]);
 }
 
-// Hemispherical Dome
-module hemispherical_dome() {
-  difference() {
-    translate([0, 0, (plate_thickness/2) + dome_radius - overlap])
-      sphere(r=dome_radius, center=true);
-    translate([0, 0, (plate_thickness/2) - (dome_radius/2) - eps])
-      cube([2*dome_radius + 2*eps, 2*dome_radius + 2*eps, dome_radius + 2*eps], center=true);
-  }
+module hex_plate() {
+    // Plate centered at origin in Z so top face is at +plate_thickness/2
+    linear_extrude(height = plate_thickness, center = true)
+        hex2d(hex_flat_to_flat);
 }
 
-// Dome to Plate Blend Shoulder
-module dome_to_plate_blend_shoulder() {
-  translate([0, 0, (plate_thickness/2) + (blend_height/2) - overlap])
-    cylinder(r=dome_radius + blend_radius, h=blend_height, center=true);
-}
+module hemispherical_boss() {
+    // Hemisphere protrudes from TOP face only.
+    // Ensure it intersects the plate by 'overlap' for a solid union.
+    // Plate top face: z = +plate_thickness/2
+    // Hemisphere base plane: z = +plate_thickness/2 - overlap
+    base_z = plate_thickness/2 - overlap;
 
-// Central Through Hole
-module central_through_hole() {
-  translate([0, 0, (plate_thickness/2) + (dome_radius/2) - overlap/2])
-    cylinder(r=hole_diameter/2, h=plate_thickness + dome_radius + 2*eps, center=true);
-}
+    translate([0, 0, base_z])
+        intersection() {
+            // Sphere center at z = dome_radius so local z=0 is the equator plane
+            translate([0, 0, dome_radius])
+                sphere(r = dome_radius);
 
-// Edge Chamfer Tool
-module edge_chamfer_tool_sphere() {
-  sphere(r=edge_chamfer, center=true);
-}
-
-// Edge Fillet Tool
-module edge_fillet_tool_sphere() {
-  sphere(r=edge_fillet, center=true);
-}
-
-// Top Surface Rounding Tool
-module top_surface_rounding_tool_sphere() {
-  sphere(r=top_rounding, center=true);
-}
-
-// Engraving or Marking Placeholder
-module engraving_or_marking() {
-  cube([eps, eps, eps], center=true);
-}
-
-// Final Model
-module final_model() {
-  difference() {
-    union() {
-      minkowski() {
-        minkowski() {
-          minkowski() {
-            union() {
-              union() {
-                hex_plate_prism();
-                dome_to_plate_blend_shoulder();
-              }
-              hemispherical_dome();
-            }
-            edge_chamfer_tool_sphere();
-          }
-          edge_fillet_tool_sphere();
+            // Keep only z >= 0 half-space (a true hemisphere)
+            // Use a large cube starting at z=0 (in local coords) to avoid inversion.
+            translate([0, 0, (dome_radius + 2)/2])
+                cube([2*dome_radius + 4, 2*dome_radius + 4, dome_radius + 2], center = true);
         }
-        top_surface_rounding_tool_sphere();
-      }
-      engraving_or_marking();
+}
+
+module central_through_hole() {
+    // Through-hole along Z, long enough to cut through dome + plate.
+    // Centered at origin so it always intersects both.
+    h = plate_thickness + dome_radius + 20;
+    cylinder(h = h, r = hole_diameter/2, center = true);
+}
+
+// --- Final model: one connected solid ---
+difference() {
+    union() {
+        hex_plate();
+        hemispherical_boss();
     }
     central_through_hole();
-  }
 }
-
-// Render the final model
-color("Silver") final_model();
+}

@@ -1,177 +1,166 @@
-// Dimension-calibrated (target: 0.09 x 0.02 x 0.06 mm)
-scale([1.097275, 1.363674, 0.312653])
-{
-// Low-poly T-handle / knob (single connected solid)
-// Structural fixes applied:
-// - Add centered diamond-shaped recessed feature on BOTH side faces of the grip
-// - Keep slight curvature in grip (faceted)
-// - Recalculate ALL translate() placements from dimensions (no arbitrary offsets)
-// - Ensure ALL parts are connected with small overlap (scaled to this tiny model)
+// Parameters
+bbox_L = 0.09; //[0.045:0.18:0.001]
+bbox_W = 0.02; //[0.01:0.04:0.001]
+bbox_H = 0.06; //[0.03:0.12:0.001]
+grip_L = 0.09; //[0.045:0.18:0.001]
+grip_W = 0.02; //[0.01:0.04:0.001]
+grip_H = 0.02; //[0.01:0.04:0.001]
+grip_curve_sag = 0.004; //[0.002:0.008:0.0005]
+stem_W = 0.012; //[0.006:0.024:0.001]
+stem_D = 0.012; //[0.006:0.024:0.001]
+stem_H = 0.032; //[0.016:0.064:0.001]
+base_flange_D = 0.018; //[0.009:0.036:0.001]
+base_flange_H = 0.006; //[0.003:0.012:0.001]
+base_cap_D = 0.014; //[0.007:0.028:0.001]
+base_cap_H = 0.004; //[0.002:0.008:0.001]
+gusset_L = 0.012; //[0.006:0.024:0.001]
+gusset_drop = 0.008; //[0.004:0.016:0.001]
+diamond_W = 0.01; //[0.005:0.02:0.001]
+diamond_H = 0.01; //[0.005:0.02:0.001]
+diamond_depth = 0.0015; //[0.0005:0.003:0.0001]
+overlap = 0.001; //[0.0005:0.002:0.0001]
+chamfer = 0.001; //[0.0005:0.002:0.0001]
+micro_fillet_r = 0.0006; //[0.0003:0.0012:0.0001]
 
-$fn = 18;
-
-// ---------- Parameters (mm) ----------
-grip_L = 0.09;
-grip_W = 0.02;
-grip_H = 0.02;
-
-// Slight curvature (ends higher than center)
-grip_curve_sag = 0.006;
-grip_segments  = 9;
-
-stem_W = 0.012;
-stem_D = 0.012;
-stem_H = 0.032;
-
-stem_offset_from_grip_center_L = 0.0;
-stem_offset_from_grip_center_W = 0.0;
-
-base_flange_D = 0.020;
-base_flange_H = 0.006;
-base_cap_D    = 0.014;
-base_cap_H    = 0.004;
-
-gusset_L = 0.018;
-gusset_W = 0.016;
-gusset_H = 0.014;
-
-diamond_recess_depth = 0.003;
-diamond_recess_W     = 0.012;
-diamond_recess_H     = 0.012;
-diamond_recess_z     = 0.0;
-
-// Overlap scaled for this tiny model (requirement says 1-2mm, but model is <0.1mm long)
-// Use a small but meaningful overlap relative to features to guarantee manifold connectivity.
-overlap = 0.001;
-
-// ---------- Helpers ----------
-function lerp(a,b,t) = a + (b-a)*t;
-function sag_profile(t) = pow(abs(2*t - 1), 1.6);
-
-// ---------- Grip (faceted, slightly curved) ----------
-module grip_segment(xpos, zpos, segL) {
-    translate([xpos, 0, zpos])
-        cube([segL, grip_W, grip_H], center=true);
+// Base Shapes
+module grip_bar_center_block() {
+  translate([0, 0, bbox_H/2 - grip_H/2])
+    cube([grip_L - 2*gusset_L, grip_W, grip_H], center=true);
 }
 
-module grip_curved_faceted() {
-    segL = grip_L / grip_segments;
-
-    hull() {
-        for (i = [0:grip_segments-1]) {
-            t = (i + 0.5) / grip_segments; // 0..1
-            x = lerp(-grip_L/2 + segL/2, grip_L/2 - segL/2, t);
-            z = grip_curve_sag * sag_profile(t);
-            grip_segment(x, z, segL);
-        }
-    }
+module grip_bar_left_end_block() {
+  translate([-(grip_L/2 - gusset_L/2), 0, bbox_H/2 - grip_H/2 - grip_curve_sag])
+    cube([gusset_L, grip_W, grip_H], center=true);
 }
 
-// ---------- Diamond recess cutters (side faces) ----------
-module diamond_recess_cutter() {
-    // Diamond in XZ plane, extruded along Y
-    rotate([90,0,0])  // extrusion axis becomes Y
-        linear_extrude(height = diamond_recess_depth + 2*overlap, center=true)
-            polygon(points=[
-                [0,  diamond_recess_H/2],
-                [ diamond_recess_W/2, 0],
-                [0, -diamond_recess_H/2],
-                [-diamond_recess_W/2, 0]
-            ]);
-}
-
-module grip_with_recesses() {
-    difference() {
-        grip_curved_faceted();
-
-        // Place cutters so they bite into the side faces by diamond_recess_depth.
-        // Center of cutter sits just inside each side face.
-        y_inset = grip_W/2 - diamond_recess_depth/2 + overlap;
-
-        translate([0, -y_inset, diamond_recess_z]) diamond_recess_cutter();
-        translate([0,  y_inset, diamond_recess_z]) diamond_recess_cutter();
-    }
-}
-
-// ---------- Stem + faceted gussets + flange/cap ----------
-module stem_main() {
-    // Stem top should overlap into grip underside for a solid connection
-    z_stem_center = -(grip_H/2 + stem_H/2 - overlap);
-
-    translate([
-        stem_offset_from_grip_center_L,
-        stem_offset_from_grip_center_W,
-        z_stem_center
-    ])
-        cube([stem_W, stem_D, stem_H], center=true);
-}
-
-module stem_to_grip_gussets_faceted() {
-    // Gussets connect stem to underside of grip with faceted hulls
-    x0 = stem_offset_from_grip_center_L;
-    y0 = stem_offset_from_grip_center_W;
-
-    // Place gusset blocks just under the grip, overlapping slightly into it
-    z_under = -(grip_H/2 - gusset_H/2 - overlap);
-
-    union() {
-        // Left/right gussets (along X)
-        hull() {
-            stem_main();
-            translate([x0 - (stem_W/2 + gusset_L/2 - overlap), y0, z_under])
-                cube([gusset_L, gusset_W, gusset_H], center=true);
-        }
-        hull() {
-            stem_main();
-            translate([x0 + (stem_W/2 + gusset_L/2 - overlap), y0, z_under])
-                cube([gusset_L, gusset_W, gusset_H], center=true);
-        }
-
-        // Front/back gussets (along Y)
-        hull() {
-            stem_main();
-            translate([x0, y0 - (stem_D/2 + gusset_W/2 - overlap), z_under])
-                cube([gusset_W, gusset_L, gusset_H], center=true);
-        }
-        hull() {
-            stem_main();
-            translate([x0, y0 + (stem_D/2 + gusset_W/2 - overlap), z_under])
-                cube([gusset_W, gusset_L, gusset_H], center=true);
-        }
-    }
-}
-
-module stem_base_flange_cap() {
-    // Compute stem bottom Z from grip and stem dimensions (no arbitrary values)
-    z_stem_center = -(grip_H/2 + stem_H/2 - overlap);
-    z_stem_bottom = z_stem_center - stem_H/2; // bottom face of stem
-
-    // Flange sits directly under stem bottom, overlapping slightly into stem
-    z_flange_center = z_stem_bottom - base_flange_H/2 + overlap;
-
-    // Cap sits under flange, overlapping slightly into flange
-    z_cap_center = (z_flange_center - base_flange_H/2) - base_cap_H/2 + overlap;
-
-    union() {
-        translate([stem_offset_from_grip_center_L, stem_offset_from_grip_center_W, z_flange_center])
-            cylinder(r=base_flange_D/2, h=base_flange_H, center=true, $fn=12);
-
-        translate([stem_offset_from_grip_center_L, stem_offset_from_grip_center_W, z_cap_center])
-            cylinder(r=base_cap_D/2, h=base_cap_H, center=true, $fn=12);
-    }
+module grip_bar_right_end_block() {
+  translate([(grip_L/2 - gusset_L/2), 0, bbox_H/2 - grip_H/2 - grip_curve_sag])
+    cube([gusset_L, grip_W, grip_H], center=true);
 }
 
 module vertical_stem() {
-    union() {
-        stem_main();
-        stem_to_grip_gussets_faceted();
-        stem_base_flange_cap();
-    }
+  translate([0, 0, bbox_H/2 - grip_H - stem_H/2 + overlap])
+    cube([stem_W, stem_D, stem_H], center=true);
 }
 
-// ---------- Complete model (ONE connected solid) ----------
-union() {
-    grip_with_recesses();
-    vertical_stem();
+module flanged_base_cap_flange() {
+  translate([0, 0, bbox_H/2 - grip_H - stem_H - base_flange_H/2 + overlap])
+    cylinder(r=base_flange_D/2, h=base_flange_H, center=true);
 }
+
+module flanged_base_cap_cap() {
+  translate([0, 0, bbox_H/2 - grip_H - stem_H - base_flange_H - base_cap_H/2 + overlap])
+    cylinder(r=base_cap_D/2, h=base_cap_H, center=true);
+}
+
+module stem_to_grip_faceted_gusset_front() {
+  translate([0, 0, bbox_H/2 - grip_H - gusset_drop/2 + overlap])
+    cube([gusset_L, stem_D, gusset_drop], center=true);
+}
+
+module stem_to_grip_faceted_gusset_left() {
+  translate([-(stem_W/2 + gusset_L/2 - overlap), 0, bbox_H/2 - grip_H - gusset_drop/2 + overlap])
+    cube([gusset_L, stem_D, gusset_drop], center=true);
+}
+
+module stem_to_grip_faceted_gusset_right() {
+  translate([(stem_W/2 + gusset_L/2 - overlap), 0, bbox_H/2 - grip_H - gusset_drop/2 + overlap])
+    cube([gusset_L, stem_D, gusset_drop], center=true);
+}
+
+module diamond_side_recess_left() {
+  translate([0, -(grip_W/2 - diamond_depth/2 + overlap), bbox_H/2 - grip_H/2])
+    rotate([90, 0, 0])
+    linear_extrude(height=diamond_depth, center=true)
+      polygon(points=[[0, diamond_H/2], [diamond_W/2, 0], [0, -diamond_H/2], [-diamond_W/2, 0]]);
+}
+
+module diamond_side_recess_right() {
+  translate([0, (grip_W/2 - diamond_depth/2 + overlap), bbox_H/2 - grip_H/2])
+    rotate([-90, 0, 0])
+    linear_extrude(height=diamond_depth, center=true)
+      polygon(points=[[0, diamond_H/2], [diamond_W/2, 0], [0, -diamond_H/2], [-diamond_W/2, 0]]);
+}
+
+module edge_chamfers_top_wedge() {
+  translate([0, 0, bbox_H/2 - chamfer/2 + overlap])
+    cube([grip_L + 2*overlap, grip_W + 2*overlap, chamfer], center=true);
+}
+
+module edge_chamfers_bottom_wedge() {
+  translate([0, 0, bbox_H/2 - grip_H - chamfer/2 - overlap])
+    cube([grip_L + 2*overlap, grip_W + 2*overlap, chamfer], center=true);
+}
+
+module extra_faceting_detail() {
+  translate([0, 0, bbox_H/2 - grip_H - stem_H/2 + overlap])
+    rotate([0, 0, 45])
+    cube([stem_W + 2*chamfer, stem_D + 2*chamfer, stem_H/3], center=true);
+}
+
+module micro_fillet_approximations_sphere() {
+  sphere(r=micro_fillet_r, center=true);
+}
+
+// Operations
+module grip_curvature_profile() {
+  hull() {
+    grip_bar_center_block();
+    grip_bar_left_end_block();
+    grip_bar_right_end_block();
+  }
+}
+
+module grip_bar() {
+  union() {
+    grip_curvature_profile();
+    grip_bar_center_block();
+  }
+}
+
+module stem_to_grip_faceted_gussets() {
+  union() {
+    stem_to_grip_faceted_gusset_front();
+    stem_to_grip_faceted_gusset_left();
+    stem_to_grip_faceted_gusset_right();
+  }
+}
+
+module flanged_base_cap() {
+  union() {
+    flanged_base_cap_flange();
+    flanged_base_cap_cap();
+  }
+}
+
+module t_handle_raw_union() {
+  union() {
+    grip_bar();
+    vertical_stem();
+    stem_to_grip_faceted_gussets();
+    flanged_base_cap();
+    extra_faceting_detail();
+  }
+}
+
+module t_handle_with_diamond_recesses() {
+  difference() {
+    t_handle_raw_union();
+    diamond_side_recess_left();
+    diamond_side_recess_right();
+  }
+}
+
+module t_handle_with_edge_chamfers() {
+  difference() {
+    t_handle_with_diamond_recesses();
+    edge_chamfers_top_wedge();
+    edge_chamfers_bottom_wedge();
+  }
+}
+
+// Final Output
+minkowski() {
+  t_handle_with_edge_chamfers();
+  micro_fillet_approximations_sphere();
 }

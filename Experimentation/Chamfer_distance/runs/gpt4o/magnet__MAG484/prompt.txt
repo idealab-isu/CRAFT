@@ -1,4 +1,0 @@
-id   : magnet__MAG484
-tier : Simple
-
-A ring neodymium magnet: 6.35 mm outer diameter, 3.175 mm inner diameter, 6.35 mm height, 0.5 mm corner radius.

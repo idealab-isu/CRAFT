@@ -1,133 +1,132 @@
-// Stepped coin-like disk with 3 HEX through-cutouts + recessed triangular/ribbed webs (both faces)
-// Structural fixes:
-//  - Make cutouts unambiguously HEX in face views (true 6-sided prism, rotated 30°)
-//  - Make recessed 3-spoke web clearly connect the three openings on BOTH faces
-//  - Recalculate all translate() values so parts touch (boss sits on flange with slight overlap)
-// Notes:
-//  - The "0.1 x 0.1 x 0.0 mm" bbox is physically impossible for a solid; we keep a small nonzero Z.
-//  - Target bounding box: 0.1 x 0.1 x 0.04 mm
+// Dimension-calibrated (target: 0.10 x 0.10 x 0.04 mm)
+scale([1.000000, 1.000000, 2.058824])
+{
+// Round coin-like disk with stepped profile (wide flange + raised boss),
+// three through hex cutouts in triangular pattern, and recessed/ribbed webs
+// on BOTH faces connecting the hex openings.
+// NOTE: The original "bbox 0.1 x 0.1 x 0.0 mm" is physically incompatible with a
+// visible stepped boss. This version keeps the part plate-like but gives it a
+// clear step in side view by using a small (but nonzero) thickness and boss height.
 
-$fn = 128;
+$fn = 96;
 
-// ---- Bounding box targets ----
-bbox_X = 0.1;
-bbox_Y = 0.1;
-bbox_Z = 0.04;
+// -------------------- Parameters --------------------
+plate_d = 0.10;          // overall flange diameter
+plate_t = 0.012;         // flange thickness (thin/plate-like but visible)
 
-// ---- Main dimensions (fit within bbox) ----
-flange_D = bbox_X;          // 0.1
-flange_t = 0.028;
+boss_d  = 0.060;         // raised central boss diameter (smaller than flange)
+boss_h  = 0.006;         // boss height above flange (clear step)
 
-boss_D   = 0.06;
-boss_h   = bbox_Z - flange_t;   // ensures total height = bbox_Z
+hex_af        = 0.020;   // hex across flats
+hex_center_r  = 0.022;   // radius to each hex center (triangular pattern)
 
-// ---- Hex pattern (clearly visible) ----
-hex_AF       = 0.026;       // across flats
-hex_center_R = 0.022;       // radius to hex centers (triangular pattern)
+web_clearance_to_rim = 0.008;
 
-// ---- Web recess (both faces) ----
-web_recess_depth     = 0.004;   // depth of recess into each face
-web_thickness        = 0.008;   // rib width
-web_clearance_to_hex = 0.002;
+web_recess_depth = 0.0020;   // recess depth on each face (clamped to available thickness)
+rib_count        = 6;
+rib_groove_w     = 0.0012;
+rib_groove_depth = 0.0012;
 
-eps = 0.0005;
+overlap = 0.001;         // small overlap to ensure watertight unions/differences
 
-// ---------- Helpers ----------
-function clamp(x,a,b) = x < a ? a : (x > b ? b : x);
+// -------------------- Helpers --------------------
+function hex_R_from_af(af) = af / sqrt(3); // circumradius for pointy-top hex
 
-// Regular hex polygon sized by across-flats (AF)
-module hex2d(af=hex_AF) {
-    // For a regular hex: AF = 2*apothem; apothem = r*cos(30) => r = AF/sqrt(3)
-    r = af / sqrt(3);
-    polygon(points=[ for(i=[0:5]) [ r*cos(60*i), r*sin(60*i) ] ]);
+module hex2d(af){
+    R = hex_R_from_af(af);
+    polygon([ for(i=[0:5]) [ R*cos(60*i), R*sin(60*i) ] ]);
 }
 
-module hex_cutout_at(xy=[0,0], rot=0, h=bbox_Z + 40*eps) {
-    translate([xy[0], xy[1], 0])
-        rotate([0,0,rot])
-            linear_extrude(height=h, center=true, convexity=10)
-                hex2d(hex_AF);
-}
+module stepped_body(){
+    // Single connected solid: flange + boss with slight Z overlap
+    union(){
+        // Flange centered at Z=0
+        cylinder(d=plate_d, h=plate_t, center=true);
 
-// Recessed 3-spoke web that CONNECTS the three hex openings (both faces)
-// Implemented as: three "capsules" (hull of two circles) from center to near each hex center,
-// plus a small central hub. This reads as a triangular/ribbed web in orthographic views.
-module tri_web_recess(z_center=0, depth=web_recess_depth) {
-    rib_r = web_thickness/2;
-
-    // Keep ribs clear of hex openings: stop short of hex by (apothem + clearance)
-    hex_apothem = hex_AF/2;
-    stop_clear  = hex_apothem + web_clearance_to_hex;
-
-    // End point along each spoke, measured from center
-    spoke_end_R = max(0, hex_center_R - stop_clear);
-
-    translate([0,0,z_center])
-        linear_extrude(height=depth, center=true, convexity=10)
-            union() {
-                // Three spokes (capsules) from center to near each hex opening
-                for(a=[0,120,240]) {
-                    hull() {
-                        circle(r=rib_r, $fn=48);
-                        translate([spoke_end_R*cos(a), spoke_end_R*sin(a)])
-                            circle(r=rib_r, $fn=48);
-                    }
-                }
-
-                // Central hub to ensure connectivity and a clear "3-spoke" read
-                circle(r=rib_r*1.35, $fn=48);
-            }
-}
-
-// ---------- Main solid ----------
-module part() {
-    // Enforce exact overall height bbox_Z with a true step:
-    // flange centered at z=0, boss sits on top face of flange.
-    boss_h_eff   = clamp(boss_h, eps, bbox_Z - eps);
-    flange_t_eff = clamp(flange_t, eps, bbox_Z - boss_h_eff);
-
-    // Recess depth must not exceed available face thickness
-    recess_d = clamp(web_recess_depth, eps, flange_t_eff/2 - 3*eps);
-
-    // Slight overlap between flange and boss for robust union (scaled to tiny model)
-    overlap_z = 2*eps;
-
-    difference() {
-        // Base: flange + raised boss (connected)
-        union() {
-            // Flange centered at z=0
-            cylinder(d=flange_D, h=flange_t_eff, center=true);
-
-            // Boss on top of flange:
-            // flange top face at +flange_t/2
-            // boss bottom face at (boss_center - boss_h/2)
-            // set boss_center so boss bottom is slightly below flange top (overlap)
-            boss_center_z = (flange_t_eff/2) + (boss_h_eff/2) - overlap_z;
-
-            translate([0,0,boss_center_z])
-                cylinder(d=boss_D, h=boss_h_eff, center=true);
-        }
-
-        // Three THROUGH hex cutouts (clearly hex, 120° apart)
-        for(a=[0,120,240]) {
-            hex_cutout_at(
-                xy=[hex_center_R*cos(a), hex_center_R*sin(a)],
-                rot=30,                       // flats horizontal/vertical in views
-                h=bbox_Z + 40*eps
-            );
-        }
-
-        // Recessed webs on BOTH faces of the flange (do not cut through)
-        // Top face of flange at +flange_t/2, bottom face at -flange_t/2
-        tri_web_recess(
-            z_center= (flange_t_eff/2) - (recess_d/2),
-            depth=recess_d + 2*eps
-        );
-        tri_web_recess(
-            z_center=-(flange_t_eff/2) + (recess_d/2),
-            depth=recess_d + 2*eps
-        );
+        // Boss sits on top face of flange (explicit step)
+        // Translate computed so it touches with overlap (no floating).
+        translate([0,0, plate_t/2 + boss_h/2 - overlap])
+            cylinder(d=boss_d, h=boss_h, center=true);
     }
 }
 
-part();
+module hex_hole_at(angle_deg){
+    // Through-hole across entire stepped thickness
+    total_h = plate_t + boss_h;
+    rotate([0,0,angle_deg])
+        translate([hex_center_r, 0, 0])
+            linear_extrude(height = total_h + 6*overlap, center=true)
+                hex2d(hex_af);
+}
+
+module all_hex_holes(){
+    union(){
+        hex_hole_at(0);
+        hex_hole_at(120);
+        hex_hole_at(240);
+    }
+}
+
+module web_triangle_2d(){
+    // Triangle connecting the three hex centers, expanded to form a web region.
+    r_lim = plate_d/2 - web_clearance_to_rim;
+    r_use = min(hex_center_r, r_lim);
+
+    pts = [
+        [ r_use*cos(0),   r_use*sin(0)   ],
+        [ r_use*cos(120), r_use*sin(120) ],
+        [ r_use*cos(240), r_use*sin(240) ]
+    ];
+
+    offset(delta = 0.006) polygon(pts);
+}
+
+module recessed_web_face(z_sign=+1){
+    // Recessed triangular web on one face (subtract)
+    // Clamp to available thickness on that face.
+    d = min(web_recess_depth, plate_t/2 - 2*overlap);
+    z0 = z_sign*(plate_t/2 - d/2);
+
+    translate([0,0,z0])
+        linear_extrude(height=d + 2*overlap, center=true)
+            web_triangle_2d();
+}
+
+module rib_grooves_on_face(z_sign=+1){
+    // Grooves cut into the recessed web area, arranged along 3 spokes.
+    d = min(rib_groove_depth, plate_t/2 - 2*overlap);
+    z0 = z_sign*(plate_t/2 - d/2);
+
+    r_in  = 0.0;
+    r_out = plate_d/2 - web_clearance_to_rim;
+    spoke_len = r_out - r_in;
+
+    spoke_band_w = 0.010;
+    groove_pitch = spoke_band_w/(rib_count+1);
+
+    for (a = [0,120,240]){
+        rotate([0,0,a])
+            for (i = [1:rib_count]){
+                y = (i - (rib_count+1)/2) * groove_pitch;
+                translate([ (r_in + r_out)/2, y, z0 ])
+                    cube([spoke_len + 2*overlap, rib_groove_w, d + 2*overlap], center=true);
+            }
+    }
+}
+
+module all_recesses_and_ribs(){
+    union(){
+        recessed_web_face(+1);
+        recessed_web_face(-1);
+        rib_grooves_on_face(+1);
+        rib_grooves_on_face(-1);
+    }
+}
+
+// -------------------- Final Model --------------------
+difference(){
+    stepped_body();          // flange + raised boss (explicit stepped profile)
+    all_hex_holes();         // 3 through hex cutouts
+    all_recesses_and_ribs(); // recessed triangular webs + rib grooves on both faces
+}
+}

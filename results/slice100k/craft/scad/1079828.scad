@@ -1,70 +1,67 @@
-// Long thin strip with shallow saddle (V) along LENGTH (x), flat top in plan,
-// and subtle underside end steps + mid seam. Bounding box: 61.0 x 12.8 x 5.1 mm.
+// Long thin strip with shallow saddle (V) along length + subtle end steps + mid seam
+// Bounding box target: 61.0 x 12.8 x 5.1 mm
 
-L = 60.96;  // length (x)
-W = 12.77;  // width  (y)
-H = 5.08;   // height (z)
+L = 60.96;          // X length
+W = 12.77;          // Y width
+H = 5.08;           // Z overall height (top is flat)
 
-// Saddle: underside is LOWEST at center, slightly HIGHER toward ends (subtle V)
-saddle_rise = 0.55;      // how much the underside rises at ends vs center
-saddle_flat_len = 1.6;   // small flat at center to suggest transition
+v_depth = 1.20;       // ends are higher (bottom closer to top) by this amount vs center
+end_step_len = 4.0;   // shoulder length at each end
+end_step_drop = 0.60; // extra thickness at ends (bottom lower) by this amount
 
-// Underside localized thickness changes (steps/shoulders) - add material below bottom
-end_step_len  = 6.0;
-end_step_drop = 0.60;
+mid_seam_len = 6.0;   // subtle mid transition length
+mid_seam_drop = 0.25; // extra thickness at mid (bottom lower) by this amount
 
-mid_seam_len  = 2.2;
-mid_seam_drop = 0.35;
-
-eps = 0.02;
+overlap = 0.20;
 $fn = 64;
 
-// Base block with flat top; bottom at z=0, top at z=H
-module base_body() {
-  translate([0, 0, H/2]) cube([L, W, H], center=true);
+// --- Profiles along X (length) ---
+function saddle_raise(x) =
+    v_depth * (abs(x) / (L/2)); // 0 at center, v_depth at ends (linear "V")
+
+function end_drop(x) =
+    (abs(x) >= (L/2 - end_step_len)) ? end_step_drop : 0;
+
+function mid_drop(x) =
+    (abs(x) <= (mid_seam_len/2)) ? mid_seam_drop : 0;
+
+// Bottom Z at given x (top is fixed at +H/2)
+function bottom_z(x) =
+    (-H/2) + saddle_raise(x) - end_drop(x) - mid_drop(x);
+
+// Build watertight solid by extruding an XZ polygon along Y (width).
+module strip_solid() {
+    n = 180;
+    dx = L / n;
+
+    pts_top = [ for (i = [0:n]) [ -L/2 + i*dx,  H/2 ] ];
+    pts_bot = [ for (i = [n:-1:0]) [ -L/2 + i*dx, bottom_z(-L/2 + i*dx) ] ];
+    pts = concat(pts_top, pts_bot);
+
+    // Correct orientation: polygon in XZ, extrude along Y, centered about Y=0.
+    translate([0, -W/2, 0])
+        linear_extrude(height=W, center=false, convexity=10)
+            polygon(points=pts);
 }
 
-// Create a shallow V-shaped underside by CUTTING a wedge that is thickest at center
-// and tapers to ~0 at the ends. This makes the underside higher at ends.
-module underside_saddle_cut() {
-  // Extrude along width (y). Polygon is in x-z plane.
-  // We cut from z=0 upward by an amount that is max at center and ~0 at ends.
-  linear_extrude(height=W + 0.4, center=true, convexity=10)
-    polygon(points=[
-      // bottom edge slightly below 0 to ensure robust boolean
-      [-L/2 - 0.2, -0.2],
-      [ L/2 + 0.2, -0.2],
+// Small chamfers on the long top edges (kept subtle).
+module edge_soften() {
+    cham = 0.35;
+    difference() {
+        children();
 
-      // right end: near zero cut
-      [ L/2 + 0.2,  0.0],
-
-      // ramp up to center flat (max cut)
-      [ saddle_flat_len/2, saddle_rise],
-      [-saddle_flat_len/2, saddle_rise],
-
-      // ramp back down to left end
-      [-L/2 - 0.2,  0.0]
-    ]);
+        // Remove tiny wedges along the two long top edges
+        for (sy = [-1, 1]) {
+            translate([0, sy*(W/2 - cham/2), H/2 - cham/2])
+                rotate([0, 45*sy, 0])  // slight bevel feel without changing overall size much
+                    cube([L + 2*overlap, cham, cham], center=true);
+        }
+    }
 }
 
-// Add underside steps by unioning extra material below z=0 (connected with overlap)
-module underside_end_step(sign=1) {
-  translate([sign*(L/2 - end_step_len/2), 0, -end_step_drop/2 + eps])
-    cube([end_step_len, W, end_step_drop + 2*eps], center=true);
+module final_model() {
+    edge_soften()
+        strip_solid();
 }
 
-module underside_mid_seam() {
-  translate([0, 0, -mid_seam_drop/2 + eps])
-    cube([mid_seam_len, W, mid_seam_drop + 2*eps], center=true);
-}
-
-// Final solid (single connected piece)
-difference() {
-  union() {
-    base_body();
-    underside_end_step(-1);
-    underside_end_step( 1);
-    underside_mid_seam();
-  }
-  underside_saddle_cut();
-}
+final_model();

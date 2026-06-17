@@ -1,23 +1,27 @@
-// Rectangular hollow prism (box-section tube) with centered through-opening
-// Bounding box: 0.8 x 0.3 x 0.3 mm (X x Y x Z), elongated along X
+// Long rectangular hollow prism (box-section tube) with centered through-opening
+// Bounding box: 0.8 x 0.3 x 0.3 mm (elongated along X)
 
-L = 0.8;     // length (X)
-W = 0.3;     // width  (Y)
-H = 0.3;     // height (Z)
+L = 0.8;
+W = 0.3;
+H = 0.3;
+t = 0.05;          // uniform wall thickness
 
-wall_t = 0.03;   // uniform wall thickness
-eps = 0.002;     // small overlap to ensure clean boolean through-cut
+// Use a tiny epsilon (in mm) to guarantee a clean through-cut without changing the bounding box
+eps = 0.001;
 
-// Inner opening dimensions (must be positive and smaller than outer)
-innerW = max(W - 2*wall_t, eps);
-innerH = max(H - 2*wall_t, eps);
+// Inner void dimensions (centered)
+inner_L = L + 2*eps;     // extend past both ends to ensure a true through-opening
+inner_W = W - 2*t;
+inner_H = H - 2*t;
 
-union() {
-    difference() {
-        // Outer tube (featureless exterior)
-        cube([L, W, H], center=true);
+// Ensure valid wall thickness / non-degenerate inner void
+assert(inner_W > 0 && inner_H > 0, "Wall thickness too large for given W/H.");
 
-        // Centered rectangular through-opening (slightly longer so ends are open)
-        cube([L + 2*eps, innerW, innerH], center=true);
-    }
+difference() {
+    // Outer prism (featureless exterior)
+    cube([L, W, H], center=true);
+
+    // Centered rectangular through-void (box-section tube)
+    // Slightly longer than outer to ensure the cut fully opens both ends
+    cube([inner_L, inner_W, inner_H], center=true);
 }

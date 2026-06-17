@@ -1,0 +1,16 @@
+\begin{table}[t]
+\centering
+\caption{Matched-effort baselines on NopSCADlib (direct generation augmented to match CRAFT's compute).}
+\label{tab:matched_effort}
+\begin{tabular}{lrrr}
+\toprule
+Method & CD $\downarrow$ & F1 $\uparrow$ & Voxel IoU $\uparrow$ \\
+\midrule
+craft & 0.0654 & 0.2530 & 0.2356 \\
+direct\_repair & 0.0684 & 0.2576 & 0.2217 \\
+direct\_vlm & 0.0684 & 0.2612 & 0.2285 \\
+direct\_matched\_calls & 0.0678 & 0.2651 & 0.2262 \\
+gpt52 & 0.0662 & 0.2587 & 0.1890 \\
+\bottomrule
+\end{tabular}
+\end{table}

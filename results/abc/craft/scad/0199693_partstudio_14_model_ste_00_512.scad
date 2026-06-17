@@ -1,137 +1,122 @@
 // Dimension-calibrated (target: 0.03 x 0.02 x 0.03 mm)
-scale([0.000500, 0.000929, 0.000276])
+scale([0.949393, 1.203751, 0.707991])
 {
-// U-frame bracket with circular end plates and windowed crossbar
-// Units: mm
+// U-shaped bracket/frame with two circular end plates (side cheeks) and a straight crossbar.
+// One connected solid, symmetric about mid-plane. Units in meters (as in original params).
 
-$fn = 128;
+$fn = 96;
 
-// -------------------- Parameters --------------------
-crossbar_len = 60;
-crossbar_w   = 12;
-crossbar_h   = 4;
+// Parameters
+bbox_L = 0.03; //[0.015:0.06:0.001]
+bbox_W = 0.02; //[0.01:0.04:0.001]
+bbox_H = 0.03; //[0.015:0.06:0.001]
 
-plate_D      = 28;
-plate_th     = 6;
-plate_rise   = 26;   // height of cheeks above crossbar top
+plate_t = 0.004; //[0.002:0.008:0.0005]
+plate_r = 0.01; //[0.005:0.02:0.0005]
+plate_hole_r = 0.006; //[0.003:0.012:0.0005]
 
-hole_D       = 16;
+crossbar_L = 0.03; //[0.015:0.06:0.001]
+crossbar_W = 0.008; //[0.004:0.016:0.0005]
+crossbar_t = 0.004; //[0.002:0.008:0.0005]
 
-small_cutout_D        = 4;
-small_cutout_offset_r = 8;
+plate_offset_from_ends = 0.0; //[0.0:0.01:0.0005]
 
-win_len   = 16;
-win_w     = 6;
+window_side_L = 0.008; //[0.004:0.016:0.0005]
+window_side_W = 0.003; //[0.0015:0.006:0.0005]
+window_center_diamond_diag = 0.006; //[0.003:0.012:0.0005]
 
-diamond_w = 10;
-diamond_h = 10;
+small_cutout_r = 0.0015; //[0.00075:0.003:0.00025]
+small_cutout_count = 2; //[1:4:1]
+small_cutout_radial_offset = 0.007; //[0.0035:0.014:0.0005]
 
-overlap   = 0.4;   // ensures connectivity / robust booleans
-cut_depth = 200;   // through-cuts
+overlap = 0.001; //[0.0005:0.002:0.0001]
+fillet_r = 0.0008; //[0.0004:0.0016:0.0001]
 
-// -------------------- Derived --------------------
-plate_r = plate_D/2;
+// Derived placement (ensure connectivity)
+plate_x = (crossbar_L/2 - plate_t/2 - plate_offset_from_ends);
+crossbar_x_len = crossbar_L - 2*plate_offset_from_ends;
 
-x_left  = -crossbar_len/2 + plate_th/2;
-x_right =  crossbar_len/2 - plate_th/2;
+// Place crossbar so it overlaps into plates by "overlap" (connects as one solid)
+crossbar_z = plate_r - crossbar_t/2 + overlap;
 
-// Place crossbar so its TOP is at z=0, and cheeks rise upward (+z)
-z_crossbar_center = -crossbar_h/2;
-
-// End plates: their centers sit at z = plate_r so their bottom is at z=0
-z_plate_center = plate_r;
-
-// -------------------- Helpers --------------------
-module diamond_prism(w, h, t, center=true) {
-  linear_extrude(height=t, center=center)
-    polygon(points=[
-      [ 0,  h/2],
-      [ w/2, 0],
-      [ 0, -h/2],
-      [-w/2, 0]
-    ]);
+// Helpers
+module diamond_window(diag, h){
+    linear_extrude(height=h, center=true)
+        polygon(points=[
+            [ diag/2, 0],
+            [ 0, diag/2],
+            [-diag/2, 0],
+            [ 0,-diag/2]
+        ]);
 }
 
-module end_plate_at(xpos) {
-  // Plate is a disk in YZ plane (extruded along X)
-  translate([xpos, 0, z_plate_center])
-    rotate([0, 90, 0])
-      cylinder(r=plate_r, h=plate_th, center=true);
+module end_plate_at(xpos){
+    // Plate lies in YZ plane, thickness along X
+    translate([xpos, 0, 0])
+        rotate([0,90,0])
+            cylinder(r=plate_r, h=plate_t, center=true);
 }
 
-module end_plate_cuts_at(xpos) {
-  translate([xpos, 0, z_plate_center])
-    rotate([0, 90, 0]) {
-      // central opening
-      cylinder(r=hole_D/2, h=cut_depth, center=true);
+module end_plate_holes_at(xpos){
+    // Central opening
+    translate([xpos, 0, 0])
+        rotate([0,90,0])
+            cylinder(r=plate_hole_r, h=plate_t + 2*overlap, center=true);
 
-      // small cutouts (3)
-      translate([0,  small_cutout_offset_r, 0])
-        cylinder(r=small_cutout_D/2, h=cut_depth, center=true);
-      translate([0, -small_cutout_offset_r, 0])
-        cylinder(r=small_cutout_D/2, h=cut_depth, center=true);
-      translate([0, 0,  small_cutout_offset_r])
-        cylinder(r=small_cutout_D/2, h=cut_depth, center=true);
+    // Smaller cutouts (2 or 4)
+    for (i = [0:small_cutout_count-1]) {
+        ang = (small_cutout_count==2) ? (i==0 ? 90 : 270) : (i*360/small_cutout_count);
+        translate([xpos, 0, 0])
+            rotate([0,90,0])
+                translate([small_cutout_radial_offset*cos(ang), small_cutout_radial_offset*sin(ang), 0])
+                    cylinder(r=small_cutout_r, h=plate_t + 2*overlap, center=true);
     }
 }
 
-module crossbar_solid() {
-  translate([0, 0, z_crossbar_center])
-    cube([crossbar_len, crossbar_w, crossbar_h], center=true);
+module crossbar_solid(){
+    translate([0, 0, crossbar_z])
+        cube([crossbar_x_len, crossbar_W, crossbar_t], center=true);
 }
 
-module crossbar_windows() {
-  // Cut windows through crossbar thickness (Z)
-  // Left and right rectangular windows
-  translate([-crossbar_len/4, 0, z_crossbar_center])
-    cube([win_len, win_w, cut_depth], center=true);
+module crossbar_windows(){
+    // Two elongated windows (rectangular/hex-like by being long and narrow)
+    win_h = crossbar_t + 2*overlap;
+    x_off = crossbar_x_len/4;
 
-  translate([ crossbar_len/4, 0, z_crossbar_center])
-    cube([win_len, win_w, cut_depth], center=true);
+    translate([-x_off, 0, crossbar_z])
+        cube([window_side_L, window_side_W, win_h], center=true);
 
-  // Center diamond window
-  translate([0, 0, z_crossbar_center])
-    rotate([0, 0, 45])
-      diamond_prism(diamond_w, diamond_h, cut_depth, center=true);
+    translate([ x_off, 0, crossbar_z])
+        cube([window_side_L, window_side_W, win_h], center=true);
+
+    // Central diamond window
+    translate([0, 0, crossbar_z])
+        diamond_window(window_center_diamond_diag, win_h);
 }
 
-module cheeks() {
-  // Two vertical side cheeks rising from crossbar top (z=0) to z=plate_rise
-  // They overlap slightly into the crossbar for a single connected solid.
-  cheek_h = plate_rise + overlap;
-  cheek_z = cheek_h/2 - overlap/2; // bottom slightly below z=0
-
-  union() {
-    translate([x_left, 0, cheek_z])
-      cube([plate_th, plate_D, cheek_h], center=true);
-
-    translate([x_right, 0, cheek_z])
-      cube([plate_th, plate_D, cheek_h], center=true);
-  }
+module u_frame_raw(){
+    difference(){
+        union(){
+            // Connected union: crossbar overlaps into plates
+            crossbar_solid();
+            end_plate_at(-plate_x);
+            end_plate_at( plate_x);
+        }
+        // Cutouts
+        end_plate_holes_at(-plate_x);
+        end_plate_holes_at( plate_x);
+        crossbar_windows();
+    }
 }
 
-// -------------------- Final Model --------------------
-difference() {
-  union() {
-    crossbar_solid();
-    cheeks();
-
-    // Circular end plates at the top of cheeks
-    // Centered at z=plate_rise + plate_r so their bottom touches z=plate_rise
-    translate([0, 0, plate_rise])
-      union() {
-        end_plate_at(x_left);
-        end_plate_at(x_right);
-      }
-  }
-
-  // Crossbar windows
-  crossbar_windows();
-
-  // End plate openings/cutouts
-  translate([0, 0, plate_rise]) {
-    end_plate_cuts_at(x_left);
-    end_plate_cuts_at(x_right);
-  }
+module u_frame_fillet(){
+    // Keep fillet modest; minkowski increases size slightly
+    minkowski(){
+        u_frame_raw();
+        sphere(r=fillet_r);
+    }
 }
+
+// Final Output (single connected solid)
+u_frame_fillet();
 }

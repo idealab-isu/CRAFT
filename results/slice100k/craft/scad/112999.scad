@@ -1,115 +1,128 @@
 // Dimension-calibrated (target: 10.00 x 23.00 x 6.35 mm)
-scale([0.989247, 1.000000, 0.635000])
+scale([0.833333, 0.635000, 2.300000])
 {
-// Push-in fastener: head + cylindrical shank + split two-prong tapered tip
-// Target bounding box: 23.0 (X length) x 10.0 (Y width) x 6.3 (Z height) mm
-// Elongated along X. One connected solid.
-
 $fn = 96;
 
-// -------------------- Parameters --------------------
-L_total = 23.0;          // overall length along X
-W_max   = 10.0;          // max width (head diameter)
-H_max   = 6.3;           // max height (shank diameter)
+// Target bounding box: 23.0 x 10.0 x 6.3 mm (X x Y x Z), elongated along X
+bbox_L = 23;
+bbox_W = 10;
+bbox_H = 6.3;
 
-head_d = 10.0;           // head diameter
-head_t = 2.2;            // head thickness along X
+// Main dimensions (kept within bbox)
+head_d   = 10;   // max Y/Z
+head_t   = 2;
 
-shank_d = 6.0;           // shank diameter
-tip_L   = 6.0;           // tapered tip length along X
-transition_L = 0.8;      // head-to-shank taper length
+shank_d  = 6;
+shank_L  = 14;
 
-slot_w  = 1.2;           // slot width (Y)
-slot_L  = 5.5;           // slot length along X (within tip)
-slot_root = 0.35;        // uncut root at tip base for strength
+tip_L      = 7;
+tip_end_d  = 4;
 
-leg_tip_d  = 4.6;        // tip diameter at end
-leg_base_d = 6.0;        // tip diameter at base (matches shank)
+// Split-tip slot
+slot_w = 1.2;   // slot width (Y)
+slot_L = 6;     // slot length along X (within tip)
 
-edge_chamfer = 0.4;      // small end chamfers
-overlap = 0.25;          // overlap to guarantee watertight unions
+// Wedge opening near the end (widens toward the tip end)
+wedge_open_w = 3.2;  // slot widens toward the very end (Y)
+wedge_L      = 4.5;  // length of widening region from tip end back along X
 
-// -------------------- Derived --------------------
-head_r  = min(head_d, W_max)/2;
-shank_r = min(shank_d, H_max)/2;
+// Overlap to guarantee connectivity / clean booleans (1-2mm as requested)
+overlap = 1.2;
 
-shank_L = max(0.01, L_total - (head_t + transition_L + tip_L));
+// Derived: keep total length exactly bbox_L
+transition_L = bbox_L - (head_t + shank_L + tip_L);
+transition_L = (transition_L < 0) ? 0 : transition_L;
 
-// Place model centered at origin along X
-x0 = -L_total/2;                 // leftmost end
-x1 =  L_total/2;                 // rightmost end
+// Axis: part runs along +X, centered at origin
+x0 = -bbox_L/2;
 
-x_head_c  = x0 + head_t/2;
-x_trans_c = x0 + head_t + transition_L/2;
-x_shank_c = x0 + head_t + transition_L + shank_L/2;
-x_tip_c   = x0 + head_t + transition_L + shank_L + tip_L/2;
+// Segment extents (explicit faces so everything touches/overlaps deterministically)
+x_head_L = x0;
+x_head_R = x_head_L + head_t;
 
-x_tip_base = x0 + head_t + transition_L + shank_L; // start of tip (toward +X)
+x_trans_L = x_head_R;
+x_trans_R = x_trans_L + transition_L;
 
-// -------------------- Modules --------------------
-module head_disc() {
-  translate([x_head_c, 0, 0])
-    rotate([0, 90, 0])  // cylinder axis along X
-      cylinder(r=head_r, h=head_t + overlap, center=true);
+x_shank_L = x_trans_R;
+x_shank_R = x_shank_L + shank_L;
+
+x_tip_Lf  = x_shank_R;
+x_tip_Rf  = x_tip_Lf + tip_L;   // should equal +bbox_L/2
+
+// Helpers: cylinders oriented along X
+module cylX_len(len, r1, r2) {
+    rotate([0,90,0]) cylinder(h=len, r1=r1, r2=r2, center=true);
 }
 
-module head_to_shank_transition() {
-  translate([x_trans_c, 0, 0])
-    rotate([0, 90, 0])
-      cylinder(r1=head_r, r2=shank_r, h=transition_L + overlap, center=true);
+module cylX_between(xL, xR, r1, r2) {
+    translate([(xL + xR)/2, 0, 0])
+        cylX_len((xR - xL), r1, r2);
 }
 
-module shank_cylinder() {
-  translate([x_shank_c, 0, 0])
-    rotate([0, 90, 0])
-      cylinder(r=shank_r, h=shank_L + overlap, center=true);
+module fastener_body() {
+    union() {
+        // Head (disk)
+        cylX_between(x_head_L, x_head_R + overlap, head_d/2, head_d/2);
+
+        // Transition (head -> shank) if needed
+        if (transition_L > 0)
+            cylX_between(x_trans_L - overlap, x_trans_R + overlap, head_d/2, shank_d/2);
+
+        // Shank (long cylindrical body)
+        cylX_between(x_shank_L - overlap, x_shank_R + overlap, shank_d/2, shank_d/2);
+
+        // Tip (tapered continuation of shank)
+        cylX_between(x_tip_Lf - overlap, x_tip_Rf, shank_d/2, tip_end_d/2);
+    }
 }
 
-module tip_taper() {
-  translate([x_tip_c, 0, 0])
-    rotate([0, 90, 0])
-      cylinder(r1=leg_base_d/2, r2=leg_tip_d/2, h=tip_L + overlap, center=true);
+module tip_slot_cut() {
+    // Slot must be cut into the *end of the shank/tip* to create two prongs (single connected part)
+    x_tip_start = x_tip_Lf;
+    x_tip_end   = x_tip_Rf;
+
+    // Clamp lengths to tip length
+    x_slot_L  = min(slot_L, tip_L);
+    x_wedge_L = min(wedge_L, tip_L);
+
+    // Place constant-width slot so it starts at the tip start and runs toward the end
+    // (ensures the split is actually at the end region and connected to the shank)
+    x_slot_center = x_tip_start + x_slot_L/2;
+
+    // Wedge widening near the very end
+    x_wedge_start_c = x_tip_end - x_wedge_L/2;
+    x_wedge_end_c   = x_tip_end - overlap/2;
+
+    // Tip-only mask (hard limit so we don't cut into the shank/head)
+    module tip_mask() {
+        translate([(x_tip_start + x_tip_end)/2, 0, 0])
+            cube([tip_L + 2*overlap, bbox_W + 2*overlap, bbox_H + 4*overlap], center=true);
+    }
+
+    intersection() {
+        union() {
+            // Constant-width slot (full height so it splits into two prongs)
+            translate([x_slot_center, 0, 0])
+                cube([x_slot_L + overlap, slot_w, bbox_H + 4*overlap], center=true);
+
+            // Widening wedge near the end to suggest tapered wedge-shaped legs
+            hull() {
+                translate([x_tip_end - x_wedge_L + overlap/2, 0, 0])
+                    cube([overlap, slot_w, bbox_H + 4*overlap], center=true);
+
+                translate([x_wedge_end_c, 0, 0])
+                    cube([overlap, wedge_open_w, bbox_H + 4*overlap], center=true);
+            }
+        }
+        tip_mask();
+    }
 }
 
-module tip_split_slot() {
-  // Slot runs along X, centered in Y/Z, leaving a small uncut root at the base.
-  slot_L_eff = min(slot_L, max(0.01, tip_L - slot_root));
-  x_slot_c = x_tip_base + slot_root + slot_L_eff/2;
+difference() {
+    // Single continuous fastener: head + long shank + tapered tip
+    fastener_body();
 
-  translate([x_slot_c, 0, 0])
-    cube([slot_L_eff + overlap, slot_w, leg_base_d + 2], center=true);
-}
-
-module chamfer_head_front() {
-  // Chamfer at leftmost end of head (x0)
-  translate([x0 + edge_chamfer/2, 0, 0])
-    rotate([0, 90, 0])
-      cylinder(r1=head_r, r2=max(head_r - edge_chamfer, 0.1),
-               h=edge_chamfer + overlap, center=true);
-}
-
-module chamfer_tip_end() {
-  // Chamfer at rightmost end of tip (x1)
-  translate([x1 - edge_chamfer/2, 0, 0])
-    rotate([0, 90, 0])
-      cylinder(r1=max(leg_tip_d/2 - edge_chamfer, 0.1), r2=leg_tip_d/2,
-               h=edge_chamfer + overlap, center=true);
-}
-
-module tip_two_prong() {
-  difference() {
-    tip_taper();
-    tip_split_slot();
-  }
-}
-
-// -------------------- Final (one connected solid) --------------------
-union() {
-  head_disc();
-  head_to_shank_transition();
-  shank_cylinder();
-  tip_two_prong();
-  chamfer_head_front();
-  chamfer_tip_end();
+    // Longitudinal slot cut into the tip to form two prongs (not separate bodies)
+    tip_slot_cut();
 }
 }

@@ -1,135 +1,110 @@
-// Parameters
-bbox_x = 0.01; //[0.005:0.02:0.0001]
-bbox_y = 0.01; //[0.005:0.02:0.0001]
-bbox_z = 0.03; //[0.015:0.06:0.0001]
-main_D = 0.01; //[0.005:0.02:0.0001]
-main_H = 0.022; //[0.011:0.044:0.0001]
-boss_D = 0.006; //[0.003:0.012:0.0001]
-boss_H = 0.008; //[0.004:0.016:0.0001]
-hole_square_W = 0.003; //[0.0015:0.006:0.0001]
-rim_amp = 0.0006; //[0.0003:0.0012:0.00001]
-rim_teeth = 12; //[6:24:1]
-facet_sides = 8; //[6:16:1]
-shoulder_H = 0.002; //[0.001:0.004:0.0001]
-overlap = 0.0005; //[0.0002:0.001:0.0001]
-chamfer_H = 0.0006; //[0.0003:0.0012:0.00001]
-fillet_r = 0.0004; //[0.0002:0.0008:0.00001]
-knurl_depth = 0.00025; //[0.0001:0.0005:0.00001]
-knurl_count = 12; //[6:24:1]
+// Dimension-calibrated (target: 0.01 x 0.01 x 0.03 mm)
+scale([1.428899, 1.428899, 0.847527])
+{
+// Rotationally symmetric knob with scalloped rim, faceted barrel, rounded shoulder,
+// coaxial boss, and a CENTRAL SQUARE THROUGH-HOLE (true through-cut).
 
-// Base Shapes
-module main_barrel() {
-  cylinder(h=main_H, r=main_D/2, center=true);
+// ---------------- Parameters ----------------
+main_d = 0.01;          //[0.005:0.02:0.0001]
+main_h = 0.022;         //[0.011:0.044:0.0001]
+boss_d = 0.006;         //[0.003:0.012:0.0001]
+boss_h = 0.008;         //[0.004:0.016:0.0001]
+square_hole_w = 0.003;  //[0.0015:0.006:0.0001]
+
+shoulder_h = 0.002;     //[0.001:0.004:0.0001]
+facet_count = 8;        //[4:24:1]
+
+scallop_count = 24;     //[8:64:1]
+scallop_depth = 0.0008; //[0.0002:0.0012:0.00005]
+
+overlap = 0.001;        //[0.0002:0.002:0.00005]  // ~1mm overlap for robust connectivity
+micro_fillet_r = 0.00025; //[0.0001:0.0006:0.00005]
+
+// ---------------- Derived ----------------
+main_r  = main_d/2;
+boss_r  = boss_d/2;
+
+// Total height of the *outer* solid (used for through-hole length)
+outer_total_h = main_h + boss_h;
+
+$fn = 128;
+
+// ---------------- Base geometry ----------------
+module faceted_main_barrel() {
+  // Faceted sides (polygonal cylinder), centered at origin
+  rotate([0,0,180/facet_count])
+    cylinder(h=main_h, r=main_r, center=true, $fn=facet_count);
+}
+
+module scalloped_band_cutters(rim_h, rim_z) {
+  // Subtractive "bites" to form scallops around the circumference
+  bite_r = scallop_depth * 1.6;
+  bite_center_r = main_r + bite_r * 0.65;
+
+  for (i = [0:scallop_count-1]) {
+    rotate([0,0,i*360/scallop_count])
+      translate([bite_center_r, 0, rim_z])
+        cylinder(h=rim_h + 2*overlap, r=bite_r, center=true, $fn=48);
+  }
+}
+
+module scalloped_main_barrel() {
+  // Scalloped/serrated band near the bottom of the main barrel
+  rim_h = main_h * 0.28;
+  rim_z = -main_h/2 + rim_h/2;
+
+  difference() {
+    faceted_main_barrel();
+    scalloped_band_cutters(rim_h, rim_z);
+  }
+}
+
+module rounded_shoulder() {
+  // Rounded transition from main barrel to boss via hull.
+  // Recalculated to guarantee overlap into BOTH parts.
+  // Main barrel spans: z = [-main_h/2, +main_h/2]
+  // Boss spans (with overlap): centered at z = main_h/2 + boss_h/2 - overlap
+  // so its bottom is at z = main_h/2 - overlap.
+  z_main =  main_h/2 - shoulder_h/2;                 // inside main barrel top
+  z_boss =  main_h/2 - overlap + shoulder_h/2;       // inside boss bottom
+
+  hull() {
+    translate([0,0,z_main])
+      cylinder(h=shoulder_h, r=main_r, center=true, $fn=96);
+    translate([0,0,z_boss])
+      cylinder(h=shoulder_h, r=boss_r, center=true, $fn=96);
+  }
 }
 
 module coaxial_boss() {
-  translate([0, 0, main_H/2 + boss_H/2 - overlap])
-    cylinder(h=boss_H, r=boss_D/2, center=true);
+  // Boss on top end, overlapped into shoulder/main
+  translate([0,0, main_h/2 + boss_h/2 - overlap])
+    cylinder(h=boss_h, r=boss_r, center=true, $fn=96);
 }
 
-module rounded_shoulder_transition() {
-  translate([0, 0, main_H/2 - shoulder_H/2 + overlap])
-    cylinder(h=shoulder_H, r1=main_D/2, r2=boss_D/2, center=true);
-}
-
-module scalloped_outer_rim() {
-  rotate_extrude($fn=rim_teeth)
-    translate([main_D/2 - rim_amp, 0, -main_H/2 + rim_amp])
-      circle(r=rim_amp);
-}
-
-module faceted_sides() {
-  rotate([0, 0, 360/facet_sides/2])
-    for (i = [0:facet_sides-1])
-      rotate([0, 0, i*360/facet_sides])
-        translate([main_D*0.92/2, 0, 0])
-          cube([main_D*0.92, main_D*0.92, main_H], center=true);
-}
-
-module edge_chamfers_top_cut() {
-  translate([0, 0, main_H/2 - chamfer_H/2])
-    cylinder(h=chamfer_H, r1=main_D/2 + overlap, r2=main_D/2 - chamfer_H, center=true);
-}
-
-module edge_chamfers_bottom_cut() {
-  translate([0, 0, -main_H/2 + chamfer_H/2])
-    cylinder(h=chamfer_H, r1=main_D/2 - chamfer_H, r2=main_D/2 + overlap, center=true);
-}
-
-module decorative_knurl_texture_groove_x() {
-  for (i = [0:knurl_count-1])
-    rotate([0, 0, i*360/knurl_count])
-      translate([0, main_D/2 + overlap, 0])
-        cube([main_D + 2*overlap, knurl_depth, main_H*0.7], center=true);
-}
-
-module decorative_knurl_texture_groove_y() {
-  for (i = [0:knurl_count-1])
-    rotate([0, 0, i*360/knurl_count])
-      translate([main_D/2 + overlap, 0, 0])
-        cube([knurl_depth, main_D + 2*overlap, main_H*0.7], center=true);
-}
-
-module central_square_through_hole() {
-  cube([hole_square_W, hole_square_W, bbox_z + 2*overlap], center=true);
-}
-
-module micro_fillet_sphere() {
-  sphere(r=fillet_r, center=true);
-}
-
-// Operations
-module main_plus_boss() {
+module outer_body() {
   union() {
-    main_barrel();
+    scalloped_main_barrel();
+    rounded_shoulder();
     coaxial_boss();
-    rounded_shoulder_transition();
   }
 }
 
-module add_scalloped_outer_rim() {
-  union() {
-    main_plus_boss();
-    scalloped_outer_rim();
-  }
+// ---------------- Subtractions ----------------
+module square_through_hole() {
+  // True square through-hole along Z, long enough to cut through filleted outer body.
+  // Keep axis-aligned so it reads as a square in orthographic end views.
+  hole_h = outer_total_h + 12*overlap + 2*micro_fillet_r;
+  cube([square_hole_w, square_hole_w, hole_h], center=true);
 }
 
-module apply_faceted_sides_intersection() {
-  intersection() {
-    add_scalloped_outer_rim();
-    faceted_sides();
-  }
-}
-
-module apply_edge_chamfers() {
-  difference() {
-    apply_faceted_sides_intersection();
-    edge_chamfers_top_cut();
-    edge_chamfers_bottom_cut();
-  }
-}
-
-module apply_decorative_knurl_texture() {
-  difference() {
-    apply_edge_chamfers();
-    decorative_knurl_texture_groove_x();
-    decorative_knurl_texture_groove_y();
-  }
-}
-
-module apply_micro_fillet_details() {
+// ---------------- Final ----------------
+difference() {
+  // Fillet outer body only, then cut the square hole through everything.
   minkowski() {
-    apply_decorative_knurl_texture();
-    micro_fillet_sphere();
+    outer_body();
+    sphere(r=micro_fillet_r, $fn=32);
   }
+  square_through_hole();
 }
-
-module subtract_central_square_through_hole() {
-  difference() {
-    apply_micro_fillet_details();
-    central_square_through_hole();
-  }
 }
-
-// Final Output
-subtract_central_square_through_hole();

@@ -1,5 +1,5 @@
 /**
- * CRAFT 3D Viewer
+ * CADence 3D Viewer
  *
  * Interactive STL viewer using Three.js with orthographic camera
  * Supports preset views (Top, Front, Left, Right, Isometric)

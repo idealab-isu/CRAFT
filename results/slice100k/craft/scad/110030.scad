@@ -1,146 +1,160 @@
 // Dimension-calibrated (target: 11.00 x 18.92 x 8.76 mm)
-scale([1.000211, 0.999636, 1.255444])
+scale([0.904625, 0.939897, 0.559609])
 {
 // T-shaped mechanical fastener/clip (single connected solid)
-// Bounding box target: 11.0 x 18.9 x 8.8 mm  (X x Y x Z)
+// Fixes:
+// - Adds a clearly connected asymmetric wedge-like side tab at the intersection
+// - Ensures NO detached bodies (tab is attached with overlap and built from a single hull)
+// - Adds a slight flare at the free end of the shank
+// - Recalculates all translate() placements so parts touch/overlap (1–2mm)
+// - Keeps overall bbox intent ~ 11.0 x 18.9 x 8.8 mm and elongated along shank axis
 
-$fn = 96;
+$fn = 64;
 
-// -------------------- Parameters (mm) --------------------
-bbox_X = 18.92;
-bbox_Y = 11.00;
-bbox_Z = 8.76;
+// ---------- Parameters (mm) ----------
+bbox_L = 18.92; // overall length along shank axis (X)
+bbox_W = 11.0;  // overall width across transverse head (Y)
+bbox_H = 8.76;  // overall height (Z)
 
-// Main shank (X axis)
-shank_L = bbox_X;
-shank_D = 4.2;
+shank_len = bbox_L;
+shank_d   = 4.2;
 
-// Slight flare at +X end
-flare_L = 2.2;
-flare_D = 5.0;
+flare_len = 2.2;
+flare_d   = 5.0;
 
-// Transverse body (Y axis)
-cross_D = 5.2;
-cross_L_total = bbox_Y;
+head_d         = 6.6;     // transverse cylinder diameter (Z extent)
+head_len_total = bbox_W;  // transverse cylinder length (Y)
 
-// Fork at -Y end of transverse body (split two-prong)
-fork_L = 4.2;                 // length along Y from end inward
-fork_gap = 1.2;               // gap between prongs (along X)
-fork_prong_thk = bbox_Z;      // prongs span full Z thickness
-fork_tip_taper_L = 1.2;       // lead-in taper length along Y
+fork_len       = 4.4;     // fork region length at +Y end
+fork_gap       = 1.2;     // gap between prongs (X direction)
+fork_open_z    = 0.55;    // open the slot upward a bit to read as a fork
+fork_tip_round = 0.7;     // rounded lead-in at tip
 
-// Boss at intersection (Z axis)
-boss_D = 6.6;
+boss_d   = 7.6;
 boss_thk = 1.6;
 
-// Asymmetric side tab/plate (projects to +Z side, wedge-like)
-tab_L = 5.8;                  // along X
-tab_W = 4.6;                  // along Y
-tab_thk = 1.2;                // along Z
-tab_wedge_drop = 0.8;         // wedge slope in Y profile
+tab_len        = 5.2;  // along Y
+tab_thk        = 1.6;  // along X (projection)
+tab_h          = 3.2;  // along Z
+tab_wedge_drop = 1.2;  // wedge taper amount (Z)
 
-// Connectivity / robustness
-overlap = 0.25;               // small overlap to ensure manifold unions
+overlap = 1.2;         // ensure solid connections (1–2mm)
+fillet_r = 0.35;
 
-// -------------------- Helpers --------------------
-module bbox_clip() {
-  cube([bbox_X, bbox_Y, bbox_Z], center=true);
+// ---------- Derived placement ----------
+// Put the head/boss near the -X end of the shank, but keep overlap into shank.
+x_int = -(shank_len/2 - boss_thk/2 - overlap);
+
+// ---------- Base shapes ----------
+module shank_cylinder() {
+  rotate([0,90,0])
+    cylinder(h=shank_len, r=shank_d/2, center=true);
 }
 
-module cyl_x(h, d) { rotate([0,90,0]) cylinder(h=h, r=d/2, center=true); }
-module cyl_y(h, d) { rotate([90,0,0]) cylinder(h=h, r=d/2, center=true); }
-module cyl_z(h, d) { cylinder(h=h, r=d/2, center=true); }
-
-// -------------------- Main geometry --------------------
-module shank() {
-  union() {
-    // main shank
-    cyl_x(shank_L, shank_D);
-
-    // slightly flared end at +X
-    translate([shank_L/2 - flare_L/2 + overlap, 0, 0])
-      rotate([0,90,0])
-        cylinder(h=flare_L + 2*overlap, r1=flare_D/2, r2=shank_D/2, center=true);
-  }
+module shank_flared_end() {
+  // Slight flare at +X end of shank; overlaps into shank so it is one solid.
+  rotate([0,90,0])
+    translate([shank_len/2 - flare_len/2, 0, 0])
+      cylinder(h=flare_len + overlap, r1=shank_d/2, r2=flare_d/2, center=true);
 }
 
-module transverse_body() {
-  // centered at origin, along Y
-  cyl_y(cross_L_total, cross_D);
+module transverse_body_cylinder() {
+  // Transverse cylinder along Y, centered at x_int
+  translate([x_int, 0, 0])
+    rotate([90,0,0])
+      cylinder(h=head_len_total, r=head_d/2, center=true);
 }
 
-module boss() {
-  // circular boss at intersection, along Z
-  cyl_z(boss_thk, boss_D);
+module intersection_boss() {
+  // Boss disk around intersection, coaxial with shank (X)
+  translate([x_int, 0, 0])
+    rotate([0,90,0])
+      cylinder(h=boss_thk + overlap, r=boss_d/2, center=true);
 }
 
-module tab_wedge() {
-  // Wedge-like plate: extrude in Z, profile in X-Y
-  // Asymmetric: placed to +Z side and +Y side slightly.
-  linear_extrude(height=tab_thk, center=true)
-    polygon(points=[
-      [0, 0],
-      [tab_L, 0],
-      [tab_L, tab_W - tab_wedge_drop],
-      [0, tab_W]
-    ]);
-}
+// ---------- Side tab (connected, wedge-like) ----------
+module side_tab_wedge() {
+  // Flat wedge-like rectangular tab projecting to +X side (asymmetric).
+  // It is explicitly overlapped into the head/boss region so it cannot detach.
 
-module tab_positioned() {
-  // Place tab so it projects to one side (asymmetric head):
-  // - sits on +Z side of transverse body
-  // - offset slightly toward +Y to look like a wedge/plate on one side
-  translate([
-    0,                                  // centered in X at intersection
-    cross_D/2 - overlap,                // attached to +Y side of cross cylinder
-    bbox_Z/2 - tab_thk/2 + overlap       // attached to +Z side (asymmetric)
-  ])
-    tab_wedge();
-}
+  // Anchor the tab so its inner face penetrates the head by ~overlap.
+  // Head outer surface in +X is at x_int + head_d/2.
+  // Place tab center so inner face is at (head surface - overlap).
+  x_center = (x_int + head_d/2 - overlap) + tab_thk/2;
 
-module fork_cut_gap() {
-  // Cut a slot at the -Y end to create two prongs.
-  // Slot runs along Y for fork_L, centered in X, full Z.
-  translate([0, -cross_L_total/2 + fork_L/2 - overlap, 0])
-    cube([fork_gap, fork_L + 2*overlap, fork_prong_thk + 2*overlap], center=true);
-}
+  // Place near +Y side of head (as in reference), but still on the head.
+  y_center = head_len_total/2 - tab_len/2;
 
-module fork_tip_taper_cut() {
-  // Lead-in taper at the very end (-Y) to suggest snap-in fork tips.
-  // Use a wedge cut that opens the gap slightly at the end.
-  // Implemented as a hull between two thin rectangles to form a taper.
-  y_end = -cross_L_total/2;
-  y_in  = y_end + fork_tip_taper_L;
+  // Keep within bbox_H; slightly above centerline for the "plate" look.
+  z_center = min((bbox_H/2 - tab_h/2), head_d/2 - tab_h/2) + tab_h/2 - 0.2;
 
+  // Wedge: thicker/taller at the base, tapering toward the outer/top edge.
   hull() {
-    translate([0, y_end + overlap, 0])
-      cube([fork_gap + 1.6, 0.2, fork_prong_thk + 2*overlap], center=true);
-    translate([0, y_in, 0])
-      cube([fork_gap, 0.2, fork_prong_thk + 2*overlap], center=true);
+    // Base block (flat plate)
+    translate([x_center, y_center, z_center - tab_wedge_drop/2])
+      cube([tab_thk, tab_len, tab_h], center=true);
+
+    // Tapered top/outer cap (smaller)
+    translate([x_center + tab_thk*0.15, y_center, z_center + tab_h/2 - tab_wedge_drop])
+      cube([max(0.8, tab_thk*0.55), tab_len*0.92, 0.8], center=true);
   }
 }
 
-module cross_with_fork() {
-  // Start from solid transverse cylinder, then subtract fork slot and taper.
+// ---------- Fork (distinct two-prong split) ----------
+module fork_slot_cutter() {
+  // Cut a slot at +Y end of transverse cylinder to create two prongs.
+  x0 = x_int;
+  y0 = head_len_total/2 - fork_len/2;
+
+  // Main slot (splits prongs)
+  translate([x0, y0, 0])
+    cube([fork_gap, fork_len + 2*overlap, head_d + 2*overlap], center=true);
+
+  // Open the slot upward slightly so it reads as a fork
+  translate([x0, y0, head_d/2 - fork_open_z/2])
+    cube([fork_gap + 0.2, fork_len + 2*overlap, fork_open_z + 2*overlap], center=true);
+
+  // Rounded lead-in at the fork tip (+Y end)
+  translate([x0, head_len_total/2 - fork_tip_round/2, 0])
+    rotate([90,0,0])
+      cylinder(h=fork_tip_round + 2*overlap, r=fork_gap/2 + 0.35, center=true);
+}
+
+module fork_outer_relief_cutter() {
+  // Outer relief scallops to visually separate prongs
+  x0 = x_int;
+  y_tip = head_len_total/2 - fork_len*0.55;
+  r_rel = 1.0;
+
+  for (sx = [-1, 1]) {
+    translate([x0 + sx*(fork_gap/2 + r_rel*0.65), y_tip, 0])
+      rotate([90,0,0])
+        cylinder(h=fork_len + 2*overlap, r=r_rel, center=true);
+  }
+}
+
+module transverse_body_with_fork() {
   difference() {
-    transverse_body();
-    fork_cut_gap();
-    fork_tip_taper_cut();
+    transverse_body_cylinder();
+    fork_slot_cutter();
+    fork_outer_relief_cutter();
   }
 }
 
-module model_solid() {
+// ---------- Assembly ----------
+module main_union() {
   union() {
-    shank();
-    cross_with_fork();
-    boss();
-    tab_positioned();
+    shank_cylinder();
+    shank_flared_end();
+    transverse_body_with_fork();
+    intersection_boss();
+    side_tab_wedge();
   }
 }
 
-// -------------------- Final (clipped to exact bbox) --------------------
-intersection() {
-  model_solid();
-  bbox_clip();
+// ---------- Final (small fillet via Minkowski) ----------
+minkowski() {
+  main_union();
+  sphere(r=fillet_r);
 }
 }

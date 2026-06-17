@@ -1,4 +1,0 @@
-id   : component__Epcos
-tier : Medium
-
-A through-hole electronic component package: 4.6 mm wide x 2.5 mm thick, 2.5 mm body length.

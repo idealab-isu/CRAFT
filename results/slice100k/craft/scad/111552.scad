@@ -1,45 +1,38 @@
 // Long flat link/strap with rounded ends and two through-holes
 // Bounding box target: 102.0 x 7.0 x 3.5 mm (X x Y x Z)
 
-$fn = 96;
+$fn = 128;  // smooth, clearly circular holes
 
 // Parameters
 L = 102.0;                 // overall length (X)
 W = 7.0;                   // overall width (Y)
 T = 3.5;                   // thickness (Z)
-
-hole_D = 3.0;              // through-hole diameter
-hole_offset_from_end = 3.5; // hole center distance from each end along X
-
-// Robust boolean overlap
-overlap = 0.2;
+end_radius = W/2;          // rounded end radius to match width
+hole_d = 3.0;              // through-hole diameter
+hole_offset_from_end = 6.0;// hole center offset from each end along X
+hole_clearance_z = 0.5;    // extra cut height to guarantee through-cut
 
 // Derived
-end_R = W/2;               // rounded end radius to match width
-hole_r = hole_D/2;
-hole_x = L/2 - hole_offset_from_end;
-
-// 2D profile: rectangle + two semicircular ends (capsule)
-module strap_profile_2d() {
-    hull() {
-        translate([-L/2 + end_R, 0]) circle(r=end_R);
-        translate([ L/2 - end_R, 0]) circle(r=end_R);
-    }
-}
+core_len = L - 2*end_radius;                 // straight section length
+end_center_x = L/2 - end_radius;             // x position of end-cap centers
+hole_x = L/2 - hole_offset_from_end;         // x position of hole centers
 
 module strap_solid() {
-    linear_extrude(height=T, center=true)
-        strap_profile_2d();
+    // Build as a 2D rounded-rectangle then linear_extrude for robust, connected geometry
+    linear_extrude(height=T, center=true, convexity=10)
+        hull() {
+            translate([ end_center_x, 0]) circle(r=end_radius);
+            translate([-end_center_x, 0]) circle(r=end_radius);
+        }
 }
 
 module holes() {
-    for (sx = [-1, 1]) {
-        translate([sx * hole_x, 0, 0])
-            cylinder(h=T + 2*overlap, r=hole_r, center=true);
-    }
+    // Cut cylinders through thickness (Z)
+    for (sx = [-1, 1])
+        translate([sx*hole_x, 0, 0])
+            cylinder(d=hole_d, h=T + 2*hole_clearance_z, center=true);
 }
 
-// Final model (single connected solid with two through-holes)
 difference() {
     strap_solid();
     holes();

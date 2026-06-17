@@ -1,140 +1,151 @@
 // Dimension-calibrated (target: 0.16 x 0.27 x 0.03 mm)
-scale([1.000037, 0.701761, 1.120022])
+scale([0.900000, 0.617761, 5.090909])
 {
-// Thin mounting plate with rounded corners, 4 corner holes,
-// 2 opposite diamond tabs with holes, and a raised faceted octagonal bezel
-// around a recessed rectangular pocket. Single connected solid.
-
-// ---------------- Parameters ----------------
-bbox_L = 0.27; //[0.135:0.54:0.001]
-bbox_W = 0.16; //[0.08:0.32:0.001]
-bbox_H = 0.03; //[0.015:0.06:0.001]
-
-plate_thk = 0.018; //[0.009:0.036:0.001]
-corner_R = 0.012; //[0.006:0.024:0.001]
-
-corner_hole_d = 0.01; //[0.005:0.02:0.001]
-corner_hole_edge_offset_L = 0.02; //[0.01:0.04:0.001]
-corner_hole_edge_offset_W = 0.02; //[0.01:0.04:0.001]
-
-tab_span_out = 0.02; //[0.01:0.04:0.001]
-tab_diamond_L = 0.04; //[0.02:0.08:0.001]
-tab_diamond_W = 0.03; //[0.015:0.06:0.001]
-tab_hole_d = 0.01; //[0.005:0.02:0.001]
-
-bezel_outer_flat_d = 0.09; //[0.045:0.18:0.001]
-bezel_inner_flat_d = 0.065; //[0.0325:0.13:0.001]
-bezel_h = 0.008; //[0.004:0.016:0.001]
-
-pocket_L = 0.09; //[0.045:0.18:0.001]
-pocket_W = 0.05; //[0.025:0.1:0.001]
-pocket_depth = 0.006; //[0.003:0.012:0.001]
-
-eps_overlap = 0.001; //[0.0005:0.002:0.0005]
-hole_extra_h = 0.01; //[0.005:0.02:0.001]
-bezel_facet_scale = 0.92; //[0.85:0.98:0.01]
+// Thin faceplate with rounded-rect plate, 4 corner holes,
+// 2 opposite diamond tabs with holes, and a raised octagonal bezel
+// around a recessed rectangular pocket.
+//
+// Bounding box target: 0.2 x 0.3 x ~0 (very thin / plate-like)
 
 $fn = 64;
 
-// ---------------- Helpers ----------------
-module rounded_rect_2d(L, W, R) {
-  // Robust rounded rectangle (2D) using hull of circles
-  hull() {
-    for (sx = [-1, 1], sy = [-1, 1])
-      translate([sx*(L/2 - R), sy*(W/2 - R)]) circle(r=R);
-  }
+// --- Target overall size (X x Y) ---
+L = 0.30;          // overall length (X)
+W = 0.20;          // overall width  (Y)
+
+// --- Thicknesses (keep very thin) ---
+T = 0.004;         // base plate thickness (near-zero but renderable)
+bezel_h = 0.002;   // raised bezel height above plate
+pocket_depth = 0.002; // recessed pocket depth into plate
+
+// --- Plate corner rounding ---
+corner_r = 0.015;
+
+// --- Corner fastener holes ---
+hole_d = 0.010;
+hole_edge_offset_L = 0.025;  // from left/right edges
+hole_edge_offset_W = 0.020;  // from top/bottom edges
+
+// --- Diamond tabs (on midpoints of two opposite sides: +/-Y) ---
+tab_out = 0.020;        // how far tab protrudes beyond plate edge (Y direction)
+tab_half_width = 0.020; // half width of diamond (X direction)
+tab_thickness = T;      // same as plate thickness
+tab_hole_d = 0.010;
+
+// --- Central bezel (octagon) and pocket ---
+bezel_flat_to_flat = 0.090; // outer octagon flat-to-flat
+bezel_wall = 0.010;         // ring wall thickness (flat-to-flat difference/2 approx)
+pocket_L = 0.090;
+pocket_W = 0.050;
+
+eps = 0.0005;
+
+// ---------- Helpers ----------
+function clamp(x,a,b) = x < a ? a : (x > b ? b : x);
+
+// Regular octagon points for a given circumradius
+module octagon_2d(R){
+    polygon(points=[
+        [ R, 0],
+        [ R*0.70710678,  R*0.70710678],
+        [ 0,  R],
+        [-R*0.70710678,  R*0.70710678],
+        [-R, 0],
+        [-R*0.70710678, -R*0.70710678],
+        [ 0, -R],
+        [ R*0.70710678, -R*0.70710678]
+    ]);
 }
 
-module oct_2d(flat_d) {
-  // Octagon defined by "flat-to-flat" distance along X/Y
-  polygon(points=[
-    [ flat_d/2, 0],
-    [ flat_d/4,  flat_d/4],
-    [ 0,  flat_d/2],
-    [-flat_d/4,  flat_d/4],
-    [-flat_d/2, 0],
-    [-flat_d/4, -flat_d/4],
-    [ 0, -flat_d/2],
-    [ flat_d/4, -flat_d/4]
-  ]);
-}
-
-module plate_solid() {
-  // Single connected base plate + integrated tabs (same thickness)
-  union() {
-    linear_extrude(height=plate_thk, center=true)
-      rounded_rect_2d(bbox_L, bbox_W, corner_R);
-
-    // Tabs centered on midpoints of two opposite sides (along +/-Y)
-    for (sy = [-1, 1]) {
-      translate([0, sy*(bbox_W/2 + tab_span_out - eps_overlap), 0])
-        linear_extrude(height=plate_thk, center=true)
-          polygon(points=[
-            [ tab_diamond_L/2, 0],
-            [ 0,  tab_diamond_W/2],
-            [-tab_diamond_L/2, 0],
-            [ 0, -tab_diamond_W/2]
-          ]);
+// Rounded rectangle 2D (robust, no skew/chamfer artifacts)
+module rounded_rect_2d(l, w, r){
+    r2 = clamp(r, 0, min(l,w)/2 - eps);
+    hull(){
+        for (sx=[-1,1], sy=[-1,1])
+            translate([sx*(l/2 - r2), sy*(w/2 - r2)])
+                circle(r=r2);
     }
-  }
 }
 
-module bezel_ring_faceted() {
-  // Raised octagonal ring with a faceted top (via slight scale taper)
-  // Outer ring minus inner opening; then intersect with a tapered prism to create facets.
-  zc = plate_thk/2 + bezel_h/2 - eps_overlap;
+// Diamond tab 2D (pointing outward in +Y by default)
+module diamond_2d(half_w, out){
+    polygon(points=[
+        [ half_w, 0],
+        [ 0, out],
+        [-half_w, 0],
+        [ 0,-out]
+    ]);
+}
 
-  translate([0,0,zc])
-  intersection() {
-    // Ring volume
-    difference() {
-      linear_extrude(height=bezel_h, center=true) oct_2d(bezel_outer_flat_d);
-      linear_extrude(height=bezel_h + hole_extra_h, center=true) oct_2d(bezel_inner_flat_d);
+// ---------- Main solids ----------
+module plate_with_tabs_solid(){
+    union(){
+        // Main rounded rectangle plate
+        linear_extrude(height=T, center=true)
+            rounded_rect_2d(L, W, corner_r);
+
+        // Two opposite diamond tabs centered on midpoints of +/-Y sides
+        // Place so inner diamond vertex slightly overlaps plate edge for connectivity.
+        tab_center_y = W/2 + tab_out/2 - eps;
+
+        for (sy=[-1,1])
+            translate([0, sy*tab_center_y, 0])
+                linear_extrude(height=tab_thickness, center=true)
+                    diamond_2d(tab_half_width, tab_out);
     }
-
-    // Facet shaper: tapered octagonal prism (creates planar facets on the ring)
-    linear_extrude(height=bezel_h, center=true, scale=bezel_facet_scale)
-      oct_2d(bezel_outer_flat_d);
-  }
 }
 
-module corner_holes_4x() {
-  for (sx = [-1, 1], sy = [-1, 1]) {
-    translate([
-      sx*(bbox_L/2 - corner_hole_edge_offset_L),
-      sy*(bbox_W/2 - corner_hole_edge_offset_W),
-      0
-    ])
-      cylinder(d=corner_hole_d, h=plate_thk + bezel_h + hole_extra_h, center=true);
-  }
+module all_through_holes_cut(){
+    union(){
+        // 4 corner holes (near corners of the rounded rectangle)
+        xh = L/2 - hole_edge_offset_L;
+        yh = W/2 - hole_edge_offset_W;
+
+        for (sx=[-1,1], sy=[-1,1])
+            translate([sx*xh, sy*yh, 0])
+                cylinder(d=hole_d, h=T + 6*eps, center=true);
+
+        // Tab holes (centered in each diamond tab)
+        tab_center_y = W/2 + tab_out/2 - eps;
+        for (sy=[-1,1])
+            translate([0, sy*tab_center_y, 0])
+                cylinder(d=tab_hole_d, h=T + 6*eps, center=true);
+    }
 }
 
-module tab_holes_2x() {
-  for (sy = [-1, 1]) {
-    translate([0, sy*(bbox_W/2 + tab_span_out - eps_overlap), 0])
-      cylinder(d=tab_hole_d, h=plate_thk + hole_extra_h, center=true);
-  }
+module bezel_ring_solid(){
+    // Convert flat-to-flat to circumradius: R = (flat/2)/cos(22.5°)
+    // cos(22.5)=0.9238795325
+    outer_R = (bezel_flat_to_flat/2) / 0.9238795325;
+    inner_flat = bezel_flat_to_flat - 2*bezel_wall;
+    inner_R = ((inner_flat/2) / 0.9238795325);
+
+    translate([0,0, T/2 + bezel_h/2 - eps])  // sit on top of plate with slight overlap
+    linear_extrude(height=bezel_h, center=true)
+        difference(){
+            octagon_2d(outer_R);
+            octagon_2d(inner_R);
+        }
 }
 
-module pocket_cutter() {
-  // Recessed rectangular pocket from the top face into the plate
-  // Place cutter so it starts at top surface and goes down pocket_depth.
-  translate([0, 0, plate_thk/2 - pocket_depth/2 + eps_overlap])
-    cube([pocket_L, pocket_W, pocket_depth + hole_extra_h], center=true);
+module pocket_cut(){
+    // Recessed rectangular pocket inside the bezel (cut down from top surface)
+    // Ensure it doesn't cut through the whole plate.
+    d = clamp(pocket_depth, eps, T - eps);
+
+    translate([0,0, T/2 - d/2 + eps])
+        cube([pocket_L, pocket_W, d + 4*eps], center=true);
 }
 
-// ---------------- Final Model ----------------
-difference() {
-  union() {
-    plate_solid();
-    bezel_ring_faceted();
-  }
-
-  // Holes
-  corner_holes_4x();
-  tab_holes_2x();
-
-  // Central recessed pocket
-  pocket_cutter();
+// ---------- Final ----------
+difference(){
+    union(){
+        difference(){
+            plate_with_tabs_solid();
+            all_through_holes_cut();
+        }
+        bezel_ring_solid();
+    }
+    pocket_cut();
 }
 }

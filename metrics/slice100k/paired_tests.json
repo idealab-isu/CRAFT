@@ -1,0 +1,112 @@
+{
+  "dataset": "slice100k",
+  "reference": "craft",
+  "alpha": 0.05,
+  "correction": "benjamini_hochberg",
+  "tests": [
+    {
+      "dataset": "slice100k",
+      "metric_source": "detailed_results.json",
+      "metric": "chamfer_distance",
+      "reference": "craft",
+      "comparison": "gpt4o",
+      "n_pairs": 78,
+      "median_delta": 0.006983335941611681,
+      "wilcoxon_statistic": 814.0,
+      "p_value": 0.00029629652596251674,
+      "p_value_adj": 0.002370372207700134,
+      "significant": true
+    },
+    {
+      "dataset": "slice100k",
+      "metric_source": "detailed_results.json",
+      "metric": "chamfer_distance",
+      "reference": "craft",
+      "comparison": "gpt52",
+      "n_pairs": 82,
+      "median_delta": -0.0001124878127173089,
+      "wilcoxon_statistic": 1511.0,
+      "p_value": 0.37849705826160784,
+      "p_value_adj": 0.5046627443488104,
+      "significant": false
+    },
+    {
+      "dataset": "slice100k",
+      "metric_source": "detailed_results.json",
+      "metric": "f1_score_1pct",
+      "reference": "craft",
+      "comparison": "gpt4o",
+      "n_pairs": 78,
+      "median_delta": -0.030303454480943657,
+      "wilcoxon_statistic": 857.0,
+      "p_value": 0.0006632311700707968,
+      "p_value_adj": 0.002652924680283187,
+      "significant": true
+    },
+    {
+      "dataset": "slice100k",
+      "metric_source": "detailed_results.json",
+      "metric": "f1_score_1pct",
+      "reference": "craft",
+      "comparison": "gpt52",
+      "n_pairs": 82,
+      "median_delta": -0.002146068700504787,
+      "wilcoxon_statistic": 1446.0,
+      "p_value": 0.23753933056167142,
+      "p_value_adj": 0.38006292889867427,
+      "significant": false
+    },
+    {
+      "dataset": "slice100k",
+      "metric_source": "detailed_results.json",
+      "metric": "f1_score_5pct",
+      "reference": "craft",
+      "comparison": "gpt4o",
+      "n_pairs": 78,
+      "median_delta": -0.009977553444863757,
+      "wilcoxon_statistic": 772.0,
+      "p_value": 0.005897043068477336,
+      "p_value_adj": 0.015725448182606228,
+      "significant": true
+    },
+    {
+      "dataset": "slice100k",
+      "metric_source": "detailed_results.json",
+      "metric": "f1_score_5pct",
+      "reference": "craft",
+      "comparison": "gpt52",
+      "n_pairs": 82,
+      "median_delta": 0.0,
+      "wilcoxon_statistic": 1308.0,
+      "p_value": 0.8152597115127331,
+      "p_value_adj": 0.8152597115127331,
+      "significant": false
+    },
+    {
+      "dataset": "slice100k",
+      "metric_source": "detailed_results.json",
+      "metric": "voxel_iou",
+      "reference": "craft",
+      "comparison": "gpt4o",
+      "n_pairs": 78,
+      "median_delta": 0.0,
+      "wilcoxon_statistic": 752.0,
+      "p_value": 0.16456924012109697,
+      "p_value_adj": 0.32913848024219394,
+      "significant": false
+    },
+    {
+      "dataset": "slice100k",
+      "metric_source": "detailed_results.json",
+      "metric": "voxel_iou",
+      "reference": "craft",
+      "comparison": "gpt52",
+      "n_pairs": 82,
+      "median_delta": 0.0,
+      "wilcoxon_statistic": 921.0,
+      "p_value": 0.5514350885188594,
+      "p_value_adj": 0.6302115297358393,
+      "significant": false
+    }
+  ]
+}

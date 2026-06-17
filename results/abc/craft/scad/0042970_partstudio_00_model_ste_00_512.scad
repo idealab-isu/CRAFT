@@ -1,123 +1,184 @@
 // Dimension-calibrated (target: 0.07 x 0.18 x 0.02 mm)
-scale([0.900083, 0.680166, 2.857543])
+scale([1.000000, 0.971429, 0.619850])
 {
-// Rectangular open-center frame with rounded end loops + 4 identical angled mounting pads
-// One connected solid, planar/plate-like
+// Parameters
+L = 0.18; //[0.09:0.36:0.001]
+W = 0.07; //[0.035:0.14:0.001]
+T = 0.02; //[0.01:0.04:0.001]
+frame_wall = 0.008; //[0.004:0.016:0.001]
+cutout_L = 0.14; //[0.07:0.28:0.001]
+cutout_W = 0.04; //[0.02:0.08:0.001]
+end_loop_R = 0.015; //[0.0075:0.03:0.0005]
+pad_L = 0.022; //[0.011:0.044:0.001]
+pad_W = 0.016; //[0.008:0.032:0.001]
+pad_H = 0.006; //[0.003:0.012:0.001]
+pad_inset_x = 0.02; //[0.01:0.04:0.001]
+pad_inset_y = 0.012; //[0.006:0.024:0.001]
+pad_angle_deg = 20; //[0:45:1]
+hole_d = 0.004; //[0.002:0.008:0.0005]
+hole_pitch = 0.01; //[0.005:0.02:0.0005]
+hole_edge_margin = 0.004; //[0.002:0.008:0.0005]
+rib_H = 0.003; //[0.0015:0.006:0.0005]
+rib_W = 0.003; //[0.0015:0.006:0.0005]
+rib_L = 0.016; //[0.008:0.032:0.001]
+overlap = 0.001; //[0.0005:0.002:0.0005]
+chamfer_depth = 0.001; //[0.0005:0.002:0.0005]
+relief_depth = 0.002; //[0.001:0.004:0.0005]
+relief_margin = 0.002; //[0.001:0.004:0.0005]
 
-$fn = 96;
-
-// -------------------- Parameters (mm) --------------------
-bbox_L = 0.20;          // overall length (X)
-bbox_W = 0.10;          // overall width  (Y)
-bbox_T = 0.006;         // plate thickness (Z)  (kept small/flat)
-
-frame_wall = 0.016;     // ring wall thickness
-
-// Rounded end loops (integrated into outer silhouette)
-loop_outer_r = bbox_W/2;                 // outer end radius (capsule ends)
-loop_inner_r = max(loop_outer_r - frame_wall, 0.001);
-
-// Central clearance (open center)
-cutout_L = bbox_L - 2*frame_wall - 2*loop_outer_r;  // inner straight length
-cutout_W = bbox_W - 2*frame_wall;                   // inner width
-
-// Mounting pads
-pad_L = 0.030;
-pad_W = 0.020;
-pad_T = bbox_T;          // pads are planar with frame (same thickness)
-pad_angle_deg = 20;
-
-pad_inset_x = 0.010;     // how far pads sit in from outer X edge
-pad_inset_y = 0.010;     // how far pads sit in from outer Y edge
-pad_overlap = 0.002;     // overlap into frame to guarantee connectivity
-
-// Pad holes
-hole_d = 0.004;
-hole_spacing = 0.012;    // center-to-center along pad length
-hole_edge_margin = 0.004;
-
-// Ribbing on pads (raised)
-rib_h = 0.002;
-rib_w = 0.003;
-rib_count = 3;
-
-overlap = 0.001;
-
-// -------------------- Helpers --------------------
-module capsule2d(L, W) {
-    // 2D capsule along X: overall length L, width W
-    r = W/2;
-    hull() {
-        translate([-L/2 + r, 0]) circle(r=r);
-        translate([ L/2 - r, 0]) circle(r=r);
-    }
+// Base Shapes
+module outer_frame_plate() {
+  cube([L, W, T], center=true);
 }
 
-module frame_plate() {
-    // Outer capsule minus inner capsule -> open-center frame with rounded end loops
-    linear_extrude(height=bbox_T, center=true)
-        difference() {
-            capsule2d(bbox_L, bbox_W);
-            capsule2d(bbox_L - 2*frame_wall, bbox_W - 2*frame_wall);
-        }
+module central_clearance_cutout() {
+  cube([cutout_L, cutout_W, T + 2*overlap], center=true);
 }
 
-module pad_solid() {
-    // Pad body (planar) + raised ribs
-    union() {
-        // base pad
-        cube([pad_L, pad_W, pad_T], center=true);
+module end_loops_rounded_ends() {
+  rotate([90, 0, 0])
+    cylinder(r=end_loop_R, h=T, center=true);
+}
 
-        // ribs on top surface
-        for (i = [0 : rib_count-1]) {
-            y = (rib_count==1) ? 0
-                : (-pad_W/2 + hole_edge_margin + (i*(pad_W - 2*hole_edge_margin)/(rib_count-1)));
-            translate([0, y, pad_T/2 + rib_h/2 - overlap])
-                cube([pad_L - 2*hole_edge_margin, rib_w, rib_h], center=true);
-        }
-    }
+module mounting_pad() {
+  cube([pad_L, pad_W, pad_H], center=true);
 }
 
 module pad_holes() {
-    // Two through-holes along pad length
-    for (sx = [-1, 1]) {
-        translate([sx*hole_spacing/2, 0, 0])
-            cylinder(d=hole_d, h=pad_T + 2*overlap, center=true);
-    }
+  cylinder(r=hole_d/2, h=T + pad_H + 2*overlap, center=true);
 }
 
-module place_pad(xsign, ysign) {
-    // Place identical pad near each corner, angled outward consistently
-    // Corner reference at outer capsule bounding box corners:
-    // X edge at +/- bbox_L/2, Y edge at +/- bbox_W/2
-    // Pad center is inset from edges and overlapped into frame for connectivity.
-    x0 = xsign*(bbox_L/2 - pad_inset_x - pad_L/2 + pad_overlap);
-    y0 = ysign*(bbox_W/2 - pad_inset_y - pad_W/2 + pad_overlap);
-
-    // Angle: pads on left rotate +, on right rotate -, mirrored by xsign
-    ang = -xsign * pad_angle_deg;
-
-    translate([x0, y0, 0])
-        rotate([0, 0, ang])
-            children();
+module pad_ribs() {
+  cube([rib_L, rib_W, rib_H], center=true);
 }
 
-// -------------------- Model --------------------
-difference() {
-    union() {
-        frame_plate();
-
-        // 4 identical pads, connected via overlap into frame
-        for (xs = [-1, 1])
-            for (ys = [-1, 1])
-                place_pad(xs, ys)
-                    pad_solid();
-    }
-
-    // Subtract holes from pads
-    for (xs = [-1, 1])
-        for (ys = [-1, 1])
-            place_pad(xs, ys)
-                pad_holes();
+module chamfer_hole_entries() {
+  cylinder(r1=hole_d/2 + chamfer_depth, r2=hole_d/2, h=chamfer_depth, center=true);
 }
+
+module lightening_reliefs_on_pads() {
+  cube([pad_L - 2*relief_margin, pad_W - 2*relief_margin, relief_depth + 2*overlap], center=true);
+}
+
+module surface_text_or_markings() {
+  cube([overlap, overlap, overlap], center=true);
+}
+
+// Operations
+module frame_minus_cutout() {
+  difference() {
+    outer_frame_plate();
+    central_clearance_cutout();
+  }
+}
+
+module frame_with_end_loops() {
+  union() {
+    frame_minus_cutout();
+    translate([-L/2 + end_loop_R, 0, 0]) end_loops_rounded_ends();
+    translate([L/2 - end_loop_R, 0, 0]) end_loops_rounded_ends();
+  }
+}
+
+module frame_with_pads() {
+  union() {
+    frame_with_end_loops();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H/2 - overlap])
+      rotate([0, 0, pad_angle_deg]) mounting_pad();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H/2 - overlap])
+      rotate([0, 0, -pad_angle_deg]) mounting_pad();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H/2 - overlap])
+      rotate([0, 0, -pad_angle_deg]) mounting_pad();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H/2 - overlap])
+      rotate([0, 0, pad_angle_deg]) mounting_pad();
+  }
+}
+
+module all_pad_holes() {
+  union() {
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap - hole_pitch/2, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H/2 - overlap])
+      pad_holes();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap + hole_pitch/2, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H/2 - overlap])
+      pad_holes();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap - hole_pitch/2, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H/2 - overlap])
+      pad_holes();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap + hole_pitch/2, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H/2 - overlap])
+      pad_holes();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap - hole_pitch/2, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H/2 - overlap])
+      pad_holes();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap + hole_pitch/2, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H/2 - overlap])
+      pad_holes();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap - hole_pitch/2, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H/2 - overlap])
+      pad_holes();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap + hole_pitch/2, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H/2 - overlap])
+      pad_holes();
+  }
+}
+
+module frame_pads_ribs() {
+  union() {
+    frame_with_pads();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H - overlap + rib_H/2])
+      rotate([0, 0, pad_angle_deg]) pad_ribs();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H - overlap + rib_H/2])
+      rotate([0, 0, -pad_angle_deg]) pad_ribs();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H - overlap + rib_H/2])
+      rotate([0, 0, -pad_angle_deg]) pad_ribs();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H - overlap + rib_H/2])
+      rotate([0, 0, pad_angle_deg]) pad_ribs();
+  }
+}
+
+module all_reliefs() {
+  union() {
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H - overlap - relief_depth/2])
+      rotate([0, 0, pad_angle_deg]) lightening_reliefs_on_pads();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H - overlap - relief_depth/2])
+      rotate([0, 0, -pad_angle_deg]) lightening_reliefs_on_pads();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H - overlap - relief_depth/2])
+      rotate([0, 0, -pad_angle_deg]) lightening_reliefs_on_pads();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H - overlap - relief_depth/2])
+      rotate([0, 0, pad_angle_deg]) lightening_reliefs_on_pads();
+  }
+}
+
+module all_chamfers_top() {
+  union() {
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap - hole_pitch/2, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H - overlap - chamfer_depth/2])
+      chamfer_hole_entries();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap + hole_pitch/2, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H - overlap - chamfer_depth/2])
+      chamfer_hole_entries();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap - hole_pitch/2, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H - overlap - chamfer_depth/2])
+      chamfer_hole_entries();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap + hole_pitch/2, W/2 - pad_inset_y - pad_W/2 + overlap, T/2 + pad_H - overlap - chamfer_depth/2])
+      chamfer_hole_entries();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap - hole_pitch/2, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H - overlap - chamfer_depth/2])
+      chamfer_hole_entries();
+    translate([-L/2 + pad_inset_x + pad_L/2 - overlap + hole_pitch/2, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H - overlap - chamfer_depth/2])
+      chamfer_hole_entries();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap - hole_pitch/2, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H - overlap - chamfer_depth/2])
+      chamfer_hole_entries();
+    translate([L/2 - pad_inset_x - pad_L/2 + overlap + hole_pitch/2, -W/2 + pad_inset_y + pad_W/2 - overlap, T/2 + pad_H - overlap - chamfer_depth/2])
+      chamfer_hole_entries();
+  }
+}
+
+module final_difference_cuts() {
+  difference() {
+    frame_pads_ribs();
+    all_pad_holes();
+    all_reliefs();
+    all_chamfers_top();
+  }
+}
+
+module final_model() {
+  union() {
+    final_difference_cuts();
+    surface_text_or_markings();
+  }
+}
+
+// Render the final model
+final_model();
 }

@@ -131,15 +131,14 @@ class UnifiedLLMClient:
         "o1-mini": "openai",
         "gemini-2.0-flash": "gemini",
         "gemini-2.5-flash": "gemini",
-        "gemini-2.5-pro": "gemini",
         "gemini-3-pro-preview": "gemini",
     }
 
     # Gemini API model names
     GEMINI_MODEL_NAMES = {
-        "gemini-2.5-flash": "gemini-2.5-flash",    # Latest Flash model
-        "gemini-2.5-pro": "gemini-2.5-pro",        # Latest Pro model
-        "gemini-exp-1206": "gemini-2.5-pro",       # Fallback to Pro
+        "gemini-2.0-flash": "gemini-2.0-flash",
+        "gemini-2.5-flash": "gemini-2.0-flash-exp",
+        "gemini-3-pro-preview": "gemini-exp-1206",
     }
 
     def __init__(self, openai_client=None, gemini_api_key: Optional[str] = None):
@@ -170,22 +169,6 @@ class UnifiedLLMClient:
         if self._responses_api is None:
             self._responses_api = ResponsesAPI(self.openai_client)
         return self._responses_api
-
-    @property
-    def images(self):
-        """Expose the underlying OpenAI Images API (for SketchGenerator).
-
-        The unified client proxies chat/completions/responses; images is a
-        direct pass-through to the OpenAI SDK. Raises AttributeError with a
-        clear message if no underlying OpenAI client is configured, so the
-        sketch generator can catch it and fall back gracefully.
-        """
-        if self.openai_client is None or not hasattr(self.openai_client, "images"):
-            raise AttributeError(
-                "UnifiedLLMClient has no OpenAI client configured for image "
-                "generation (set OPENAI_API_KEY or pass openai_client=...)"
-            )
-        return self.openai_client.images
 
     def create(
         self,

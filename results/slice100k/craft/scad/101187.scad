@@ -1,40 +1,50 @@
-// Parameters (mm)
-plate_L = 114.0;
-plate_W = 59.5;
-plate_T = 0.8;
+// Simple plate with one obround through-slot near a corner
+// Bounding box: 114.0 x 59.5 x 0.8 mm
 
-slot_L = 30;
-slot_W = 10;
-slot_end_r = slot_W/2;          // ensure true obround ends
-slot_center_x_from_left = 15;
+$fn = 96;
+
+// Parameters
+L = 114.0;
+W = 59.5;
+T = 0.8;
+
+slot_len = 30;
+slot_w   = 10;
+slot_end_r = slot_w/2;
+
+// Slot location (from left/bottom edges of the plate)
+slot_center_x_from_left   = 18;
 slot_center_y_from_bottom = 12;
 
-$fn = 64;
+// Ensure clean through-cut
+slot_overlap = 1;
 
-// Base plate (non-centered for unambiguous "from left/bottom" placement)
+// Base
 module plate_body() {
-    cube([plate_L, plate_W, plate_T], center=false);
+    cube([L, W, T], center=true);
 }
 
-// Obround slot (through-cut along Z)
-module obround_slot_3d() {
-    // Build in XY, then extrude in Z
-    linear_extrude(height = plate_T + 2, center = true)
-        hull() {
-            translate([-(slot_L/2 - slot_end_r), 0]) circle(r = slot_end_r);
-            translate([ +(slot_L/2 - slot_end_r), 0]) circle(r = slot_end_r);
-        }
-}
-
-module plate_with_slot() {
-    difference() {
-        plate_body();
-
-        // Place slot by its center measured from left/bottom edges of the plate
-        translate([slot_center_x_from_left, slot_center_y_from_bottom, plate_T/2])
-            obround_slot_3d();
+// 2D obround profile (centered at origin, along X)
+module obround2d(len, w) {
+    r = w/2;
+    hull() {
+        translate([-(len/2 - r), 0]) circle(r=r);
+        translate([ +(len/2 - r), 0]) circle(r=r);
     }
 }
 
+// Through-slot positioned from left/bottom edges
+module obround_through_slot() {
+    x = -L/2 + slot_center_x_from_left;
+    y = -W/2 + slot_center_y_from_bottom;
+
+    translate([x, y, 0])
+        linear_extrude(height=T + 2*slot_overlap, center=true)
+            obround2d(slot_len, slot_w);
+}
+
 // Final
-plate_with_slot();
+difference() {
+    plate_body();
+    obround_through_slot();
+}

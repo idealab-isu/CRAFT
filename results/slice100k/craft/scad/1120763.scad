@@ -1,59 +1,93 @@
 // Flat strap/link plate with rounded ends and through-holes
-// Bounding box target: 60.6 x 7.0 x 2.5 mm
+// Target bounding box: 60.6 x 7.0 x 2.5 mm
+// Fixes:
+//  - Ensure large end holes are clean circular through-holes (no slots/irregular cutouts)
+//  - Ensure THREE small through-holes per end in an asymmetric pattern
+//  - Mirror the small-hole pattern between ends
+//  - Keep a single connected solid; all cutters fully pass through thickness
 
-$fn = 96;
+$fn = 128;
 
-// Parameters
-L = 60.55;                 // overall length (X)
-W = 6.99;                  // overall width  (Y)
-T = 2.54;                  // thickness      (Z)
-end_radius = W/2;          // rounded end radius (matches width/2)
+// -------------------- Parameters --------------------
+L = 60.55; // overall length (X)
+W = 6.99;  // overall width  (Y)
+T = 2.54;  // thickness      (Z)
 
+end_r = W/2; // rounded ends radius (obround)
+
+// Holes
 large_hole_d = 3.2;
-large_hole_offset_from_end = 5.0;
+large_hole_x_from_end = 5.5;
 
 small_hole_d = 1.6;
-small_hole_x1_from_end = 3.5;
-small_hole_x2_from_end = 6.5;
-small_hole_x3_from_end = 9.5;
+small_hole_x1_from_end = 3.8;
+small_hole_x2_from_end = 6.6;
+small_hole_x3_from_end = 9.4;
 
-// Asymmetric Y offsets for the three small holes (end A pattern)
+// Asymmetric Y offsets (will be mirrored between ends)
 small_hole_y1_from_center = 1.2;
 small_hole_y2_from_center = -0.8;
 small_hole_y3_from_center = 0.4;
 
-hole_cut_extra = 0.8;      // ensures clean through-cuts
+// Robust cutting
+clearance = 0.0;
+hole_cut_extra_z = 1.0; // ensure full cut through plate
 
-// --- Geometry helpers ---
-module strap_outline_2d() {
-    // 2D capsule: rectangle + two semicircular ends
-    hull() {
-        translate([-(L/2 - end_radius), 0]) circle(r=end_radius);
-        translate([ (L/2 - end_radius), 0]) circle(r=end_radius);
+// Keep holes inside outline
+edge_margin = 0.25; // mm
+
+// -------------------- Helpers --------------------
+function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
+function safe_end_r() = clamp(end_r, 0.01, W/2);
+function max_y_for_d(d) = (W/2) - (d/2) - edge_margin;
+
+// -------------------- Geometry --------------------
+module obround_plate(L, W, T) {
+    r = safe_end_r();
+    // All primitives centered to avoid accidental offsets; union guarantees single solid
+    union() {
+        cube([L - 2*r, W, T], center=true);
+        translate([-(L/2 - r), 0, 0]) cylinder(r=r, h=T, center=true);
+        translate([ (L/2 - r), 0, 0]) cylinder(r=r, h=T, center=true);
     }
 }
 
-module holes_2d() {
-    // Large holes (one near each end, centered in Y)
-    translate([-(L/2 - large_hole_offset_from_end), 0]) circle(d=large_hole_d);
-    translate([ (L/2 - large_hole_offset_from_end), 0]) circle(d=large_hole_d);
-
-    // Small holes near end A (left)
-    translate([-(L/2 - small_hole_x1_from_end), small_hole_y1_from_center]) circle(d=small_hole_d);
-    translate([-(L/2 - small_hole_x2_from_end), small_hole_y2_from_center]) circle(d=small_hole_d);
-    translate([-(L/2 - small_hole_x3_from_end), small_hole_y3_from_center]) circle(d=small_hole_d);
-
-    // Small holes near end B (right) mirrored in Y (pattern mirrored between ends)
-    translate([ (L/2 - small_hole_x1_from_end), -small_hole_y1_from_center]) circle(d=small_hole_d);
-    translate([ (L/2 - small_hole_x2_from_end), -small_hole_y2_from_center]) circle(d=small_hole_d);
-    translate([ (L/2 - small_hole_x3_from_end), -small_hole_y3_from_center]) circle(d=small_hole_d);
+module hole_cyl(d) {
+    // Centered cutter, taller than plate to guarantee through-hole
+    cylinder(r=(d + clearance)/2, h=T + hole_cut_extra_z, center=true);
 }
 
-// --- Final solid (one connected body) ---
-difference() {
-    linear_extrude(height=T, center=true, convexity=10)
-        strap_outline_2d();
+module holes_end(sign=1) {
+    // sign = -1 left end, +1 right end
+    // Mirror the asymmetric small-hole pattern between ends by flipping Y with sign.
 
-    linear_extrude(height=T + hole_cut_extra, center=true, convexity=10)
-        holes_2d();
+    // Convert "from end" distances into centered X coordinates
+    x_large = sign * (L/2 - large_hole_x_from_end);
+    x1      = sign * (L/2 - small_hole_x1_from_end);
+    x2      = sign * (L/2 - small_hole_x2_from_end);
+    x3      = sign * (L/2 - small_hole_x3_from_end);
+
+    // Clamp Y offsets so holes remain within the plate width
+    y1 = clamp(small_hole_y1_from_center, -max_y_for_d(small_hole_d), max_y_for_d(small_hole_d));
+    y2 = clamp(small_hole_y2_from_center, -max_y_for_d(small_hole_d), max_y_for_d(small_hole_d));
+    y3 = clamp(small_hole_y3_from_center, -max_y_for_d(small_hole_d), max_y_for_d(small_hole_d));
+
+    // Large clean circular through-hole near end
+    translate([x_large, 0, 0]) hole_cyl(large_hole_d);
+
+    // Three small circular through-holes (asymmetric), mirrored between ends
+    translate([x1, sign * y1, 0]) hole_cyl(small_hole_d);
+    translate([x2, sign * y2, 0]) hole_cyl(small_hole_d);
+    translate([x3, sign * y3, 0]) hole_cyl(small_hole_d);
+}
+
+module holes_all() {
+    holes_end(-1);
+    holes_end( 1);
+}
+
+// -------------------- Final Model --------------------
+difference() {
+    obround_plate(L, W, T);
+    holes_all();
 }

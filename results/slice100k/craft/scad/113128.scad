@@ -1,132 +1,128 @@
-// Stepped H-like bracket/block (prismatic, sharp edges)
+// Stepped, asymmetric H-like bracket/block (prismatic, sharp edges)
 // Target bounding box: 31.8 x 31.8 x 15.8 mm
 
 $fn = 48;
 
-// -------------------- Parameters --------------------
+// --- Parameters (mm) ---
 bbox_x = 31.8;
 bbox_y = 31.8;
 bbox_z = 15.8;
 
-// End blocks (left/right)
-end_w = 11.5;          // X width of each end block
-end_d = bbox_y;        // Y depth
-end_h = bbox_z;        // Z height
+// H core (two end blocks + central bridge)
+end_block_x = 12.0;
+end_block_y = bbox_y;
+end_block_z = bbox_z;
 
-// Central bridge (connects end blocks)
-bridge_d = 14;         // Y depth of bridge (narrower than end blocks)
+bridge_x = bbox_x - 2*end_block_x;   // ensures exact bbox_x
+bridge_y = 12.0;
+bridge_z = bbox_z;
 
-// Asymmetric pads (additive, create asymmetric top/bottom silhouette)
-pad_w = 7;             // X
-pad_d = 10;            // Y
-pad_h = 3;             // Z
-pad_offset_x = 4;      // X offset from center
-pad_offset_y = 6;      // Y offset from center
+// Shoulder steps / rebates (cuts)
+top_rebate_depth = 2.0;
+top_rebate_y     = 18.0;
+top_rebate_x     = bbox_x;
 
-// Shoulder steps/rebates (subtractive)
-top_rebate_depth = 2.2;
-top_rebate_w = 10;
-top_rebate_d = 12;
+bottom_rebate_depth = 2.5;
+bottom_rebate_y     = 14.0;
+bottom_rebate_x     = 20.0;
 
-bottom_rebate_depth = 2.0;
-bottom_rebate_w = 9;
-bottom_rebate_d = 10;
+// Asymmetric pads (additions) - made more pronounced
+pad_top_x = 12.0;
+pad_top_y = 9.0;
+pad_top_z = 3.0;
+pad_top_offset_x = 6.8;
+pad_top_offset_y = 9.2;
 
-// Internal relief cutouts (subtractive, through Z)
-relief_w = 6;
-relief_d = 8;
-relief_offset_y = 7;
+pad_bottom_x = 9.5;
+pad_bottom_y = 12.0;
+pad_bottom_z = 3.5;
+pad_bottom_offset_x = -8.2;
+pad_bottom_offset_y = -7.6;
 
-// Small additional rebates (subtractive)
-small_rebate_w = 6;
-small_rebate_d = 6;
-small_rebate_depth = 1.2;
+// Small lip on top (addition)
+lip_x = 7.0;
+lip_y = 4.5;
+lip_z = 1.5;
+lip_offset_x = 0.0;
+lip_offset_y = -10.2;
 
-// Robustness
-overlap = 0.6;           // small overlap to guarantee connectivity
-cut_clear = 0.25;        // extra depth for clean subtraction
+// Corner relief notches (cuts)
+notch_x = 3.0;
+notch_y = 3.0;
+notch_z = 4.0;
 
-// -------------------- Helpers --------------------
-function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
+overlap = 0.25; // overlap to guarantee manifold unions/differences
 
-// Derived: ensure exact bbox in X by solving bridge width from bbox_x and end_w
-// Total X = end_w + bridge_w + end_w
-bridge_w = clamp(bbox_x - 2*end_w, 0.1, bbox_x);
+// --- Core H solid (union of 3 prisms) ---
+module h_core() {
+  union() {
+    // left end block
+    translate([-(bbox_x/2 - end_block_x/2), 0, 0])
+      cube([end_block_x, end_block_y, end_block_z], center=true);
 
-// -------------------- Base solids --------------------
-module end_block(sign=1) { // sign = -1 left, +1 right
-    translate([sign*(bbox_x/2 - end_w/2), 0, 0])
-        cube([end_w, end_d, end_h], center=true);
+    // right end block
+    translate([(bbox_x/2 - end_block_x/2), 0, 0])
+      cube([end_block_x, end_block_y, end_block_z], center=true);
+
+    // central bridge (exactly spans between end blocks)
+    cube([bridge_x, bridge_y, bridge_z], center=true);
+  }
 }
 
-module central_bridge() {
-    // Bridge spans exactly between end blocks; add tiny overlap in X for guaranteed union
-    cube([bridge_w + 2*overlap, bridge_d, bbox_z], center=true);
+// --- Add asymmetric pads and lip (all connected) ---
+module additions() {
+  union() {
+    // top offset pad (sits on top face, overlaps into body)
+    translate([pad_top_offset_x, pad_top_offset_y,
+               bbox_z/2 - pad_top_z/2 - overlap])
+      cube([pad_top_x, pad_top_y, pad_top_z], center=true);
+
+    // bottom offset pad (sits on bottom face, overlaps into body)
+    translate([pad_bottom_offset_x, pad_bottom_offset_y,
+               -(bbox_z/2 - pad_bottom_z/2 - overlap)])
+      cube([pad_bottom_x, pad_bottom_y, pad_bottom_z], center=true);
+
+    // small alignment lip protruding from top face, overlaps slightly
+    translate([lip_offset_x, lip_offset_y,
+               bbox_z/2 + lip_z/2 - overlap])
+      cube([lip_x, lip_y, lip_z], center=true);
+  }
 }
 
-module offset_pad_top() {
-    // Additive pad on top face, offset in +X,+Y
-    translate([ pad_offset_x,  pad_offset_y,  bbox_z/2 - pad_h/2])
-        cube([pad_w, clamp(pad_d, 0.1, bbox_y), pad_h], center=true);
+// --- Shoulder steps/rebates (cuts) ---
+module top_rebate_cut() {
+  translate([0, 0, bbox_z/2 - top_rebate_depth/2 + overlap])
+    cube([top_rebate_x + 2*overlap,
+          top_rebate_y + 2*overlap,
+          top_rebate_depth + 2*overlap], center=true);
 }
 
-module offset_pad_bottom() {
-    // Additive pad on bottom face, offset in -X,-Y (asymmetric overall)
-    translate([-pad_offset_x, -pad_offset_y, -bbox_z/2 + pad_h/2])
-        cube([pad_w, clamp(pad_d, 0.1, bbox_y), pad_h], center=true);
+module bottom_rebate_cut() {
+  translate([0, 0, -(bbox_z/2 - bottom_rebate_depth/2 + overlap)])
+    cube([bottom_rebate_x + 2*overlap,
+          bottom_rebate_y + 2*overlap,
+          bottom_rebate_depth + 2*overlap], center=true);
 }
 
-// -------------------- Subtractive features --------------------
-module top_rebate() {
-    translate([0, 0, bbox_z/2 - (top_rebate_depth + cut_clear)/2])
-        cube([top_rebate_w, clamp(top_rebate_d, 0.1, bbox_y), top_rebate_depth + cut_clear], center=true);
+// --- Corner relief notches (cuts) ---
+module corner_notches_cut() {
+  for (sx = [-1, 1], sy = [-1, 1]) {
+    translate([sx*(bbox_x/2 - notch_x/2),
+               sy*(bbox_y/2 - notch_y/2),
+               bbox_z/2 - notch_z/2 + overlap])
+      cube([notch_x + 2*overlap,
+            notch_y + 2*overlap,
+            notch_z + 2*overlap], center=true);
+  }
 }
 
-module bottom_rebate() {
-    translate([0, 0, -bbox_z/2 + (bottom_rebate_depth + cut_clear)/2])
-        cube([bottom_rebate_w, clamp(bottom_rebate_d, 0.1, bbox_y), bottom_rebate_depth + cut_clear], center=true);
-}
-
-module internal_relief(sign=1) {
-    // Through-cut relief near each end block, offset in Y opposite on each side
-    translate([sign*(bbox_x/2 - end_w/2), -sign*relief_offset_y, 0])
-        cube([relief_w, relief_d, bbox_z + 2*cut_clear], center=true);
-}
-
-module small_rebate_left_top() {
-    translate([-(bbox_x/2 - end_w/2), 0, bbox_z/2 - (small_rebate_depth + cut_clear)/2])
-        cube([small_rebate_w, small_rebate_d, small_rebate_depth + cut_clear], center=true);
-}
-
-module small_rebate_right_bottom() {
-    translate([(bbox_x/2 - end_w/2), 0, -bbox_z/2 + (small_rebate_depth + cut_clear)/2])
-        cube([small_rebate_w, small_rebate_d, small_rebate_depth + cut_clear], center=true);
-}
-
-// -------------------- Main body (ONE connected solid) --------------------
-module main_body() {
-    union() {
-        end_block(-1);
-        end_block( 1);
-        central_bridge();
-        offset_pad_top();
-        offset_pad_bottom();
-    }
-}
-
-// -------------------- Final model --------------------
+// --- Final model (ONE connected solid) ---
 difference() {
-    main_body();
-
-    // Shoulder steps
-    top_rebate();
-    bottom_rebate();
-
-    // Internal reliefs (asymmetric pair)
-    internal_relief(-1);
-    internal_relief( 1);
-
-    // Extra small rebates (diagonal/asymmetric)
-    small_rebate_left_top();
-    small_rebate_right_bottom();
+  union() {
+    h_core();
+    additions();
+  }
+  top_rebate_cut();
+  bottom_rebate_cut();
+  corner_notches_cut();
 }

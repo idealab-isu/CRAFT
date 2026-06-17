@@ -1,113 +1,131 @@
 // Parameters
-bbox_L = 85.07; //[42.535:170.14:0.01]
-bbox_W = 22.45; //[11.225:44.9:0.01]
-bbox_H = 10.44; //[5.22:20.88:0.01]
-plate_L = 85.07; //[42.535:170.14:0.01]
-plate_W = 22.45; //[11.225:44.9:0.01]
-plate_T = 3.0; //[1.5:6.0:0.1]
-end_chamfer_L = 4.0; //[2.0:8.0:0.1]
-prong_W = 8.0; //[4.0:16.0:0.1]
-prong_T = 4.0; //[2.0:8.0:0.1]
-prong_H = 7.44; //[3.72:14.88:0.01]
-prong1_center_from_left = 25.0; //[12.5:50.0:0.1]
-prong2_center_from_left = 60.0; //[30.0:120.0:0.1]
-prong_end_step_L = 2.5; //[1.25:5.0:0.1]
-prong_end_step_drop = 1.5; //[0.75:3.0:0.1]
-overlap = 0.8; //[0.5:2.0:0.1]
-relief_r = 1.0; //[0.5:2.0:0.1]
-cosmetic_r = 0.6; //[0.3:1.2:0.1]
+L = 85.07; //[42.535:170.14:0.01]
+W = 22.45; //[11.225:44.9:0.01]
+H = 10.44; //[5.22:20.88:0.01]
+plate_t = 3.2; //[1.6:6.4:0.01]
+end_chamfer_len = 4; //[2:8:0.01]
+prong_w = 8; //[4:16:0.01]
+prong_l = 10; //[5:20:0.01]
+prong_h = 7.24; //[3.62:14.48:0.01]
+prong_offset_from_end = 18; //[9:36:0.01]
+prong_spacing = 34; //[17:68:0.01]
+step_len = 2; //[1:4:0.01]
+step_drop = 1.2; //[0.6:2.4:0.01]
+step_setback_from_tip = 1; //[0.5:2:0.01]
+overlap = 0.8; //[0.5:2:0.01]
+relief_chamfer = 0.8; //[0.4:1.6:0.01]
+fillet_r = 0.6; //[0.3:1.2:0.01]
 
-// Base shapes
-module base_bar_plate() {
-  cube([plate_L, plate_W, plate_T], center=true);
+// Base Shapes
+module main_bar_plate() {
+  translate([0, 0, 0])
+    cube([L, W, plate_t], center=true);
 }
 
 module end_chamfer_left() {
-  translate([-plate_L/2 + end_chamfer_L/2, 0, 0])
+  translate([-L/2 + end_chamfer_len/2, 0, 0])
     rotate([0, 0, 45])
-    cube([end_chamfer_L, plate_W, plate_T + 2*overlap], center=true);
+      cube([end_chamfer_len, W, plate_t + 2*overlap], center=true);
 }
 
 module end_chamfer_right() {
-  translate([plate_L/2 - end_chamfer_L/2, 0, 0])
+  translate([L/2 - end_chamfer_len/2, 0, 0])
     rotate([0, 0, 45])
-    cube([end_chamfer_L, plate_W, plate_T + 2*overlap], center=true);
+      cube([end_chamfer_len, W, plate_t + 2*overlap], center=true);
 }
 
 module prong_1() {
-  translate([-plate_L/2 + prong1_center_from_left, 0, plate_T/2 + prong_H/2 - overlap])
-    cube([prong_T, prong_W, prong_H], center=true);
+  translate([-L/2 + prong_offset_from_end, 0, plate_t/2 + prong_h/2 - overlap])
+    cube([prong_l, prong_w, prong_h], center=true);
 }
 
 module prong_2() {
-  translate([-plate_L/2 + prong2_center_from_left, 0, plate_T/2 + prong_H/2 - overlap])
-    cube([prong_T, prong_W, prong_H], center=true);
+  translate([-L/2 + prong_offset_from_end + prong_spacing, 0, plate_t/2 + prong_h/2 - overlap])
+    cube([prong_l, prong_w, prong_h], center=true);
 }
 
-module prong_1_end_shoulder_step() {
-  translate([-plate_L/2 + prong1_center_from_left + prong_T/2 - prong_end_step_L/2, prong_W/2 - prong_end_step_drop/2, plate_T/2 + prong_H/2 - overlap])
-    cube([prong_end_step_L, prong_W + 2*overlap, prong_H + 2*overlap], center=true);
+module prong_1_end_step() {
+  translate([(-L/2 + prong_offset_from_end) + (prong_l/2 - step_setback_from_tip - step_len/2), 0, plate_t/2 + (prong_h - step_drop)/2 - overlap])
+    cube([step_len, prong_w + 2*overlap, prong_h - step_drop + 2*overlap], center=true);
 }
 
-module prong_2_end_shoulder_step() {
-  translate([-plate_L/2 + prong2_center_from_left + prong_T/2 - prong_end_step_L/2, prong_W/2 - prong_end_step_drop/2, plate_T/2 + prong_H/2 - overlap])
-    cube([prong_end_step_L, prong_W + 2*overlap, prong_H + 2*overlap], center=true);
+module prong_2_end_step() {
+  translate([(-L/2 + prong_offset_from_end + prong_spacing) + (prong_l/2 - step_setback_from_tip - step_len/2), 0, plate_t/2 + (prong_h - step_drop)/2 - overlap])
+    cube([step_len, prong_w + 2*overlap, prong_h - step_drop + 2*overlap], center=true);
 }
 
-module minor_relief_cuts() {
-  translate([-plate_L/2 + prong1_center_from_left - prong_T/2 + relief_r, prong_W/2 - relief_r, 0])
-    rotate([90, 0, 0])
-    cylinder(r=relief_r, h=plate_T + 2*overlap, center=true);
+module small_relief_chamfers_on_prongs() {
+  translate([(-L/2 + prong_offset_from_end) + (prong_l/2 - relief_chamfer/2), 0, plate_t/2 + prong_h/2 - overlap])
+    rotate([0, 0, 45])
+      cube([relief_chamfer, prong_w + 2*overlap, prong_h + 2*overlap], center=true);
+}
+
+module surface_markings() {
+  translate([0, 0, plate_t/2 - (plate_t/10)/2])
+    cube([L/3, W/3, plate_t/10], center=true);
 }
 
 module edge_fillets() {
-  sphere(r=cosmetic_r, center=true);
+  sphere(r=fillet_r, center=true);
 }
 
 // Operations
 module plate_chamfered() {
   difference() {
-    base_bar_plate();
+    main_bar_plate();
     end_chamfer_left();
     end_chamfer_right();
   }
 }
 
-module prongs_union_raw() {
+module prongs_union() {
   union() {
     prong_1();
     prong_2();
   }
 }
 
-module prongs_stepped_1() {
+module prongs_with_steps() {
   difference() {
-    prongs_union_raw();
-    prong_1_end_shoulder_step();
-    prong_2_end_shoulder_step();
+    prongs_union();
+    prong_1_end_step();
+    prong_2_end_step();
   }
 }
 
-module plate_plus_prongs() {
+module relief_chamfer_prong2_pos() {
+  translate([prong_spacing, 0, 0])
+    small_relief_chamfers_on_prongs();
+}
+
+module prongs_with_steps_and_reliefs() {
+  difference() {
+    prongs_with_steps();
+    small_relief_chamfers_on_prongs();
+    relief_chamfer_prong2_pos();
+  }
+}
+
+module plate_and_prongs() {
   union() {
     plate_chamfered();
-    prongs_stepped_1();
+    prongs_with_steps_and_reliefs();
   }
 }
 
-module with_reliefs() {
-  difference() {
-    plate_plus_prongs();
-    minor_relief_cuts();
-  }
-}
-
-module cosmetic_rounding() {
+module edge_fillets_applied() {
   minkowski() {
-    with_reliefs();
+    plate_and_prongs();
     edge_fillets();
   }
 }
 
-// Final output
-cosmetic_rounding();
+module final_model() {
+  difference() {
+    edge_fillets_applied();
+    surface_markings();
+  }
+}
+
+// Final Output
+final_model();

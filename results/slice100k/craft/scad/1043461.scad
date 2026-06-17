@@ -1,102 +1,110 @@
-// Symmetric elongated bracket/strap with central square through-window and longitudinal ribs
-// Target bounding box: 10.9 x 43.9 x 10.6 mm (W x L x H), elongated along X
+// Symmetric elongated bracket/strap with central thick block + square through-window,
+// two wide arms, stepped junctions, and ribs on ONE face.
+// Bounding box target: W x L x H = 10.92 x 43.93 x 10.64 (Y x X x Z)
 
-$fn = 64;
+$fn = 48;
 
-// Overall dimensions
-L = 43.93;   // X
-W = 10.92;   // Y
-H = 10.64;   // Z
+// Overall target envelope
+L = 43.93;                 // overall length (X)
+W = 10.92;                 // overall width  (Y)
+H = 10.64;                 // overall height (Z)
 
-// Central block
-center_L = 12.0;
-center_W = W;
-center_H = H;
+// Core proportions
+center_L = 12.0;           // central block length (X)
+center_W = W;              // central block width  (Y)
+center_H = H;              // central block height (Z)
 
-// Arms (thinner)
-arm_L_each = (L - center_L)/2;
-arm_W = W;
-arm_H = 6.2;
+arm_L_each = (L - center_L)/2;  // each arm length (X)
+arm_W = W;                      // arm width (Y)
+arm_H = 6.5;                    // arm thickness (Z)
 
-// Transition length (simple hull ramp)
-transition_L = 2.0;
+junction_step_L = 2.0;          // step length into arm (X)
+junction_step_H = 2.0;          // extra height above arm at junction (Z)
 
-// Square through-window (through full height)
-window_size = 5.6;
+// Window (square through-window in central block)
+window_size = 5.0;              // square size (Y and Z)
 
-// Ribs: multiple longitudinal ribs on ONE face (top)
-rib_count = 5;
-rib_W = 0.9;     // rib width across Y
-rib_H = 0.9;     // rib height in Z
-rib_end_margin = 1.0;
-rib_side_margin = 0.9;
+// Ribs (on one face)
+rib_count = 4;
+rib_H = 1.0;                    // rib height (Z)
+rib_W = 1.2;                    // rib width (Y)
+rib_margin_side = 1.0;          // side margin in Y
+rib_face = 1;                   // 1 = ribs on +Z face, 0 = ribs on -Z face
 
-// Small overlap to guarantee manifold unions/differences
-overlap = 0.4;
+// Connectivity + edge softening
+overlap = 1.2;                  // 1–2mm overlap for robust unions
+chamfer = 0.6;                  // small roundover via minkowski
 
-// ----------------- Core solids -----------------
+module roundover_sphere() { sphere(r=chamfer/2); }
+
+// --- Base solids (all centered at origin, X is length axis) ---
+
 module central_block() {
-    cube([center_L, center_W, center_H], center=true);
+  cube([center_L, center_W, center_H], center=true);
 }
 
-module arm(side=1) { // side = -1 left, +1 right
-    // Place arm so it overlaps into central block by 'overlap'
-    translate([side*(center_L/2 + arm_L_each/2 - overlap), 0, -(center_H/2 - arm_H/2)])
-        cube([arm_L_each, arm_W, arm_H], center=true);
+module arm(sign=1) { // sign = -1 left, +1 right
+  // Inner face of arm overlaps into central block by 'overlap'
+  x = sign * (center_L/2 + arm_L_each/2 - overlap);
+  // Arms sit flush to bottom of central block
+  z = -center_H/2 + arm_H/2;
+  translate([x, 0, z])
+    cube([arm_L_each, arm_W, arm_H], center=true);
 }
 
-module transition(side=1) {
-    // Hull between a thin slice at arm height and a thin slice at full height
-    hull() {
-        // slice at arm height, right at the central edge
-        translate([side*(center_L/2 - overlap/2), 0, -(center_H/2 - arm_H/2)])
-            cube([overlap, arm_W, arm_H], center=true);
-
-        // slice at full height, a bit into the arm
-        translate([side*(center_L/2 + transition_L - overlap/2), 0, 0])
-            cube([overlap, center_W, center_H], center=true);
-    }
+module junction_step(sign=1) {
+  // Step sits on top of the arm at the junction, overlapping into central block
+  x = sign * (center_L/2 + junction_step_L/2 - overlap);
+  z = -center_H/2 + (arm_H + junction_step_H)/2;
+  translate([x, 0, z])
+    cube([junction_step_L, arm_W, arm_H + junction_step_H], center=true);
 }
 
+// Square through-window: square in Y-Z, cut through Z (so it is visible in top/bottom views)
 module square_through_window() {
-    cube([window_size, window_size, center_H + 2*overlap], center=true);
+  // Cut through full height (Z) with margin for minkowski rounding.
+  // Confine in X to central block region.
+  cube([window_size, window_size, center_H + 2*(chamfer + 1.0)], center=true);
 }
 
-// Longitudinal ribs on TOP face, spanning most of length
-module ribs_top() {
-    rib_span_L = L - 2*rib_end_margin;
-    y_min = -W/2 + rib_side_margin + rib_W/2;
-    y_max =  W/2 - rib_side_margin - rib_W/2;
-
-    for (i = [0 : rib_count-1]) {
-        t = (rib_count <= 1) ? 0.5 : i/(rib_count-1);
-        y = y_min + t*(y_max - y_min);
-
-        // Ensure ribs are actually visible: sit on top face with slight overlap into body
-        translate([0, y, H/2 + rib_H/2 - overlap])
-            cube([rib_span_L, rib_W, rib_H], center=true);
-    }
+// Ribs: long along X, placed on one face (top or bottom)
+module rib_at_y(ypos) {
+  zpos = (rib_face == 1) ? (H/2 - rib_H/2) : (-H/2 + rib_H/2);
+  translate([0, ypos, zpos])
+    cube([L - 2*overlap, rib_W, rib_H], center=true);
 }
 
-// ----------------- Final model -----------------
-module model() {
-    difference() {
-        union() {
-            // Main connected body
-            union() {
-                central_block();
-                arm(-1);
-                arm( 1);
-                transition(-1);
-                transition( 1);
-            }
-            // Ribs on one face
-            ribs_top();
-        }
+module ribs_union() {
+  usable = W - 2*rib_margin_side - rib_W;
+  step = (rib_count <= 1) ? 0 : usable/(rib_count - 1);
+  y0 = -usable/2;
 
-        // Central square through-window
-        square_through_window();
-    }
+  for (i = [0:rib_count-1])
+    rib_at_y(y0 + i*step);
 }
 
-model();
+// Main shape (single connected solid)
+module main_solid() {
+  union() {
+    central_block();
+    arm(-1);
+    arm(1);
+    junction_step(-1);
+    junction_step(1);
+    ribs_union();
+  }
+}
+
+// Cut window AFTER union so it is clearly a through-window
+module with_window() {
+  difference() {
+    main_solid();
+    square_through_window();
+  }
+}
+
+// Final: small roundovers (window remains through due to oversize cut)
+minkowski() {
+  with_window();
+  roundover_sphere();
+}

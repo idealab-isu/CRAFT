@@ -12,76 +12,50 @@ build/
 .venv/
 venv/
 
-# macOS
+# macOS / IDE
 .DS_Store
 ._*
 .claude/
-paper/.DS_Store
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Intermediate pipeline artifacts
+# Intermediate pipeline artifacts (Flask demo runtime outputs)
 pipeline/plans/
 pipeline/scad_scripts/
 pipeline/tmp_views/
 pipeline/quick_test_results/
-
-# Large data (regenerate via pipeline/kb/indexer.py)
-pipeline/kb_data/
-nopscadlib_component_catalog.json
-
-# Temporary build artifacts inside results
-results/**/temp/
-
-# Ground truth STL (too large, regenerate with evaluation scripts)
-evaluation/ground_truth/stl/
-
-AESCAPE2026_abstract_submission.md
-CRAFT_v2_research_plan.md
-
+pipeline/static/images/
 pipeline/static/stl/
-pipeline/static/sketches/
-pipeline/static/images/
-pipeline/static/kb/
-pipeline/static/core/
-pipeline/static/utils/
 
-*.py[cod]
-.DS_Store
-**/.DS_Store
+# Large data (regenerate via pipeline/scripts/build_knowledge_base.py)
+pipeline/kb_data/
+ground_truth/nopscadlib/nopscadlib_component_catalog.json
 
-Experimentation/GroundTruth/stl/
-Experimentation/Chamfer_distance/tmp_views/
-Experimentation/Chamfer_distance/tmp_stl/
-Experimentation/Chamfer_distance/tmp_images/
-Experimentation/Chamfer_distance/tmp_kb/
-Experimentation/Chamfer_distance/tmp_core/
-Experimentation/Chamfer_distance/tmp_utils/
+# Ground-truth STLs (large, regenerate with experiments/01_ground_truth/render_nopscadlib.py)
+ground_truth/nopscadlib/stl/
 
- utils/*.pyc
+# FID Inception feature caches (regenerable)
+metrics/**/_cache/
 
-Experimentation/Chamfer_distance/stls/
-# Generated experiment outputs
-results/
+# ---------------------------------------------------------------------------
+# Light-repo policy: regenerable bulk artifacts are NOT committed.
+# The repository ships generated OpenSCAD programs (.scad) and results.json;
+# rendered views (.png) and exported meshes (.stl) are reproduced by the
+# pipeline (experiments/01_ground_truth/ and experiments/02_benchmark/).
+# ---------------------------------------------------------------------------
+results/**/png/
+results/**/stl/
+results/**/temp/
+additional_study/**/png/
+additional_study/**/stl/
 
-# Local/generated static outputs
-pipeline/static/images/
-pipeline/static/sketches/
+# Archive — superseded code kept for provenance; heavy media excluded
+additional_study/_archive/pipeline_static_images/
+additional_study/_archive/pipeline_static_stl/
 
-# OS/Python junk
-.DS_Store
-__pycache__/
-*.py[cod]
-Experimentation/zerotocad_eval/data/
-results/zerotocad_eval/
-
-/plans/
-/scad_scripts/
-/static/
-
-# Stray git internals
-/FETCH_HEAD
-.publish-cd-audit-gallery/
+# Archive media (provenance code only — meshes/renders excluded)
+additional_study/_archive/**/*.stl
+additional_study/_archive/**/*.png
+additional_study/_archive/**/_renders/

@@ -1,64 +1,46 @@
 // Dimension-calibrated (target: 0.07 x 0.09 x 0.00 mm)
-scale([0.880014, 0.650010, 3.001651])
+scale([0.880000, 0.650000, 3.000000])
 {
 // Thin rectangular plate with centered pentagonal through-cutout
 // and four diamond-oriented square through-holes near corners.
 
-// Use a small but nonzero thickness so geometry is visible/robust.
-plate_L = 0.1;
-plate_W = 0.1;
-plate_T = 0.001;
+// --- Parameters (mm) ---
+plate_L = 0.10;
+plate_W = 0.10;
+plate_T = 0.001;   // tiny but nonzero thickness for robust rendering
 
-// Cutouts
-pent_R = 0.022;          // circumradius of pentagon
-pent_rot_deg = 90;       // fixed orientation (consistent in all views)
-corner_sq_side = 0.010;  // square side length
-corner_sq_rot_deg = 45;  // diamond orientation
+pent_R  = 0.028;   // circumradius of regular pentagon
+hole_sq = 0.010;   // square hole side length
+hole_rot_deg = 45;
 
-// Corner hole offsets from edges
-edge_margin_L = 0.015;
-edge_margin_W = 0.015;
+edge_margin = 0.015; // distance from each edge to hole center
 
-// Through-cut settings
-tool_overlap = plate_T;                 // ensure cutters fully span plate
-cut_through_H = plate_T + 2*tool_overlap;
+// --- Derived placements ---
+hole_off_x = plate_L/2 - edge_margin;
+hole_off_y = plate_W/2 - edge_margin;
 
-// Helpers
-function pent_points(r, rot_deg) =
-    [ for (i = [0:4])
-        [ r*cos(rot_deg + i*72), r*sin(rot_deg + i*72) ]
-    ];
-
-module plate_main_body() {
-    cube([plate_L, plate_W, plate_T], center=true);
+// --- Helpers ---
+module pentagon_2d(R, rot_deg=0) {
+    polygon(points=[
+        for (i = [0:4])
+            [ R*cos(rot_deg + 90 + i*72), R*sin(rot_deg + 90 + i*72) ]
+    ]);
 }
 
-module center_pentagon_through_cutout() {
-    // Keep the pentagon strictly in XY and extrude along Z for consistent orientation.
-    linear_extrude(height=cut_through_H, center=true, convexity=10)
-        polygon(points=pent_points(pent_R, pent_rot_deg));
-}
-
-module corner_hole(xsign, ysign) {
-    translate([
-        xsign*(plate_L/2 - edge_margin_L),
-        ysign*(plate_W/2 - edge_margin_W),
-        0
-    ])
-    rotate([0, 0, corner_sq_rot_deg])
-        cube([corner_sq_side, corner_sq_side, cut_through_H], center=true);
-}
-
+// --- Model ---
 difference() {
-    plate_main_body();
+    // Base plate
+    cube([plate_L, plate_W, plate_T], center=true);
 
-    // Center pentagonal opening
-    center_pentagon_through_cutout();
+    // Central pentagonal through-cutout
+    linear_extrude(height=plate_T + 0.01, center=true, convexity=5)
+        pentagon_2d(pent_R, rot_deg=0);
 
-    // Four corner diamond holes
-    corner_hole( 1,  1);
-    corner_hole(-1,  1);
-    corner_hole(-1, -1);
-    corner_hole( 1, -1);
+    // Four corner diamond square through-holes
+    for (sx = [-1, 1], sy = [-1, 1]) {
+        translate([sx*hole_off_x, sy*hole_off_y, 0])
+            rotate([0, 0, hole_rot_deg])
+                cube([hole_sq, hole_sq, plate_T + 0.01], center=true);
+    }
 }
 }

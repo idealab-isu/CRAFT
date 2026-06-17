@@ -1,0 +1,360 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{amsmath,amssymb,amsfonts}
+%\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\makeatletter % changes the catcode of @ to 11
+\newcommand{\linebreakand}{%
+  \end{@IEEEauthorhalign}
+  \hfill\mbox{}\par
+  \mbox{}\hfill\begin{@IEEEauthorhalign}
+}
+\makeatother % changes the catcode of @ back to 12
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[labelfont=bf,textfont=it]{caption}
+\usepackage{subcaption}
+\usepackage[sort&compress,numbers]{natbib}
+\usepackage{listings}
+
+% \usepackage{hyperref}
+\usepackage[draft]{hyperref}
+% \hypersetup{
+%     colorlinks,
+%     linkcolor={blue},
+%     citecolor={blue},
+%     urlcolor={blue},
+%     breaklinks=true,
+%     plainpages=true
+% }
+
+\newcommand{\cref}[3]{\hyperref[#2]{#1~\ref*{#2}{#3}}}
+% Color references
+\newcommand{\colref}[2]{\hyperref[#2]{#1~\ref*{#2}}}
+\newcommand{\eqnref}[1]{\colref{Eq.}{#1}}
+\newcommand{\figref}[1]{\colref{Fig.}{#1}}
+\newcommand{\subfigref}[2]{\cref{Figure}{#1}{#2}}
+\newcommand{\figsref}[2]{\crefs{Figures}{#1}{#2}}
+\newcommand{\secref}[1]{\colref{Section}{#1}}
+\newcommand{\appref}[1]{\colref{}{#1}}
+\newcommand{\tabref}[1]{\colref{Table}{#1}}
+\newcommand{\algref}[1]{\colref{Algorithm}{#1}}
+\newcommand{\defref}[1]{\colref{Definition}{#1}}
+\newcommand{\Algref}[1]{\colref{Algorithm}{#1}}
+
+
+
+\lstset{
+basicstyle=\ttfamily\scriptsize, breaklines=true, frame=single, numbers=left, numberstyle=\tiny, columns=flexible, }
+
+\begin{document}
+\IEEEoverridecommandlockouts
+\IEEEpubid{\makebox[\columnwidth]{979-8-3195-1246-8-0/26/\$31.00~\copyright2026~IEEE\hfill}\hspace{\columnsep}\makebox[\columnwidth]{ }}
+
+% \title{CRAFT: A Multi-Agent Pipeline for Zero-Shot\\Text-to-Parametric CAD Generation}
+\title{CRAFT: Corrective and Robust Multi-Agent Framework for Text-to-Parametric CAD\\
+% \thanks{a. Iowa State University, USA}
+% \thanks{b. New York University, USA}
+% \thanks{This work was supported by the National Science Foundation under grant CMMI-AM-2347623/2347624. We would like to thank the NVIDIA Corporation for providing GPUs for academic research.}
+}
+
+% Double-blind: no author info
+
+%\author{\IEEEauthorblockN{Anonymous Authors}
+%\IEEEauthorblockA{Anonymous Institution}}
+
+% Musthafa, Anushrut, Mahdi, Chinmay, Aditya, Adarsh
+\author{\IEEEauthorblockN{Mohammed Musthafa Rafi\textsuperscript{a}
+\and Anushrut Jignasu\textsuperscript{a}
+\and Mahdi Saraeian\textsuperscript{a}
+\and Chinmay Hegde\textsuperscript{b}
+\and Aditya Balu\textsuperscript{a}
+\linebreakand
+Adarsh Krishnamurthy\textsuperscript{a}}
+\IEEEauthorblockA{\textsuperscript{a}Iowa State University, USA \qquad \textsuperscript{b}New York University, USA}
+\IEEEauthorblockA{Email: \textsuperscript{a} (mohd7 | anushrutg | mehdi | baditya | adarsh)@iastate.edu , \textsuperscript{b} chinmay.h@nyu.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+Text-to-CAD generation has the potential to make mechanical CAD more accessible, but existing approaches face a trade-off between data dependence and output fidelity. Supervised methods rely on large paired text--model datasets, while zero-shot prompting strategies are often brittle and tend to lose the parametric structure needed for downstream editing and customization. We present CRAFT, a corrective and robust multi-agent framework that produces parametric OpenSCAD programs from natural language without task-specific training. At its core is a JSON intermediate representation that preserves symbolic parametric expressions throughout the generation process, enabling models to remain editable rather than collapsing into hard-coded geometry. CRAFT combines semantic understanding, parametric planning, compilation, rendering, self-correction, and component-level verification within a layered recovery process, using multi-view visual feedback to detect and repair geometric errors. Across NopSCADlib, ABC, and Slice-100K, CRAFT is competitive with direct zero-shot baselines in perceptual and geometric quality while exposing substantially more editable parametric structure.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Text-to-CAD, parametric modeling, multi-agent systems, large language models, zero-shot generation, OpenSCAD
+\end{IEEEkeywords}
+
+
+\section{Introduction}
+\label{Sec:intro}
+
+Text-driven geometric modeling has seen rapid progress in recent years, with large language and vision models enabling increasingly capable systems for generating 3D shapes directly from natural language descriptions~\citep{zhang2026llmcad,poole2023dreamfusion,jun2023shape,nichol2022pointe}. These advances have raised the prospect of making mechanical computer-aided design (CAD) accessible to users without specialized CAD expertise, reducing the barrier between a design intent expressed in words and a manufacturable geometric model. Despite this progress, existing approaches remain brittle in practice. Supervised methods that fine-tune models on paired text--CAD datasets can produce geometrically plausible outputs within their training distribution, but generalize poorly to novel shapes and require substantial curated data to train~\citep{text2cad2024,cadcoder2025,text2cadquery2025,li2025llm4cad}. Zero-shot prompting strategies avoid this data dependency but are prone to generating syntactically invalid code, non-renderable geometry, and outputs that fail to faithfully reflect the original prompt. Critically, both families of approaches tend to produce hard-coded numeric geometry rather than editable parametric models, limiting their utility for downstream engineering and customization tasks~\citep{wu2021deepcad,fusion360gallery2021}.
+
+Agentic systems offer a natural path toward addressing these limitations~\citep{guo2024multiagent,madaan2023selfrefine}. Rather than treating CAD generation as a single forward pass, a multi-agent pipeline can decompose the problem into discrete stages, including semantic understanding, structured planning, code synthesis, and verification, each of which can be independently validated and repaired. This staged architecture allows errors to be detected and corrected locally rather than propagating silently into the final output, improving both reliability and geometric fidelity. A particularly well-suited target for such a pipeline is OpenSCAD~\citep{openscad}, a declarative scripting language in which geometry is expressed as a program over symbolic parameters. Generating OpenSCAD code rather than mesh geometry preserves the parametric relationships that make CAD models editable and reusable. However, verifying the correctness of generated OpenSCAD programs is non-trivial: a program may compile successfully yet produce geometry that is visually or dimensionally incorrect relative to the prompt. Effective verification, therefore, requires grounding generated outputs in external reference knowledge, both to check that recognized components conform to standard specifications and to confirm that expected parts are geometrically present. NopSCADlib~\citep{nopscadlib} is a parametric OpenSCAD component library that provides catalog-defined specifications for standard mechanical parts. These specifications ground generated outputs in physically meaningful dimensions and enable verification of component completeness.
+
+We present CRAFT, a corrective and robust multi-agent framework for text-to-parametric CAD generation. CRAFT produces executable and editable OpenSCAD programs from natural language without task-specific training through three core mechanisms: a JSON-based intermediate representation that preserves symbolic parametric expressions, multi-view visual feedback to detect and correct geometric errors, and a layered recovery strategy to handle failures at every stage of the pipeline. Our main contributions are as follows:
+\begin{itemize}[topsep=0pt]
+\item We develop a corrective and robust six-stage multi-agent framework for zero-shot text-to-parametric CAD generation that combines structured planning, multi-view visual verification, and layered error recovery to produce executable OpenSCAD programs from natural language.
+\item We propose a JSON-based intermediate representation that preserves symbolic parametric expressions throughout the generation process, enabling the produced CAD programs to remain editable and reusable rather than collapsing into hard-coded geometry.
+\item We evaluate CRAFT across three datasets (NopSCADlib, ABC, and Slice-100K) and show that it achieves competitive perceptual and geometric quality and substantially greater editability relative to direct generation baselines, and we isolate the contribution of each pipeline component through an ablation study.
+\end{itemize}
+
+\section{Related Work}
+\label{Sec:related}
+
+\textbf{Text-to-3D and Text-to-CAD Generation.} Generative approaches to 3D modeling have advanced rapidly, spanning neural implicit representations~\citep{poole2023dreamfusion}, point cloud synthesis~\citep{nichol2022pointe}, and shape generation from text~\citep{jun2023shape}. While these methods produce visually compelling outputs, they typically yield fixed mesh geometry that cannot be edited parametrically or reused in engineering workflows. A parallel line of work targets CAD-specific representations. Text2CAD~\citep{text2cad2024} generates sequential CAD construction sequences from natural language, while LLM4CAD~\citep{li2025llm4cad} explores multimodal models for 3D CAD generation. CAD-Coder~\citep{cadcoder2025} fine-tunes a language model on text--CadQuery pairs with reinforcement learning using geometric rewards, and Text-to-CadQuery~\citep{text2cadquery2025} scales this paradigm through larger paired datasets. These supervised approaches achieve strong in-distribution results but require curated paired training data and produce outputs that are often not directly editable as parametric programs. CRAFT avoids task-specific training entirely and instead uses structured zero-shot generation to produce symbolic, editable OpenSCAD programs.
+
+\textbf{Program Synthesis and Code Generation.} Generating executable code from natural language has become a well-studied problem, with large language models demonstrating strong performance across programming tasks~\citep{chen2021codex}. Techniques such as chain-of-thought prompting~\citep{wei2022chainofthought} and self-refinement~\citep{madaan2023selfrefine} have shown that decomposing generation into reasoning steps improves correctness on structured outputs. These ideas are particularly relevant for CAD, where generated programs must satisfy multiple simultaneous constraints: syntactic validity, successful compilation, geometric correctness, and semantic alignment with the input prompt. Direct single-shot generation is often insufficient in this setting, motivating the use of intermediate representations and iterative repair. CRAFT operationalizes this insight through a JSON-based intermediate representation that decouples planning from code synthesis, enabling schema-level validation before any OpenSCAD code is produced.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.99\linewidth]{figures/pdf/Craft_pipeline.pdf}
+    \caption{Overview of the CRAFT pipeline. The system maps a text prompt and optional reference images to a parametric OpenSCAD program through six stages: understanding, planning, compilation, rendering, multi-view visual correction, and component verification. Reasoning-intensive stages use GPT-5.2, while deterministic translation and repair steps use GPT-4o.}
+    \label{Fig:pipeline}
+\end{figure*}
+
+
+\textbf{Verification and Visual Feedback.} Recent work has begun to address correctness verification as a first-class concern in CAD generation. CADCodeVerify~\citep{alrashedy2024cadcodeverify} introduces vision-language model-based verification and iterative correction as a post-generation step, achieving measurable quality improvements without retraining. More broadly, visual feedback has emerged as a powerful signal for program repair: rendering a generated program and comparing the output against a reference provides information that is difficult to obtain from code analysis alone. CRAFT extends this direction by rendering six orthographic views rather than a single image, enabling the VLM to detect geometric errors that are invisible from any single viewpoint, and integrating this feedback within a bounded iterative correction loop rather than as a one-shot post-processing step.
+
+\textbf{Retrieval-Augmented Generation.} Retrieval-augmented generation (RAG) has shown that grounding language model outputs in external knowledge sources improves both factual accuracy and domain specificity~\citep{lewis2020rag}. In the code-generation setting, retrieving relevant library components or API signatures at generation time can reduce hallucination and improve structural correctness. CRAFT applies this principle to parametric CAD by retrieving component specifications from NopSCADlib~\citep{nopscadlib} during the understanding stage, grounding generated geometry in catalog-defined dimensions rather than relying on the model's implicit knowledge of part geometries.
+
+\textbf{Multi-Agent Systems and Parametric Modeling.} Multi-agent pipelines have demonstrated advantages over single-model generation in tasks requiring planning, execution, and verification across multiple steps~\citep{guo2024multiagent}, isolating failure modes and applying targeted repair without regenerating earlier stages. This architecture suits CAD generation, where failures can occur at the planning, compilation, rendering, or geometric-correctness levels, each requiring a different repair strategy. CRAFT adopts a six-stage multi-agent design in which each stage is independently recoverable, coordinated through a five-layer recovery strategy. The target representation matters as much as the architecture: parametric CAD expresses geometry through symbolic variables and editable relationships rather than fixed coordinates, enabling downstream customization, reuse, and analysis~\citep{fusion360gallery2021,wu2021deepcad}. Most text-to-CAD systems emit hard-coded numeric geometry, discarding this structure; CRAFT instead stores dimensions as symbolic strings in its JSON intermediate representation and carries them through compilation unchanged, so the final OpenSCAD~\citep{openscad} programs remain fully editable.
+
+
+\section{Methods}
+\label{Sec:method}
+
+CRAFT transforms natural language descriptions and optional reference images into parametric OpenSCAD code through six sequential stages. In our implementation, reasoning-intensive stages (understanding, planning, multi-view assessment, and component verification) are handled by a reasoning LLM (GPT-5.2), while deterministic translation and repair steps are handled by a traditional LLM (GPT-4o). The six stages describe the forward generation path, whereas the five recovery layers introduced in \secref{subSec:recovery} describe how the system escalates repair when intermediate artifacts are invalid or the rendered result is unsatisfactory.
+
+The pipeline (\figref{Fig:pipeline}) begins with understanding (Stage~1), where image and text inputs are processed in parallel. The image-analysis path extracts geometric cues from any provided reference images and fuses information across views when multiple images are available. The text-reasoning parses the prompt to identify required components, classify them by importance (essential, secondary, optional), and detect references to standard parts such as motors or fasteners. When such components are recognized, their specifications are retrieved from NopSCADlib~\citep{nopscadlib} using five strategies: exact name matching, fuzzy name matching, category-based lookup, dimensional attribute matching, and semantic embedding retrieval. If retrieval fails, the pipeline proceeds with LLM-only synthesis using a retrieve-then-generate design pattern~\citep{lewis2020rag}.
+
+The output of stage~1 is passed to planning (Stage~2), where the planner produces a JSON CAD plan (Section~\ref{subSec:json-ir}). This intermediate representation encodes geometry, constructive solid geometry (CSG) operations, and symbolic parametric expressions in a structured format that can be validated before any code is generated. In compilation (Stage~3), the validated plan is translated into OpenSCAD that preserves expression strings and generates parameter ranges for the customizer interface.
+
+In rendering (Stage~4), OpenSCAD produces six orthographic views: front, back, left, right, top, and bottom. The renderer also applies timeout-aware simplifications for computationally expensive constructs such as \texttt{hull()}, which can become slow when computing enclosing geometry over multiple primitives. These views are then used in VLM self-correction (Stage~5, Section~\ref{subSec:vlm}), where a vision-language model compares the rendered output against the original prompt and iteratively proposes fixes for up to three rounds. Finally, component verification (Stage~6) checks whether the expected parts are present using tiered confidence thresholds of 85\% for essential parts, 65\% for secondary parts, and 50\% for optional parts. These thresholds were set empirically during pilot runs to prioritize functionally necessary components over cosmetic details. This reflects the idea that missing mounting holes in a motor bracket constitute a failure, whereas omitting a cosmetic chamfer may still yield an acceptable design. More broadly, this iterative repair process is conceptually related to recent self-refinement approaches for large models~\citep{madaan2023selfrefine}.
+
+\subsection{JSON Intermediate Representation}
+\label{subSec:json-ir}
+
+CRAFT uses a JSON intermediate representation (IR) between design understanding and OpenSCAD generation. The IR encodes parameters, geometric primitives, and CSG operations in a structured form that can be validated before compilation. Unlike direct code generation, the IR preserves symbolic parametric expressions rather than evaluating them into constants. Expressions such as \texttt{"outer\_diameter/2"} are passed directly into the compiled OpenSCAD code, allowing the final model to remain editable and fully parametric.
+
+\subsection{Multi-View VLM Assessment}
+\label{subSec:vlm}
+
+Single-image assessment can miss geometric issues that are visible only from specific viewpoints. A model that appears correct from the front may still have incorrect depth or missing features visible only from the side. CRAFT addresses this by rendering six orthographic views (front, back, left, right, top, and bottom) and presenting them jointly to a vision-language model (VLM) for assessment. The VLM returns a confidence score on a 0--1 scale, a list of identified issues, and suggested corrections. If the confidence falls below 0.95, the system generates targeted fixes for the affected parts rather than regenerating the entire design. This loop runs for up to three iterations, with early stopping once the confidence threshold is reached. In our implementation, this assessment is performed using GPT-5.2 due to its stronger spatial reasoning capability.
+
+\subsection{Layered Error Recovery}
+\label{subSec:recovery}
+
+The recovery layers describe how CRAFT escalates repair when intermediate artifacts fail validation, rendering, or semantic checks. Failures in text-to-CAD generation can arise at several levels: invalid intermediate plans, non-renderable code, and geometrically incorrect outputs. CRAFT addresses these through a five-layer strategy that orders repair mechanisms from inexpensive structural fixes to more costly semantic correction. The first layer repairs malformed JSON plans through schema validation and automatic repair. The second layer applies deterministic OpenSCAD fixes for common rendering failures, such as expensive operations or excessive mesh resolution. The third layer re-invokes the multi-view VLM assessment from Stage~5 to detect semantic and geometric mismatches and generate targeted corrections. The fourth layer re-invokes the component verification procedure from Stage~6 under the same tiered thresholds. The fifth layer incorporates manual repair hints when automatic recovery remains insufficient. Automatic recovery operates under a fixed retry budget of 10 total attempts across the first four layers, set empirically to balance correction capability against latency and cost. In the reported experiments, staged recovery resolved compilation and rendering failures before final output assessment, allowing the comparison to focus on geometric fidelity and semantic alignment of the final recovered outputs.
+
+\section{Experimental Setup}
+\label{Sec:setup}
+
+\textbf{Datasets.} We evaluate CRAFT on three datasets totaling 668 components to assess both in-domain performance and cross-dataset generalization. The primary benchmark is NopSCADlib~\citep{nopscadlib}, comprising 468 text--CAD pairs derived from a parametric OpenSCAD mechanical component library, with ground-truth geometry from catalog-defined parametric specifications. To test generalization beyond the retrieval library, we also evaluate on 100 shapes each from ABC~\citep{koch2019abc} and Slice-100K~\citep{slice100k2024}; these lie outside NopSCADlib and are run with retrieval disabled. Within each dataset, components are split into Simple, Medium, and Complex terciles by a weighted composite of structural features (NopSCADlib source code) or mesh-geometry features (external meshes); because the feature spaces differ, tiers are relative within a dataset rather than comparable across datasets.
+
+\textbf{Baselines and configuration.} We compare against single-stage direct generation with GPT-4o and GPT-5.2, which receive the same prompt and a system instruction to emit only valid OpenSCAD code in a single deterministic (temperature~$0.0$) call, with no intermediate planning, retrieval, visual feedback, or recovery~\citep{openai2023gpt4}. This evaluates CRAFT against standard one-shot direct generation from the same model family, although the methods use different inference budgets. CRAFT uses a hybrid allocation---GPT-5.2 for reasoning-intensive stages and GPT-4o for deterministic compilation and repair---with up to 2 schema-repair attempts, up to 3 VLM-correction iterations (early stopping at confidence~$>0.95$), and up to 3 verification iterations under the tiered thresholds of \secref{Sec:method}.
+
+\textbf{Metrics and protocol.} For geometric evaluation we report bidirectional Chamfer Distance (CD), F1 at a 1\% distance threshold, and voxel IoU on a $64^3$ grid, computed from point clouds of 10{,}000 points sampled per mesh:
+\begin{equation}
+\operatorname{CD}=\tfrac{1}{2}\bigl(\operatorname{mean}(d_{\mathrm{gt}\to\mathrm{pred}})+\operatorname{mean}(d_{\mathrm{pred}\to\mathrm{gt}})\bigr).
+\end{equation}
+For perceptual evaluation we report CLIP score (ViT-L/14~\citep{radford2021clip}) for text--image alignment and Fr\'echet Inception Distance (FID~\citep{heusel2017fid}) from Inception-v3 features for distributional similarity to ground-truth renders. All views are rendered at $512\times512$ resolution. When a method fails to produce a valid output, the example is assigned worst-case metric values so that invalid generations remain reflected in the aggregates.
+
+\section{Results}
+\label{Sec:results}
+
+We evaluate CRAFT against direct generation baselines (GPT-4o and GPT-5.2) to examine whether its structured design improves semantic alignment, geometric faithfulness, and editability, and we ablate each component to isolate its contribution. Experiments span the in-domain NopSCADlib benchmark and the two external datasets described in \secref{Sec:setup}.
+
+\subsection{Perceptual Alignment}
+
+\tabref{tab:perceptual} reports perceptual alignment using CLIP score and FID. CRAFT attains the highest overall CLIP score (0.2226), closest to the ground-truth reference (0.2342), leading on the simple and complex tiers and essentially matching GPT-5.2 on the medium tier. It also achieves the lowest overall FID (95.11, versus 106.22 and 119.42), with the margin most pronounced on medium and complex components; on simple parts GPT-5.2 attains the lowest FID, consistent with direct generation being effective for basic geometry. We also clarify the Overall FID, which is lower than any individual tier value. It is computed once on the pooled distribution of all 468 generated and reference renders rather than by averaging the tier-level values. Because FID is non-additive and re-estimates the feature means and covariances after pooling, the pooled value need not lie between the tier values; the larger pooled sample also reduces the finite-sample bias that inflates the smaller per-tier estimates.
+
+\begin{table}[t!]
+    \centering
+    \caption{Perceptual evaluation on NopSCADlib. CLIP Score measures text--image alignment (higher is better), while FID measures distributional similarity to ground-truth renders (lower is better). GT denotes the ground-truth CLIP score as a reference value.}
+    \label{tab:perceptual}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{lcccc}
+    \toprule
+    Metric & CRAFT & GPT-4o & GPT-5.2 & GT \\
+    \midrule
+    CLIP Score & \textbf{0.2226} & 0.2033 & 0.2145 & 0.2342 \\
+    \quad Simple & \textbf{0.2272} & 0.2098 & 0.2174 & 0.2279 \\
+    \quad Medium & 0.2132 & 0.2014 & \textbf{0.2144} & 0.2342 \\
+    \quad Complex & \textbf{0.2279} & 0.1983 & 0.2116 & 0.2409 \\
+    \midrule
+    FID & \textbf{95.11} & 119.42 & 106.22 & --- \\
+    \quad Simple & 152.37 & 144.38 & \textbf{136.22} & --- \\
+    \quad Medium & \textbf{126.88} & 159.56 & 147.95 & --- \\
+    \quad Complex & \textbf{144.85} & 184.39 & 160.51 & --- \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Geometric Accuracy}
+
+We next evaluate geometric fidelity using Chamfer Distance, F1 (at a 1\% threshold), and voxel IoU. \tabref{tab:nopscad-results} reports in-domain results on NopSCADlib and \tabref{tab:external-results} the out-of-domain results on ABC and Slice-100K. On NopSCADlib, CRAFT attains the best overall Chamfer distance and the best overall voxel IoU and is comparable to the strongest baseline on F1; direct generation remains competitive on the simpler in-distribution parts, while CRAFT's advantage is clearest on volumetric overlap and on the more complex components. We therefore characterize CRAFT's in-domain geometry as competitive and tied-or-better rather than dominant. On the external datasets, where retrieval is disabled, CRAFT generalizes well: it is best on every metric on ABC and best on Chamfer distance and F1 on Slice-100K, with GPT-4o edging voxel IoU on the latter. Taken together with the perceptual results, CRAFT is particularly effective at producing geometrically coherent parametric models rather than optimizing any single surface metric in isolation. These numbers reflect end-to-end quality after the layered recovery of \secref{subSec:recovery}, whose per-stage behavior we quantify in \secref{subsec:robustness}.
+
+\begin{table}[t!]
+    \centering
+    \caption{Geometric evaluation on NopSCADlib, including overall results and breakdown by prompt complexity. F1 is reported at a 1\% distance threshold. Best results in each row group are shown in bold.}
+    \label{tab:nopscad-results}
+    \small
+    \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{llccc}
+    \toprule
+    Split & Method & CD$\downarrow$ & F1$\uparrow$ & Voxel IoU$\uparrow$ \\
+    \midrule
+    \multirow{3}{*}{Overall}
+    & CRAFT   & \textbf{0.0654} & 0.2530 & \textbf{0.2356} \\
+    & GPT-4o  & 0.0733 & 0.2467 & 0.2135 \\
+    & GPT-5.2 & 0.0662 & \textbf{0.2587} & 0.1890 \\
+    \midrule
+    \multirow{3}{*}{Simple}
+    & CRAFT   & 0.0805 & \textbf{0.3771} & 0.2863 \\
+    & GPT-4o  & 0.0841 & 0.3399 & \textbf{0.3339} \\
+    & GPT-5.2 & \textbf{0.0800} & 0.3475 & 0.1554 \\
+    \midrule
+    \multirow{3}{*}{Medium}
+    & CRAFT   & 0.0594 & 0.2277 & 0.2431 \\
+    & GPT-4o  & 0.0652 & 0.2262 & 0.1810 \\
+    & GPT-5.2 & \textbf{0.0571} & \textbf{0.2357} & \textbf{0.2591} \\
+    \midrule
+    \multirow{3}{*}{Complex}
+    & CRAFT   & \textbf{0.0559} & 0.1492 & \textbf{0.1744} \\
+    & GPT-4o  & 0.0706 & 0.1694 & 0.1201 \\
+    & GPT-5.2 & 0.0614 & \textbf{0.1883} & 0.1487 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[t!]
+\centering
+\caption{Geometric evaluation on the external datasets (ABC and Slice-100K), with retrieval disabled. F1 is reported at a 1\% distance threshold. Best per dataset in bold.}
+\label{tab:external-results}
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{llccc}
+\toprule
+Dataset & Method & CD$\downarrow$ & F1$\uparrow$ & Voxel IoU$\uparrow$ \\
+\midrule
+\multirow{3}{*}{ABC}
+& CRAFT   & \textbf{0.0841} & \textbf{0.1233} & \textbf{0.0433} \\
+& GPT-4o  & 0.1008 & 0.0857 & 0.0212 \\
+& GPT-5.2 & 0.0969 & 0.0875 & 0.0192 \\
+\midrule
+\multirow{3}{*}{Slice-100K}
+& CRAFT   & \textbf{0.0612} & \textbf{0.2924} & 0.0616 \\
+& GPT-4o  & 0.0751 & 0.2122 & \textbf{0.0711} \\
+& GPT-5.2 & 0.0622 & 0.2768 & 0.0636 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Ablation Study}
+\label{subsec:ablation}
+
+\tabref{tab:ablation} isolates each pipeline component by disabling it on the full NopSCADlib benchmark; the final column summarizes the effect of removal relative to the complete system. Removing retrieval ($-$retrieval) produces the largest degradation across all three geometric metrics, confirming the value of catalog-grounded component specifications for in-domain generation. Removing multi-view correction ($-$multi-view) or layered recovery ($-$recovery) increases Chamfer distance and decreases F1, with smaller changes in voxel IoU. Removing the JSON intermediate representation ($-$JSON-IR) yields a similar Chamfer distance but lower F1 and voxel IoU; its primary role is to preserve the symbolic structure underlying CRAFT's editability (\secref{subsec:edit}) rather than to improve raw geometry. Removing component verification ($-$verification) slightly improves the mesh-based metrics, indicating that these metrics do not directly capture the semantic-completeness objective of the verification stage, which adds or repairs prompt-specified parts.
+
+\begin{table}[t]
+\centering
+\caption{Ablation on NopSCADlib: full pipeline versus single-component-disabled variants ($-$component). The final column summarizes the effect of removing each component relative to the full system.}
+\label{tab:ablation}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccp{0.24\linewidth}}
+\toprule
+Variant & CD$\downarrow$ & F1@1\%$\uparrow$ & IoU$\uparrow$ & Effect of removal \\
+\midrule
+CRAFT (full)      & 0.0654 & 0.2530 & 0.2356 & --- \\
+$-$\,retrieval    & 0.0764 & 0.2030 & 0.1545 & higher CD; lower F1, IoU \\
+$-$\,multi-view   & 0.0738 & 0.1907 & 0.2272 & higher CD; lower F1 \\
+$-$\,recovery     & 0.0773 & 0.1878 & 0.2289 & higher CD; lower F1 \\
+$-$\,JSON-IR      & 0.0643 & 0.2383 & 0.1999 & similar CD; lower F1, IoU \\
+$-$\,verification & 0.0637 & 0.2574 & 0.2411 & metrics slightly improve \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Editability}
+\label{subsec:edit}
+
+A central goal of CRAFT is to produce editable parametric programs rather than fixed geometry. We quantify this by parsing the exposed top-level parameters of each generated program, perturbing them by $\pm10\%$ and $\pm50\%$, re-rendering, and measuring whether the program remains valid and structurally intact. An \emph{exposed parameter} is a top-level OpenSCAD customizer variable, and the \emph{symbolic-preservation rate} is the fraction of the remaining (secondary) assignments whose value is an expression referencing other parameters rather than a hard-coded literal. \emph{Edit success} is the fraction of (parameter, perturbation) attempts that apply, whereas \emph{post-edit validity} is the fraction whose perturbed program still renders to a valid, non-empty mesh. \tabref{tab:edit} shows that CRAFT exposes 13.1 editable parameters per model on average, against 4.2 for GPT-5.2 and 0.1 for GPT-4o, and preserves symbolic expressions in 66.8\% of cases versus 47.7\% and 3.0\%. Edit-success and post-edit render validity are uniformly high across methods, so the difference is in how much editable structure is exposed, not whether edits apply cleanly. The advantage widens with design difficulty: CRAFT's symbolic-preservation rate rises from 59.2\% on simple parts to 63.9\% on medium and 78.1\% on complex parts, with the mean exposed-parameter count increasing from 10.2 to 17.6. This confirms that CRAFT generates executable parametric programs whose design intent can be edited after generation, rather than only fixed shape approximations; \figref{Fig:parametric_edits} illustrates representative single-parameter edits.
+
+\begin{table}[t]
+\centering
+\caption{Editability on NopSCADlib: exposed parameter count, symbolic-preservation rate, edit-success rate, and post-edit render validity.}
+\label{tab:edit}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcccc}
+\toprule
+Method & \#\,Params & Symbolic$\uparrow$ & Edit succ.$\uparrow$ & Valid$\uparrow$ \\
+\midrule
+CRAFT   & \textbf{13.1} & \textbf{66.8\%} & 99.9\% & 99.1\% \\
+GPT-5.2 & 4.2  & 47.7\% & 99.2\% & 97.7\% \\
+GPT-4o  & 0.1  & 3.0\%  & 95.0\% & 95.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/pdf/Parametric_Cad_Example.pdf}
+    \caption{Preserved parametric editability: changing individual parameters produces coherent geometric and appearance variations, indicating that the generated OpenSCAD programs retain interpretable parametric relationships rather than fixed final shapes.}
+    \label{Fig:parametric_edits}
+\end{figure}
+
+\subsection{Recovery Behavior}
+\label{subsec:robustness}
+
+\tabref{tab:recovery} reports per-stage recovery on NopSCADlib. The two inexpensive structural layers (schema repair, SCAD auto-fix) are rarely triggered but always succeed when invoked. Multi-view correction is the most frequently used layer, addressing 80.4\% of samples and resolving about half of those. Component verification is triggered on 17.3\% of samples and applies part-level corrections; because its objective is component completeness rather than the rendered-image confidence used to score the other layers, we report its recovery rate as not applicable. The manual-repair layer was never invoked, confirming that recovery was fully automatic across the benchmark.
+
+\begin{table}[t]
+\centering
+\caption{Per-stage recovery on NopSCADlib. Trigger rate is the fraction of samples invoking a layer; recovery rate is its post-recovery success rate; retries is the mean number of attempts when invoked.}
+\label{tab:recovery}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lccc}
+\toprule
+Layer & Trigger & Recovery & Retries \\
+\midrule
+schema repair          & 0.072 & 1.000 & 1.00 \\
+SCAD auto-fix          & 0.007 & 1.000 & 1.00 \\
+multi-view correction  & 0.804 & 0.503 & 1.62 \\
+component verification & 0.173 & N/A & 1.61 \\
+manual repair          & 0.000 & ---   & ---  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Discussion}
+\label{Sec:discussion}
+
+CRAFT achieves competitive perceptual and geometric quality and substantially greater editability than direct one-shot generation, with the clearest gains on complex and out-of-distribution designs. This supports the view that structured generation becomes more valuable as geometric dependencies and design complexity grow. The JSON intermediate representation is designed to preserve symbolic dependencies during code generation; its ablation produces a similar Chamfer distance but lower F1 and voxel IoU, indicating that it also affects geometric structure. The editability evaluation further shows that the complete CRAFT pipeline exposes substantially more parameters and symbolic relationships than direct generation, although isolating the JSON IR's contribution to editability would require an editability-specific ablation.
+
+Several \textbf{limitations} should be noted. Performance declines as complexity increases, particularly when shapes involve many interacting parts or implicit structural relationships that are difficult to infer from text alone. OpenSCAD, while well suited for symbolic parametric modeling, does not capture the feature-history richness of industrial CAD systems such as Fusion 360 Gallery~\citep{fusion360gallery2021}. The multi-stage pipeline also depends on external language and vision models, increasing inference cost and introducing the risk of error propagation across stages. Finally, the evaluation covers three datasets, which represents only a subset of real-world engineering designs.
+
+\section{Conclusions}
+\label{Sec:conclusion}
+
+We presented CRAFT, a multi-agent pipeline for text-to-parametric CAD generation that combines structured reasoning, a JSON-based intermediate representation, visual verification, and layered error recovery. Unlike direct code-generation approaches, CRAFT explicitly preserves symbolic parametric relationships during generation, producing OpenSCAD programs that are executable, editable, and reusable. Experiments across three datasets show that CRAFT achieves strong perceptual and geometric quality and markedly higher editability, and an ablation isolates retrieval as the dominant contributor to in-domain geometric fidelity. These results demonstrate that explicitly preserving parametric intent is a promising and practically useful direction for text-to-CAD systems.
+
+{
+\small
+\bibliographystyle{IEEEtran}
+\bibliography{Refs}
+}
+
+\end{document}

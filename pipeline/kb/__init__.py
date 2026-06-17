@@ -16,7 +16,6 @@ from .config import (
     KB_CONFIG,
     KBConfig,
     VerificationThresholds,
-    DetectionStrategiesConfig,
     get_config,
     update_config,
     NOPSCADLIB_DIR,
@@ -59,7 +58,6 @@ from .retriever import (
     RetrievalResult,
     RetrievalContext,
     get_retriever,
-    reset_retriever,
     retrieve_components,
     get_kb_context
 )
@@ -90,7 +88,6 @@ __all__ = [
     "KB_CONFIG",
     "KBConfig",
     "VerificationThresholds",
-    "DetectionStrategiesConfig",
     "get_config",
     "update_config",
     "NOPSCADLIB_DIR",
@@ -129,7 +126,6 @@ __all__ = [
     "RetrievalResult",
     "RetrievalContext",
     "get_retriever",
-    "reset_retriever",
     "retrieve_components",
     "get_kb_context",
 
@@ -161,10 +157,8 @@ def is_kb_ready() -> bool:
 
 def get_kb_status() -> dict:
     """Get status of the knowledge base."""
-    import json
-    import os
-
     components = load_component_index()
+    retriever = get_retriever()
 
     # Count actual reference images
     image_count = 0
@@ -175,52 +169,21 @@ def get_kb_status() -> dict:
     docs_exist = DOCUMENTATION_PATH.exists()
     doc_count = 0
     if docs_exist:
+        import json
         try:
-            with open(DOCUMENTATION_PATH, encoding="utf-8") as f:
+            with open(DOCUMENTATION_PATH) as f:
                 doc_count = len(json.load(f))
-        except (json.JSONDecodeError, OSError):
-            doc_count = 0
-
-    retriever_stats: dict = {}
-    try:
-        retriever_stats = get_retriever().get_statistics()
-    except Exception as exc:
-        retriever_stats = {"error": str(exc)[:300]}
-
-    chroma_count = retriever_stats.get("indexed_count")
-    index_len = len(components)
-    openai_key = bool(os.environ.get("OPENAI_API_KEY"))
-    chroma_ok = bool(retriever_stats.get("chroma_client_active"))
-
-    # Semantic RAG is fully operational when Chroma opens cleanly, has vectors,
-    # and OpenAI embeddings can run (retriever refuses Chroma's ONNX fallback).
-    semantic_ready = (
-        openai_key
-        and chroma_ok
-        and not retriever_stats.get("chroma_error")
-        and isinstance(chroma_count, int)
-        and chroma_count > 0
-        and index_len > 0
-    )
-
-    index_chroma_aligned = (
-        chroma_ok
-        and isinstance(chroma_count, int)
-        and index_len > 0
-        and chroma_count == index_len
-    )
+        except:
+            pass
 
     return {
         "ready": is_kb_ready(),
-        "components_indexed": index_len,
+        "components_indexed": len(components),
         "nopscadlib_exists": NOPSCADLIB_DIR.exists(),
         "chroma_db_exists": CHROMA_DB_DIR.exists() and any(CHROMA_DB_DIR.iterdir()) if CHROMA_DB_DIR.exists() else False,
         "reference_images_exist": image_count > 0,
         "reference_images_count": image_count,
         "documentation_exists": docs_exist,
         "documentation_categories": doc_count,
-        "retriever_stats": retriever_stats,
-        "openai_api_key_set": openai_key,
-        "semantic_search_ready": semantic_ready,
-        "index_chroma_count_match": index_chroma_aligned,
+        "retriever_stats": retriever.get_statistics() if retriever else {}
     }

@@ -1,119 +1,145 @@
-// Dimension-calibrated (target: 11.00 x 18.92 x 8.76 mm)
-scale([0.942258, 1.249545, 1.001270])
-{
-$fn = 96;
+// Parameters
+bbox_X = 18.92; //[9.46:37.84:0.01]
+bbox_Y = 11.0; //[5.5:22.0:0.01]
+bbox_Z = 8.76; //[4.38:17.52:0.01]
+barrel_len = 11.0; //[5.5:22.0:0.01]
+barrel_d = 6.6; //[3.3:13.2:0.01]
+stem_len = 18.92; //[9.46:37.84:0.01]
+stem_d = 5.2; //[2.6:10.4:0.01]
+collar_d = 7.6; //[3.8:15.2:0.01]
+collar_thk = 2.0; //[1.0:4.0:0.01]
+flange_thk = 1.2; //[0.6:2.4:0.01]
+flange_w = 11.0; //[5.5:22.0:0.01]
+flange_h = 8.76; //[4.38:17.52:0.01]
+prong_len = 4.2; //[2.1:8.4:0.01]
+prong_thk = 1.8; //[0.9:3.6:0.01]
+slot_w = 2.2; //[1.1:4.4:0.01]
+slot_depth = 4.0; //[2.0:8.0:0.01]
+tip_chamfer = 0.6; //[0.3:1.2:0.01]
+overlap = 0.8; //[0.3:2.0:0.01]
+micro_chamfer = 0.3; //[0.1:0.8:0.01]
+fillet_r = 0.4; //[0.2:1.0:0.01]
 
-// Target bounding box (approx): X=11.0, Y=18.9, Z=8.8 mm
-// Axes: X = barrel (short), Y = stem (long), Z = vertical
-
-// --- Parameters (tuned to match description & bbox) ---
-stem_len = 18.9;
-stem_d   = 5.2;
-
-barrel_len = 11.0;
-barrel_d   = 6.6;
-
-collar_d   = 7.6;
-collar_h   = 2.2;          // along Y (distinct step/shoulder around stem)
-
-flange_thk = 1.2;          // along X (barrel axis)
-flange_W   = 8.8;          // along Y (stem axis)
-flange_H   = 7.2;          // along Z
-
-// Fork / U-slot at +X end of barrel (slot opens at +X)
-slot_depth  = 4.6;         // how far slot goes into barrel from +X end (along X)
-slot_widthY = 3.2;         // slot width along Y (sets prong thickness in Y)
-slot_heightZ= 3.2;         // slot height along Z (gap between top/bottom prongs)
-tip_chamfer = 0.6;
-
-overlap = 1.2;             // ensure solid connectivity (1–2mm)
-lead_in = 0.4;
-
-// Helpers (centered primitives)
-module cyl_x(d,h) cylinder(d=d, h=h, center=true);
-module cyl_y(d,h) rotate([0,0,90]) cylinder(d=d, h=h, center=true); // axis along Y
-
-// --- Solids ---
-module stem() {
-    // Long cylindrical stem along Y
-    cyl_y(stem_d, stem_len);
+// Base Shapes
+module stem_cylinder() {
+  rotate([0, 90, 0])
+    translate([0, 0, 0])
+      cylinder(r=stem_d/2, h=stem_len, center=true);
 }
 
-module barrel() {
-    // Short horizontal barrel along X
-    cyl_x(barrel_d, barrel_len);
+module barrel_cylinder() {
+  rotate([90, 0, 0])
+    translate([0, 0, 0])
+      cylinder(r=barrel_d/2, h=barrel_len, center=true);
 }
 
-module collar() {
-    // Stepped collar/shoulder at junction (around stem axis = Y)
-    // Slightly longer to guarantee intersection with both stem and barrel
-    cyl_y(collar_d, collar_h + overlap);
+module junction_collar_shoulder() {
+  rotate([0, 90, 0])
+    translate([0, 0, 0])
+      cylinder(r=collar_d/2, h=collar_thk, center=true);
 }
 
-module flange() {
-    // Flat rectangular stop plate at -X end of barrel
-    // Positioned to touch/overlap the barrel end
-    translate([-(barrel_len/2 + flange_thk/2 - overlap), 0, 0])
-        cube([flange_thk, flange_W, flange_H], center=true);
+module flange_stop_plate() {
+  translate([-(stem_len/2) + (flange_thk/2) - overlap, 0, 0])
+    cube([flange_thk, flange_w, flange_h], center=true);
 }
 
-// --- Subtractive features ---
-module u_slot_void() {
-    // Remove a rectangular slot from the +X end to create two parallel prongs
-    // (top and bottom prongs; gap is along Z). Slot is centered in Y and Z.
-    translate([barrel_len/2 - slot_depth/2 + overlap/2, 0, 0])
-        cube([slot_depth + overlap, slot_widthY, slot_heightZ], center=true);
+module fork_prong_top() {
+  translate([(stem_len/2) - (prong_len/2) + overlap, (slot_w/2) + (prong_thk/2), 0])
+    cube([prong_len, prong_thk, barrel_d], center=true);
 }
 
-module tip_chamfer_voids() {
-    // Chamfer the prong tips at +X end by cutting wedges on the top and bottom prongs.
-    // Wedges are offset in Z so they only affect the remaining prongs (not the slot gap).
-    cham_x = barrel_len/2 - tip_chamfer/2;
-
-    // Z location of prong centers (top/bottom) relative to barrel center
-    prong_center_z = (slot_heightZ/2) + (barrel_d/2 - slot_heightZ/2)/2;
-
-    // Top prong chamfer
-    translate([cham_x, 0, +prong_center_z])
-        rotate([0,45,0])
-            cube([tip_chamfer*2, slot_widthY + overlap, tip_chamfer*2], center=true);
-
-    // Bottom prong chamfer
-    translate([cham_x, 0, -prong_center_z])
-        rotate([0,-45,0])
-            cube([tip_chamfer*2, slot_widthY + overlap, tip_chamfer*2], center=true);
+module fork_prong_bottom() {
+  translate([(stem_len/2) - (prong_len/2) + overlap, -((slot_w/2) + (prong_thk/2)), 0])
+    cube([prong_len, prong_thk, barrel_d], center=true);
 }
 
-module barrel_end_leadins() {
-    // Small lead-in chamfers on barrel ends (subtractive)
-    // +X end
-    translate([barrel_len/2 - lead_in/2, 0, 0])
-        rotate([0,90,0])
-            cylinder(r1=barrel_d/2, r2=max(0.01, barrel_d/2 - lead_in), h=lead_in*2, center=true);
-
-    // -X end
-    translate([-(barrel_len/2 - lead_in/2), 0, 0])
-        rotate([0,-90,0])
-            cylinder(r1=barrel_d/2, r2=max(0.01, barrel_d/2 - lead_in), h=lead_in*2, center=true);
+module fork_u_slot_cut() {
+  translate([(stem_len/2) - (slot_depth/2) + overlap, 0, 0])
+    cube([slot_depth, slot_w, barrel_d + 2*overlap], center=true);
 }
 
-module main_solid() {
-    union() {
-        stem();
-        barrel();
-        collar();
-        flange();
-    }
+module prong_tip_chamfer_top() {
+  rotate([0, 0, 45])
+    translate([(stem_len/2) - (tip_chamfer/2), (slot_w/2) + (prong_thk/2), 0])
+      cube([tip_chamfer, prong_thk + 2*overlap, barrel_d + 2*overlap], center=true);
 }
 
-difference() {
-    main_solid();
-
-    // Forked/pronged end + chamfered tips (key missing feature)
-    u_slot_void();
-    tip_chamfer_voids();
-
-    // Minor end lead-ins
-    barrel_end_leadins();
+module prong_tip_chamfer_bottom() {
+  rotate([0, 0, -45])
+    translate([(stem_len/2) - (tip_chamfer/2), -((slot_w/2) + (prong_thk/2)), 0])
+      cube([tip_chamfer, prong_thk + 2*overlap, barrel_d + 2*overlap], center=true);
 }
+
+module barrel_end_faces_trim() {
+  translate([0, 0, 0])
+    cube([stem_len + 2*overlap, barrel_len + 2*overlap, bbox_Z + 2*overlap], center=true);
 }
+
+module stem_end_face_trim() {
+  translate([0, 0, 0])
+    cube([stem_len + 2*overlap, bbox_Y + 2*overlap, bbox_Z + 2*overlap], center=true);
+}
+
+module micro_chamfers_on_flange() {
+  rotate([0, 45, 0])
+    translate([-(stem_len/2) + flange_thk - (micro_chamfer/2), 0, 0])
+      cube([micro_chamfer, flange_w + 2*overlap, flange_h + 2*overlap], center=true);
+}
+
+module fillet_kernel_sphere() {
+  translate([0, 0, 0])
+    sphere(r=fillet_r, center=true);
+}
+
+// Operations
+module t_core_union() {
+  union() {
+    stem_cylinder();
+    barrel_cylinder();
+    junction_collar_shoulder();
+    flange_stop_plate();
+    fork_prong_top();
+    fork_prong_bottom();
+  }
+}
+
+module fork_prongs_u_slot() {
+  difference() {
+    t_core_union();
+    fork_u_slot_cut();
+  }
+}
+
+module prong_tip_chamfers() {
+  difference() {
+    fork_prongs_u_slot();
+    prong_tip_chamfer_top();
+    prong_tip_chamfer_bottom();
+  }
+}
+
+module micro_chamfered_flange() {
+  difference() {
+    prong_tip_chamfers();
+    micro_chamfers_on_flange();
+  }
+}
+
+module small_edge_fillets() {
+  minkowski() {
+    micro_chamfered_flange();
+    fillet_kernel_sphere();
+  }
+}
+
+module bounded_model() {
+  intersection() {
+    small_edge_fillets();
+    barrel_end_faces_trim();
+    stem_end_face_trim();
+  }
+}
+
+// Final Output
+bounded_model();

@@ -1,140 +1,122 @@
 // Dimension-calibrated (target: 0.03 x 0.03 x 0.02 mm)
-scale([0.001000, 0.001000, 0.001053])
+scale([0.001000, 0.001000, 0.001020])
 {
+// Handwheel / hub with rim, 4 curved rectangular cutouts, raised hub, hex through-bore, and short post
+// Units: mm
+
 $fn = 128;
 
-// Units: meters in parameters below; convert to mm for modeling
-mm = 1000;
+// -------------------- Parameters --------------------
+disk_D = 30;
+disk_t = 12;
 
-// -------------------- Parameters (as given) --------------------
-disk_d = 0.03;
-disk_t = 0.012;
+rim_radial_w = 3;     // radial thickness of rim ring
+rim_extra_t  = 4;     // extra thickness on one face (top)
 
-rim_radial_thk = 0.003;
-rim_extra_t = 0.004;
+hub_D = 14;
+hub_h = 4;
 
-hub_d = 0.012;
-hub_h = 0.004;
+post_D = 8;
+post_h = 4;
 
-hex_flat_to_flat = 0.006;
-hex_clearance = 0.0002;
-
-post_d = 0.006;
-post_h = 0.004;
+hex_flat_AF = 6;      // across flats
 
 cutout_count = 4;
-cutout_w = 0.004;
-cutout_h = 0.004;
-cutout_depth = 0.012;
-cutout_radial_pos = 0.012;
-cutout_corner_r = 0.001;
+cutout_len_tangential = 8;
+cutout_w_radial = 3;
+cutout_depth_z = 20;  // must exceed total thickness to guarantee through-cut
+cutout_corner_r = 1;
 
-overlap = 0.001; // meters
+cutout_radial_pos = (disk_D/2 - rim_radial_w/2); // near perimeter, centered in rim
 
-// -------------------- Derived (mm) --------------------
-disk_r      = (disk_d*mm)/2;
-disk_h      =  disk_t*mm;
-
-rim_thk_r   =  rim_radial_thk*mm;
-rim_h       = (disk_t + rim_extra_t)*mm;
-
-hub_r       = (hub_d*mm)/2;
-hub_hh      =  hub_h*mm;
-
-post_r      = (post_d*mm)/2;
-post_hh     =  post_h*mm;
-
-cut_w       =  cutout_w*mm;     // tangential width
-cut_len     =  cutout_h*mm;     // radial length
-cut_hh      =  cutout_depth*mm; // cutter height
-cut_rpos    =  cutout_radial_pos*mm;
-cut_cr      =  cutout_corner_r*mm;
-
-eps         =  overlap*mm;      // mm overlap for robust unions/differences
-
-// Hex sizing: for a regular hex, flat-to-flat = R * sqrt(3) where R is circumradius
-hex_ftf     = (hex_flat_to_flat + hex_clearance)*mm;
-hex_R       = hex_ftf / sqrt(3);
+overlap = 0.2;        // small overlap to ensure watertight unions/differences
 
 // -------------------- Helpers --------------------
-module rounded_rect2d(w, h, r){
-    r2 = min(r, min(w,h)/2);
-    hull(){
-        for (sx=[-1,1], sy=[-1,1])
-            translate([sx*(w/2 - r2), sy*(h/2 - r2)]) circle(r=r2);
+function hex_R_from_AF(af) = af / sqrt(3); // circumradius for a regular hex given across-flats
+
+module rounded_rect_2d(w, h, r) {
+  r2 = min(r, min(w, h)/2);
+  hull() {
+    translate([ w/2 - r2,  h/2 - r2]) circle(r=r2);
+    translate([-w/2 + r2,  h/2 - r2]) circle(r=r2);
+    translate([-w/2 + r2, -h/2 + r2]) circle(r=r2);
+    translate([ w/2 - r2, -h/2 + r2]) circle(r=r2);
+  }
+}
+
+module hex_prism_through(h) {
+  R = hex_R_from_AF(hex_flat_AF);
+  linear_extrude(height=h, center=true)
+    polygon(points=[ for(i=[0:5]) [ R*cos(60*i), R*sin(60*i) ] ]);
+}
+
+// -------------------- Main solids --------------------
+module base_disk() {
+  cylinder(r=disk_D/2, h=disk_t, center=true);
+}
+
+module top_rim_ring() {
+  // ring sits on top face of disk
+  zc = disk_t/2 + rim_extra_t/2 - overlap;
+  difference() {
+    translate([0,0,zc]) cylinder(r=disk_D/2, h=rim_extra_t, center=true);
+    translate([0,0,zc]) cylinder(r=disk_D/2 - rim_radial_w, h=rim_extra_t + 2*overlap, center=true);
+  }
+}
+
+module raised_hub() {
+  zc = disk_t/2 + hub_h/2 - overlap;
+  translate([0,0,zc]) cylinder(r=hub_D/2, h=hub_h, center=true);
+}
+
+module bottom_post() {
+  zc = -disk_t/2 - post_h/2 + overlap;
+  translate([0,0,zc]) cylinder(r=post_D/2, h=post_h, center=true);
+}
+
+module curved_cutout() {
+  // A rounded rectangle placed tangentially, then slightly curved by intersecting with an annulus sector
+  // (keeps it "curved rectangular" near the perimeter)
+  zc = 0;
+  translate([0,0,zc])
+    linear_extrude(height=cutout_depth_z, center=true)
+      intersection() {
+        // rounded rectangle in local coordinates
+        translate([cutout_radial_pos, 0, 0])
+          rounded_rect_2d(cutout_w_radial, cutout_len_tangential, cutout_corner_r);
+
+        // annulus band to impart curvature (keeps cutout near rim)
+        difference() {
+          circle(r=disk_D/2 - rim_radial_w*0.15);
+          circle(r=disk_D/2 - rim_radial_w*1.85);
+        }
+      }
+}
+
+module all_cutouts() {
+  for (i = [0:cutout_count-1])
+    rotate([0,0,i*360/cutout_count]) curved_cutout();
+}
+
+// -------------------- Final model --------------------
+module model() {
+  total_h = disk_t + rim_extra_t + hub_h + post_h + 10;
+
+  difference() {
+    union() {
+      base_disk();
+      top_rim_ring();
+      raised_hub();
+      bottom_post();
     }
+
+    // four perimeter cutouts
+    all_cutouts();
+
+    // through hex bore
+    hex_prism_through(total_h);
+  }
 }
 
-module curved_perimeter_cutout(){
-    // Curved rectangular slot near perimeter:
-    // rounded rectangle intersected with an annulus band to curve inner/outer edges.
-    intersection(){
-        translate([cut_rpos, 0, 0])
-            linear_extrude(height = rim_h + 2*eps, center=true)
-                rounded_rect2d(cut_len, cut_w, cut_cr);
-
-        linear_extrude(height = rim_h + 2*eps, center=true)
-            difference(){
-                circle(r = disk_r - rim_thk_r/2);
-                circle(r = disk_r - rim_thk_r - cut_len - rim_thk_r/2);
-            }
-    }
-}
-
-module four_cutouts(){
-    for(i=[0:cutout_count-1])
-        rotate([0,0,i*360/cutout_count]) curved_perimeter_cutout();
-}
-
-module base_disk(){
-    cylinder(r=disk_r, h=disk_h, center=true);
-}
-
-module outer_rim(){
-    // Taller outer band to make rim thickness visible in side view.
-    difference(){
-        cylinder(r=disk_r, h=rim_h, center=true);
-        cylinder(r=disk_r - rim_thk_r, h=rim_h + 2*eps, center=true);
-    }
-}
-
-module hub(){
-    // Raised hub on +Z face; increase step visibility by lifting it above the rim top.
-    // Ensure solid connection by overlapping into the rim/disk by eps.
-    // Place hub so its bottom is slightly below the rim top.
-    z0 = (rim_h/2) - eps;                 // hub bottom (slightly into rim)
-    zc = z0 + hub_hh/2;                   // hub center
-    translate([0,0,zc])
-        cylinder(r=hub_r, h=hub_hh, center=true);
-}
-
-module post(){
-    // Short shaft on -Z face; make it clearly protrude from one face.
-    // Ensure solid connection by overlapping into the rim/disk by eps.
-    // Place post so its top is slightly above the rim bottom.
-    z1 = -(rim_h/2) + eps;                // post top (slightly into rim)
-    zc = z1 - post_hh/2;                  // post center
-    translate([0,0,zc])
-        cylinder(r=post_r, h=post_hh, center=true);
-}
-
-module hex_bore(){
-    // Through hex bore across entire part (rim + hub + post), with margin.
-    total_h = rim_h + hub_hh + post_hh + 8*eps;
-    cylinder(r=hex_R, h=total_h, center=true, $fn=6);
-}
-
-// -------------------- Model --------------------
-difference(){
-    union(){
-        base_disk();
-        outer_rim();
-        hub();
-        post();
-    }
-
-    // Cutouts and bore
-    four_cutouts();
-    hex_bore();
-}
+model();
 }

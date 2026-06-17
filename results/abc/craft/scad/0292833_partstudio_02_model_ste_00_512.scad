@@ -1,28 +1,30 @@
 // Dimension-calibrated (target: 0.36 x 0.03 x 0.54 mm)
-scale([1.080000, 0.900000, 0.789490])
+scale([1.000000, 1.000000, 0.789474])
 {
-// Thin rectangular plate with a centered rectangular boss (raised pad)
-// Units: mm
+// Thin rectangular plate with a centered raised boss (one face only)
 
-// Target bounding box (approx): 0.4 x 0.0 x 0.5 mm (elongated along one axis)
-L = 0.50;   // length (elongated axis)
-W = 0.40;   // width
-T = 0.03;   // plate thickness
+// Parameters (mm)
+plate_L = 0.54;   // overall length
+plate_W = 0.36;   // overall width
+plate_T = 0.03;   // plate thickness (>0)
 
-// Boss (centered pad) size
-boss_L = 0.20;
-boss_W = 0.14;
-boss_H = 0.01;
+boss_L  = 0.20;   // boss length
+boss_W  = 0.14;   // boss width
+boss_H  = 0.01;   // boss height (raised pad)
 
-// Small overlap to guarantee a single manifold solid
-overlap = 0.002;
+overlap = 0.002;  // small overlap to guarantee manifold union
 
-union() {
-    // Base plate centered at origin
-    cube([L, W, T], center=true);
+module plate_with_boss_one_face() {
+    union() {
+        // Plate sits on Z=0 plane (bottom at 0, top at plate_T)
+        translate([0, 0, plate_T/2])
+            cube([plate_L, plate_W, plate_T], center=true);
 
-    // Boss protruding from the +Z face, centered in plan view
-    translate([0, 0, (T/2) + (boss_H/2) - overlap])
-        cube([boss_L, boss_W, boss_H], center=true);
+        // Boss protrudes only from the +Z face of the plate
+        translate([0, 0, plate_T + boss_H/2 - overlap])
+            cube([boss_L, boss_W, boss_H], center=true);
+    }
 }
+
+plate_with_boss_one_face();
 }

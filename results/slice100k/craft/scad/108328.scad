@@ -1,100 +1,109 @@
-$fn = 96;
+// Hex prismatic spacer/fixture block with:
+// - flat-to-flat hex body (W) and controlled overall length (L) via clipping
+// - single small circular through-hole near center
+// - diagonal recessed band/groove on the top face
+// - slight end steps/chamfers (top face) near both ends
+// - small notch-like relief on one end
+// Bounding box target: 46.2 x 40.0 x 7.0 mm
 
-// -------------------- Parameters (mm) --------------------
-bbox_L = 46.2;
-bbox_W = 40.0;
-bbox_T = 7.0;
+$fn = 128;
 
-// Hex profile (point-to-point along X, flat-to-flat along Y)
-hex_point_to_point_L = bbox_L;
-hex_flat_to_flat_W   = bbox_W;
+// Target bounding box
+L = 46.2;     // X
+W = 40.0;     // Y (flat-to-flat)
+H = 7.0;      // Z
+
+eps = 0.05;
+
+// Hex geometry (flat-to-flat = W)
+apothem = W/2;
+R = apothem / cos(30);   // circumradius
 
 // Features
 hole_d = 4.0;
-hole_x_off = 0.0;
-hole_y_off = 0.0;
 
 groove_w = 6.0;
-groove_depth = 1.2;
-groove_angle_deg = 30;
-groove_center_x = 0.0;
-groove_center_y = 0.0;
+groove_depth = 1.0;
+groove_angle = 30;       // degrees
+groove_y_offset = 0.0;
 
-end_step_len = 3.0;
-end_step_depth = 0.6;
+step_len = 3.0;          // length of end step region (each end)
+step_inset = 1.0;        // in-plane inset for step
+step_drop = 0.5;         // depth of step from top face
 
-notch_w = 6.0;
-notch_len = 4.0;
-notch_depth = 1.0;
+notch_w = 6.0;           // along Y
+notch_d = 3.0;           // into part from end (along X)
+notch_z = H;             // through thickness
 
-// Small edge break (avoid heavy Minkowski rounding that distorts hole/groove)
-edge_chamfer = 0.35;
-
-// Robust boolean overlap
-overlap = 0.6;
-
-// -------------------- Helpers --------------------
-function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
-
-// Hex 2D polygon (point-to-point in X, flat-to-flat in Y)
-module hex2d(pp = hex_point_to_point_L, ff = hex_flat_to_flat_W) {
+// 2D regular hex with flats horizontal (flat-to-flat = W)
+module hex2d(ap) {
+    RR = ap / cos(30);
     polygon(points=[
-        [ pp/2, 0],
-        [ pp/4,  ff/2],
-        [-pp/4,  ff/2],
-        [-pp/2, 0],
-        [-pp/4, -ff/2],
-        [ pp/4, -ff/2]
+        [ RR, 0],
+        [ RR/2,  RR*sqrt(3)/2],
+        [-RR/2,  RR*sqrt(3)/2],
+        [-RR, 0],
+        [-RR/2, -RR*sqrt(3)/2],
+        [ RR/2, -RR*sqrt(3)/2]
     ]);
 }
 
-// Slight chamfered prism via hull of two extrusions (keeps features crisp)
-module chamfered_hex_prism(t=bbox_T, cham=edge_chamfer) {
-    cham2 = clamp(cham, 0, t/2 - 0.01);
-    hull() {
-        translate([0,0,0])
-            linear_extrude(height=cham2)
-                offset(delta=-cham2) hex2d();
-        translate([0,0,cham2])
-            linear_extrude(height=t-2*cham2)
-                hex2d();
-        translate([0,0,t-cham2])
-            linear_extrude(height=cham2)
-                offset(delta=-cham2) hex2d();
+// Base hex prism, clipped to exact length L in X
+module clipped_hex_prism(h) {
+    intersection() {
+        linear_extrude(height=h, center=true)
+            hex2d(apothem);
+        cube([L, 2*R + 2*eps, h + 2*eps], center=true);
     }
 }
 
-// -------------------- Features (subtractive) --------------------
+// End top steps (shallow recessed pads) to suggest chamfer/step at ends
+module end_top_steps() {
+    zc = H/2 - step_drop/2 + eps/2;
+    for (sx = [-1, 1]) {
+        translate([sx*(L/2 - step_len/2), 0, zc])
+            intersection() {
+                // limit to end region
+                cube([step_len + 2*eps, 2*R + 2*eps, step_drop + eps], center=true);
+                // inset hex footprint
+                linear_extrude(height=step_drop + eps, center=true)
+                    hex2d(max(0.01, apothem - step_inset));
+            }
+    }
+}
+
+// Main solid body (one connected solid)
+module body() {
+    union() {
+        clipped_hex_prism(H);
+        end_top_steps();
+    }
+}
+
+// Through-hole
 module through_hole() {
-    translate([hole_x_off, hole_y_off, bbox_T/2])
-        cylinder(d=hole_d, h=bbox_T + 2*overlap, center=true);
+    cylinder(d=hole_d, h=H + 4*eps, center=true);
 }
 
-// Diagonal recessed band on the TOP broad face (Z+)
-module diagonal_face_groove() {
-    // Cut only into top face by groove_depth
-    translate([groove_center_x, groove_center_y, bbox_T - groove_depth/2])
-        rotate([0,0,groove_angle_deg])
-            cube([bbox_L + 2*overlap, groove_w, groove_depth + 2*overlap], center=true);
+// Diagonal recessed groove on top face
+module top_groove() {
+    zc = H/2 - groove_depth/2 + eps/2;
+    translate([0, groove_y_offset, zc])
+        rotate([0, 0, groove_angle])
+            cube([L + 4*eps, groove_w, groove_depth + 2*eps], center=true);
 }
 
-// Slight end step/chamfer-like relief on one end (top face)
-module end_step_relief() {
-    translate([bbox_L/2 - end_step_len/2, 0, bbox_T - end_step_depth/2])
-        cube([end_step_len + 2*overlap, bbox_W + 2*overlap, end_step_depth + 2*overlap], center=true);
+// Notch-like relief on +X end
+module end_notch() {
+    x0 = L/2 - notch_d/2 + eps/2; // ensure it bites into the end
+    translate([x0, 0, 0])
+        cube([notch_d + 2*eps, notch_w, notch_z + 4*eps], center=true);
 }
 
-// Notch-like relief on same end (top face), narrower than full width
-module end_notch_relief() {
-    translate([bbox_L/2 - notch_len/2, 0, bbox_T - notch_depth/2])
-        cube([notch_len + 2*overlap, notch_w, notch_depth + 2*overlap], center=true);
-}
-
-// -------------------- Final solid --------------------
+// Final model
 difference() {
-    chamfered_hex_prism();
+    body();
     through_hole();
-    diagonal_face_groove();
-    end_step_relief();
-    end_notch_relief();
+    top_groove();
+    end_notch();
 }

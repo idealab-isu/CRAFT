@@ -1,4 +1,0 @@
-id   : ht_pipe__HT_110_cap
-tier : Simple
-
-An HT drainage-pipe end cap: 110 mm nominal diameter.

@@ -1,145 +1,115 @@
 // Dimension-calibrated (target: 0.03 x 0.02 x 0.02 mm)
 scale([0.001000, 0.001000, 0.001000])
 {
-// Prismatic U-channel cradle/guide block with:
-// - open-top cavity (U-channel) clearly visible from top
-// - recessed central pocket (second step down) in the cavity floor
-// - slightly tapered inner faces of side walls (draft)
-// - chamfered outer top edges (along length)
-// - bottom rectangular relief/notch creating a bridge-like underside profile
-//
-// Structural fixes applied:
-// - Cavity tool is an OPEN-TOP cut (no "top face" in polyhedron) so top view shows the opening
-// - Bottom notch is cut from underside but clamped to NOT break into cavity floor
-// - Pocket is cut from cavity floor downward but clamped to preserve remaining floor
-// - All translate() values are derived from L/W/H and feature sizes (no arbitrary offsets)
-// - Single connected solid via one base cube and subtractive tools
-// - Small overlap used to avoid coplanar artifacts
+// Prismatic U-channel cradle with tapered inner walls, top outer chamfers,
+// and a bottom relief notch (bridge-like profile).
 
-// ---------- Parameters (mm) ----------
-L = 30;                  // overall length (X)
-W = 20;                  // overall width  (Y)
-H = 20;                  // overall height (Z)
+// Parameters
+L = 30;                 // length (X)
+W = 20;                 // width  (Y)
+H = 20;                 // height (Z)
 
-wall_t = 4;              // side wall thickness (each side)
+wall_t = 3;             // minimum side wall thickness
 
-floor_t = 4;             // thickness under main cavity floor (must remain)
-cavity_depth = H - floor_t;  // depth of open-top cavity from top down (leaves floor)
+cavity_L = 24;          // cavity length (X)
+cavity_W = 14;          // cavity width at top opening (Y)
+cavity_depth = 14;      // cavity depth from top (Z)
 
-taper_per_side = 0.5;    // inner wall taper per side (wider at top by 2*taper)
+taper_delta_per_side = 0.5; // cavity narrows by this per side at the bottom (Y)
 
-chamfer = 1;             // outer top edge chamfer size (along the two long top edges)
+notch_L = 18;           // bottom relief notch length (X)
+notch_W = 12;           // bottom relief notch width  (Y)
+notch_H = 6;            // bottom relief notch height (Z)
 
-notch_L = 20;            // bottom relief notch length (X)
-notch_W = 12;            // bottom relief notch width  (Y)
-notch_H = 8;             // bottom relief notch height (Z, from bottom upward)
+chamfer = 1;            // outer top edge chamfer size
+eps = 0.05;             // small overlap for robust booleans
 
-pocket_L = 22;           // recessed pocket in cavity floor (X)
-pocket_W = 12;           // recessed pocket in cavity floor (Y)
-pocket_depth = 2;        // extra depth below cavity floor (Z)
-
-overlap = 0.6;           // boolean overlap (mm) to avoid coplanar artifacts (within 1-2mm)
-
-$fn = 48;
-
-// ---------- Helpers ----------
+// ---- Helpers ----
 function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
 
-// Effective dimensions (kept valid)
-floor_t_eff      = clamp(floor_t, 1, H - 1);
-cavity_depth_eff = clamp(cavity_depth, 1, H - floor_t_eff);
+// Sanitize to avoid degenerate/empty geometry
+cavL     = clamp(cavity_L, 0.1, L - 2*wall_t);
+cavW_top = clamp(cavity_W, 0.1, W - 2*wall_t);
+cavW_bot = clamp(cavity_W - 2*taper_delta_per_side, 0.1, cavW_top);
+cavD     = clamp(cavity_depth, 0.1, H - 2*eps);
 
-// Ensure bottom notch does not break into the cavity floor (bridge-like underside)
-notch_H_eff      = clamp(notch_H, 0, max(0, floor_t_eff - 1));
+notL = clamp(notch_L, 0.1, L - 2*eps);
+notW = clamp(notch_W, 0.1, W - 2*eps);
+notH = clamp(notch_H, 0.1, H - 2*eps);
 
-// Ensure pocket does not break through the remaining floor
-pocket_depth_eff = clamp(pocket_depth, 0, max(0, floor_t_eff - 1));
+ch = clamp(chamfer, 0.0, min(W/2 - eps, H/2 - eps));
 
-// Inner opening width at cavity bottom/top (taper in Y with Z)
-inner_W_bottom = max(0.5, W - 2*wall_t);
-inner_W_top    = max(0.5, inner_W_bottom + 2*taper_per_side);
-
-// ---------- Tools (subtractive solids) ----------
-module cavity_tool_open_top() {
-    // Open-top cavity with tapered inner faces.
-    // IMPORTANT: no "top face" included, so it is a true open cut and reads as a cavity in top view.
-    z_top =  H/2 + overlap;
-    z_bot =  H/2 - cavity_depth_eff - overlap;
-
-    y_top_p =  inner_W_top/2;
-    y_top_n = -inner_W_top/2;
-    y_bot_p =  inner_W_bottom/2;
-    y_bot_n = -inner_W_bottom/2;
-
-    x_p =  L/2 + overlap;
-    x_n = -L/2 - overlap;
-
-    polyhedron(
-        points=[
-            [x_n, y_top_n, z_top], // 0
-            [x_n, y_top_p, z_top], // 1
-            [x_n, y_bot_p, z_bot], // 2
-            [x_n, y_bot_n, z_bot], // 3
-            [x_p, y_top_n, z_top], // 4
-            [x_p, y_top_p, z_top], // 5
-            [x_p, y_bot_p, z_bot], // 6
-            [x_p, y_bot_n, z_bot]  // 7
-        ],
-        faces=[
-            [0,1,2,3],   // x_n side
-            [4,7,6,5],   // x_p side
-            // NO TOP FACE -> open-top cavity
-            [3,2,6,7],   // bottom face (cavity floor surface)
-            [0,3,7,4],   // y- inner wall
-            [1,5,6,2]    // y+ inner wall
-        ],
-        convexity=10
-    );
+// ---- Main solids/cutters ----
+module body() {
+  cube([L, W, H], center=true);
 }
 
-module pocket_tool() {
-    // Extra recessed pocket in the cavity floor (second step down).
-    // Starts at cavity floor and goes DOWN by pocket_depth_eff.
-    z_cav_floor = H/2 - cavity_depth_eff; // Z of cavity floor plane
-    translate([0, 0, z_cav_floor - pocket_depth_eff/2])
-        cube([pocket_L + 2*overlap, pocket_W + 2*overlap, pocket_depth_eff + 2*overlap], center=true);
+// Open-top cavity: extrude along X, profile in Y-Z with taper on inner faces.
+// FIX: Make it a true open-top pocket by placing the cutter so its TOP is
+// above the body's top face, and its bottom is below the desired pocket depth.
+module cavity_cut() {
+  open_over = 1.5; // 1–2mm overlap to guarantee open top in boolean
+  // Pocket should start at top face (Z=+H/2) and go down cavD.
+  // So cutter center Z is: top - cavD/2 + open_over/2
+  zc = (H/2) - (cavD/2) + (open_over/2);
+
+  translate([0, 0, zc])
+    rotate([0, 90, 0])  // extrusion axis = X
+      linear_extrude(height=cavL + 2*eps, center=true, convexity=10)
+        polygon(points=[
+          // Top edge of cutter is above the body top by open_over
+          [-cavW_top/2,  cavD/2 + open_over/2 + eps],
+          [ cavW_top/2,  cavD/2 + open_over/2 + eps],
+          // Bottom edge reaches full pocket depth (plus eps)
+          [ cavW_bot/2, -cavD/2 - eps],
+          [-cavW_bot/2, -cavD/2 - eps]
+        ]);
 }
 
-module bottom_notch_tool() {
-    // Rectangular relief from bottom upward, centered.
-    // Clamped so it stays within the bottom floor thickness (bridge-like profile).
-    translate([0, 0, -H/2 + notch_H_eff/2])
-        cube([notch_L + 2*overlap, notch_W + 2*overlap, notch_H_eff + 2*overlap], center=true);
+// Bottom relief notch: rectangular cut from the bottom face upward.
+// FIX: Ensure it actually opens to the bottom by extending below Z=-H/2.
+module bottom_notch_cut() {
+  open_over = 1.5; // overlap to guarantee opening to bottom
+  // Notch should start at bottom face (Z=-H/2) and go up notH.
+  // So cutter center Z is: bottom + notH/2 - open_over/2
+  zc = (-H/2) + (notH/2) - (open_over/2);
+
+  translate([0, 0, zc])
+    cube([notL + 2*eps, notW + 2*eps, notH + open_over + 2*eps], center=true);
 }
 
-module top_chamfer_tools() {
-    // Chamfer ONLY the two long outer top edges (along X) at Y = +/-W/2.
-    // Use long rotated prisms that run the full length.
-    if (chamfer > 0) {
-        translate([0,  W/2 - chamfer/2, H/2 - chamfer/2])
-            rotate([45, 0, 0])
-                cube([L + 4*overlap, chamfer + 2*overlap, chamfer + 2*overlap], center=true);
+// Outer top edge chamfers along the two long top edges (Y = +/- W/2).
+// FIX: Make wedges extend slightly above the top face and slightly into the body.
+module top_chamfer_cuts() {
+  if (ch > 0) {
+    over = 1.5; // overlap for robust subtraction
+    rotate([0, 90, 0])
+      linear_extrude(height=L + 2*eps, center=true, convexity=10)
+        union() {
+          // +Y top edge chamfer wedge (in Y-Z plane)
+          polygon(points=[
+            [ W/2 - ch,  H/2 + over],
+            [ W/2 + over, H/2 + over],
+            [ W/2 + over, H/2 - ch]
+          ]);
 
-        translate([0, -W/2 + chamfer/2, H/2 - chamfer/2])
-            rotate([45, 0, 0])
-                cube([L + 4*overlap, chamfer + 2*overlap, chamfer + 2*overlap], center=true);
-    }
+          // -Y top edge chamfer wedge
+          polygon(points=[
+            [-W/2 + ch,  H/2 + over],
+            [-W/2 - over, H/2 + over],
+            [-W/2 - over, H/2 - ch]
+          ]);
+        }
+  }
 }
 
-// ---------- Main solid ----------
-module u_channel_block() {
-    difference() {
-        // Single connected base solid
-        cube([L, W, H], center=true);
-
-        // Subtractions to form the cradle/guide features
-        cavity_tool_open_top(); // open-top cavity with tapered inner faces (visible in top view)
-        pocket_tool();          // recessed pocket step in the cavity floor
-        bottom_notch_tool();    // underside relief (bridge-like)
-        top_chamfer_tools();    // chamfered outer top edges
-    }
+// ---- Complete model ----
+// Single connected solid: body minus open-top cavity, minus bottom notch,
+// minus top chamfers.
+difference() {
+  body();
+  cavity_cut();
+  bottom_notch_cut();
+  top_chamfer_cuts();
 }
-
-// Final model: one connected solid
-u_channel_block();
 }

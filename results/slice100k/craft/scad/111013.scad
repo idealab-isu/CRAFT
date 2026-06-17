@@ -1,50 +1,46 @@
 // Symmetric prismatic connector/block
-// Bounding box: 14.0 x 9.0 x 3.6 mm  (X x Y x Z)
+// Bounding box: 14.0 x 9.0 x 3.6 mm (X x Y x Z)
 
-L = 14.0;
-W = 9.0;
-T = 3.6;
+L = 14;      // overall length (X)
+W = 9;       // overall width  (Y)
+T = 3.6;     // thickness      (Z)
 
-// End masses and central web (H-profile in front/back)
-end_L = 4.5;                 // length of each end mass along X
-web_L = L - 2*end_L;          // central span along X
-web_W = 3.6;                  // web width along Y
+end_L = 4;   // length of each end mass along X
+web_L = L - 2*end_L;   // central span along X
+web_W = 5;   // width of central web along Y (creates H profile in front/back)
 
-// Midspan relief notches on top and bottom edges (in Y), through full thickness (Z)
-notch_L = 5.0;                // notch length along X
-notch_W = 2.0;                // notch depth from edge along Y
+notch_L = 3;     // notch length along X (centered)
+notch_D = 1;     // notch depth into Y from top/bottom edges
+notch_Z = 0.8;   // shallow relief depth into thickness (Z), not full-depth
 
-eps = 0.02;                   // small overlap to avoid coplanar artifacts
+eps = 0.02;      // small overlap to avoid coincident faces
 
-module main_prismatic_body() {
-    union() {
-        // Central web
-        cube([web_L, web_W, T], center=true);
-
-        // End masses (connected to web with slight overlap)
-        translate([-(web_L/2 + end_L/2 - eps), 0, 0])
-            cube([end_L, W, T], center=true);
-
-        translate([(web_L/2 + end_L/2 - eps), 0, 0])
-            cube([end_L, W, T], center=true);
-    }
+module end_mass(xsign=1) {
+    translate([xsign*(L/2 - end_L/2), 0, 0])
+        cube([end_L, W, T], center=true);
 }
 
-module relief_notches() {
-    // Cut rectangular notches from the top and bottom edges in Y,
-    // through the full thickness in Z to match the H-profile views.
-    union() {
-        // Top edge notch (+Y)
-        translate([0, (W/2 - notch_W/2), 0])
-            cube([notch_L, notch_W + 2*eps, T + 2*eps], center=true);
+module web() {
+    cube([web_L + 2*eps, web_W, T], center=true);
+}
 
-        // Bottom edge notch (-Y)
-        translate([0, -(W/2 - notch_W/2), 0])
-            cube([notch_L, notch_W + 2*eps, T + 2*eps], center=true);
-    }
+module notch_top() {
+    translate([0,  W/2 - notch_D/2,  T/2 - notch_Z/2])
+        cube([notch_L, notch_D + 2*eps, notch_Z + 2*eps], center=true);
+}
+
+module notch_bottom() {
+    translate([0, -W/2 + notch_D/2, -T/2 + notch_Z/2])
+        cube([notch_L, notch_D + 2*eps, notch_Z + 2*eps], center=true);
 }
 
 difference() {
-    main_prismatic_body();
-    relief_notches();
+    union() {
+        end_mass(-1);
+        end_mass( 1);
+        web();
+    }
+    // shallow rectangular reliefs at midspan on top and bottom edges
+    notch_top();
+    notch_bottom();
 }

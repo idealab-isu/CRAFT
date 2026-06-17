@@ -1,50 +1,44 @@
 // Dimension-calibrated (target: 0.15 x 0.01 x 0.15 mm)
-scale([1.500024, 0.166668, 16.668741])
+scale([1.500000, 0.166667, 25.000000])
 {
-// Thin elongated plate with 4 asymmetric rectangular bosses on ONE face only.
+// Thin elongated plate with 4 asymmetric bosses on ONE face only
 // Units: mm
 
 // Plate (elongated along X)
-plate_L = 0.10;     // length
-plate_W = 0.06;     // width
-plate_T = 0.006;    // thickness
+plate_L = 0.10;
+plate_W = 0.06;
+plate_T = 0.004;
 
-// Bosses (4 discrete studs)
-boss_L  = 0.014;
-boss_W  = 0.010;
-boss_H  = 0.004;
+// Bosses
+boss_L  = 0.012;
+boss_W  = 0.008;
+boss_H  = 0.003;
 
-// Small overlap to guarantee a single connected solid
-// (must be >0 and < plate_T so the opposite face stays perfectly flat)
-overlap = 0.001;
+// Asymmetric boss locations (kept within plate extents)
+boss1_x = -plate_L*0.30; boss1_y = -plate_W*0.25;
+boss2_x =  plate_L*0.10; boss2_y = -plate_W*0.10;
+boss3_x = -plate_L*0.05; boss3_y =  plate_W*0.28;
+boss4_x =  plate_L*0.32; boss4_y =  plate_W*0.18;
 
-// Asymmetric boss locations across the plate surface (kept within footprint)
-boss_pos = [
-    [-plate_L*0.33, -plate_W*0.20],
-    [ plate_L*0.12, -plate_W*0.02],
-    [-plate_L*0.06,  plate_W*0.24],
-    [ plate_L*0.34,  plate_W*0.16]
-];
+overlap = 0.001; // positive overlap to guarantee manifold connection
 
-module plate() {
-    cube([plate_L, plate_W, plate_T], center=true);
+module plate_body() {
+    // Plate spans Z=[0..plate_T] so the bottom face is perfectly smooth at Z=0
+    translate([0, 0, plate_T/2])
+        cube([plate_L, plate_W, plate_T], center=true);
 }
 
-module boss() {
-    cube([boss_L, boss_W, boss_H], center=true);
+module boss_at(x, y) {
+    // Bosses protrude only upward from the top face (Z=plate_T)
+    translate([x, y, plate_T + boss_H/2 - overlap])
+        cube([boss_L, boss_W, boss_H], center=true);
 }
-
-// Place bosses so they protrude ONLY from +Z face.
-// Plate top surface is at +plate_T/2.
-// Boss bottom is set to (plate_T/2 - overlap) so it slightly intersects the plate.
-// This guarantees a single solid and keeps the -Z face smooth/featureless.
-boss_center_z = (plate_T/2 - overlap) + boss_H/2;
 
 union() {
-    plate();
-
-    for (p = boss_pos)
-        translate([p[0], p[1], boss_center_z])
-            boss();
+    plate_body();
+    boss_at(boss1_x, boss1_y);
+    boss_at(boss2_x, boss2_y);
+    boss_at(boss3_x, boss3_y);
+    boss_at(boss4_x, boss4_y);
 }
 }

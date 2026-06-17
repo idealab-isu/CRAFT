@@ -1,146 +1,118 @@
-// Dimension-calibrated (target: 0.15 x 0.13 x 0.08 mm)
-scale([0.689371, 1.206502, 1.380693])
-{
-// Compact offset mounting bracket with rounded-rectangle base and smooth curved elbow arm
-// Units: mm (very small part; bbox target ~0.2 x 0.1 x 0.1)
+// Parameters
+bbox_x = 0.15; //[0.075:0.3:0.001]
+bbox_y = 0.13; //[0.065:0.26:0.001]
+bbox_z = 0.08; //[0.04:0.16:0.001]
+base_x = 0.15; //[0.075:0.3:0.001]
+base_y = 0.13; //[0.065:0.26:0.001]
+base_z = 0.03; //[0.015:0.06:0.001]
+base_corner_r = 0.015; //[0.0075:0.03:0.0005]
+arm_thk_z = 0.02; //[0.01:0.04:0.001]
+arm_w = 0.03; //[0.015:0.06:0.001]
+elbow_r = 0.03; //[0.015:0.06:0.001]
+arm_leg1_len = 0.05; //[0.025:0.1:0.001]
+arm_leg2_len = 0.05; //[0.025:0.1:0.001]
+end_pad_x = 0.03; //[0.015:0.06:0.001]
+end_pad_y = 0.04; //[0.02:0.08:0.001]
+end_pad_z = 0.02; //[0.01:0.04:0.001]
+boss1_x = 0.02; //[0.01:0.04:0.001]
+boss1_y = 0.02; //[0.01:0.04:0.001]
+boss1_z = 0.01; //[0.005:0.02:0.001]
+boss2_x = 0.02; //[0.01:0.04:0.001]
+boss2_y = 0.02; //[0.01:0.04:0.001]
+boss2_z = 0.01; //[0.005:0.02:0.001]
+overlap = 0.001; //[0.0005:0.002:0.0001]
+fillet_r = 0.004; //[0.002:0.008:0.0005]
+chamfer_depth = 0.003; //[0.001:0.006:0.0005]
+mount_hole_r = 0.006; //[0.003:0.012:0.0005]
+mount_hole_offset_x = 0.04; //[0.02:0.07:0.001]
 
-// ---------- Parameters ----------
-bbox_L = 0.20;
-bbox_W = 0.10;
-bbox_H = 0.10;
+// Base rounded rectangle
+module base_block_rounded_rect() {
+  hull() {
+    translate([-base_x/2 + base_corner_r, base_y/2 - base_corner_r, 0])
+      cylinder(r=base_corner_r, h=base_z, center=true);
+    translate([base_x/2 - base_corner_r, base_y/2 - base_corner_r, 0])
+      cylinder(r=base_corner_r, h=base_z, center=true);
+    translate([-base_x/2 + base_corner_r, -base_y/2 + base_corner_r, 0])
+      cylinder(r=base_corner_r, h=base_z, center=true);
+    translate([base_x/2 - base_corner_r, -base_y/2 + base_corner_r, 0])
+      cylinder(r=base_corner_r, h=base_z, center=true);
+  }
+}
 
-base_L = 0.085;
-base_W = 0.060;
-base_H = 0.030;
-base_corner_r = 0.012;
-
-arm_thk = 0.018;      // Z thickness of arm
-arm_width = 0.030;    // Y width of arm
-elbow_R = 0.030;      // bend radius (centerline-ish)
-
-arm_rise_Z = 0.050;   // vertical rise from base top to arm top run center
-arm_reach_X = 0.060;  // horizontal reach from base side to pad
-
-pad_L = 0.030;
-pad_W = 0.040;
-pad_H = 0.020;
-
-boss1_L = 0.020;
-boss1_W = 0.030;
-boss1_H = 0.010;
-
-boss2_L = 0.018;
-boss2_W = 0.028;
-boss2_H = 0.010;
-
-overlap = 0.001;
-micro_fillet_r = 0.0015;
-
-$fn = 48;
-
-// ---------- Helpers ----------
-module rounded_rect_prism(L, W, H, r) {
-    // Robust rounded rectangle via hull of 4 cylinders
-    r2 = min(r, min(L, W)/2 - 0.0001);
-    hull() {
-        for (sx = [-1, 1], sy = [-1, 1])
-            translate([sx*(L/2 - r2), sy*(W/2 - r2), 0])
-                cylinder(r=r2, h=H, center=false);
+// Cantilever arm with elbow
+module cantilever_arm() {
+  // Arm leg 1
+  translate([0, 0, base_z/2 + arm_leg1_len/2 - overlap])
+    cube([arm_thk_z, arm_w, arm_leg1_len], center=true);
+  
+  // Arm leg 2
+  translate([arm_leg2_len/2 - overlap, 0, base_z/2 + arm_leg1_len - arm_thk_z/2])
+    cube([arm_leg2_len, arm_w, arm_thk_z], center=true);
+  
+  // Elbow
+  difference() {
+    intersection() {
+      translate([0, 0, base_z/2 + arm_leg1_len - elbow_r])
+        rotate([90, 0, 0])
+        cylinder(r=elbow_r + arm_thk_z/2, h=arm_w, center=true);
+      translate([(elbow_r + arm_thk_z)/2 - overlap, 0, base_z/2 + arm_leg1_len - elbow_r + (elbow_r + arm_thk_z)/2 - overlap])
+        cube([elbow_r + arm_thk_z, arm_w + 2*overlap, elbow_r + arm_thk_z], center=true);
     }
+    translate([0, 0, base_z/2 + arm_leg1_len - elbow_r])
+      rotate([90, 0, 0])
+      cylinder(r=elbow_r - arm_thk_z/2, h=arm_w + 2*overlap, center=true);
+  }
 }
 
-module arm_path_2d() {
-    // 2D centerline path in XZ plane: vertical up, quarter-arc, horizontal out
-    // Start at (0,0) at base top surface.
-    // End at (elbow_R + arm_reach_X, arm_rise_Z)
-    // Ensure rise is compatible with elbow_R
-    rise = max(arm_rise_Z, elbow_R + 0.0001);
-    vlen = rise - elbow_R;
-
-    // Build a polyline with arc approximation
-    pts = concat(
-        [[0, 0], [0, vlen]],
-        [for (a = [0:6:90]) [elbow_R*(1 - cos(a)), vlen + elbow_R*sin(a)]],
-        [[elbow_R + arm_reach_X, rise]]
-    );
-
-    polygon(points=pts);
-}
-
-module arm_solid() {
-    // Sweep a rectangle (arm_width x arm_thk) along the 2D path by linear_extrude in Y,
-    // then thicken in Z by offsetting the 2D path and extruding.
-    // Approach: create 2D "tube" in XZ by offsetting the centerline path, then extrude in Y.
-    rise = max(arm_rise_Z, elbow_R + 0.0001);
-    vlen = rise - elbow_R;
-
-    // Centerline polyline points (XZ)
-    pts = concat(
-        [[0, 0], [0, vlen]],
-        [for (a = [0:6:90]) [elbow_R*(1 - cos(a)), vlen + elbow_R*sin(a)]],
-        [[elbow_R + arm_reach_X, rise]]
-    );
-
-    // Make a 2D thickened path by hulling circles along the polyline
-    module thick_path_2d(r) {
-        hull() {
-            for (p = pts)
-                translate([p[0], p[1]]) circle(r=r);
-        }
-    }
-
-    // Extrude along Y to get arm width; place so Y is centered at 0
-    translate([0, 0, base_H])  // start at base top
-        translate([0, 0, 0])
-            rotate([90, 0, 0])  // extrude in Y by rotating XZ->XY then extruding Z
-                linear_extrude(height=arm_width, center=true)
-                    thick_path_2d(arm_thk/2);
-}
-
+// End pad
 module end_pad() {
-    // Pad at end of arm, connected with slight overlap
-    rise = max(arm_rise_Z, elbow_R + 0.0001);
-    end_x = elbow_R + arm_reach_X;
-
-    // Place pad so its top roughly aligns with arm top run; overlap into arm
-    translate([ (base_L/2) + end_x - pad_L/2 + overlap, 0, base_H + rise - arm_thk/2 - pad_H/2 + overlap ])
-        cube([pad_L, pad_W, pad_H], center=true);
+  translate([arm_leg2_len - overlap + end_pad_x/2, 0, base_z/2 + arm_leg1_len - arm_thk_z/2])
+    cube([end_pad_x, end_pad_y, end_pad_z], center=true);
 }
 
+// Bosses
 module bosses() {
-    rise = max(arm_rise_Z, elbow_R + 0.0001);
-    end_x = elbow_R + arm_reach_X;
-
-    // Boss near junction (on base top, at base right edge)
-    translate([ base_L/2 - boss1_L/2 + overlap, 0, base_H + boss1_H/2 - overlap ])
-        cube([boss1_L, boss1_W, boss1_H], center=true);
-
-    // Boss near end pad (on top of arm near pad)
-    translate([ base_L/2 + end_x - pad_L + boss2_L/2, 0, base_H + rise - arm_thk/2 - boss2_H/2 + overlap ])
-        cube([boss2_L, boss2_W, boss2_H], center=true);
+  // Boss near junction
+  translate([0, 0, base_z/2 + boss1_z/2 - overlap])
+    cube([boss1_x, boss1_y, boss1_z], center=true);
+  
+  // Boss near end pad
+  translate([arm_leg2_len - overlap + end_pad_x/2, 0, base_z/2 + arm_leg1_len - arm_thk_z/2 + end_pad_z/2 - overlap])
+    cube([boss2_x, boss2_y, boss2_z], center=true);
 }
 
-module base_block() {
-    // Rounded-rectangle base block, centered at origin in XY, sitting on Z=0
-    translate([0, 0, 0])
-        rounded_rect_prism(base_L, base_W, base_H, base_corner_r);
+// Mounting holes
+module mounting_holes() {
+  translate([-mount_hole_offset_x, 0, 0])
+    cylinder(r=mount_hole_r, h=base_z + 2*overlap, center=true);
+  translate([mount_hole_offset_x, 0, 0])
+    cylinder(r=mount_hole_r, h=base_z + 2*overlap, center=true);
 }
 
-module bracket_raw() {
-    // Place arm so it starts at base right face, centered in Y, from base top
-    // Arm path starts at X=0; shift to base right face with overlap
-    translate([base_L/2 - overlap, 0, 0]) {
-        arm_solid();
+// Chamfers
+module chamfers() {
+  translate([-base_x/2 + chamfer_depth/2, 0, base_z/2 - chamfer_depth/2])
+    rotate([0, 45, 0])
+    cube([chamfer_depth, base_y + 2*overlap, chamfer_depth], center=true);
+  translate([base_x/2 - chamfer_depth/2, 0, base_z/2 - chamfer_depth/2])
+    rotate([0, 45, 0])
+    cube([chamfer_depth, base_y + 2*overlap, chamfer_depth], center=true);
+}
+
+// Final assembly
+difference() {
+  union() {
+    base_block_rounded_rect();
+    bosses();
+    minkowski() {
+      union() {
+        cantilever_arm();
         end_pad();
-        bosses();
+      }
+      sphere(r=fillet_r, center=true);
     }
-
-    base_block();
-}
-
-// Micro fillet via Minkowski (kept small to avoid bloating bbox too much)
-minkowski() {
-    bracket_raw();
-    sphere(r=micro_fillet_r);
-}
+  }
+  chamfers();
+  mounting_holes();
 }

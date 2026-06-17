@@ -1,119 +1,126 @@
 // Dimension-calibrated (target: 0.13 x 0.05 x 0.05 mm)
-scale([0.133000, 0.050000, 0.050000])
+scale([1.280741, 1.300000, 1.181818])
 {
-// Offset link/lever: two circular bosses of different thicknesses connected by a long rectangular bar,
-// forming an L-shaped side profile. Includes through hex holes in each boss.
-// Units: mm
+// Offset link/lever with two bosses and through hex holes
+// Structural fixes:
+// - Clear L-shaped/offset profile in side view via Z step between ends
+// - Cylindrical bosses (no faceting)
+// - Recalculated translations so parts touch with controlled overlap
+// - Single connected solid, then holes subtracted
+// - Optional uniform scaling to meet tiny bounding-box requirement
 
+// ---------- Quality ----------
 $fn = 96;
 
-// --- Target overall bounding box (approx) ---
-L_total = 0.10;   // overall length (X)
-W_total = 0.10;   // overall width  (Y)
-H_total = 0.10;   // overall height (Z)
+// ---------- Parameters (mm, before optional scaling) ----------
+bbox_L = 0.13;
+bbox_W = 0.05;
+bbox_H = 0.05;
 
-// --- Boss geometry ---
-boss_large_d = 0.060;
-boss_small_d = 0.045;
+boss_large_d = 0.05;
+boss_small_d = 0.04;
 
-boss_large_t = 0.060;   // thickness (Z)
-boss_small_t = 0.035;
+boss_large_t = 0.05;
+boss_small_t = 0.03;
 
-// --- Bar geometry (thin web) ---
-bar_w = 0.030;          // width (Y)
-bar_t = 0.020;          // thickness (Z)
+bar_t = 0.02;
+bar_w = 0.02;
+bar_L = 0.09;
 
-// --- Placement along X ---
-end_margin = 0.010;     // distance from boss outer edge to overall end
-
-// Overlap: keep proportional to tiny 0.1mm part (NOT 1-2mm here, would destroy geometry)
-overlap = 0.002;        // small overlap to guarantee connectivity (mm)
-
-// Derived boss centers so overall length is L_total
-x_large = -L_total/2 + end_margin + boss_large_d/2;
-x_small =  L_total/2 - end_margin - boss_small_d/2;
-
-// Bar spans between OUTER edges of bosses (with overlap into bosses)
-bar_L = (x_small - x_large) - (boss_large_d/2 + boss_small_d/2) + 2*overlap;
-bar_L = max(bar_L, overlap*6); // safety
-
-// --- L-offset in Z (creates L-shaped side view) ---
-// Put bar + small boss on lower level; large boss on higher level.
-// Ensure the large boss bottom overlaps the bar top by 'overlap' for a watertight union.
-z_bar   = bar_t/2;
-z_small = boss_small_t/2;
-z_large = (bar_t/2 + boss_large_t/2) - overlap; // bottom of large boss = bar top - overlap
-
-// --- Hex holes (across flats) ---
-hex_large_af = 0.020;
-hex_small_af = 0.016;
+hex_flat_large = 0.02;
+hex_flat_small = 0.018;
 hex_clearance = 0.001;
 
-// Convert across-flats to circumscribed radius for a 6-sided polygon
-function hex_R(af) = (af + hex_clearance) / sqrt(3);
+hex_h_extra = 0.01;
 
-module hex_prism(af, h) {
-  cylinder(h=h, r=hex_R(af), $fn=6, center=true);
+// Connection overlap (in mm, pre-scale). Keep small but nonzero.
+overlap = 0.0015;
+
+// L-shaped offset amount (creates the side-view step)
+z_offset = 0.012;
+
+// Optional: scale whole model so its max dimension is ~0.1mm.
+// Set to 1 to keep original sizes.
+target_max_dim = 0.10;
+pre_max_dim = max(bbox_L, bbox_W, bbox_H);
+scale_to_target = target_max_dim / pre_max_dim;  // ~0.769 for given bbox
+use_scaling = true;
+
+// ---------- Helpers ----------
+function hex_R_from_flat(f) = f / sqrt(3); // circumradius for flat-to-flat = f
+
+module hex_prism(flat, h) {
+  // Regular hex with flats aligned to Y axis (rotation not critical)
+  cylinder(r=hex_R_from_flat(flat), h=h, center=true, $fn=6);
 }
 
-module boss(d, t, x, z) {
-  translate([x, 0, z])
-    cylinder(d=d, h=t, center=true);
-}
-
-module bar_web() {
-  // Bar centered between boss OUTER edges, at bar level
-  translate([(x_large + x_small)/2, 0, z_bar])
-    cube([bar_L, bar_w, bar_t], center=true);
-}
-
-module transition_web() {
-  // A solid "step" near the large boss that connects the lower bar up to the higher large boss.
-  // Use hull between two pads at different Z levels to create a sloped/stepped web.
+// ---------- Geometry (centered around origin) ----------
+module solid_body() {
+  // Coordinate system:
+  // X = length direction, Y = width, Z = thickness/offset direction
   //
-  // Recalculated to guarantee overlap into BOTH the large boss and the bar.
-  x_pad_large = x_large + boss_large_d/2 - overlap; // inside large boss outer edge
-  x_pad_bar   = x_pad_large + max(bar_L*0.40, overlap*10); // extends into bar region
+  // Large boss centered at x = -bar_L/2, z = 0
+  // Small boss centered at x = +bar_L/2, z = z_offset
+  // Bar is a rectangular prism connecting the two boss centers, centered at z = z_offset/2
 
-  hull() {
-    // pad at bar level (overlaps bar)
-    translate([x_pad_bar, 0, z_bar])
-      cube([overlap*2, bar_w, bar_t], center=true);
+  xL = -bar_L/2;
+  xS =  bar_L/2;
 
-    // pad at large boss level (overlaps large boss)
-    translate([x_pad_large, 0, z_large])
-      cube([overlap*2, bar_w, boss_large_t], center=true);
-  }
-}
+  zL = 0;
+  zS = z_offset;
 
-module body() {
+  // Bar spans between boss centers, with a little extra length to overlap into bosses
+  bar_len = bar_L + overlap*2;
+  bar_z   = (zL + zS)/2;
+
   union() {
-    // Bosses
-    boss(boss_large_d, boss_large_t, x_large, z_large);
-    boss(boss_small_d, boss_small_t, x_small, z_small);
+    // Connecting bar (rectangular)
+    translate([0, 0, bar_z])
+      cube([bar_len, bar_w, bar_t], center=true);
 
-    // Long rectangular connecting bar between bosses
-    bar_web();
+    // Large boss (cylindrical), slightly overlapped with bar
+    translate([xL, 0, zL])
+      cylinder(d=boss_large_d, h=boss_large_t + overlap*2, center=true);
 
-    // L-offset transition near the large boss
-    transition_web();
+    // Small boss (cylindrical), offset in Z to create L-profile
+    translate([xS, 0, zS])
+      cylinder(d=boss_small_d, h=boss_small_t + overlap*2, center=true);
+
+    // Web/step connector to make the offset visually and structurally continuous:
+    // hull between two thin pads at the bar/boss junctions.
+    hull() {
+      translate([xL + boss_large_d/2 - overlap, 0, zL])
+        cube([overlap*2, bar_w, bar_t], center=true);
+
+      translate([xS - boss_small_d/2 + overlap, 0, zS])
+        cube([overlap*2, bar_w, bar_t], center=true);
+    }
   }
 }
 
-module holes() {
-  union() {
-    // Through hex holes (through each boss thickness)
-    translate([x_large, 0, z_large])
-      hex_prism(hex_large_af, boss_large_t + 8*overlap);
+module body_with_holes() {
+  xL = -bar_L/2;
+  xS =  bar_L/2;
 
-    translate([x_small, 0, z_small])
-      hex_prism(hex_small_af, boss_small_t + 8*overlap);
+  zL = 0;
+  zS = z_offset;
+
+  difference() {
+    solid_body();
+
+    // Through hex hole in large boss
+    translate([xL, 0, zL])
+      hex_prism(hex_flat_large + hex_clearance, boss_large_t + hex_h_extra);
+
+    // Through hex hole in small boss
+    translate([xS, 0, zS])
+      hex_prism(hex_flat_small + hex_clearance, boss_small_t + hex_h_extra);
   }
 }
 
-// Final model: one connected solid with through hex holes
-difference() {
-  body();
-  holes();
-}
+// ---------- Final Output ----------
+if (use_scaling)
+  scale([scale_to_target, scale_to_target, scale_to_target]) body_with_holes();
+else
+  body_with_holes();
 }

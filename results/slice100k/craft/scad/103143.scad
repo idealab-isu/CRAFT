@@ -1,99 +1,79 @@
-// Parameters
-H = 115; //[60:230:1]
-OD_x = 45; //[22.5:90:0.01]
-OD_y = 44.62; //[22.31:89.24:0.01]
-OD = 44.62; //[22.31:89.24:0.01]
-bore_D = 24; //[12:48:0.01]
-wall_min = 3; //[1.5:6:0.1]
-notch_count = 6; //[2:24:1]
-notch_w = 8; //[3:16:0.1]
-notch_h = 20; //[5:60:0.1]
-notch_depth = 6; //[1:12:0.1]
-notch_z0 = 10; //[0:40:0.1]
-notch_z1 = 105; //[60:115:0.1]
-notch_angle_offset = 0; //[0:359:1]
-split_gap = 1; //[0.2:3:0.1]
-keyway_w = 6; //[2:12:0.1]
-keyway_depth = 2.5; //[0.5:6:0.1]
-edge_fillet_r = 0.8; //[0.2:2:0.1]
-relief_r = 0.8; //[0.3:2:0.1]
-overlap = 1; //[0.5:2:0.1]
+$fn = 128;
 
-// Base Shapes
-module outer_sleeve_body() {
-  cylinder(h=H, r=OD/2, center=true);
+// Parameters (match given bounding box and requested features)
+bbox_X = 45.0;          // overall X bound
+bbox_Y = 44.62;         // overall Y bound (also used as outer_D)
+H = 115.0;              // height
+
+outer_D = 44.62;        // outer diameter (Y bound)
+bore_D  = 20.0;         // central bore diameter
+
+notch_count = 6;        // several notches around circumference
+notch_ang_offset_deg = 0.0;
+
+notch_depth_radial = 4.0;       // how far notch cuts into OD
+notch_width_tangential = 8.0;   // notch width along tangent
+notch_height_Z = 20.0;          // notch height along Z
+notch_Z_center = 0.0;           // notch vertical position
+
+// Split/key feature (a slit through the wall)
+split_width_tangential = 2.0;   // slit width (tangential)
+split_depth_radial = notch_depth_radial; // cut into OD similarly
+split_ang_deg = 0.0;            // angle of split
+
+overlap = 1.0;                  // boolean robustness
+
+// Derived
+outer_R = outer_D/2;
+
+// Base body: cylinder trimmed to bbox_X in X (gives slightly "circular/square" cross-section)
+module outer_profile() {
+  intersection() {
+    cylinder(r=outer_R, h=H, center=true);
+    // Trim in X to hit bbox_X exactly, keep Y unconstrained (outer_D already sets Y)
+    cube([bbox_X, outer_D*2, H + 2*overlap], center=true);
+  }
 }
 
 module central_through_bore() {
-  cylinder(h=H + 2*overlap, r=bore_D/2, center=true);
+  cylinder(r=bore_D/2, h=H + 2*overlap, center=true);
 }
 
-module notch_cutter_base() {
-  translate([OD/2 - wall_min + (notch_depth + OD/2)/2 - overlap, 0, -H/2 + notch_z0 + (notch_z1 - notch_z0)/2])
-    cube([notch_depth + OD/2, notch_w, notch_h], center=true);
+// Rectangular notch cutter placed at OD and rotated around Z
+module notch_cut_at_angle(a_deg) {
+  rotate([0,0,a_deg])
+    translate([outer_R - notch_depth_radial/2 + overlap, 0, notch_Z_center])
+      cube([notch_depth_radial + 2*overlap,
+            notch_width_tangential,
+            notch_height_Z],
+           center=true);
 }
 
-module notch_relief_sphere() {
-  sphere(r=relief_r, center=true);
+module circumferential_notches() {
+  for (i = [0:notch_count-1])
+    notch_cut_at_angle(notch_ang_offset_deg + i*360/notch_count);
 }
 
-module split_line_gap() {
-  cube([OD + 2*overlap, split_gap, H + 2*overlap], center=true);
+// Split/key slit cutter (a deeper/continuous-looking interruption)
+module split_slit() {
+  rotate([0,0,split_ang_deg])
+    translate([outer_R - split_depth_radial/2 + overlap, 0, 0])
+      cube([split_depth_radial + 2*overlap,
+            split_width_tangential,
+            H + 2*overlap],
+           center=true);
 }
 
-module keyway_slot_variant() {
-  translate([bore_D/2 - keyway_depth/2 + overlap/2, 0, 0])
-    cube([keyway_depth + overlap, keyway_w, H + 2*overlap], center=true);
-}
-
-module edge_fillet_sphere() {
-  sphere(r=edge_fillet_r, center=true);
-}
-
-module overall_height_constraint() {
-  cube([OD, OD, H], center=true);
-}
-
-// Operations
-module notch_cutter_relief() {
-  minkowski() {
-    notch_cutter_base();
-    notch_relief_sphere();
-  }
-}
-
-module circumferential_rectangular_notches_array() {
+module all_subtractive_features() {
   union() {
-    for (i = [0:notch_count-1]) {
-      rotate([0, 0, notch_angle_offset + i*(360/notch_count)])
-        notch_cutter_relief();
-    }
-  }
-}
-
-module notch_depth_control_to_preserve_wall_thickness() {
-  difference() {
-    outer_sleeve_body();
     central_through_bore();
-    circumferential_rectangular_notches_array();
-    split_line_gap();
-    keyway_slot_variant();
+    circumferential_notches();
+    split_slit();
   }
 }
 
-module chamfers_or_fillets_on_edges() {
-  minkowski() {
-    notch_depth_control_to_preserve_wall_thickness();
-    edge_fillet_sphere();
-  }
+// Final
+difference() {
+  outer_profile();
+  all_subtractive_features();
 }
-
-module final_model() {
-  intersection() {
-    chamfers_or_fillets_on_edges();
-    overall_height_constraint();
-  }
-}
-
-// Final Output
-final_model();

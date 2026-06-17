@@ -11,8 +11,7 @@ from typing import List, Dict, Optional, Set, Tuple
 from difflib import SequenceMatcher
 
 from .config import (
-    KB_CONFIG, CATEGORY_KEYWORDS, COMPONENT_ALIASES,
-    DetectionStrategiesConfig,
+    KB_CONFIG, CATEGORY_KEYWORDS, COMPONENT_ALIASES
 )
 from .indexer import ComponentInfo, load_component_index
 
@@ -68,8 +67,7 @@ class ComponentDetector:
     def __init__(
         self,
         components: Dict[str, ComponentInfo] = None,
-        confidence_threshold: float = None,
-        strategies: Optional[DetectionStrategiesConfig] = None,
+        confidence_threshold: float = None
     ):
         """
         Initialize the detector.
@@ -77,16 +75,12 @@ class ComponentDetector:
         Args:
             components: Pre-loaded component dictionary, or will load from index
             confidence_threshold: Minimum confidence to include a match
-            strategies: Which detection passes to run (exact/alias/keyword/
-                fuzzy/semantic). Defaults to ``KB_CONFIG.detection_strategies``.
-                Used for the v2 strategy-ablation experiments.
         """
         self.components = components or {}
         self.confidence_threshold = (
             confidence_threshold or
             KB_CONFIG.detection_confidence_threshold
         )
-        self.strategies = strategies or KB_CONFIG.detection_strategies
 
         # Build search indices
         self._name_index: Dict[str, str] = {}      # lowercase name → component_id
@@ -328,29 +322,12 @@ class ComponentDetector:
             )
 
         all_matches = []
-        strategy_counts: Dict[str, int] = {
-            "exact": 0, "alias": 0, "keyword": 0, "fuzzy": 0,
-        }
 
-        # Run only the enabled detection strategies (v2 ablation support).
-        # NOTE: the "semantic" strategy lives in retriever.py (ChromaDB +
-        # embeddings) and is gated there by the same config flag.
-        if self.strategies.exact:
-            m = self._find_exact_matches(prompt)
-            strategy_counts["exact"] = len(m)
-            all_matches.extend(m)
-        if self.strategies.alias:
-            m = self._find_alias_matches(prompt)
-            strategy_counts["alias"] = len(m)
-            all_matches.extend(m)
-        if self.strategies.keyword:
-            m = self._find_keyword_matches(prompt)
-            strategy_counts["keyword"] = len(m)
-            all_matches.extend(m)
-        if self.strategies.fuzzy:
-            m = self._find_fuzzy_matches(prompt)
-            strategy_counts["fuzzy"] = len(m)
-            all_matches.extend(m)
+        # Run all detection strategies
+        all_matches.extend(self._find_exact_matches(prompt))
+        all_matches.extend(self._find_alias_matches(prompt))
+        all_matches.extend(self._find_keyword_matches(prompt))
+        all_matches.extend(self._find_fuzzy_matches(prompt))
 
         # Filter by confidence threshold
         filtered_matches = [
@@ -378,20 +355,6 @@ class ComponentDetector:
 
         # Detect categories
         categories = self._detect_categories(prompt)
-
-        # Log per-strategy attribution for ablation analysis
-        winning_breakdown: Dict[str, int] = {}
-        for m in limited_matches:
-            # Normalize "exact_module" / "exact_name" to just "exact"
-            bucket = m.match_type.split("_", 1)[0]
-            winning_breakdown[bucket] = winning_breakdown.get(bucket, 0) + 1
-        enabled = ",".join(self.strategies.enabled_names()) or "none"
-        print(
-            f"[ComponentDetector] strategies=[{enabled}] "
-            f"raw={strategy_counts} "
-            f"final={winning_breakdown or '{}'} "
-            f"total={len(limited_matches)}"
-        )
 
         return DetectionResult(
             original_prompt=prompt,

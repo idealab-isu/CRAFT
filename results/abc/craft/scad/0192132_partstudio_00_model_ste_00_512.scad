@@ -1,30 +1,25 @@
 // Dimension-calibrated (target: 0.05 x 0.07 x 0.07 mm)
-scale([0.700492, 0.700492, 0.510358])
+scale([0.700180, 0.700180, 0.510131])
 {
-// Short solid cylindrical puck/drum with slight fillets and subtle faceting
-// Bounding box target: 0.1 x 0.1 x 0.1 mm (max extents)
+// Short solid cylindrical puck/drum with slightly rounded edges and subtle faceting
+// Bounding box: 0.1 x 0.1 x 0.1 mm (X=Y=D, Z=H)
 
-// --- Parameters (mm) ---
-bbox = 0.1;                 // required overall max size in X/Y/Z
-body_d = 0.1;               // outer diameter (X/Y)
-body_h = 0.1;               // height (Z)
-facet_count = 16;           // subtle faceting on outer surface
-fillet_r = 0.004;           // edge rounding radius (kept small)
+D = 0.1;                 // diameter (mm)
+H = 0.1;                 // height   (mm)
+R = D/2;
 
-// Safety: keep fillet within half-height and radius
-fillet_r_eff = min(fillet_r, body_h/2 - 0.0001, body_d/2 - 0.0001);
+facet_count = 48;        // subtle faceting (higher = more cylindrical)
+fillet_r = 0.006;        // edge rounding radius (mm)
+eps = 0.0005;            // small overlap for robust union
 
-// --- Main solid with rounded edges (no holes/cutouts) ---
-module filleted_puck(d, h, r, fn_facets) {
-    // Use minkowski with a sphere to round edges; compensate so final size matches d/h.
-    // Final diameter = (d - 2r) + 2r = d
-    // Final height   = (h - 2r) + 2r = h
-    minkowski() {
-        cylinder(r=(d/2 - r), h=(h - 2*r), center=true, $fn=fn_facets);
-        sphere(r=r, $fn=max(24, fn_facets));
-    }
+$fn = facet_count;
+
+// Keep fillet within feasible range
+fr = min(fillet_r, R - 1e-6, H/2 - 1e-6);
+
+// Main puck with rounded edges via Minkowski (flat, parallel end faces; no flanges)
+minkowski() {
+  cylinder(r=R - fr, h=H - 2*fr, center=true);
+  sphere(r=fr, $fn=max(24, facet_count));
 }
-
-// Render single connected solid
-filleted_puck(body_d, body_h, fillet_r_eff, facet_count);
 }

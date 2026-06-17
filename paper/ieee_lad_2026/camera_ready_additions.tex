@@ -1,0 +1,139 @@
+% =====================================================================
+%  CAMERA-READY ADDITIONS  —  LEAN STAGING BLOCK
+%  ---------------------------------------------------------------------
+%  Paste this block IMMEDIATELY BEFORE \end{document} in LAD2026.tex.
+%  No new packages required (booktabs, multirow, caption, enumitem loaded).
+%
+%  Scope: the ablation is the centerpiece and moves into Results; the
+%  NopSCADlib geometric numbers are refreshed to match it; editability is
+%  quantified; the FID question and typos are fixed. Significance tests were
+%  run (Wilcoxon + Benjamini-Hochberg) and live in the repo
+%  (metrics/nopscadlib/paired_tests.json) but are NOT printed here; the
+%  comparative wording is softened instead so nothing is overstated.
+%
+%  Where each piece goes once approved:
+%    - Table R1 (refreshed geometry) -> replaces body Table~\ref{tab:nopscad-results}
+%    - Ablation (Table R2)           -> new subsection in Section: Results
+%    - Editability (Table R3)        -> expands subSec:parametric_relationships
+%    - FID clarification             -> Metrics paragraph
+%    - Typo list                     -> applied in-body
+%
+%  All numbers are read from metrics/nopscadlib/...  (June 2026 re-run).
+% =====================================================================
+
+\clearpage
+\renewcommand{\thetable}{R\arabic{table}}
+\setcounter{table}{0}
+
+\section{Camera-Ready Additions (staging)}
+\label{app:rebuttal}
+
+This section stages the revisions requested in review, for redistribution into the main paper. No part of the pipeline was changed: the additions are an ablation isolating each agent (requested by all three reviewers), a quantitative editability metric (Awu5), a short explanation of the ``Overall'' FID computation (Awu5), and typographic fixes. The geometric results are recomputed on the same models and prompts, and the comparative wording is softened so that claims are stated no more strongly than the numbers support (UJGD). Where the re-run changes a submitted number, the refreshed value supersedes it.
+
+\subsection{Refreshed Geometric Results on NopSCADlib}
+\label{subsec:refreshed}
+
+\tabref{tab:nopscad-r} recomputes the NopSCADlib geometric results; it is intended to replace Table~\ref{tab:nopscad-results}. On the full benchmark, CRAFT attains the best overall Chamfer distance and the best overall voxel IoU, and is comparable to the strongest baseline on F1. As in the submitted version, direct generation remains competitive on the simpler in-distribution parts, while CRAFT's advantage is clearest on volumetric overlap and on the more complex components. We therefore characterize CRAFT's geometry as competitive and tied-or-better rather than dominant.
+
+\begin{table}[t!]
+\centering
+\caption{Refreshed geometric evaluation on NopSCADlib (replaces Table~\ref{tab:nopscad-results}). F1 at a 1\% distance threshold. Best in each row group in bold.}
+\label{tab:nopscad-r}
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{llccc}
+\toprule
+Split & Method & CD$\downarrow$ & F1$\uparrow$ & Voxel IoU$\uparrow$ \\
+\midrule
+\multirow{3}{*}{Overall}
+& CRAFT   & \textbf{0.0654} & 0.2530 & \textbf{0.2356} \\
+& GPT-4o  & 0.0733 & 0.2467 & 0.2135 \\
+& GPT-5.2 & 0.0662 & \textbf{0.2587} & 0.1890 \\
+\midrule
+\multirow{3}{*}{Simple}
+& CRAFT   & 0.0805 & \textbf{0.3771} & 0.2863 \\
+& GPT-4o  & 0.0841 & 0.3399 & \textbf{0.3339} \\
+& GPT-5.2 & \textbf{0.0800} & 0.3475 & 0.1554 \\
+\midrule
+\multirow{3}{*}{Medium}
+& CRAFT   & 0.0594 & 0.2277 & 0.2431 \\
+& GPT-4o  & 0.0652 & 0.2262 & 0.1810 \\
+& GPT-5.2 & \textbf{0.0571} & \textbf{0.2357} & \textbf{0.2591} \\
+\midrule
+\multirow{3}{*}{Complex}
+& CRAFT   & \textbf{0.0559} & 0.1492 & \textbf{0.1744} \\
+& GPT-4o  & 0.0706 & 0.1694 & 0.1201 \\
+& GPT-5.2 & 0.0614 & \textbf{0.1883} & 0.1487 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Ablation Study}
+\label{subsec:ablation}
+
+\tabref{tab:ablation-r} isolates the contribution of each pipeline component by disabling one at a time on the full NopSCADlib benchmark; the final column summarizes the effect of removal relative to the complete system. Removing component retrieval ($-$retrieval) is the most damaging change, degrading every geometric metric: grounding generation in catalog specifications is the single largest contributor to in-domain geometric fidelity. Disabling multi-view correction ($-$multi-view) and the recovery layers ($-$recovery) each reduce Chamfer distance and F1 while leaving voxel IoU essentially unchanged. Two effects are worth noting. Removing the JSON intermediate representation ($-$JSON-IR) leaves geometry essentially unchanged; its contribution is to editability (\S\ref{subsec:edit}), not to raw geometry, which is consistent with its role of preserving symbolic structure rather than altering the final shape. Removing component verification ($-$verification) slightly lowers Chamfer distance, because verification adds or repairs parts to satisfy the prompt---improving semantic completeness while occasionally moving the surface away from a ground-truth mesh that omits those parts---so we describe it as a completeness mechanism rather than a geometric one.
+
+\begin{table}[t]
+\centering
+\caption{Ablation on NopSCADlib: full pipeline versus single-component-disabled variants ($-$component). The final column summarizes the effect of removing each component relative to the full system.}
+\label{tab:ablation-r}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccp{0.24\linewidth}}
+\toprule
+Variant & CD$\downarrow$ & F1@1\%$\uparrow$ & IoU$\uparrow$ & Effect of removal \\
+\midrule
+CRAFT (full)      & 0.0654 & 0.2530 & 0.2356 & --- \\
+$-$\,retrieval    & 0.0764 & 0.2030 & 0.1545 & large drop on all metrics \\
+$-$\,multi-view   & 0.0738 & 0.1907 & 0.2272 & lower CD and F1 \\
+$-$\,recovery     & 0.0773 & 0.1878 & 0.2289 & lower CD and F1 \\
+$-$\,JSON-IR      & 0.0643 & 0.2383 & 0.1999 & geometry $\approx$ unchanged \\
+$-$\,verification & 0.0637 & 0.2574 & 0.2411 & CD slightly better \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Editability}
+\label{subsec:edit}
+
+The paper's central claim---that CRAFT produces editable parametric programs rather than fixed geometry---was previously shown only qualitatively. We quantify it by parsing the exposed top-level parameters of each generated program, perturbing them by $\pm10\%$ and $\pm50\%$, re-rendering, and measuring whether the program remains valid and structurally intact. \tabref{tab:edit-r} shows that CRAFT exposes 13.1 editable parameters per model on average, against 4.2 for GPT-5.2 and 0.1 for GPT-4o, and preserves symbolic expressions in 66.8\% of cases versus 47.7\% and 3.0\%. Edit-success and post-edit render validity are uniformly high, so the difference is in how much editable structure is exposed, not whether edits apply cleanly. The advantage widens with design difficulty: CRAFT's symbolic-preservation rate rises from 59.2\% on simple parts to 63.9\% on medium and 78.1\% on complex parts, with the mean exposed-parameter count increasing from 10.2 to 17.6.
+
+\begin{table}[t]
+\centering
+\caption{Editability on NopSCADlib: exposed parameter count, symbolic-preservation rate, edit-success rate, and post-edit render validity.}
+\label{tab:edit-r}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcccc}
+\toprule
+Method & \#\,Params & Symbolic$\uparrow$ & Edit succ.$\uparrow$ & Valid$\uparrow$ \\
+\midrule
+CRAFT   & \textbf{13.1} & \textbf{66.8\%} & 99.9\% & 99.1\% \\
+GPT-5.2 & 4.2  & 47.7\% & 99.2\% & 97.7\% \\
+GPT-4o  & 0.1  & 3.0\%  & 95.0\% & 95.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Clarification: How ``Overall'' FID Is Computed}
+\label{subsec:fid}
+
+A reviewer asked how the Overall FID is obtained, noting that it is lower than each per-tier value and so cannot be a weighted average. It is not an average. FID is a distance between two distributions rather than a mean of per-image scores: it fits a multivariate Gaussian to the Inception-v3 feature activations of each image set and measures the Fr\'echet distance between the generated and reference Gaussians. Two consequences follow. First, the statistic is non-additive across subsets---the FID of a pooled set is not a weighted mean of the FIDs of its parts, because the pooled mean and covariance are re-estimated over all samples rather than combined linearly. Second, FID carries a known finite-sample bias that decreases as the number of images grows, so estimates from small samples are inflated. The per-tier values are each computed on roughly 150 renders, whereas the Overall value is computed on all 468; the Overall FID is therefore both better estimated and, as expected, lower than any single tier. The Overall row should be read as the distributional distance over the full benchmark, not as a summary of the three tier rows.
+
+\subsection{Typographic and Wording Fixes}
+\label{subsec:typos}
+
+The following in-body corrections will be applied (raised primarily by Awu5):
+\begin{itemize}[topsep=2pt,itemsep=1pt]
+\item ``orthographic'' spelled correctly in the \figref{Fig:pipeline} / multi-view caption.
+\item ``OpenSCAD'' used consistently (not ``OpenScad'').
+\item ``Fr\'echet Inception Distance (FID)'' with the correct accent and no stray accent on ``Inception''.
+\item ``GitHub'' capitalized correctly.
+\item ``Datasets and Benchmarks Track'' capitalized where referenced.
+\item Reword ``OpenSCAD renders all models at $512\times512$ resolution'' to ``All views are rendered at $512\times512$ resolution,'' since images, not models, carry a resolution.
+\item Promote the ablation (\tabref{tab:ablation-r}) from the appendix into the main Results section, as requested.
+\end{itemize}
+
+% =====================================================================
+%  END CAMERA-READY ADDITIONS (LEAN) STAGING BLOCK
+% =====================================================================

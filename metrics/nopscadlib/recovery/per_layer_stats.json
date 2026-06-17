@@ -1,0 +1,47 @@
+{
+  "schema_repair": {
+    "trigger_rate": 0.07191011235955057,
+    "n_triggered": 32,
+    "mean_retries": 1.0,
+    "mean_retries_overall": 0.07191011235955057,
+    "post_recovery_success_rate": 1.0,
+    "n_succeeded": 32
+  },
+  "scad_autofix": {
+    "trigger_rate": 0.006741573033707865,
+    "n_triggered": 3,
+    "mean_retries": 1.0,
+    "mean_retries_overall": 0.006741573033707865,
+    "post_recovery_success_rate": 1.0,
+    "n_succeeded": 3
+  },
+  "vlm_correction": {
+    "trigger_rate": 0.8044943820224719,
+    "n_triggered": 358,
+    "mean_retries": 1.6229050279329609,
+    "mean_retries_overall": 1.3056179775280898,
+    "post_recovery_success_rate": 0.5027932960893855,
+    "n_succeeded": 180
+  },
+  "component_verification": {
+    "trigger_rate": 0.17303370786516853,
+    "n_triggered": 77,
+    "mean_retries": 1.6103896103896105,
+    "mean_retries_overall": 0.2786516853932584,
+    "post_recovery_success_rate": 0.0,
+    "n_succeeded": 0
+  },
+  "manual_repair": {
+    "trigger_rate": 0.0,
+    "n_triggered": 0,
+    "mean_retries": 0.0,
+    "mean_retries_overall": 0.0,
+    "post_recovery_success_rate": 0.0,
+    "n_succeeded": 0
+  },
+  "__overall__": {
+    "n_runs": 445,
+    "mean_budget_used": 1.6629213483146068,
+    "n_runs_with_budget_data": 445
+  }
+}

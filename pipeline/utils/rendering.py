@@ -110,28 +110,21 @@ class MultiViewRenderer:
         imgsize: Tuple[int, int] = (400, 400),
         distance: float = 200,
         colorscheme: str = "Tomorrow",
-        timeout: int = 30,
-        fn_override: Optional[int] = None,
+        timeout: int = 30
     ):
         """
         Initialize the renderer.
-
+        
         Args:
             imgsize: Output image size per view
             distance: Camera distance (D factor)
             colorscheme: OpenSCAD color scheme
             timeout: Render timeout per view
-            fn_override: CRAFT v2.1 two-pass rendering. When set, injects
-                ``-D '$fn=N'`` on the OpenSCAD command line. Iteration
-                renders inside the VLM/component loops pass a low value
-                (e.g. 32) for fast previews; the final user-facing render
-                leaves this ``None`` so the SCAD's own ``$fn`` wins.
         """
         self.imgsize = imgsize
         self.distance = distance
         self.colorscheme = colorscheme
         self.timeout = timeout
-        self.fn_override = fn_override
     
     def render_all_views(
         self,
@@ -235,16 +228,8 @@ class MultiViewRenderer:
             "--autocenter",  # Auto-center the model
             "--viewall",     # Auto-zoom to fit entire model in view
             "--camera", camera_str,
+            scad_path
         ]
-
-        # CRAFT v2.1 two-pass rendering: iteration renders use a lower $fn
-        # to keep the VLM/component-verifier loops fast. The final
-        # user-facing render leaves fn_override as None so the SCAD's own
-        # $fn wins and the output is high-fidelity.
-        if self.fn_override is not None:
-            cmd.extend(["-D", f"$fn={int(self.fn_override)}"])
-
-        cmd.append(scad_path)
 
         try:
             result = subprocess.run(

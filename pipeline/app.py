@@ -1,12 +1,6 @@
 """
 CRAFT - Unified Text-to-CAD Pipeline
 
-**CRAFT v3** (``CRAFT_VERSION=3``): after baseline plan→compile→render, runs an
-intent sketch (if needed), six ortho renders, one structured gap analysis vs
-text/sketch, then a single text-only OpenSCAD patch. Replaces the multi-iterate
-VLM self-correction loop. Still gated by ``USE_VLM_CORRECTION`` (treat it as
-“post-render visual refinement enabled”).
-
 Main Flask application providing:
 - Text input → CAD generation
 - Vision input → Caption → CAD generation
@@ -27,19 +21,16 @@ Routes:
 import os
 import json
 import secrets
-import time
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 
-from flask import Flask, render_template, request, jsonify, send_from_directory, session, Response
+from flask import Flask, render_template, request, jsonify, send_from_directory, session
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from openai import OpenAI
-from queue import Queue
 
 # Import CRAFT modules
-from core.progress import ProgressTracker, PipelineStage, create_sse_progress_handler
 from core.schema import validate_plan, postprocess_plan
 from core.reasoner import TextReasoner, DesignBrief, KBComponentContext
 from core.vision import (
@@ -53,24 +44,13 @@ from core.vision import (
 )
 from core.planner import Planner, PlanResult
 from core.compiler import Compiler, strip_to_scad
-from core.render_checks import Validator, ValidationResult, validate_scad
-# core.repair was removed in CRAFT v2 — manual repair is now handled by the
-# Phase B unified-feedback stage; the /repair endpoint below returns HTTP 410.
+from core.validator import Validator, ValidationResult, validate_scad
+from core.repair import CodeRepairer, RepairOrchestrator
 from core.llm_client import create_unified_client
 from core.visual_corrector import VisualSelfCorrector, VisualCorrectionResult, VLMAssessment
 from core.component_verifier import ComponentVerifier, ComponentVerificationOutput
-from core.gap_refiner import GapRefiner
-# CRAFT v2.1: PromptEnhancer removed from the live pipeline — it was a silent
-# prompt rewriter that could shift user intent and double the upfront latency
-# for little measured win. Detection bundle is still shared with the reasoner.
-from core.sketch_generator import (
-    SketchGenerator,
-    SketchResult,
-    SKETCH_ENABLED_DEFAULT,
-    SKETCH_MODE_DEFAULT,
-    sketch_from_design_brief,
-)
-from core.scad_autofix import preemptive_render_safety_fix
+from core.prompt_enhancer import PromptEnhancer, EnhancementResult
+from core.recovery_budget import RecoveryBudget
 
 from utils.openscad_runner import OpenScadRunner, RenderMode, export_stl
 from utils.parameter_parser import (
@@ -135,19 +115,9 @@ client = create_unified_client(
 MODEL_PRIMARY = os.getenv("MODEL_PRIMARY", "gpt-4o")
 MODEL_SECONDARY = os.getenv("MODEL_SECONDARY", "gpt-4o")
 
-# CRAFT v2.1 model configuration
-# - MODEL_REASONING drives every critical reasoning stage: reasoner, planner,
-#   compiler, VLM self-correction, component verification. Keeping them on the
-#   same model family eliminates the "5.2-planned-but-4o-compiled" mismatch
-#   that produced SCAD which technically matched the plan but visually didn't.
-# - MODEL_FAST is only used for non-critical, deterministic-ish side tasks
-#   (single-image captioning fallback, parameter categorization for the UI).
-MODEL_REASONING = os.getenv("MODEL_REASONING", "gpt-5.2")
-MODEL_FAST = os.getenv("MODEL_FAST", "gpt-4o")
-
-# Back-compat aliases — existing call sites reference MODEL_PIPELINE / MODEL_VLM.
-MODEL_PIPELINE = MODEL_REASONING   # compiler / vision analyzer / enhancer → now 5.2
-MODEL_VLM = MODEL_REASONING        # VLM / component verifier / reasoner / planner
+# Hybrid model configuration: Use fast model for pipeline, reasoning model for VLM
+MODEL_PIPELINE = "gpt-4o"      # Fast model for Understanding, Planning, Compilation
+MODEL_VLM = "gpt-5.2"          # Reasoning model for Visual Self-Correction
 
 # Supported models (for backward compatibility)
 SUPPORTED_MODELS = [
@@ -166,20 +136,21 @@ AUTO_REPAIR = os.getenv("AUTO_REPAIR", "true").lower() == "true"
 PASS_THRESHOLD = float(os.getenv("PASS_THRESHOLD", "0.80"))
 
 # VLM Self-Correction settings
-# Default 1: one assess + fix pass; visual_corrector still tracks best candidate
-# if MAX_VLM_ITERATIONS is raised via env. Same rollback semantics as v2.1.
-MAX_VLM_ITERATIONS = int(os.getenv("MAX_VLM_ITERATIONS", "1"))
+MAX_VLM_ITERATIONS = int(os.getenv("MAX_VLM_ITERATIONS", "3"))
 USE_VLM_CORRECTION = os.getenv("USE_VLM_CORRECTION", "true").lower() == "true"
 
-# CRAFT v3 — baseline → intent sketch + ortho renders → gap JSON → single patch
-# (replaces the multi-iterate VLM loop when CRAFT_VERSION=3)
-CRAFT_VERSION = os.getenv("CRAFT_VERSION", "2").strip().lower()
-
 # Component Verification settings (runs after VLM correction)
-MAX_COMPONENT_ITERATIONS = int(os.getenv("MAX_COMPONENT_ITERATIONS", "1"))
+MAX_COMPONENT_ITERATIONS = int(os.getenv("MAX_COMPONENT_ITERATIONS", "3"))
 USE_COMPONENT_VERIFICATION = os.getenv("USE_COMPONENT_VERIFICATION", "true").lower() == "true"
 # Only run component verification if VLM confidence < threshold or match != "good"
 COMPONENT_VERIFY_THRESHOLD = float(os.getenv("COMPONENT_VERIFY_THRESHOLD", "0.95"))
+
+# Shared recovery budget across all five layers (paper's "10-attempt budget").
+RECOVERY_BUDGET_SIZE = int(os.getenv("RECOVERY_BUDGET_SIZE", "10"))
+
+# Ablation: bypass JSON-IR (planner + compiler) with a single direct-to-SCAD call.
+# When False, downstream stages (render, VLM, verify, recovery) still run.
+USE_JSON_IR = os.getenv("USE_JSON_IR", "true").lower() == "true"
 
 # Image settings
 IMG_SIZE = (800, 600)
@@ -261,23 +232,11 @@ class PipelineState:
         self.enhanced_prompt: Optional[str] = None
         self.enhancement_notes: List[str] = []
 
-        # v2: sketch (planner grounding vs post-render verification — see CRAFT_SKETCH_MODE)
-        self.sketch_used: bool = False
-        self.sketch_path: Optional[str] = None        # absolute path on disk
-        self.sketch_web_path: Optional[str] = None    # relative for <img src=>
-        self.sketch_prompt: Optional[str] = None
-        self.sketch_error: Optional[str] = None
-        self.sketch_role: Optional[str] = None        # "planner" | "verification" | "v3_intent"
+        # Shared recovery budget across all five layers (paper's "10-attempt budget")
+        self.recovery_budget: Optional[Dict[str, Any]] = None
 
-        # CRAFT v3
-        self.craft_version: str = "2"
-        self.v3_gap_refinement: Optional[Dict[str, Any]] = None
-
-        # Zero-to-CAD image-only eval (8 unlabeled views, no text prompt)
-        # When set, _run_v3_refinement treats these as the authoritative target
-        # and passes them to GapRefiner via `input_view_paths`. None in normal
-        # text/vision modes.
-        self.input_view_paths: Optional[List[str]] = None
+        # JSON-IR ablation flag (True = direct text→SCAD, skipping planner+compiler)
+        self.json_ir_bypassed: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON response."""
@@ -349,17 +308,12 @@ class PipelineState:
             "notes": self.enhancement_notes
         }
 
-        # v2: sketch — role is "planner" (fed to planner) or "verification" (after render)
-        result["sketch"] = {
-            "used": self.sketch_used,
-            "role": self.sketch_role,
-            "web_path": self.sketch_web_path,
-            "prompt": self.sketch_prompt,
-            "error": self.sketch_error,
-        }
+        # Shared recovery budget — populated per run, drives per-stage recovery stats
+        if self.recovery_budget is not None:
+            result["recovery_budget"] = self.recovery_budget
 
-        result["craft_version"] = getattr(self, "craft_version", "2")
-        result["gap_refinement"] = getattr(self, "v3_gap_refinement", None)
+        # JSON-IR ablation flag
+        result["json_ir_bypassed"] = self.json_ir_bypassed
 
         return result
 
@@ -391,7 +345,8 @@ class CRAFTPipeline:
         use_component_verification: bool = USE_COMPONENT_VERIFICATION,
         max_component_iterations: int = MAX_COMPONENT_ITERATIONS,
         use_kb: bool = True,
-        use_sketch: bool = SKETCH_ENABLED_DEFAULT,
+        use_json_ir: bool = USE_JSON_IR,
+        recovery_budget_size: int = RECOVERY_BUDGET_SIZE,
     ):
         self.client = client
         self.model_pipeline = model_pipeline  # For vision analysis, compilation, repair, enhancement
@@ -404,25 +359,8 @@ class CRAFTPipeline:
         self.use_component_verification = use_component_verification
         self.max_component_iterations = max_component_iterations
         self.use_kb = use_kb
-        # v2: Sketch step is optional so users can skip the image-gen call
-        # (cost / latency) when they just want fast text→SCAD.
-        self.use_sketch = use_sketch
-        # CRAFT v2 vs v3: v3 uses baseline + gap refinement instead of the VLM loop
-        _cv = CRAFT_VERSION if CRAFT_VERSION in ("2", "3") else "2"
-        self.craft_version_str = _cv
-
-        # Sketch modes (CRAFT v2.1):
-        #   - "reference" (default): generate sketch early from the design
-        #     brief, DO NOT feed it to the planner (so it can't pollute the
-        #     plan with hallucinated details), but thread it through the VLM
-        #     correction + component verifier as a visual intent anchor.
-        #   - "plan" (legacy): generate early AND feed as a planner reference.
-        #     Kept for backward-compat but discouraged — sketches hallucinate
-        #     confidently and the planner takes them too literally.
-        #   - "verify" (legacy): defer generation until AFTER render as a
-        #     post-hoc comparison. Still supported for ablation.
-        _sm = os.getenv("CRAFT_SKETCH_MODE", "reference").strip().lower()
-        self.sketch_mode = _sm if _sm in ("plan", "verify", "reference") else "reference"
+        self.use_json_ir = use_json_ir
+        self.recovery_budget_size = recovery_budget_size
 
         # Hybrid model approach:
         # - GPT-5.2 (reasoning model) for critical reasoning tasks: Understanding & Planning
@@ -433,11 +371,10 @@ class CRAFTPipeline:
         # Keep GPT-4o for faster, more deterministic tasks
         self.vision_analyzer = VisionAnalyzer(client, model_pipeline)
         self.compiler = Compiler(client, model_pipeline)
-        # v2: Validator is now the lightweight blank-render / bracket gate
-        # from core.render_checks. The LLM-driven RepairOrchestrator is gone;
-        # repair is handled inside the VLM self-correction loop (Phase B will
-        # replace it with the unified-feedback stage emitting JSON Patches).
         self.validator = Validator(PASS_THRESHOLD)
+        self.repair_orchestrator = RepairOrchestrator(
+            client, model_pipeline, max_repair_attempts
+        )
 
         # VLM Self-Corrector with reasoning model (GPT-5.2)
         self.visual_corrector = VisualSelfCorrector(
@@ -456,41 +393,11 @@ class CRAFTPipeline:
             image_dir=IMAGE_DIR
         )
 
-        # CRAFT v3: single vision gap analysis + one text-only SCAD patch
-        self.gap_refiner = GapRefiner(
+        # Prompt Enhancer (uses fast model for efficiency)
+        self.prompt_enhancer = PromptEnhancer(
             client=client,
-            model=model_vlm,
-            image_dir=IMAGE_DIR,
+            model=model_pipeline  # Use fast model for enhancement
         )
-
-        # CRAFT v2.1: PromptEnhancer removed. If someone wants to reintroduce
-        # it, do it as an opt-in wrapper around run_text, not as a mandatory
-        # stage — it silently shifted user intent and was the single easiest
-        # place for the pipeline to start drifting away from the request.
-
-        # v2: Sketch generator — orthographic concept image. In ``plan`` mode it
-        # runs before planning; in ``verify`` mode (default) only after render.
-        # Gated per-request by ``self.use_sketch``. Instance kept for reuse.
-        self.sketch_generator = SketchGenerator(
-            client=client,
-            enabled=self.use_sketch,
-        )
-
-        # Progress callback (set by Flask if available)
-        self._progress_callback = None
-
-    def _emit_progress(self, stage: str, progress: float, message: str, details: dict = None):
-        """Emit progress update if callback is set."""
-        if self._progress_callback:
-            try:
-                self._progress_callback({
-                    "stage": stage,
-                    "progress": progress,
-                    "message": message,
-                    "details": details or {}
-                })
-            except Exception as e:
-                print(f"[Progress] Emit failed: {e}")
     
     def run_text(self, prompt: str) -> PipelineState:
         """
@@ -504,81 +411,27 @@ class CRAFTPipeline:
         """
         state = PipelineState(input_type="text", original_input=prompt)
 
-        # CRAFT v2.1: unified KB detection — one pass over the user's prompt.
-        # The detection bundle is passed directly to the reasoner so we only
-        # run component detection once per request.
-        detection_bundle = self.reasoner.detect(prompt, original_prompt=prompt)
-
-        # Stage 0 (removed): PromptEnhancer used to rewrite the prompt here
-        # before the reasoner saw it. In practice that silently drifted user
-        # intent ("simple cup" → "ergonomic ceramic cup with lip curvature")
-        # and doubled upfront latency. The reasoner is strong enough on
-        # modern models that this rewrite is not earning its keep. The prompt
-        # is now passed straight through.
+        # Stage 0: Prompt Enhancement (if KB available)
+        # This transforms vague prompts into specific ones using KB knowledge
         working_prompt = prompt
-
-        # Stage 1: Understanding — the reasoner receives the user's raw
-        # prompt plus the shared detection bundle.
-        state.design_brief = self.reasoner.analyze_with_bundle(
-            working_prompt, detection_bundle
-        )
-
-        # v2.1 Stage 1.5: Sketch. Two modes generate the sketch early from
-        # the design brief so it can anchor downstream stages:
-        #   - "plan": sketch feeds the planner (legacy, can over-constrain)
-        #   - "reference" (default): sketch does NOT feed the planner; it is
-        #     threaded through VLM correction + component verifier as a loose
-        #     visual intent anchor. This keeps the plan robust while still
-        #     giving the vision stages a target silhouette.
-        # "verify" defers generation until after render (legacy).
-        if self.use_sketch and self.sketch_mode in ("plan", "reference"):
+        if self.use_kb:
             try:
-                sketch: SketchResult = sketch_from_design_brief(
-                    client=self.client,
-                    brief=state.design_brief,
-                    timestamp=state.timestamp,
-                    enhanced_prompt=state.enhanced_prompt or working_prompt,
-                    enabled=True,
-                    for_post_render_verification=False,
-                )
-                state.sketch_used = sketch.success
-                state.sketch_path = sketch.image_path
-                state.sketch_web_path = sketch.web_path
-                state.sketch_prompt = sketch.prompt_used
-                state.sketch_error = sketch.error
-                if sketch.success:
-                    state.sketch_role = (
-                        "planner" if self.sketch_mode == "plan" else "reference"
-                    )
-                    print(
-                        f"[Pipeline] Early sketch ({state.sketch_role}) → "
-                        f"{sketch.web_path or sketch.image_path}"
-                    )
-                else:
-                    state.sketch_role = None
-                    if sketch.error:
-                        print(f"[Pipeline] Early sketch skipped: {sketch.error}")
+                enhancement = self.prompt_enhancer.enhance(prompt)
+                if enhancement.was_enhanced:
+                    working_prompt = enhancement.enhanced_prompt
+                    state.prompt_enhanced = True
+                    state.enhanced_prompt = enhancement.enhanced_prompt
+                    state.enhancement_notes = enhancement.enhancement_notes
+                    print(f"[Pipeline] Prompt enhanced: {prompt[:50]}... → {working_prompt[:80]}...")
             except Exception as e:
-                state.sketch_used = False
-                state.sketch_role = None
-                state.sketch_error = f"{type(e).__name__}: {e}"
-                print(f"[Pipeline] Early sketch raised (continuing without it): {e}")
-        elif self.use_sketch and self.sketch_mode == "verify":
-            state.sketch_used = False
-            state.sketch_role = None
-            state.sketch_error = None
-            state.sketch_path = None
-            state.sketch_web_path = None
-            state.sketch_prompt = None
-            print(
-                "[Pipeline] Sketch deferred to post-render verification "
-                f"(CRAFT_SKETCH_MODE={self.sketch_mode})"
-            )
-        else:
-            state.sketch_used = False
-            state.sketch_role = None
-            state.sketch_error = "disabled by request (use_sketch=false)"
-            print("[Pipeline] Sketch stage skipped (use_sketch=false)")
+                print(f"[Pipeline] Prompt enhancement failed (continuing with original): {e}")
+
+        # Stage 1: Understanding (with automatic KB detection)
+        # Pass original prompt so hardware filtering knows what user actually requested
+        state.design_brief = self.reasoner.analyze(
+            working_prompt,
+            original_prompt=prompt  # Original user prompt before enhancement
+        )
 
         # Capture KB augmentation info
         if hasattr(state.design_brief, 'kb_augmented') and state.design_brief.kb_augmented:
@@ -630,66 +483,13 @@ class CRAFTPipeline:
         # Stage 3-6: Core pipeline
         return self._run_core_pipeline(state)
 
-    def run_zerotocad_vision(
-        self,
-        image_paths: List[str],
-    ) -> PipelineState:
-        """Run CRAFT v3 in IMAGE-ONLY mode against Zero-to-CAD's 8-view harness.
-
-        Inputs: 8 unlabeled rendered views (4 front-facing + 4 rear-facing
-        camera angles, 256x256 PNG) — the exact input format used in the
-        Zero-to-CAD evaluation protocol. There is NO text prompt — the views
-        ARE the spec.
-
-        Differences from `run_vision()`:
-          1. Stage 1 uses `VisionAnalyzer.analyze_zerotocad_8view()` which
-             prompts for a CAD-focused, self-contained description (instead
-             of the 6-orthographic-view caption format).
-          2. `state.input_view_paths` is set so `_run_v3_refinement` passes
-             the input views straight to `GapRefiner.run()` as the visual
-             TARGET — gap analysis compares current renders against the input
-             views, not against a synthesized text description.
-
-        Reference: CRAFT_zerotocad_eval_plan.md, Phase 2.
-        """
-        if len(image_paths) != 8:
-            raise ValueError(
-                f"run_zerotocad_vision expects exactly 8 views, got {len(image_paths)}"
-            )
-
-        state = PipelineState(
-            input_type="zerotocad_vision", original_input=image_paths
-        )
-        state.input_view_paths = list(image_paths)
-
-        # Stage 1: 8-view image-only analysis → rich CAD-focused caption.
-        vision_result = self.vision_analyzer.analyze_zerotocad_8view(image_paths)
-        state.captions = {
-            "best": vision_result.best_caption,
-            "alternatives": vision_result.alternatives,
-            "features": vision_result.identified_features,
-        }
-
-        # Stage 2: caption → design brief (no KB lookup — Z2C shapes are not
-        # catalog mechanical parts; KB retrieval would be inert noise).
-        reasoner_no_kb = TextReasoner(
-            self.client, self.model_pipeline, use_kb=False
-        )
-        state.design_brief = reasoner_no_kb.analyze(vision_result.best_caption)
-        state.design_brief.source = "zerotocad_vision"
-
-        # Stage 3-6: core pipeline (planning, compilation, rendering, v3
-        # refinement). _run_v3_refinement reads state.input_view_paths and
-        # routes through the image-only branch of GapRefiner.
-        return self._run_core_pipeline(state)
-
     def run_single_image(self, image_path: str) -> PipelineState:
         """
         Run pipeline with a single concept image input.
 
         Uses GPT-5.2 (best reasoning model) to understand the object in the image
         and generate a comprehensive CAD description. Then runs through the normal
-        pipeline with VLM self-correction (up to ``MAX_VLM_ITERATIONS``).
+        pipeline with 6 iterations of VLM correction.
 
         This is designed for real-world photographs of objects (ice cream, coffee mug, etc.)
         that need to be translated into 3D CAD models.
@@ -776,45 +576,6 @@ class CRAFTPipeline:
 
         return "\n".join(parts)
 
-    def _maybe_run_verification_sketch(self, state: PipelineState) -> None:
-        """If ``CRAFT_SKETCH_MODE=verify``, generate a post-render reference sketch."""
-        if not (self.use_sketch and self.sketch_mode == "verify"):
-            return
-        if not state.plan_valid or not state.scad_code:
-            return
-        desc = (
-            (state.enhanced_prompt or "").strip()
-            or getattr(state.design_brief, "description", "") or ""
-        ).strip()
-        if not desc:
-            return
-        try:
-            sketch: SketchResult = sketch_from_design_brief(
-                client=self.client,
-                brief=state.design_brief,
-                timestamp=state.timestamp,
-                enhanced_prompt=desc,
-                enabled=True,
-                for_post_render_verification=True,
-            )
-            state.sketch_used = sketch.success
-            state.sketch_path = sketch.image_path
-            state.sketch_web_path = sketch.web_path
-            state.sketch_prompt = sketch.prompt_used
-            state.sketch_error = sketch.error
-            state.sketch_role = "verification" if sketch.success else None
-            if sketch.success:
-                print(
-                    f"[Pipeline] Verification sketch → {sketch.web_path or sketch.image_path}"
-                )
-            elif sketch.error:
-                print(f"[Pipeline] Verification sketch skipped: {sketch.error}")
-        except Exception as e:
-            state.sketch_used = False
-            state.sketch_role = None
-            state.sketch_error = f"{type(e).__name__}: {e}"
-            print(f"[Pipeline] Verification sketch raised (non-fatal): {e}")
-
     def _run_core_pipeline(self, state: PipelineState) -> PipelineState:
         """
         Run the core pipeline stages.
@@ -825,230 +586,104 @@ class CRAFTPipeline:
         Returns:
             Updated state
         """
-        # Emit progress: Starting planning
-        self._emit_progress("planning", 0.1, "Creating CAD plan from design brief...")
+        # Create a per-run shared recovery budget and attach to recovery layers
+        budget = RecoveryBudget(total_attempts=self.recovery_budget_size)
+        self.visual_corrector.budget = budget
+        self.component_verifier.budget = budget
 
-        # Stage 3: Planning. We ONLY pass the sketch to the planner when
-        # sketch_mode == "plan" (role=="planner"). In the new default
-        # "reference" mode the sketch is withheld from the planner to keep
-        # the plan grounded in the user prompt, and surfaces instead during
-        # VLM correction and component verification.
-        plan_result = self.planner.create_plan(
-            state.design_brief,
-            self.max_plan_attempts,
-            reference_image_path=(
-                state.sketch_path
-                if (
-                    state.sketch_used
-                    and state.sketch_role == "planner"
-                    and state.sketch_path
-                )
-                else None
-            ),
-        )
+        if not self.use_json_ir:
+            # JSON-IR ablation: skip planner + compiler, ask LLM for SCAD directly.
+            state.json_ir_bypassed = True
+            state.scad_code = self._direct_codegen(state.design_brief)
+            state.plan = None
+            state.plan_valid = True   # treat as "no plan needed"
+            state.plan_error = None
+            state.plan_attempts = 0
+        else:
+            # Stage 3: Planning (charges schema_repair layer on retries)
+            plan_result = self.planner.create_plan(
+                state.design_brief,
+                self.max_plan_attempts,
+                budget=budget,
+            )
 
-        state.plan = plan_result.plan
-        state.plan_valid = plan_result.valid
-        state.plan_error = plan_result.error
-        state.plan_attempts = plan_result.attempts
+            state.plan = plan_result.plan
+            state.plan_valid = plan_result.valid
+            state.plan_error = plan_result.error
+            state.plan_attempts = plan_result.attempts
 
-        if not plan_result.valid:
-            return state
+            if not plan_result.valid:
+                state.recovery_budget = budget.to_dict()
+                return state
 
-        self._emit_progress("compilation", 0.35, "Compiling plan into OpenSCAD code...")
-
-        # Stage 4: Compilation (with KB component injection)
-        kb_components = state.design_brief.kb_components if hasattr(state.design_brief, 'kb_components') else None
-        state.scad_code = self.compiler.compile(state.plan, kb_components=kb_components)
-
-        self._emit_progress("compilation", 0.45, "Optimizing OpenSCAD code...")
-
-        # Stage 4b: Preemptive render-safety scan (rule-based, no LLM call).
-        # Strips patterns we KNOW timeout OpenSCAD (minkowski, $fn > 32)
-        # BEFORE we burn ~6 minutes trying to render them across 6 views.
-        # The planner prompt already bans these, but this is the belt to
-        # the planner's suspenders.
-        try:
-            preemptive = preemptive_render_safety_fix(state.scad_code)
-            if preemptive.changed:
-                print(
-                    f"[CRAFTPipeline] Preemptive render-safety fix applied: "
-                    f"issues={preemptive.issues_found} changes={preemptive.changes_made}"
-                )
-                state.scad_code = preemptive.fixed_code
-        except Exception as e:
-            # Never let the safety scan block the pipeline — degrade gracefully.
-            print(f"[CRAFTPipeline] Preemptive render-safety scan failed (non-fatal): {e}")
+            # Stage 4: Compilation (with KB component injection)
+            kb_components = state.design_brief.kb_components if hasattr(state.design_brief, 'kb_components') else None
+            state.scad_code = self.compiler.compile(state.plan, kb_components=kb_components)
 
         # Save files
         self._save_files(state)
 
-        self._emit_progress("rendering", 0.50, "Rendering 3D preview (this may take 30-60 seconds)...")
-
         # Stage 5: Render initial preview
         self._render(state)
 
-        self._emit_progress("rendering", 0.75, "Render complete, validating model...")
-
-        # Stage 5.5 — CRAFT v2.1 sanity gate.
-        # Run the cheap, deterministic quality gate on the initial render
-        # BEFORE feeding it to the VLM. If the render is clearly broken
-        # (blank, CSG explosion, huge bounding box) we surface that to the
-        # log so the VLM's iterations are interpreted in context. This
-        # uses render_checks.render_quality_gate — the same primitive the
-        # v2 Phase B.7 gate was built on.
-        try:
-            from core.render_checks import render_quality_gate
-            gate = render_quality_gate(
-                scad_code=state.scad_code,
-                render_path=state.image_path,
-                scad_path=state.scad_path,
-            )
-            if not gate.passed:
-                print(
-                    f"[CRAFTPipeline] Sanity gate FAILED on initial render "
-                    f"(score={gate.score:.2f}): {', '.join(gate.issues) or 'no details'}"
-                )
-            else:
-                print(
-                    f"[CRAFTPipeline] Sanity gate passed "
-                    f"(score={gate.score:.2f})"
-                )
-        except Exception as e:
-            # Gate is advisory — never fail the pipeline on a gate error.
-            print(f"[CRAFTPipeline] Sanity gate check raised (non-fatal): {e}")
-
-        # Stage 6 & 7: post-render refinement (VLM v2, or v3 gap refinement)
+        # Stage 6 & 7: VLM Self-Correction Loop (replaces old validation + repair)
         if self.use_vlm_correction:
-            self._emit_progress("vlm_correction", 0.80, "Running visual quality check...")
-            if self.craft_version_str == "3":
-                state = self._run_v3_refinement(state)
-            else:
-                state = self._run_vlm_correction(state)
+            state = self._run_vlm_correction(state)
         else:
-            # v2: the legacy validate → LLM-repair fallback is gone. When
-            # VLM correction is disabled (ablation / offline) we still run
-            # the lightweight deterministic blank-render gate so callers
-            # see a sane `state.validation`.
+            # Fallback to old validation + repair
             state.validation = self.validator.validate(
                 state.scad_code,
                 state.design_brief.expected_parts,
                 state.design_brief.description,
                 state.scad_path,
-                state.image_path,
+                state.image_path
             )
 
-        # v2 post-render sketch: skip in v3 (intent sketch is part of v3 path)
-        if self.craft_version_str != "3":
-            self._maybe_run_verification_sketch(state)
+            if self.auto_repair and not state.validation.passed:
+                state = self._auto_repair(state)
 
-        self._emit_progress("complete", 1.0, "Generation complete!")
+        # Capture the final shared-budget telemetry on the state for the runner.
+        state.recovery_budget = budget.to_dict()
         return state
 
-    def _run_v3_refinement(self, state: PipelineState) -> PipelineState:
+    def _direct_codegen(self, brief) -> str:
         """
-        CRAFT v3: keep baseline plan+compile, then compare intent (sketch + text)
-        to six ortho renders, output structured gaps, apply one text-only SCAD patch.
+        JSON-IR ablation: produce OpenSCAD directly from the design brief in a
+        single LLM call, skipping the planner+compiler stages entirely.
+
+        Used only when `use_json_ir=False`. Downstream stages (render, VLM
+        correction, component verification, recovery) still run on the result.
         """
-        print(
-            "[Pipeline] CRAFT v3 — gap refinement (sketch/ortho → JSON gaps → single apply)"
-        )
-        state.craft_version = "3"
+        from core.compiler import strip_to_scad
 
-        sketch_ref = None
-        if state.sketch_used and state.sketch_path and os.path.exists(state.sketch_path):
-            sketch_ref = state.sketch_path
-        elif self.use_sketch:
-            desc = (getattr(state.design_brief, "description", None) or "").strip()
-            if desc:
-                try:
-                    sk = sketch_from_design_brief(
-                        client=self.client,
-                        brief=state.design_brief,
-                        timestamp=state.timestamp,
-                        enabled=True,
-                        for_post_render_verification=True,
-                    )
-                    if sk.success and sk.image_path:
-                        state.sketch_used = True
-                        state.sketch_path = sk.image_path
-                        state.sketch_web_path = sk.web_path
-                        state.sketch_prompt = sk.prompt_used
-                        state.sketch_error = sk.error
-                        state.sketch_role = "v3_intent"
-                        sketch_ref = sk.image_path
-                        print(
-                            f"[Pipeline] v3 intent sketch → "
-                            f"{sk.web_path or sk.image_path}"
-                        )
-                except Exception as e:
-                    state.sketch_error = f"{type(e).__name__}: {e}"
-                    print(f"[Pipeline] v3 sketch failed (continuing without): {e}")
-
-        kb_components = (
-            state.design_brief.kb_components
-            if hasattr(state.design_brief, "kb_components")
-            else None
+        system_prompt = (
+            "You are an expert OpenSCAD programmer. Given a natural-language "
+            "description of a 3D model, output VALID, RENDERABLE OpenSCAD code "
+            "that implements it. Output ONLY the SCAD source — no prose, no "
+            "fences, no commentary. Prefer parametric assignments at the top "
+            "with descriptive names, but you may use hard-coded numbers."
         )
-        ref_imgs = None
-        if kb_components:
-            ref_imgs = self.visual_corrector._get_kb_reference_images(
-                kb_components
+        user_prompt = (
+            f"Description: {brief.description}\n\n"
+            f"Expected parts: {', '.join(brief.expected_parts) if getattr(brief, 'expected_parts', None) else 'unspecified'}\n\n"
+            f"Output complete OpenSCAD code now."
+        )
+        try:
+            # Reuse the same model that compilation would use, so this is a
+            # fair "direct codegen" baseline inside the same pipeline.
+            response = self.client.chat.completions.create(
+                model=self.model_pipeline,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=0.0,
             )
-
-        gr = self.gap_refiner.run(
-            scad_code=state.scad_code,
-            scad_path=state.scad_path,
-            original_prompt=state.design_brief.description,
-            expected_parts=state.design_brief.expected_parts or [],
-            timestamp=state.timestamp,
-            sketch_path=sketch_ref,
-            kb_reference_images=ref_imgs,
-            # Zero-to-CAD image-only mode: when 8 input views are set, gap
-            # analysis compares current renders against them instead of the
-            # design-brief text (the views ARE the spec).
-            input_view_paths=state.input_view_paths,
-        )
-
-        state.v3_gap_refinement = {
-            "used": True,
-            "success": gr.success,
-            "applied_patch": gr.applied_patch,
-            "analysis": gr.analysis,
-            "error": gr.error,
-        }
-
-        if gr.applied_patch and gr.final_code:
-            state.scad_code = strip_to_scad(gr.final_code)
-            self._save_files(state)
-
-        state.multi_view_images = {}
-        for vn, pth in (gr.view_images or {}).items():
-            if pth and os.path.exists(pth):
-                state.multi_view_images[vn] = self._to_web_path(pth)
-
-        state.vlm_correction_used = False
-        state.vlm_iterations = 0
-        state.vlm_approved = gr.success
-        state.vlm_assessment = None
-        state.vlm_iteration_history = []
-
-        v_issues: List[str] = []
-        if gr.error:
-            v_issues.append(gr.error)
-        state.validation = ValidationResult(
-            score=90 if gr.success else 40,
-            passed=gr.success,
-            checks={},
-            issues=v_issues,
-        )
-
-        # Main UI preview (800x600) from final on-disk SCAD; ortho paths stay in multi_view_images
-        self._render(state)
-
-        if self.use_component_verification:
-            state = self._run_component_verification(state)
-        return state
+            code = response.choices[0].message.content or ""
+        except Exception as e:
+            print(f"[Pipeline] Direct codegen failed: {e}")
+            return f"// direct codegen failed: {e}\n"
+        return strip_to_scad(code)
 
     def _run_vlm_correction(self, state: PipelineState) -> PipelineState:
         """
@@ -1064,25 +699,15 @@ class CRAFTPipeline:
         """
         print(f"[Pipeline] Starting VLM self-correction loop (max {self.max_vlm_iterations} iterations)")
 
-        # Run the visual correction loop (with KB components for reference
-        # images and, in v2.1, the early design-intent sketch as a visual
-        # anchor for the VLM). The sketch is only used when sketch_role is
-        # "reference" or "planner" — "verify" mode generates it post-hoc
-        # so it's not available yet.
+        # Run the visual correction loop (with KB components for reference images)
         kb_components = state.design_brief.kb_components if hasattr(state.design_brief, 'kb_components') else None
-        sketch_ref = (
-            state.sketch_path
-            if (state.sketch_used and state.sketch_path and os.path.exists(state.sketch_path))
-            else None
-        )
         correction_result = self.visual_corrector.run_correction_loop(
             scad_code=state.scad_code,
             original_prompt=state.design_brief.description,
             expected_parts=state.design_brief.expected_parts,
             scad_path=state.scad_path,
             timestamp=state.timestamp,
-            kb_components=kb_components,
-            reference_sketch_path=sketch_ref,
+            kb_components=kb_components
         )
 
         # Update state with correction results
@@ -1119,6 +744,10 @@ class CRAFTPipeline:
                 "deterministic_score": iter_result.deterministic_score,
                 "deterministic_passed": iter_result.deterministic_passed,
                 "corrected": iter_result.corrected,
+                # Layer-2 (SCAD auto-fix) telemetry surfaced for recovery-stats aggregation
+                "autofix_attempted": getattr(iter_result, "autofix_attempted", 0),
+                "autofix_succeeded": getattr(iter_result, "autofix_succeeded", False),
+                "autofix_notes": getattr(iter_result, "autofix_notes", []),
                 "view_images": {}
             }
             # Add relative paths for view images using cross-platform helper
@@ -1194,14 +823,8 @@ class CRAFTPipeline:
         """
         print(f"[Pipeline] Starting component verification (max {self.max_component_iterations} iterations)")
 
-        # Run the component verification loop with TIERED parts (with KB
-        # reference images and the v2.1 early design-intent sketch).
+        # Run the component verification loop with TIERED parts (with KB components for reference images)
         kb_components = state.design_brief.kb_components if hasattr(state.design_brief, 'kb_components') else None
-        sketch_ref = (
-            state.sketch_path
-            if (state.sketch_used and state.sketch_path and os.path.exists(state.sketch_path))
-            else None
-        )
         verification_result = self.component_verifier.verify_and_fix(
             scad_code=state.scad_code,
             expected_parts=state.design_brief.expected_parts,
@@ -1212,8 +835,7 @@ class CRAFTPipeline:
             essential_parts=getattr(state.design_brief, 'essential_parts', []),
             secondary_parts=getattr(state.design_brief, 'secondary_parts', []),
             optional_parts=getattr(state.design_brief, 'optional_parts', []),
-            kb_components=kb_components,
-            reference_sketch_path=sketch_ref,
+            kb_components=kb_components
         )
 
         # Update state with verification results
@@ -1245,7 +867,10 @@ class CRAFTPipeline:
                         "part_name": p.part_name,
                         "present": p.present,
                         "confidence": p.confidence,
-                        "notes": p.notes
+                        "notes": p.notes,
+                        # Per-tier breakdown for recovery statistics (essential/secondary/optional)
+                        "tier": getattr(p, "tier", "secondary"),
+                        "meets_threshold": getattr(p, "meets_threshold", True),
                     }
                     for p in iter_result.parts_present
                 ],
@@ -1268,11 +893,89 @@ class CRAFTPipeline:
 
         return state
 
-    # NOTE: _auto_repair and repair_with_hint were removed in CRAFT v2.
-    # Automatic repair is handled by the VLM self-correction loop and, in
-    # Phase B, by the unified-feedback stage (structured JSON Patch on the
-    # plan IR). Manual user-hint repair is reintroduced through that same
-    # stage; the /repair endpoint below currently returns HTTP 410.
+    def _auto_repair(self, state: PipelineState) -> PipelineState:
+        """Attempt automatic repair."""
+        original_code = state.scad_code
+        
+        for attempt in range(self.max_repair_attempts):
+            if state.validation.passed:
+                break
+            
+            state.repair_attempts += 1
+            
+            # Repair
+            repairer = CodeRepairer(self.client, self.model_pipeline)
+            result = repairer.repair(
+                state.scad_code,
+                state.validation,
+                state.design_brief.description,
+                "",  # No user hint for auto-repair
+                state.plan
+            )
+            
+            if result.success:
+                state.scad_code = result.code
+                
+                # Re-save and re-render
+                self._save_files(state)
+                self._render(state)
+                
+                # Re-validate
+                state.validation = self.validator.validate(
+                    state.scad_code,
+                    state.design_brief.expected_parts,
+                    state.design_brief.description,
+                    state.scad_path,
+                    state.image_path
+                )
+        
+        return state
+    
+    def repair_with_hint(
+        self,
+        state: PipelineState,
+        hint: str
+    ) -> PipelineState:
+        """
+        Manual repair with user hint.
+        
+        Args:
+            state: Current pipeline state
+            hint: User's feedback/hint
+            
+        Returns:
+            Updated state
+        """
+        repairer = CodeRepairer(self.client, self.model_pipeline)
+        result = repairer.repair(
+            state.scad_code,
+            state.validation,
+            state.design_brief.description,
+            hint,
+            state.plan
+        )
+        
+        if result.success:
+            state.scad_code = result.code
+            state.repair_attempts += 1
+            
+            # Update timestamp for new files
+            state.timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            
+            # Re-save and re-render
+            self._save_files(state)
+            self._render(state)
+            
+            # Re-validate
+            state.validation = self.validator.validate(
+                state.scad_code,
+                state.design_brief.expected_parts,
+                state.design_brief.description,
+                state.scad_path,
+                state.image_path
+            )
+        
+        return state
     
     def _save_files(self, state: PipelineState):
         """Save SCAD and plan files."""
@@ -1346,39 +1049,39 @@ app.secret_key = secrets.token_hex(16)
 # In production, use Redis or database
 current_states: Dict[str, PipelineState] = {}
 
-# Progress tracking for real-time frontend updates
-progress_queues: Dict[str, Queue] = {}
-
-
-def get_progress_queue(session_id: str) -> Queue:
-    """Get or create progress queue for a session."""
-    if session_id not in progress_queues:
-        progress_queues[session_id] = Queue()
-    return progress_queues[session_id]
-
-
 def get_pipeline(
     use_kb: bool = True,
     model_pipeline: Optional[str] = None,
-    use_sketch: bool = SKETCH_ENABLED_DEFAULT,
+    *,
+    use_vlm_correction: bool = USE_VLM_CORRECTION,
+    use_component_verification: bool = USE_COMPONENT_VERIFICATION,
+    auto_repair: bool = AUTO_REPAIR,
+    use_json_ir: bool = USE_JSON_IR,
+    max_vlm_iterations: int = MAX_VLM_ITERATIONS,
+    max_component_iterations: int = MAX_COMPONENT_ITERATIONS,
+    recovery_budget_size: int = RECOVERY_BUDGET_SIZE,
 ) -> CRAFTPipeline:
     """Get a pipeline instance with hybrid model configuration.
 
     Uses GPT-5.2 for critical reasoning (Understanding, Planning, VLM correction)
     and GPT-4o for deterministic tasks (Vision Analysis, Compilation, Repair).
 
-    Args:
-        use_kb: Enable RAG / knowledge-base augmentation.
-        model_pipeline: Override the fast model used for deterministic tasks.
-        use_sketch: Whether sketch image-gen runs at all. Role is set by
-            ``CRAFT_SKETCH_MODE``: ``plan`` (before planner) or ``verify`` (after render).
+    All toggles are forwarded so benchmark runners (e.g. ablation variants) can
+    construct a pipeline with specific components disabled without setting env
+    vars in the parent process.
     """
     return CRAFTPipeline(
         client,
         model_pipeline=model_pipeline or MODEL_PIPELINE,
         model_vlm=MODEL_VLM,
         use_kb=use_kb,
-        use_sketch=use_sketch,
+        use_vlm_correction=use_vlm_correction,
+        use_component_verification=use_component_verification,
+        auto_repair=auto_repair,
+        use_json_ir=use_json_ir,
+        max_vlm_iterations=max_vlm_iterations,
+        max_component_iterations=max_component_iterations,
+        recovery_budget_size=recovery_budget_size,
     )
 
 
@@ -1400,8 +1103,6 @@ def generate():
     Form data:
         text: Natural language description
         use_rag: Whether to use RAG/Knowledge Base (default: true)
-        use_sketch: Whether to run the optional sketch-grounding stage
-            (default: follows CRAFT_SKETCH_ENABLED env var).
     """
     text = request.form.get("text", "").strip()
     if not text:
@@ -1411,73 +1112,15 @@ def generate():
     use_rag_str = request.form.get("use_rag", "true").lower()
     use_rag = use_rag_str in ("true", "1", "yes", "on")
 
-    # Sketch toggle — default mirrors env. Accept any truthy spelling.
-    sketch_default = "true" if SKETCH_ENABLED_DEFAULT else "false"
-    use_sketch_str = request.form.get("use_sketch", sketch_default).lower()
-    use_sketch = use_sketch_str in ("true", "1", "yes", "on")
-
     try:
-        # Create session_id early for progress streaming
-        session_id = secrets.token_hex(8)
-        progress_queue = get_progress_queue(session_id)
-
-        # Create progress callback
-        _gen_start = time.time()
-        def emit_progress(update):
-            try:
-                # Handle both dict and ProgressUpdate object formats
-                if isinstance(update, dict):
-                    stage = update.get("stage", "unknown")
-                    progress = update.get("progress", 0)
-                    message = update.get("message", "Processing...")
-                    eta_seconds = update.get("eta_seconds")
-                    details = update.get("details", {})
-                else:
-                    # ProgressUpdate dataclass
-                    stage = update.stage
-                    progress = update.progress
-                    message = update.message
-                    eta_seconds = update.eta_seconds
-                    details = update.details or {}
-
-                # Estimate eta if not provided
-                if eta_seconds is None or eta_seconds == 0:
-                    elapsed = time.time() - _gen_start
-                    if progress > 0.01:
-                        estimated_total = elapsed / progress
-                        eta_seconds = int(max(0, estimated_total - elapsed))
-                    else:
-                        eta_seconds = 120  # default 2 min estimate
-
-                progress_queue.put({
-                    "stage": stage,
-                    "progress": round(progress, 3),
-                    "message": message,
-                    "eta": eta_seconds,
-                    "details": details
-                })
-            except Exception as e:
-                print(f"[Progress] Failed to emit event: {e}")
-
         # Get pipeline with hybrid model configuration
-        pipeline = get_pipeline(use_kb=use_rag, use_sketch=use_sketch)
+        pipeline = get_pipeline(use_kb=use_rag)
 
-        # Monkey-patch pipeline to emit progress (will be called from pipeline methods)
-        pipeline._progress_callback = emit_progress
-
-        # Send initial progress update
-        emit_progress({
-            "stage": "understanding",
-            "progress": 0.05,
-            "message": "Analyzing design requirements...",
-            "eta_seconds": 120,
-            "details": {}
-        })
-
-        # Run pipeline with progress tracking
+        # Run pipeline
         state = pipeline.run_text(text)
 
         # Store state for potential repair
+        session_id = secrets.token_hex(8)
         current_states[session_id] = state
         session["state_id"] = session_id
 
@@ -1492,8 +1135,6 @@ def generate():
         # RAG/KB status for A/B comparison tracking
         response["rag_enabled"] = use_rag
         response["rag_used"] = state.kb_augmented  # Whether KB actually contributed
-        response["sketch_enabled"] = use_sketch  # Whether sketch stage was requested
-        response["sketch_mode"] = pipeline.sketch_mode  # plan | verify (from CRAFT_SKETCH_MODE)
         response["rag_components_count"] = len(state.kb_components) if state.kb_components else 0
 
         # Prompt Enhancement status
@@ -1564,55 +1205,14 @@ def vision():
         # Set view names
         view_names = DEFAULT_VIEW_NAMES[:len(image_paths)]
 
-        # Create session early for progress
-        session_id = secrets.token_hex(8)
-        progress_queue = get_progress_queue(session_id)
-        _gen_start = time.time()
-
-        def emit_progress(update):
-            try:
-                # Handle both dict and ProgressUpdate object formats
-                if isinstance(update, dict):
-                    stage = update.get("stage", "unknown")
-                    progress = update.get("progress", 0)
-                    message = update.get("message", "Processing...")
-                    eta_seconds = update.get("eta_seconds")
-                    details = update.get("details", {})
-                else:
-                    # ProgressUpdate dataclass
-                    stage = update.stage
-                    progress = update.progress
-                    message = update.message
-                    eta_seconds = update.eta_seconds
-                    details = update.details or {}
-
-                # Estimate eta if not provided
-                if eta_seconds is None or eta_seconds == 0:
-                    elapsed = time.time() - _gen_start
-                    if progress > 0.01:
-                        estimated_total = elapsed / progress
-                        eta_seconds = int(max(0, estimated_total - elapsed))
-                    else:
-                        eta_seconds = 120  # default 2 min estimate
-
-                progress_queue.put({
-                    "stage": stage,
-                    "progress": round(progress, 3),
-                    "message": message,
-                    "eta": eta_seconds,
-                    "details": details
-                })
-            except Exception as e:
-                print(f"[Progress] Failed to emit: {e}")
-
         # Get pipeline with hybrid model configuration
         pipeline = get_pipeline(use_kb=True)
-        pipeline._progress_callback = emit_progress
 
         # Run pipeline
         state = pipeline.run_vision(image_paths, view_names)
-
+        
         # Store state
+        session_id = secrets.token_hex(8)
         current_states[session_id] = state
         session["state_id"] = session_id
         
@@ -1683,56 +1283,15 @@ def vision_single():
         print(f"[Vision-Single] Processing single image: {image_path}")
         print(f"[Vision-Single] Using {SINGLE_IMAGE_MODEL} for image understanding")
 
-        # Create session early for progress
-        session_id = secrets.token_hex(8)
-        progress_queue = get_progress_queue(session_id)
-        _gen_start = time.time()
-
-        def emit_progress(update):
-            try:
-                # Handle both dict and ProgressUpdate object formats
-                if isinstance(update, dict):
-                    stage = update.get("stage", "unknown")
-                    progress = update.get("progress", 0)
-                    message = update.get("message", "Processing...")
-                    eta_seconds = update.get("eta_seconds")
-                    details = update.get("details", {})
-                else:
-                    # ProgressUpdate dataclass
-                    stage = update.stage
-                    progress = update.progress
-                    message = update.message
-                    eta_seconds = update.eta_seconds
-                    details = update.details or {}
-
-                # Estimate eta if not provided
-                if eta_seconds is None or eta_seconds == 0:
-                    elapsed = time.time() - _gen_start
-                    if progress > 0.01:
-                        estimated_total = elapsed / progress
-                        eta_seconds = int(max(0, estimated_total - elapsed))
-                    else:
-                        eta_seconds = 120  # default 2 min estimate
-
-                progress_queue.put({
-                    "stage": stage,
-                    "progress": round(progress, 3),
-                    "message": message,
-                    "eta": eta_seconds,
-                    "details": details
-                })
-            except Exception as e:
-                print(f"[Progress] Failed to emit: {e}")
-
         # Get pipeline with hybrid model configuration
         # KB is disabled for single image mode (concept images, not NopSCADlib components)
         pipeline = get_pipeline(use_kb=False)
-        pipeline._progress_callback = emit_progress
 
         # Run single image pipeline
         state = pipeline.run_single_image(image_path)
 
         # Store state for potential repair
+        session_id = secrets.token_hex(8)
         current_states[session_id] = state
         session["state_id"] = session_id
 
@@ -1775,19 +1334,55 @@ def repair():
     """
     Manual repair endpoint.
 
-    DISABLED in CRAFT v2 during the Phase A cleanup. The v1 CodeRepairer
-    path has been removed; user-hint-driven repair will be reintroduced
-    through the unified-feedback stage (Phase B) which emits structured
-    JSON Patch operations against the plan IR.
+    Form data:
+        hint: User's feedback/hint
+        session_id: Session ID from previous generation
+        model: Model to use for repair (optional, defaults to gpt-4o)
     """
-    return jsonify({
-        "error": "Manual /repair is temporarily disabled in CRAFT v2.",
-        "detail": (
-            "The legacy CodeRepairer path was removed as part of Phase A "
-            "cleanup. Use /generate to re-run the VLM self-correction loop, "
-            "or wait for the Phase B unified-feedback stage."
-        ),
-    }), 410
+    hint = request.form.get("hint", "").strip()
+    session_id = request.form.get("session_id") or session.get("state_id")
+    model = request.form.get("model", MODEL_PRIMARY)
+
+    # Validate model
+    if model not in SUPPORTED_MODELS:
+        return jsonify({"error": f"Unsupported model: {model}"})
+
+    if not session_id or session_id not in current_states:
+        return jsonify({"error": "No active session. Please generate first."})
+
+    state = current_states[session_id]
+
+    if not state.scad_code:
+        return jsonify({"error": "No code to repair"})
+
+    try:
+        # Get pipeline with selected model
+        pipeline = get_pipeline(model_pipeline=model)
+
+        # Run repair with hint
+        state = pipeline.repair_with_hint(state, hint)
+
+        # Update stored state
+        current_states[session_id] = state
+
+        # Build response
+        response = state.to_dict()
+        response["session_id"] = session_id
+        response["model_used"] = model
+
+        if state.image_path and os.path.exists(state.image_path):
+            response["image"] = f"static/images/{state.timestamp}.png"
+            response["filename"] = state.timestamp
+
+        # Parse parameters for customizer UI
+        if state.scad_code:
+            params = parse_parameters_from_scad(state.scad_code)
+            response["parameters"] = parameters_to_dict(params)
+
+        return jsonify(response)
+
+    except Exception as e:
+        return jsonify({"error": f"Repair error: {str(e)}"})
 
 
 @app.route("/download/<filename>")
@@ -1979,129 +1574,6 @@ def healthz():
         "supported_models": SUPPORTED_MODELS,
         "kb_available": KB_AVAILABLE
     })
-
-
-@app.route("/progress/<session_id>")
-def progress_stream(session_id: str):
-    """
-    Server-Sent Events (SSE) endpoint for streaming progress updates.
-
-    Client connects and receives real-time progress updates during generation:
-    - Current stage (understanding, planning, compilation, rendering, VLM correction, etc.)
-    - Progress percentage (0-100%)
-    - Estimated time remaining
-    - Stage-specific details
-
-    Usage:
-        const eventSource = new EventSource(`/progress/${sessionId}`);
-        eventSource.onmessage = (e) => {
-            const update = JSON.parse(e.data);
-            updateProgressBar(update.progress * 100);
-            updateETA(update.eta);
-        };
-        eventSource.onerror = () => eventSource.close();
-    """
-    def generate_progress():
-        queue = get_progress_queue(session_id)
-        timeout = 0  # Don't block
-        while True:
-            try:
-                update = queue.get(timeout=timeout)
-                yield f"data: {json.dumps(update)}\n\n"
-            except:
-                # Queue is empty, check if we should keep waiting
-                if session_id in current_states:
-                    # Still generating, keep connection open
-                    yield ": heartbeat\n\n"
-                    import time
-                    time.sleep(0.1)
-                else:
-                    # Session done
-                    break
-
-    return Response(
-        generate_progress(),
-        mimetype="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",
-        }
-    )
-
-
-# =============================================================================
-# SETTINGS AND CONFIGURATION ENDPOINTS
-# =============================================================================
-
-@app.route("/api/settings", methods=["GET"])
-def get_settings():
-    """Get current model configuration and pipeline settings."""
-    return jsonify({
-        "models": {
-            "primary": os.getenv("MODEL_PRIMARY", "gpt-4o"),
-            "secondary": os.getenv("MODEL_SECONDARY", "gpt-4o"),
-            "reasoning": os.getenv("MODEL_REASONING", "gpt-5.2"),
-            "fast": os.getenv("MODEL_FAST", "gpt-4o"),
-        },
-        "pipeline": {
-            "version": os.getenv("CRAFT_VERSION", "2"),
-            "auto_repair": os.getenv("AUTO_REPAIR", "true").lower() == "true",
-            "vlm_correction": os.getenv("USE_VLM_CORRECTION", "true").lower() == "true",
-            "max_vlm_iterations": int(os.getenv("MAX_VLM_ITERATIONS", "1")),
-            "component_verification": os.getenv("USE_COMPONENT_VERIFICATION", "true").lower() == "true",
-            "max_plan_attempts": int(os.getenv("MAX_PLAN_ATTEMPTS", "2")),
-        },
-        "available_models": {
-            "openai": ["gpt-4o", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"],
-        },
-        "has_gemini_key": bool(os.getenv("GEMINI_API_KEY")),
-        "has_openai_key": bool(os.getenv("OPENAI_API_KEY")),
-    })
-
-
-@app.route("/api/settings", methods=["POST"])
-def update_settings():
-    """Update model configuration dynamically."""
-    try:
-        data = request.get_json()
-
-        # Update model configurations
-        if "models" in data:
-            models = data["models"]
-            if "primary" in models:
-                os.environ["MODEL_PRIMARY"] = models["primary"]
-            if "secondary" in models:
-                os.environ["MODEL_SECONDARY"] = models["secondary"]
-            if "reasoning" in models:
-                os.environ["MODEL_REASONING"] = models["reasoning"]
-            if "fast" in models:
-                os.environ["MODEL_FAST"] = models["fast"]
-
-        # Update pipeline settings
-        if "pipeline" in data:
-            pipeline_cfg = data["pipeline"]
-            if "auto_repair" in pipeline_cfg:
-                os.environ["AUTO_REPAIR"] = str(pipeline_cfg["auto_repair"]).lower()
-            if "vlm_correction" in pipeline_cfg:
-                os.environ["USE_VLM_CORRECTION"] = str(pipeline_cfg["vlm_correction"]).lower()
-            if "max_vlm_iterations" in pipeline_cfg:
-                os.environ["MAX_VLM_ITERATIONS"] = str(pipeline_cfg["max_vlm_iterations"])
-
-        return jsonify({
-            "success": True,
-            "message": "Settings updated successfully",
-            "settings": {
-                "models": {
-                    "primary": os.getenv("MODEL_PRIMARY"),
-                    "secondary": os.getenv("MODEL_SECONDARY"),
-                    "reasoning": os.getenv("MODEL_REASONING"),
-                    "fast": os.getenv("MODEL_FAST"),
-                }
-            }
-        })
-
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 400
 
 
 # =============================================================================

@@ -1,125 +1,129 @@
 // Dimension-calibrated (target: 0.18 x 0.13 x 0.01 mm)
-scale([0.920225, 1.260693, 0.416697])
+scale([0.920000, 1.260000, 1.666667])
 {
-// Vented/stiffened panel: perimeter frame + 3x2 rounded-rect cutouts + two diagonal ribs/webs
-// Fixed: diagonal ribs are now guaranteed to be visible and connected (not removed by cutouts),
-// by subtracting cutouts first and then adding ribs on top (with slight Z overlap).
-// All dimensions in mm.
+// Thin vented/stiffened plate: perimeter frame + 6 rounded-rect cutouts (3x2)
+// + TWO DIAGONAL RIBS that remain visible (not cut away) by masking cutouts.
+// Target bounding box: 0.20 x 0.10 x very thin. One connected solid.
 
 $fn = 64;
 
-// Overall bounding box target (approx): 0.20 x 0.10 x thin
-L = 0.20;
-W = 0.10;
-T = 0.01;
+// ---------- Overall size ----------
+L = 0.20;          // overall length (X)
+W = 0.10;          // overall width  (Y)
+T = 0.001;         // very thin thickness (Z)
 
-// Frame
-frame_w  = 0.012;
-corner_r = 0.004;
+// ---------- Frame / layout ----------
+frame_w = 0.010;   // perimeter frame width
 
-// Cutouts (3x2 grid)
-cut_cols = 3;
-cut_rows = 2;
-gap_x    = 0.008;
-gap_y    = 0.010;
-cut_r    = 0.006;
+gap_x = 0.008;     // bar between columns
+gap_y = 0.008;     // bar between rows
 
-// Ribs/webs
-rib_w         = 0.010;   // slightly wider so they read in orthographic views
-rib_angle_deg = 35;
+// Openings: rounded rectangles
+cutout_w  = 0.045; // opening width  (X)
+cutout_h  = 0.030; // opening height (Y)
+cutout_r  = 0.006; // corner radius
 
-// Robustness / connectivity
-overlap = 0.001;         // small overlap for boolean robustness
-z_fuse  = 0.002;         // extra rib height to ensure union + visibility
+// Diagonal ribs/webs (make them clearly visible)
+rib_w = 0.010;         // rib width
+rib_angle_deg = 35;    // diagonal angle
 
-// ---------- helpers ----------
-function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
+// Small numeric epsilon to avoid coplanar artifacts
+eps = 0.0005;
 
-module rounded_rect_2d(sz=[10,10], r=1) {
-  rr = clamp(r, 0, min(sz[0], sz[1]) / 2);
-  offset(r=rr)
-    square([max(0, sz[0]-2*rr), max(0, sz[1]-2*rr)], center=true);
-}
-
-module rounded_box(sz=[10,10,1], r=1) {
-  linear_extrude(height=sz[2], center=true)
-    rounded_rect_2d([sz[0], sz[1]], r);
-}
-
-module plate_outer() {
-  rounded_box([L, W, T], corner_r);
-}
-
-// Inner window for clipping ribs (keeps them inside the frame)
-inner_L = L - 2*frame_w;
-inner_W = W - 2*frame_w;
-
-module inner_window_box(h=T) {
-  rounded_box([inner_L, inner_W, h], max(0, corner_r - frame_w/2));
-}
-
-// Compute cutout size to fit inside inner area with requested gaps
-cut_w = (inner_L - (cut_cols-1)*gap_x) / cut_cols;
-cut_h = (inner_W - (cut_rows-1)*gap_y) / cut_rows;
-
-module cutout_at(ix, iy) {
-  // ix: 0..cut_cols-1, iy: 0..cut_rows-1 (top to bottom)
-  x0 = -inner_L/2 + cut_w/2;
-  y0 =  inner_W/2 - cut_h/2;
-
-  x = x0 + ix*(cut_w + gap_x);
-  y = y0 - iy*(cut_h + gap_y);
-
-  translate([x, y, 0])
-    rounded_box([cut_w, cut_h, T + 4*overlap],
-                clamp(cut_r, 0, min(cut_w, cut_h)/2 - 1e-6));
-}
-
-module cutouts_union() {
-  union() {
-    for (ix = [0:cut_cols-1])
-      for (iy = [0:cut_rows-1])
-        cutout_at(ix, iy);
+// ---------- Helpers ----------
+module rounded_rect_2d(w, h, r) {
+  rr = min(r, w/2 - 1e-6, h/2 - 1e-6);
+  hull() {
+    for (sx = [-1, 1], sy = [-1, 1])
+      translate([sx*(w/2 - rr), sy*(h/2 - rr)]) circle(r=rr);
   }
 }
 
-module rib_bar(len, h) {
-  cube([len, rib_w, h], center=true);
+module rounded_rect_3d(w, h, r, t) {
+  linear_extrude(height=t, center=true)
+    rounded_rect_2d(w, h, r);
+}
+
+module rib_bar(len, w, t) {
+  cube([len, w, t], center=true);
+}
+
+// ---------- Derived grid positions (3x2) ----------
+pitch_x = cutout_w + gap_x;
+pitch_y = cutout_h + gap_y;
+
+xpos = [-pitch_x, 0, pitch_x];
+ypos = [ pitch_y/2, -pitch_y/2];
+
+// ---------- Main solids ----------
+module base_plate() {
+  cube([L, W, T], center=true);
+}
+
+module perimeter_frame() {
+  // Slight overlap in Z to avoid coplanar artifacts with base_plate
+  difference() {
+    cube([L, W, T + 2*eps], center=true);
+    cube([L - 2*frame_w, W - 2*frame_w, T + 6*eps], center=true);
+  }
 }
 
 module diagonal_ribs() {
-  // Long enough to span the inner window; then clipped to inner window so ribs connect to frame.
-  rib_len = sqrt(inner_L*inner_L + inner_W*inner_W) + 2*frame_w;
+  // Keep ribs inside the interior window so they read as interior webs
+  interior_L = L - 2*frame_w;
+  interior_W = W - 2*frame_w;
 
-  // Make ribs slightly thicker in Z and slightly offset so they fuse with the plate.
-  rib_h = T + z_fuse;
-  rib_z = 0; // centered; extra height ensures overlap with plate
+  rib_len = sqrt(interior_L*interior_L + interior_W*interior_W) + 4*eps;
+
+  // Clip ribs to interior window so they don't protrude into the outer frame
+  intersection() {
+    cube([interior_L, interior_W, T + 8*eps], center=true);
+    union() {
+      rotate([0,0, rib_angle_deg])  rib_bar(rib_len, rib_w, T + 4*eps);
+      rotate([0,0,-rib_angle_deg])  rib_bar(rib_len, rib_w, T + 4*eps);
+    }
+  }
+}
+
+module all_cutouts() {
+  for (x = xpos)
+    for (y = ypos)
+      translate([x, y, 0])
+        rounded_rect_3d(cutout_w, cutout_h, cutout_r, T + 20*eps);
+}
+
+// Mask used to keep ribs from being removed by the cutouts.
+// This creates the requested "stepped/angled transitions" where ribs cross openings.
+module rib_keepout_mask() {
+  // Slightly wider than ribs so the ribs remain clearly visible after subtraction.
+  keep_w = rib_w + 2*eps;
+
+  interior_L = L - 2*frame_w;
+  interior_W = W - 2*frame_w;
+  rib_len = sqrt(interior_L*interior_L + interior_W*interior_W) + 4*eps;
 
   intersection() {
+    cube([interior_L, interior_W, T + 30*eps], center=true);
     union() {
-      translate([0,0,rib_z]) rotate([0,0, rib_angle_deg]) rib_bar(rib_len, rib_h);
-      translate([0,0,rib_z]) rotate([0,0,-rib_angle_deg]) rib_bar(rib_len, rib_h);
+      rotate([0,0, rib_angle_deg])  rib_bar(rib_len, keep_w, T + 24*eps);
+      rotate([0,0,-rib_angle_deg])  rib_bar(rib_len, keep_w, T + 24*eps);
     }
-    // Clip to inner window (expanded slightly for guaranteed connection)
-    rounded_box([inner_L + 2*overlap, inner_W + 2*overlap, rib_h + 2*overlap],
-                max(0, corner_r - frame_w/2));
   }
 }
 
-module base_panel_with_openings() {
-  // Single flat plate with six openings (keeps the "vented panel" look).
+// ---------- Final (one connected solid) ----------
+difference() {
+  union() {
+    // Base plate guarantees connectivity; frame + ribs add stiffness/webs
+    base_plate();
+    perimeter_frame();
+    diagonal_ribs();
+  }
+
+  // Subtract cutouts, but DO NOT subtract where ribs exist (so ribs remain visible across openings)
   difference() {
-    plate_outer();
-    cutouts_union();
+    all_cutouts();
+    rib_keepout_mask();
   }
-}
-
-union() {
-  // Base vented plate
-  base_panel_with_openings();
-
-  // Add diagonal ribs AFTER cutouts so they remain visible and create the stepped/angled transitions.
-  // They are clipped to the inner window so they don't overwrite the perimeter frame.
-  diagonal_ribs();
 }
 }

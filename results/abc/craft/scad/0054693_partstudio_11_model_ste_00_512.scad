@@ -1,112 +1,121 @@
-// Low-profile decorative plate/nameplate insert
-// Bounding box target: L x W x H = 3.1 x 1.6 x 0.5 mm
-
 // Parameters
-L = 3.10;                 // overall length (X)
-W = 1.60;                 // overall width  (Y)
-H = 0.50;                 // overall height (Z)
+L = 3.14; //[1.57:6.28:0.01]
+W = 1.61; //[0.805:3.22:0.01]
+H = 0.51; //[0.255:1.02:0.01]
+corner_clip = 0.22; //[0.11:0.44:0.01]
+outer_chamfer = 0.06; //[0.03:0.12:0.005]
+frame_margin = 0.18; //[0.09:0.36:0.01]
+recess_depth = 0.12; //[0.06:0.24:0.01]
+frame_height = 0.06; //[0.03:0.12:0.005]
+panel_corner_clip = 0.12; //[0.06:0.24:0.01]
+micro_fillet = 0.02; //[0.01:0.04:0.002]
+bottom_micro_chamfer = 0.02; //[0.01:0.05:0.002]
+overlap = 0.01; //[0.005:0.05:0.001]
 
-corner_clip = 0.25;       // clipped corner amount (plan)
-outer_chamfer = 0.06;     // top-edge chamfer height
-
-panel_inset_x = 0.35;     // panel offset from left/right
-panel_inset_y = 0.25;     // panel offset from top/bottom
-panel_recess_depth = 0.10;// recess depth into top face
-
-border_width = 0.18;      // raised border width around inner panel
-panel_corner_cut = 0.12;  // angled cuts on panel corners (plan)
-
-micro_texture_depth = 0.01; // subtle extra recess in inner panel
-
-fillet_r = 0.03;          // small overall edge softening
-eps = 0.01;
-
-// ---------- Helpers (2D) ----------
-function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
-
-module octo2d(len, wid, clip) {
-  // Octagonal-like perimeter: rectangle with clipped corners
-  polygon(points=[
-    [ len/2 - clip,  wid/2],
-    [-len/2 + clip,  wid/2],
-    [-len/2,         wid/2 - clip],
-    [-len/2,        -wid/2 + clip],
-    [-len/2 + clip, -wid/2],
-    [ len/2 - clip, -wid/2],
-    [ len/2,        -wid/2 + clip],
-    [ len/2,         wid/2 - clip]
-  ]);
+// Base Plate Body
+module base_plate_body() {
+  cube([L, W, H], center=true);
 }
 
-module panel2d(px, py, clip) {
-  // Panel outline with clipped corners
-  octo2d(px, py, clip);
+// Clipped Corners Planform Cuts
+module clipped_corners_planform_cut(x, y) {
+  translate([x, y, 0])
+  rotate([0, 0, 45])
+  cube([corner_clip*2, corner_clip*2, H + overlap*2], center=true);
 }
 
-// ---------- Main solids ----------
-module base_plate() {
-  // Single connected plate with clipped corners
-  linear_extrude(height=H, center=true)
-    octo2d(L, W, corner_clip);
+// Outer Edge Chamfer Sphere
+module outer_edge_chamfer_sphere() {
+  sphere(r=outer_chamfer);
 }
 
-module top_chamfer_cut() {
-  // Remove a thin ring near the top to create a chamfered outer edge.
-  // Uses 2D offset difference to form a wedge-like cut.
-  translate([0,0, H/2 - outer_chamfer])
-  linear_extrude(height=outer_chamfer + eps, center=false)
-    difference() {
-      octo2d(L, W, corner_clip);
-      offset(delta=-outer_chamfer)
-        octo2d(L, W, corner_clip);
-    }
+// Top Face Recessed Panel Block
+module top_face_recessed_panel_block() {
+  translate([0, 0, H/2 - (recess_depth + overlap)/2])
+  cube([L - 2*frame_margin, W - 2*frame_margin, recess_depth + overlap], center=true);
 }
 
-module recessed_panel_cut() {
-  // Recessed panel region (with angled corner cuts) cut into TOP face only.
-  px = L - 2*panel_inset_x;
-  py = W - 2*panel_inset_y;
-
-  // Keep panel valid
-  px2 = clamp(px, 0.2, L - 2*outer_chamfer);
-  py2 = clamp(py, 0.2, W - 2*outer_chamfer);
-
-  // Panel corner clip should not exceed half-dim
-  pclip = clamp(panel_corner_cut, 0, min(px2, py2)/2 - 0.001);
-
-  translate([0,0, H/2 - panel_recess_depth])
-  linear_extrude(height=panel_recess_depth + eps, center=false)
-    panel2d(px2, py2, pclip);
+// Panel Corner Angle Cuts
+module panel_corner_angle_cut(x, y) {
+  translate([x, y, H/2 - recess_depth/2])
+  rotate([0, 0, 45])
+  cube([panel_corner_clip*2, panel_corner_clip*2, recess_depth + overlap*2], center=true);
 }
 
-module inner_texture_cut() {
-  // Slight extra recess inside the raised border (top face only)
-  px = L - 2*panel_inset_x - 2*border_width;
-  py = W - 2*panel_inset_y - 2*border_width;
-
-  px2 = clamp(px, 0.15, L);
-  py2 = clamp(py, 0.15, W);
-
-  // Slightly smaller corner clip for inner area
-  pclip = clamp(panel_corner_cut - border_width*0.5, 0, min(px2, py2)/2 - 0.001);
-
-  translate([0,0, H/2 - panel_recess_depth - micro_texture_depth])
-  linear_extrude(height=micro_texture_depth + eps, center=false)
-    panel2d(px2, py2, pclip);
+// Top Face Raised Border Frame Outer
+module top_face_raised_border_frame_outer() {
+  translate([0, 0, H/2 - frame_height/2])
+  cube([L - 2*outer_chamfer, W - 2*outer_chamfer, frame_height], center=true);
 }
 
-module plate_with_top_details() {
-  // Opposite face remains mostly flat: all detailing is cut from the top only.
+// Top Face Raised Border Frame Inner Void
+module top_face_raised_border_frame_inner_void() {
+  translate([0, 0, H/2 - frame_height/2])
+  cube([L - 2*frame_margin, W - 2*frame_margin, frame_height + overlap*2], center=true);
+}
+
+// Micro Fillet Rounding Sphere
+module micro_fillet_rounding_sphere() {
+  sphere(r=micro_fillet);
+}
+
+// Bottom Face Micro Chamfer Sphere
+module bottom_face_micro_chamfer_sphere() {
+  sphere(r=bottom_micro_chamfer);
+}
+
+// Main Geometry
+module final_geometry() {
   difference() {
-    base_plate();
-    top_chamfer_cut();
-    recessed_panel_cut();
-    inner_texture_cut();
+    base_plate_body();
+    clipped_corners_planform_cut(L/2 - corner_clip, W/2 - corner_clip);
+    clipped_corners_planform_cut(-L/2 + corner_clip, W/2 - corner_clip);
+    clipped_corners_planform_cut(L/2 - corner_clip, -W/2 + corner_clip);
+    clipped_corners_planform_cut(-L/2 + corner_clip, -W/2 + corner_clip);
   }
 }
 
-// Final output: small global fillet/softening while keeping one connected solid
+// Apply Chamfers and Fillets
+module apply_chamfers_and_fillets() {
+  minkowski() {
+    final_geometry();
+    outer_edge_chamfer_sphere();
+  }
+}
+
+// Top Face Recessed Panel with Corner Cuts
+module top_face_recessed_panel_with_corner_cuts() {
+  difference() {
+    apply_chamfers_and_fillets();
+    top_face_recessed_panel_block();
+    panel_corner_angle_cut((L - 2*frame_margin)/2 - panel_corner_clip, (W - 2*frame_margin)/2 - panel_corner_clip);
+    panel_corner_angle_cut(-(L - 2*frame_margin)/2 + panel_corner_clip, (W - 2*frame_margin)/2 - panel_corner_clip);
+    panel_corner_angle_cut((L - 2*frame_margin)/2 - panel_corner_clip, -(W - 2*frame_margin)/2 + panel_corner_clip);
+    panel_corner_angle_cut(-(L - 2*frame_margin)/2 + panel_corner_clip, -(W - 2*frame_margin)/2 + panel_corner_clip);
+  }
+}
+
+// Top Face Raised Border Frame
+module top_face_raised_border_frame() {
+  difference() {
+    top_face_raised_border_frame_outer();
+    top_face_raised_border_frame_inner_void();
+  }
+}
+
+// Body Plus Frame
+module body_plus_frame() {
+  union() {
+    top_face_recessed_panel_with_corner_cuts();
+    top_face_raised_border_frame();
+  }
+}
+
+// Final Output with Micro Fillet and Bottom Chamfer
 minkowski() {
-  plate_with_top_details();
-  sphere(r=fillet_r, $fn=24);
+  minkowski() {
+    body_plus_frame();
+    micro_fillet_rounding_sphere();
+  }
+  bottom_face_micro_chamfer_sphere();
 }

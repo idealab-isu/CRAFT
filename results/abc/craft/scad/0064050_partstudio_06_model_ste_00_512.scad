@@ -1,105 +1,106 @@
 // Dimension-calibrated (target: 0.04 x 0.06 x 0.09 mm)
-scale([1.083357, 1.702763, 0.961338])
+scale([0.975000, 1.688080, 0.977528])
 {
-// Small axially oriented fitting: faceted collar with through-bore + slotted shank + central rib
-// Units: mm
+$fn = 64;
 
-// ---------- Parameters (kept from original, but made consistent) ----------
-bbox_x = 0.04; //[0.02:0.08:0.001]
-bbox_y = 0.06; //[0.03:0.12:0.001]
-bbox_z = 0.09; //[0.045:0.18:0.001]
+// -------------------- Parameters (mm) --------------------
+bbox_x = 0.04;   // overall width (X)
+bbox_y = 0.06;   // overall thickness (Y)
+bbox_z = 0.09;   // overall length (Z)  (axial direction)
 
-collar_z = 0.02; //[0.01:0.04:0.001]
-collar_facets = 6; //[6:6:1]
-collar_radius = 0.018; //[0.009:0.03:0.001]
-hole_d = 0.018; //[0.009:0.03:0.001]
+collar_h = 0.02;
+collar_flat_d = 0.06;   // across flats (approx) for hex collar
+hole_d = 0.02;
 
-shank_z = 0.07; //[0.035:0.14:0.001]
-shank_x = 0.028; //[0.014:0.04:0.001]
-shank_y = 0.036; //[0.018:0.06:0.001]
+shank_l = 0.07;
+shank_w = 0.04;
+shank_t = 0.03;
 
-slot_len = 0.022; //[0.011:0.04:0.001]
-slot_w = 0.008; //[0.004:0.016:0.001]
-slot_z_center_1 = 0.02; //[0.01:0.06:0.001]
-slot_z_center_2 = 0.045; //[0.02:0.065:0.001]
+slot_l = 0.03;
+slot_w = 0.012;
+slot_offset_x = 0.012;  // slots side-by-side in X
 
-rib_thk = 0.004; //[0.002:0.008:0.001]
-rib_h = 0.01; //[0.005:0.02:0.001]
-rib_z_start = 0.0; //[0.0:0.02:0.001]
-rib_z_end = 0.07; //[0.04:0.07:0.001]
+rib_h = 0.006;          // rib height in Y
+rib_w = 0.01;           // rib width in X
 
-overlap = 0.001; //[0.0005:0.002:0.0005]
+overlap = 0.001;
 
-// ---------- Derived placement (no arbitrary translates) ----------
-total_z = collar_z + shank_z;
+// -------------------- Helpers --------------------
+function clamp(v, lo, hi) = v < lo ? lo : (v > hi ? hi : v);
 
-// Place model so collar top is at +total_z/2 and shank bottom at -total_z/2
-collar_cz =  total_z/2 - collar_z/2;
-shank_cz  = -total_z/2 + shank_z/2;
+// Keep everything within the requested bounding box
+// Total Z = collar_h + shank_l
+// Total Y = max(collar_flat_d, shank_t + rib_h)  (collar is the thickest)
+shank_l_eff = clamp(shank_l, 0.001, bbox_z - collar_h);
+collar_h_eff = clamp(collar_h, 0.001, bbox_z - shank_l_eff);
 
-// Slots are positioned within shank, measured from shank top face (near collar)
-function slot_cz_from_top(z_from_shank_top) =
-    (shank_cz + shank_z/2) - z_from_shank_top;
+collar_d_eff = clamp(collar_flat_d, 0.001, min(bbox_x, bbox_y));
+shank_w_eff  = clamp(shank_w, 0.001, bbox_x);
+shank_t_eff  = clamp(shank_t, 0.001, bbox_y);
 
-// ---------- Helpers ----------
-module capsule_slot_y(len, w, h_y) {
-    // Slot runs along Z (len), thickness along X (w), extruded along Y (h_y)
-    // Centered at origin.
-    union() {
-        cube([w, h_y, len], center=true);
-        translate([0, 0, -len/2 + w/2])
-            rotate([90, 0, 0]) cylinder(r=w/2, h=h_y, center=true, $fn=32);
-        translate([0, 0,  len/2 - w/2])
-            rotate([90, 0, 0]) cylinder(r=w/2, h=h_y, center=true, $fn=32);
-    }
+rib_w_eff = clamp(rib_w, 0.001, shank_w_eff);
+rib_h_eff = clamp(rib_h, 0.001, bbox_y - shank_t_eff);
+
+hole_d_eff = clamp(hole_d, 0.001, collar_d_eff * 0.9);
+
+slot_l_eff = clamp(slot_l, 0.001, shank_l_eff * 0.9);
+slot_w_eff = clamp(slot_w, 0.001, min(shank_t_eff, shank_w_eff) * 0.9);
+
+// Slot centers in X, ensure they stay inside shank width
+slot_offset_x_eff = clamp(slot_offset_x, 0, (shank_w_eff - slot_w_eff) / 2);
+
+// -------------------- Geometry --------------------
+module collar_hex() {
+    // Hex-like collar/head at +Z end
+    translate([0, 0, shank_l_eff + collar_h_eff/2 - overlap])
+        cylinder(h=collar_h_eff, r=collar_d_eff/2, $fn=6, center=true);
 }
 
-// ---------- Base solids ----------
-module collar_head_faceted() {
-    translate([0, 0, collar_cz])
-        cylinder(r=collar_radius, h=collar_z, center=true, $fn=collar_facets);
+module shank_block() {
+    // Rectangular shank from Z=0..shank_l_eff
+    translate([0, 0, shank_l_eff/2])
+        cube([shank_w_eff, shank_t_eff, shank_l_eff], center=true);
 }
 
-module rectangular_shank() {
-    translate([0, 0, shank_cz])
-        cube([shank_x, shank_y, shank_z], center=true);
+module rib_fin() {
+    // Central longitudinal rib on top face of shank (positive Y)
+    translate([0, shank_t_eff/2 + rib_h_eff/2 - overlap, shank_l_eff/2])
+        cube([rib_w_eff, rib_h_eff, shank_l_eff], center=true);
 }
 
-module central_longitudinal_rib() {
-    // Rib centered on shank, protruding on +Y face, running along Z
-    rib_len = max(0, rib_z_end - rib_z_start);
-    rib_cz_local = -shank_z/2 + rib_z_start + rib_len/2;
-
-    translate([0, shank_y/2 - rib_h/2 + overlap, shank_cz + rib_cz_local])
-        cube([rib_thk, rib_h, rib_len], center=true);
+module through_hole() {
+    // Through-opening along axis (Z)
+    translate([0, 0, (shank_l_eff + collar_h_eff)/2])
+        cylinder(h=shank_l_eff + collar_h_eff + 2*overlap, r=hole_d_eff/2, center=true);
 }
 
-// ---------- Cutters ----------
-module central_through_opening() {
-    // Through-bore along Z through entire part
-    cylinder(r=hole_d/2, h=total_z + 4*overlap, center=true, $fn=48);
+module oval_slot_at(xc) {
+    // Elongated oval slot through shank thickness (Y), oriented along Z
+    // Use hull of two cylinders (axis Y) to make a capsule/oval.
+    zc = shank_l_eff/2;
+    dz = slot_l_eff/2 - slot_w_eff/2;
+    translate([xc, 0, zc])
+        hull() {
+            translate([0, 0, -dz])
+                rotate([90, 0, 0])
+                    cylinder(h=shank_t_eff + 2*overlap, r=slot_w_eff/2, center=true);
+            translate([0, 0,  dz])
+                rotate([90, 0, 0])
+                    cylinder(h=shank_t_eff + 2*overlap, r=slot_w_eff/2, center=true);
+        }
 }
 
-module shank_slot_at(z_from_shank_top) {
-    // Cut slot through shank in Y direction, centered in X, running along Z
-    translate([0, 0, slot_cz_from_top(z_from_shank_top)])
-        capsule_slot_y(slot_len, slot_w, shank_y + 4*overlap);
-}
-
-// ---------- Main ----------
-module main_solid() {
-    union() {
-        collar_head_faceted();
-        // Ensure collar and shank are connected with slight overlap
-        translate([0, 0, -overlap/2]) rectangular_shank();
-        central_longitudinal_rib();
-    }
-}
-
+// -------------------- Final solid (one connected part) --------------------
 difference() {
-    main_solid();
-    shank_slot_at(slot_z_center_1);
-    shank_slot_at(slot_z_center_2);
-    central_through_opening();
+    union() {
+        shank_block();
+        rib_fin();
+        collar_hex();
+    }
+
+    // Cuts
+    through_hole();
+    oval_slot_at( slot_offset_x_eff);
+    oval_slot_at(-slot_offset_x_eff);
 }
 }

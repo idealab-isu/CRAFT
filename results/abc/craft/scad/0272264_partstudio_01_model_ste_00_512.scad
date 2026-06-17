@@ -1,41 +1,50 @@
 // Dimension-calibrated (target: 0.03 x 0.03 x 0.02 mm)
-scale([0.866066, 0.833367, 1.100079])
+scale([0.001000, 0.000962, 0.001111])
 {
-// Flanged bushing/spacer: cylindrical sleeve + hex flange, no holes/recesses
+// Flanged bushing/spacer: cylindrical sleeve + hex flange (no hole)
+// Fixes:
+// - Remove bbox intersection cube that made the body look prismatic
+// - Ensure cylinder + hex flange are connected with computed placement + slight overlap
+// - Use consistent dimensions (bbox_* not used as geometry limits)
 
-// Parameters (meters as given)
-bbox_X = 0.03; //[0.015:0.06:0.001]
-bbox_Y = 0.03; //[0.015:0.06:0.001]
-bbox_Z = 0.02; //[0.01:0.04:0.001]
+$fn = 96;
 
-body_d = 0.018; //[0.009:0.036:0.001]
-body_h = 0.012; //[0.006:0.024:0.001]
+// Parameters (mm)
+body_d    = 20;
+body_h    = 14;
 
-flange_hex_flat_to_flat = 0.03; //[0.015:0.06:0.001]
-flange_h = 0.008; //[0.004:0.016:0.001]
+flange_af = 30;   // hex across flats
+flange_h  = 6;
 
-interface_overlap_h = 0.001; //[0.0005:0.002:0.0005]
-eps = 0.0005; //[0.0001:0.001:0.0001]
+overlap   = 0.2;  // small overlap to guarantee one connected solid
 
-// Derived
-total_h = body_h + flange_h;
-hex_R = flange_hex_flat_to_flat / sqrt(3); // circumradius for flat-to-flat dimension
+// Helpers
+function hex_R_from_AF(af) = af / sqrt(3); // circumradius for regular hex given across-flats
 
-// Main solids (one connected solid)
-module cyl_sleeve_body() {
-  // Body sits below flange; overlap ensures watertight union
-  translate([0, 0, -total_h/2 + body_h/2 + interface_overlap_h/2])
-    cylinder(r=body_d/2, h=body_h + interface_overlap_h, center=true, $fn=96);
+module hex_prism(af, h) {
+    // Regular hex with flats horizontal (as in provided views)
+    linear_extrude(height=h, center=true)
+        polygon(points=[
+            [ af/2, 0],
+            [ af/4,  af*sqrt(3)/4],
+            [-af/4,  af*sqrt(3)/4],
+            [-af/2, 0],
+            [-af/4, -af*sqrt(3)/4],
+            [ af/4, -af*sqrt(3)/4]
+        ]);
 }
 
-module hex_flange_collar() {
-  // Flange at top
-  translate([0, 0, total_h/2 - flange_h/2])
-    cylinder(r=hex_R, h=flange_h, center=true, $fn=6);
+module model() {
+    union() {
+        // Main cylindrical body: bottom at z=0, top at z=body_h
+        translate([0, 0, body_h/2])
+            cylinder(h=body_h, r=body_d/2, center=true);
+
+        // Hex flange on top end: bottom slightly overlaps body top
+        translate([0, 0, body_h + flange_h/2 - overlap])
+            hex_prism(flange_af, flange_h);
+    }
 }
 
-union() {
-  cyl_sleeve_body();
-  hex_flange_collar();
-}
+color("Silver") model();
 }

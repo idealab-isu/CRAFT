@@ -1,168 +1,172 @@
 // Dimension-calibrated (target: 0.01 x 0.01 x 0.01 mm)
-scale([1.020412, 1.020412, 1.348363])
+scale([1.041667, 1.051462, 1.188119])
 {
-// Axisymmetric coupling/knob with two knurled bands, stepped flange, and through hex bore
-// Units: mm
+// Parameters
+bbox_x = 0.01; //[0.005:0.02:0.0001]
+bbox_y = 0.01; //[0.005:0.02:0.0001]
+bbox_z = 0.01; //[0.005:0.02:0.0001]
+body_od = 0.0092; //[0.0046:0.0184:0.0001]
+body_len = 0.0096; //[0.0048:0.0192:0.0001]
+flange_od = 0.01; //[0.005:0.02:0.0001]
+flange_len = 0.0012; //[0.0006:0.0024:0.0001]
+hex_af = 0.0048; //[0.0024:0.0096:0.0001]
+knurl_band1_len = 0.0016; //[0.0008:0.0032:0.0001]
+knurl_band2_len = 0.0016; //[0.0008:0.0032:0.0001]
+knurl_depth = 0.00025; //[0.0001:0.0005:0.00001]
+knurl_teeth = 18; //[6:48:1]
+overlap = 0.0005; //[0.0002:0.001:0.0001]
+hex_radius = 0.002771; //[0.001385:0.005542:0.00001]
+chamfer_len = 0.0004; //[0.0002:0.0008:0.00005]
+chamfer_rad = 0.0004; //[0.0002:0.0008:0.00005]
+serration_depth = 0.00018; //[0.00008:0.00036:0.00001]
+serration_len = 0.0012; //[0.0006:0.0024:0.0001]
+serration_teeth = 12; //[6:36:1]
 
-$fn = 160;
-
-// Parameters (kept from original, but interpreted as mm-scale values)
-body_D = 0.0082;
-body_L = 0.0096;
-
-flange_D = 0.0098;
-flange_L = 0.0016;
-
-hex_flat = 0.0046;
-
-upper_knurl_L = 0.0022;
-lower_knurl_L = 0.0022;
-
-knurl_peak = 0.00035;          // radial protrusion of knurl teeth
-serration_count = 18;          // teeth around circumference
-overlap = 0.0006;
-
-chamfer_z = 0.00035;           // end chamfer height
-relief_groove_L = 0.0007;      // small relief at bottom end
-relief_groove_depth = 0.00035; // radial depth of relief groove
-
-mid_serration_L = 0.0016;      // optional mid band height (kept subtle)
-knurl_phase_deg = 10;
-
-scale_uniform = 1;
-
-// Derived
-body_r = body_D/2;
-flange_r = flange_D/2;
-
-// Z layout (centered body)
-z_bot = -body_L/2;
-z_top =  body_L/2;
-
-z_lower_knurl_c = z_bot + lower_knurl_L/2;
-z_upper_knurl_c = z_top - flange_L - upper_knurl_L/2;
-
-// Place mid band between lower and upper regions
-mid_free_L = max(0, body_L - flange_L - upper_knurl_L - lower_knurl_L);
-z_mid_c = z_bot + lower_knurl_L + mid_free_L/2;
-
-// ---------- Helpers ----------
-module hex2d(flat) {
-  // Regular hex with given flat-to-flat distance
-  // circumradius = flat / sqrt(3)
-  r = flat / sqrt(3);
-  polygon(points=[for(i=[0:5]) [r*cos(60*i), r*sin(60*i)]]);
+// Base Shapes
+module main_cylindrical_body() {
+  translate([0, 0, 0])
+    cylinder(r=body_od/2, h=body_len, center=true);
 }
 
-module knurl_band(zc, h, base_r, peak, n, phase=0) {
-  // Adds outward triangular teeth around circumference (axisymmetric base + radial teeth)
-  // Teeth overlap into base by 'overlap' to ensure connectivity.
-  tooth_len = peak + overlap;
-  tooth_w   = 2*PI*base_r / n * 0.55; // tangential width
-  union() {
-    // Slightly enlarged band cylinder to blend teeth
-    translate([0,0,zc]) cylinder(r=base_r + peak*0.25, h=h, center=true);
-
-    for (i = [0:n-1]) {
-      rotate([0,0,phase + i*360/n])
-        translate([base_r + tooth_len/2 - overlap, 0, zc])
-          // Triangular prism tooth (pointing outward)
-          rotate([0,90,0])
-            linear_extrude(height=tooth_len, center=true, convexity=5)
-              polygon(points=[
-                [-tooth_w/2, -h/2],
-                [-tooth_w/2,  h/2],
-                [ tooth_w/2,  0]
-              ]);
-    }
-  }
-}
-
-module end_chamfer(zc, r, h, top=true) {
-  // Chamfer as a conical frustum removed from end
-  // top=true -> chamfer at +Z end, else at -Z end
-  translate([0,0,zc])
-    cylinder(h=h, r1=top ? r : 0, r2=top ? 0 : r, center=true);
-}
-
-// ---------- Main solid ----------
-module outer_solid() {
-  union() {
-    // Main body
-    cylinder(r=body_r, h=body_L, center=true);
-
-    // Stepped flange on +Z end (distinct)
-    translate([0,0, z_top - flange_L/2 + overlap])
-      cylinder(r=flange_r, h=flange_L, center=true);
-
-    // Knurled grip bands (upper and lower)
-    knurl_band(z_lower_knurl_c, lower_knurl_L, body_r, knurl_peak, serration_count, 0);
-    knurl_band(z_upper_knurl_c, upper_knurl_L, body_r, knurl_peak, serration_count, knurl_phase_deg);
-
-    // Subtle mid serration band (smaller than knurl)
-    if (mid_serration_L > 0)
-      knurl_band(z_mid_c, mid_serration_L, body_r, serration_depth=knurl_peak*0.55, n=serration_count, phase=knurl_phase_deg/2);
-  }
-}
-
-// OpenSCAD doesn't allow named args not in signature; provide wrapper for mid band depth
-module knurl_band(zc, h, base_r, peak, n, phase=0, serration_depth=undef) {
-  p = (serration_depth == undef) ? peak : serration_depth;
-  tooth_len = p + overlap;
-  tooth_w   = 2*PI*base_r / n * 0.55;
-  union() {
-    translate([0,0,zc]) cylinder(r=base_r + p*0.20, h=h, center=true);
-    for (i = [0:n-1]) {
-      rotate([0,0,phase + i*360/n])
-        translate([base_r + tooth_len/2 - overlap, 0, zc])
-          rotate([0,90,0])
-            linear_extrude(height=tooth_len, center=true, convexity=5)
-              polygon(points=[
-                [-tooth_w/2, -h/2],
-                [-tooth_w/2,  h/2],
-                [ tooth_w/2,  0]
-              ]);
-    }
-  }
-}
-
-module outer_with_details() {
-  difference() {
-    outer_solid();
-
-    // End chamfers (remove material)
-    // Top chamfer around flange OD
-    end_chamfer(z_top + chamfer_z/2 - overlap, flange_r + overlap, chamfer_z + 2*overlap, top=true);
-
-    // Bottom chamfer around body OD
-    end_chamfer(z_bot - chamfer_z/2 + overlap, body_r + overlap, chamfer_z + 2*overlap, top=false);
-
-    // Bottom relief groove (a shallow undercut ring)
-    translate([0,0, z_bot + relief_groove_L/2])
-      cylinder(r=body_r + knurl_peak + overlap, h=relief_groove_L + 2*overlap, center=true);
-
-    // Carve the relief depth by subtracting a slightly smaller cylinder from the groove region
-    // (leaves a step/undercut)
-    translate([0,0, z_bot + relief_groove_L/2])
-      cylinder(r=body_r + knurl_peak - relief_groove_depth, h=relief_groove_L + 2*overlap, center=true);
-  }
+module stepped_end_flange() {
+  translate([0, 0, body_len/2 - flange_len/2 + overlap])
+    cylinder(r=flange_od/2, h=flange_len, center=true);
 }
 
 module through_hex_bore() {
-  // Through bore spans entire part including chamfers/flange with margin
-  bore_h = body_L + flange_L + 2*chamfer_z + 6*overlap;
-  linear_extrude(height=bore_h, center=true, convexity=10)
-    hex2d(hex_flat);
+  translate([0, 0, 0])
+    linear_extrude(height=body_len + flange_len + 2*overlap, center=true)
+      polygon(points=[
+        [hex_radius, 0],
+        [hex_radius/2, hex_radius*0.866025403784],
+        [-hex_radius/2, hex_radius*0.866025403784],
+        [-hex_radius, 0],
+        [-hex_radius/2, -hex_radius*0.866025403784],
+        [hex_radius/2, -hex_radius*0.866025403784]
+      ]);
 }
 
-module final_part() {
+module upper_knurl_grip_band_base() {
+  translate([0, 0, body_len/2 - flange_len - knurl_band1_len/2])
+    cylinder(r=body_od/2 + knurl_depth, h=knurl_band1_len, center=true);
+}
+
+module lower_knurl_grip_band_base() {
+  translate([0, 0, -body_len/2 + knurl_band2_len/2])
+    cylinder(r=body_od/2 + knurl_depth, h=knurl_band2_len, center=true);
+}
+
+module mid_circumference_facet_serrations_base() {
+  translate([0, 0, 0])
+    cylinder(r=body_od/2 + serration_depth, h=serration_len, center=true);
+}
+
+module lower_circumference_facet_serrations_base() {
+  translate([0, 0, -body_len/2 + knurl_band2_len + serration_len/2])
+    cylinder(r=body_od/2 + serration_depth, h=serration_len, center=true);
+}
+
+module edge_chamfer_top_cone() {
+  translate([0, 0, body_len/2 + chamfer_len/2 - overlap])
+    cylinder(r1=flange_od/2, r2=flange_od/2 - chamfer_rad, h=chamfer_len, center=true);
+}
+
+module edge_chamfer_bottom_cone() {
+  translate([0, 0, -body_len/2 - chamfer_len/2 + overlap])
+    cylinder(r1=body_od/2, r2=body_od/2 - chamfer_rad, h=chamfer_len, center=true);
+}
+
+module knurl_tooth_proto() {
+  translate([body_od/2 + knurl_depth - overlap, 0, 0])
+    cube([knurl_depth*2, body_od*0.12, knurl_band1_len], center=true);
+}
+
+module serration_tooth_proto() {
+  translate([body_od/2 + serration_depth - overlap, 0, 0])
+    cube([serration_depth*2, body_od*0.14, serration_len], center=true);
+}
+
+// Operations
+module upper_knurl_grip_band() {
+  union() {
+    upper_knurl_grip_band_base();
+    for (i = [0:knurl_teeth-1]) {
+      rotate([0, 0, i*360/knurl_teeth])
+        knurl_tooth_proto();
+    }
+  }
+}
+
+module lower_knurl_grip_band() {
+  union() {
+    lower_knurl_grip_band_base();
+    for (i = [0:knurl_teeth-1]) {
+      rotate([0, 0, i*360/knurl_teeth])
+        translate([0, 0, -body_len/2 + knurl_band2_len/2])
+          knurl_tooth_proto();
+    }
+  }
+}
+
+module mid_circumference_facet_serrations() {
+  union() {
+    mid_circumference_facet_serrations_base();
+    for (i = [0:serration_teeth-1]) {
+      rotate([0, 0, i*360/serration_teeth])
+        serration_tooth_proto();
+    }
+  }
+}
+
+module lower_circumference_facet_serrations() {
+  union() {
+    lower_circumference_facet_serrations_base();
+    for (i = [0:serration_teeth-1]) {
+      rotate([0, 0, i*360/serration_teeth])
+        translate([0, 0, -body_len/2 + knurl_band2_len + serration_len/2])
+          serration_tooth_proto();
+    }
+  }
+}
+
+module body_plus_flange() {
+  union() {
+    main_cylindrical_body();
+    stepped_end_flange();
+  }
+}
+
+module outer_with_grips() {
+  union() {
+    body_plus_flange();
+    upper_knurl_grip_band();
+    lower_knurl_grip_band();
+    mid_circumference_facet_serrations();
+    lower_circumference_facet_serrations();
+  }
+}
+
+module edge_chamfers_fillets() {
+  union() {
+    edge_chamfer_top_cone();
+    edge_chamfer_bottom_cone();
+  }
+}
+
+module outer_with_chamfers() {
+  union() {
+    outer_with_grips();
+    edge_chamfers_fillets();
+  }
+}
+
+module final_sleeve_solid() {
   difference() {
-    outer_with_details();
+    outer_with_chamfers();
     through_hex_bore();
   }
 }
 
-// Final output
-scale([scale_uniform, scale_uniform, scale_uniform])
-  final_part();
+// Final Output
+final_sleeve_solid();
 }
