@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CRAFT: Corrective and Robust Multi-Agent Framework for Text-to-Parametric CAD</title>
+  <meta name="description" content="CRAFT: a corrective and robust multi-agent framework that generates editable parametric OpenSCAD programs from natural language, without task-specific training.">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto+Slab:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --accent:#2b6cb0; --accent-dark:#1f4e7a; --ink:#1a202c; }
+    body { font-family:'Lato',-apple-system,BlinkMacSystemFont,sans-serif; color:var(--ink); }
+    .title, .subtitle, .section-heading { font-family:'Roboto Slab','Lato',serif; }
+    .hero-head-wrap { background:linear-gradient(180deg,#f7fafc 0%,#edf2f7 100%); border-bottom:1px solid #e2e8f0; }
+    .paper-title { font-weight:700; line-height:1.15; letter-spacing:-0.5px; }
+    .authors a { color:var(--accent); }
+    .author-block { margin:0 .35rem; white-space:nowrap; }
+    .affil { color:#4a5568; }
+    .pub-venue { color:var(--accent-dark); font-weight:700; }
+    .link-buttons .button {
+      background:#2d3748; color:#fff; border:none; border-radius:999px;
+      margin:.3rem; padding:.55rem 1.4rem; font-weight:700; transition:transform .12s ease, background .12s ease;
+    }
+    .link-buttons .button:hover { background:#000; transform:translateY(-2px); }
+    .link-buttons .button .icon { margin-right:.35rem; }
+    .section-heading { color:var(--ink); border-bottom:3px solid var(--accent); display:inline-block; padding-bottom:.25rem; margin-bottom:1.25rem; }
+    .figure-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:1rem; box-shadow:0 6px 20px rgba(0,0,0,.06); }
+    .figure-card img { display:block; margin:0 auto; border-radius:8px; max-width:100%; }
+    .figure-caption { color:#4a5568; font-size:.95rem; margin-top:.75rem; text-align:center; }
+    .stage-tag { display:inline-block; background:#ebf4ff; color:var(--accent-dark); border-radius:6px; padding:.15rem .5rem; font-weight:700; font-size:.8rem; margin-right:.4rem; }
+    .stat-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:1.25rem; text-align:center; height:100%; }
+    .stat-num { font-family:'Roboto Slab',serif; font-size:2rem; color:var(--accent); font-weight:700; }
+    .stat-label { color:#4a5568; font-size:.9rem; }
+    table.res td, table.res th { vertical-align:middle; }
+    .bibtex pre { background:#1a202c; color:#e2e8f0; border-radius:12px; padding:1.25rem; overflow-x:auto; }
+    .view-grid img { width:100%; border-radius:10px; border:1px solid #2d3748; }
+    .note { background:#fffaf0; border-left:4px solid #dd6b20; padding:.75rem 1rem; border-radius:6px; color:#7b341e; font-size:.9rem; }
+    footer.site-foot { background:#1a202c; color:#cbd5e0; padding:2.5rem 1rem; text-align:center; }
+    footer.site-foot a { color:#90cdf4; }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== HERO / TITLE ===================== -->
+  <section class="hero hero-head-wrap">
+    <div class="hero-body">
+      <div class="container has-text-centered" style="max-width:980px;">
+        <h1 class="title is-2 paper-title">CRAFT: Corrective and Robust Multi-Agent Framework for Text-to-Parametric CAD</h1>
+
+        <p class="is-size-5 authors" style="margin-top:1.2rem;">
+          <span class="author-block">Mohammed Musthafa Rafi<sup>1</sup></span>
+          <span class="author-block">Anushrut Jignasu<sup>1</sup></span>
+          <span class="author-block">Mahdi Saraeian<sup>1</sup></span>
+          <span class="author-block">Chinmay Hegde<sup>2</sup></span>
+          <span class="author-block">Aditya Balu<sup>1</sup></span>
+          <span class="author-block">Adarsh Krishnamurthy<sup>1</sup></span>
+        </p>
+        <p class="affil" style="margin-top:.5rem;">
+          <sup>1</sup>Iowa State University &nbsp;&nbsp; <sup>2</sup>New York University
+        </p>
+        <p class="pub-venue" style="margin-top:.75rem;">
+          IEEE International Conference on LLM-Aided Design (LAD), 2026
+        </p>
+
+        <div class="link-buttons" style="margin-top:1.5rem;">
+          <a class="button" href="static/pdfs/CRAFT_paper.pdf">
+            <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Paper (PDF)</span>
+          </a>
+          <a class="button" href="https://github.com/idealab-isu/CRAFT">
+            <span class="icon"><i class="fab fa-github"></i></span><span>Code</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TEASER ===================== -->
+  <section class="section" style="padding-top:2.5rem;">
+    <div class="container" style="max-width:1000px;">
+      <div class="figure-card">
+        <img src="static/images/examples.png" alt="Examples of CRAFT-generated parametric CAD models">
+        <p class="figure-caption">
+          CRAFT turns natural-language descriptions into <strong>executable, editable parametric OpenSCAD programs</strong>
+          &mdash; from mechanical parts to everyday objects &mdash; without any task-specific training.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ABSTRACT ===================== -->
+  <section class="section" style="padding-top:0;">
+    <div class="container" style="max-width:860px;">
+      <h2 class="title is-3 section-heading">Abstract</h2>
+      <p class="is-size-5" style="line-height:1.7; text-align:justify;">
+        Text-to-CAD generation has the potential to make mechanical CAD more accessible, but existing approaches face a
+        trade-off between data dependence and output fidelity. Supervised methods rely on large paired text&ndash;model
+        datasets, while zero-shot prompting strategies are often brittle and tend to lose the parametric structure needed
+        for downstream editing and customization. We present <strong>CRAFT</strong>, a corrective and robust multi-agent
+        framework that produces parametric OpenSCAD programs from natural language without task-specific training. At its
+        core is a JSON intermediate representation that preserves symbolic parametric expressions throughout the generation
+        process, enabling models to remain editable rather than collapsing into hard-coded geometry. CRAFT combines semantic
+        understanding, parametric planning, compilation, rendering, self-correction, and component-level verification within
+        a layered recovery process, using multi-view visual feedback to detect and repair geometric errors. Across
+        NopSCADlib, ABC, and Slice-100K, CRAFT is competitive with direct zero-shot baselines in perceptual and geometric
+        quality while exposing substantially more editable parametric structure.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== METHOD / PIPELINE ===================== -->
+  <section class="section" style="padding-top:0;">
+    <div class="container" style="max-width:1100px;">
+      <h2 class="title is-3 section-heading">Method</h2>
+      <div class="figure-card">
+        <img src="static/images/pipeline.png" alt="The CRAFT pipeline">
+        <p class="figure-caption">
+          The CRAFT pipeline maps a text prompt (and optional reference images) to a parametric OpenSCAD program through
+          six stages, coordinated by a five-layer recovery strategy. Reasoning-intensive stages use GPT-5.2; deterministic
+          translation and repair steps use GPT-4o.
+        </p>
+      </div>
+      <div class="content is-size-6" style="margin-top:1.5rem; line-height:1.7;">
+        <p><span class="stage-tag">1 · Understanding</span> parses the prompt and any images, classifies parts by importance, and retrieves standard-component specifications from NopSCADlib.</p>
+        <p><span class="stage-tag">2 · Planning</span> emits a JSON CAD plan that preserves <em>symbolic</em> parametric expressions, validated before any code is generated.</p>
+        <p><span class="stage-tag">3 · Compilation</span> translates the plan into OpenSCAD, keeping expressions and customizer parameter ranges intact.</p>
+        <p><span class="stage-tag">4 · Rendering</span> produces six orthographic views with timeout-aware simplification of expensive constructs.</p>
+        <p><span class="stage-tag">5 · VLM Self-Correction</span> compares the six-view render to the prompt and proposes targeted fixes for up to three rounds.</p>
+        <p><span class="stage-tag">6 · Component Verification</span> checks that expected parts are present using tiered confidence thresholds.</p>
+        <p>A <strong>five-layer recovery strategy</strong> (schema repair &rarr; SCAD auto-fix &rarr; VLM correction &rarr; component verification &rarr; manual hint) escalates repair under a shared retry budget.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PARAMETRIC EDITABILITY ===================== -->
+  <section class="section" style="padding-top:0;">
+    <div class="container" style="max-width:1000px;">
+      <h2 class="title is-3 section-heading">Parametric Editability</h2>
+      <div class="figure-card">
+        <img src="static/images/parametric.png" alt="Single-parameter edits on a CRAFT-generated model">
+        <p class="figure-caption">
+          Because CRAFT preserves symbolic parametric structure, individual parameters can be edited after generation
+          &mdash; changing dimensions, proportions, and appearance &mdash; while the program remains valid and re-renderable.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== QUALITATIVE: MULTI-VIEW ===================== -->
+  <section class="section" style="padding-top:0;">
+    <div class="container" style="max-width:1100px;">
+      <h2 class="title is-3 section-heading">Multi-View Results</h2>
+      <p class="is-size-6" style="margin-bottom:1.25rem;">
+        Each result is rendered from an isometric view plus six orthographic views (front, back, left, right, top, bottom),
+        the same views CRAFT uses internally for visual self-correction.
+      </p>
+      <div class="note" style="margin-bottom:1.5rem;">
+        These six panels are placeholders. Drop your rendered strips into
+        <code>static/images/views/</code> using the names <code>fan.png</code>, <code>mug.png</code>,
+        <code>dc_motor.png</code>, <code>servo.png</code>, <code>sedan.png</code>, <code>gear.png</code> to replace them.
+      </div>
+      <div class="columns is-multiline view-grid">
+        <div class="column is-12"><img src="static/images/views/fan.png" alt="40mm axial cooling fan"></div>
+        <div class="column is-12"><img src="static/images/views/mug.png" alt="Parametric coffee mug"></div>
+        <div class="column is-12"><img src="static/images/views/dc_motor.png" alt="DC motor"></div>
+        <div class="column is-12"><img src="static/images/views/servo.png" alt="RC servo motor body"></div>
+        <div class="column is-12"><img src="static/images/views/sedan.png" alt="Parametric sedan"></div>
+        <div class="column is-12"><img src="static/images/views/gear.png" alt="Simple spur gear"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== QUANTITATIVE ===================== -->
+  <section class="section" style="padding-top:0;">
+    <div class="container" style="max-width:1000px;">
+      <h2 class="title is-3 section-heading">Results</h2>
+
+      <div class="columns" style="margin-bottom:1rem;">
+        <div class="column"><div class="stat-card"><div class="stat-num">13.1</div><div class="stat-label">editable parameters / model (vs. 0.1 for GPT-4o)</div></div></div>
+        <div class="column"><div class="stat-card"><div class="stat-num">66.8%</div><div class="stat-label">symbolic-expression preservation</div></div></div>
+        <div class="column"><div class="stat-card"><div class="stat-num">0.2226</div><div class="stat-label">CLIP score (best; GT = 0.2342)</div></div></div>
+        <div class="column"><div class="stat-card"><div class="stat-num">95.11</div><div class="stat-label">FID (lowest = best)</div></div></div>
+      </div>
+
+      <div class="figure-card">
+        <p class="has-text-weight-bold" style="margin-bottom:.5rem;">Geometric accuracy (CRAFT vs. direct generation)</p>
+        <div class="table-container">
+          <table class="table is-fullwidth is-striped res">
+            <thead>
+              <tr><th>Dataset</th><th>Method</th><th>Chamfer&nbsp;&darr;</th><th>F1@1%&nbsp;&uarr;</th><th>Voxel&nbsp;IoU&nbsp;&uarr;</th></tr>
+            </thead>
+            <tbody>
+              <tr><td rowspan="3">NopSCADlib</td><td><strong>CRAFT</strong></td><td><strong>0.0654</strong></td><td>0.2530</td><td><strong>0.2356</strong></td></tr>
+              <tr><td>GPT-4o</td><td>0.0733</td><td>0.2467</td><td>0.2135</td></tr>
+              <tr><td>GPT-5.2</td><td>0.0662</td><td><strong>0.2587</strong></td><td>0.1890</td></tr>
+              <tr><td rowspan="3">ABC</td><td><strong>CRAFT</strong></td><td><strong>0.0841</strong></td><td><strong>0.1233</strong></td><td><strong>0.0433</strong></td></tr>
+              <tr><td>GPT-4o</td><td>0.1008</td><td>0.0857</td><td>0.0212</td></tr>
+              <tr><td>GPT-5.2</td><td>0.0969</td><td>0.0875</td><td>0.0192</td></tr>
+              <tr><td rowspan="3">Slice-100K</td><td><strong>CRAFT</strong></td><td><strong>0.0612</strong></td><td><strong>0.2924</strong></td><td>0.0616</td></tr>
+              <tr><td>GPT-4o</td><td>0.0751</td><td>0.2122</td><td><strong>0.0711</strong></td></tr>
+              <tr><td>GPT-5.2</td><td>0.0622</td><td>0.2768</td><td>0.0636</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="figure-caption" style="text-align:left;">
+          CRAFT leads on volumetric overlap and out-of-distribution geometry (ABC, Slice-100K) while remaining competitive
+          on in-distribution surface metrics. Full per-tier tables, the ablation, and recovery statistics are in the paper.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BIBTEX ===================== -->
+  <section class="section bibtex" style="padding-top:0;">
+    <div class="container" style="max-width:1000px;">
+      <h2 class="title is-3 section-heading">BibTeX</h2>
+<pre>@inproceedings{rafi2026craft,
+  title     = {CRAFT: Corrective and Robust Multi-Agent Framework for Text-to-Parametric CAD},
+  author    = {Rafi, Mohammed Musthafa and Jignasu, Anushrut and Saraeian, Mahdi
+               and Hegde, Chinmay and Balu, Aditya and Krishnamurthy, Adarsh},
+  booktitle = {IEEE International Conference on LLM-Aided Design (LAD)},
+  year      = {2026}
+}</pre>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-foot">
+    <div class="container">
+      <p>
+        <a href="static/pdfs/CRAFT_paper.pdf">Paper</a> &nbsp;·&nbsp;
+        <a href="https://github.com/idealab-isu/CRAFT">Code</a>
+      </p>
+      <p style="margin-top:.75rem; font-size:.85rem; color:#a0aec0;">
+        Page template adapted from the <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a> academic project page.
+        Content &copy; the CRAFT authors.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
