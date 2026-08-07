@@ -6,13 +6,13 @@
   <title>CRAFT: Corrective and Robust Multi-Agent Framework for Text-to-Parametric CAD</title>
   <meta name="description" content="CRAFT: a corrective and robust multi-agent framework that generates editable parametric OpenSCAD programs from natural language, without task-specific training.">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto+Slab:wght@500;700&display=swap" rel="stylesheet">
 
   <style>
-    :root { --accent:#2b6cb0; --accent-dark:#1f4e7a; --ink:#1a202c; }
+    :root { --accent:#2b6cb0; --accent-dark:#1f4e7a; --ink:#1a202c; --page-w:1100px; }
     body { font-family:'Lato',-apple-system,BlinkMacSystemFont,sans-serif; color:var(--ink); }
     .title, .subtitle, .section-heading { font-family:'Roboto Slab','Lato',serif; }
     .hero-head-wrap { background:linear-gradient(180deg,#f7fafc 0%,#edf2f7 100%); border-bottom:1px solid #e2e8f0; }
@@ -27,20 +27,54 @@
     }
     .link-buttons .button:hover { background:#000; transform:translateY(-2px); }
     .link-buttons .button .icon { margin-right:.35rem; }
+
+    /* ---- uniform section layout: ONE width, ONE heading style, everywhere ---- */
+    .page-section { padding:1.6rem 1.25rem 0; }
+    .page-section:last-of-type { padding-bottom:2.5rem; }
+    .page-container { max-width:var(--page-w); margin:0 auto; }
     .section-heading { color:var(--ink); border-bottom:3px solid var(--accent); display:inline-block; padding-bottom:.25rem; margin-bottom:1.25rem; }
+    .section-sub { color:#4a5568; margin:-.5rem 0 1.1rem; }
+
     .figure-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:1rem; box-shadow:0 6px 20px rgba(0,0,0,.06); }
     .figure-card img { display:block; margin:0 auto; border-radius:8px; max-width:100%; }
     .figure-caption { color:#4a5568; font-size:.95rem; margin-top:.75rem; text-align:center; }
-    .stage-tag { display:inline-block; background:#ebf4ff; color:var(--accent-dark); border-radius:6px; padding:.15rem .5rem; font-weight:700; font-size:.8rem; margin-right:.4rem; }
     .stat-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:1.25rem; text-align:center; height:100%; }
     .stat-num { font-family:'Roboto Slab',serif; font-size:2rem; color:var(--accent); font-weight:700; }
     .stat-label { color:#4a5568; font-size:.9rem; }
     table.res td, table.res th { vertical-align:middle; }
     .bibtex pre { background:#1a202c; color:#e2e8f0; border-radius:12px; padding:1.25rem; overflow-x:auto; }
-    .view-grid img { width:100%; border-radius:10px; border:1px solid #2d3748; }
-    .note { background:#fffaf0; border-left:4px solid #dd6b20; padding:.75rem 1rem; border-radius:6px; color:#7b341e; font-size:.9rem; }
-    footer.site-foot { background:#1a202c; color:#cbd5e0; padding:2.5rem 1rem; text-align:center; }
+    footer.site-foot { background:#1a202c; color:#cbd5e0; padding:2.5rem 1rem; text-align:center; margin-top:2.5rem; }
     footer.site-foot a { color:#90cdf4; }
+
+    /* ---- interactive 3D viewers ---- */
+    .stl-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; height:100%;
+                display:flex; flex-direction:column; box-shadow:0 6px 20px rgba(0,0,0,.06);
+                transition:transform .18s ease, box-shadow .18s ease; }
+    .stl-card:hover { transform:translateY(-4px); box-shadow:0 14px 32px rgba(43,108,176,.16); border-color:#bcd3ea; }
+    .stl-viewer { cursor:grab; }
+    .stl-viewer:active { cursor:grabbing; }
+    .stl-viewer { position:relative; width:100%; aspect-ratio:1/1; background:#ffffff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="14" fill="none" stroke="%23cbd5e0" stroke-width="3" stroke-dasharray="60 30"/></svg>') center/38px no-repeat; }
+    .stl-viewer canvas { display:block; }
+    .stl-prompt { color:#2d3748; font-size:.82rem; line-height:1.35; padding:.65rem .8rem .75rem; border-top:1px solid #edf2f7; background:#f8fafc; }
+    .stl-prompt strong { color:var(--accent-dark); }
+    .drag-hint { color:#718096; font-size:.85rem; text-align:center; margin-top:.75rem; }
+
+    /* ---- multi-view rows ---- */
+    .mv-card { background:transparent; border:none; border-radius:0; padding:.35rem 0 1.4rem; margin-bottom:.2rem; box-shadow:none; }
+    .mv-prompt { font-size:.92rem; margin-bottom:.6rem; }
+    .mv-grid { display:grid; grid-template-columns:1.45fr repeat(6,1fr); gap:.55rem; align-items:center; }
+    .mv-grid figure { margin:0; }
+    .mv-grid img { width:100%; display:block; }
+    .mv-grid figcaption { text-align:center; font-size:.78rem; color:#4a5568; font-style:italic; margin-top:.2rem; }
+    @media (max-width:760px){ .mv-grid { grid-template-columns:repeat(4,1fr); } .mv-grid figure.mv-iso { grid-column:span 4; } }
+
+    /* ---- comparison rows ---- */
+    .cmp-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem; }
+    .cmp-grid figure { margin:0; }
+    .cmp-grid img { width:100%; display:block; }
+    .cmp-grid figcaption { text-align:center; font-size:.85rem; margin-top:.3rem; color:#1a202c; }
+    .cd-chip { display:inline-block; font-size:.78rem; border-radius:999px; padding:.05rem .55rem; background:#edf2f7; color:#2d3748; margin-left:.3rem; }
+    .cd-chip.best { background:#c6f6d5; color:#22543d; font-weight:700; }
   </style>
 </head>
 <body>
@@ -79,21 +113,66 @@
   </section>
 
   <!-- ===================== TEASER ===================== -->
-  <section class="section" style="padding-top:2.5rem;">
-    <div class="container" style="max-width:1000px;">
+  <section class="page-section" style="padding-top:2.2rem;">
+    <div class="page-container">
       <div class="figure-card">
         <img src="static/images/examples.png" alt="Examples of CRAFT-generated parametric CAD models">
         <p class="figure-caption">
-          CRAFT turns natural-language descriptions into <strong>executable, editable parametric OpenSCAD programs</strong>
-          &mdash; from mechanical parts to everyday objects &mdash; without any task-specific training.
+          Natural language in, <strong>executable and editable parametric OpenSCAD programs</strong> out. No task-specific training.
         </p>
       </div>
     </div>
   </section>
 
+  <!-- ===================== INTERACTIVE 3D ===================== -->
+  <section class="page-section">
+    <div class="page-container">
+      <h2 class="title is-3 section-heading">Interactive Results</h2>
+      <p class="section-sub">Six CRAFT-generated models, live in your browser. <strong>Drag to rotate</strong>, scroll to zoom. Amber surfaces are model interiors.</p>
+      <div class="columns is-multiline">
+        <div class="column is-4">
+          <div class="stl-card">
+            <div class="stl-viewer" data-stl="static/stl/fan.stl"></div>
+            <div class="stl-prompt"><strong>Prompt:</strong> &ldquo;40mm axial cooling fan&rdquo;</div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="stl-card">
+            <div class="stl-viewer" data-stl="static/stl/table.stl"></div>
+            <div class="stl-prompt"><strong>Prompt:</strong> &ldquo;Rectangular table with a flat top and four straight legs&rdquo;</div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="stl-card">
+            <div class="stl-viewer" data-stl="static/stl/dc_motor.stl"></div>
+            <div class="stl-prompt"><strong>Prompt:</strong> &ldquo;3D model of a DC motor with essential structural and functional components&rdquo;</div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="stl-card">
+            <div class="stl-viewer" data-stl="static/stl/servo.stl"></div>
+            <div class="stl-prompt"><strong>Prompt:</strong> &ldquo;Standard RC servo motor body with housing, top cap, output shaft boss, and mounting ears&rdquo;</div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="stl-card">
+            <div class="stl-viewer" data-stl="static/stl/gear.stl"></div>
+            <div class="stl-prompt"><strong>Prompt:</strong> &ldquo;Simple spur gear&rdquo;</div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="stl-card">
+            <div class="stl-viewer" data-stl="static/stl/chair.stl"></div>
+            <div class="stl-prompt"><strong>Prompt:</strong> &ldquo;Simple chair with seat, four legs, and a backrest&rdquo;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== ABSTRACT ===================== -->
-  <section class="section" style="padding-top:0;">
-    <div class="container" style="max-width:860px;">
+  <section class="page-section">
+    <div class="page-container">
       <h2 class="title is-3 section-heading">Abstract</h2>
       <p class="is-size-5" style="line-height:1.7; text-align:justify;">
         Text-to-CAD generation has the potential to make mechanical CAD more accessible, but existing approaches face a
@@ -112,65 +191,209 @@
   </section>
 
   <!-- ===================== METHOD / PIPELINE ===================== -->
-  <section class="section" style="padding-top:0;">
-    <div class="container" style="max-width:1100px;">
+  <section class="page-section">
+    <div class="page-container">
       <h2 class="title is-3 section-heading">Method</h2>
       <div class="figure-card">
-        <img src="static/images/pipeline.png" alt="The CRAFT pipeline">
-        <p class="figure-caption">
-          The CRAFT pipeline maps a text prompt (and optional reference images) to a parametric OpenSCAD program through
-          six stages, coordinated by a five-layer recovery strategy. Reasoning-intensive stages use GPT-5.2; deterministic
-          translation and repair steps use GPT-4o.
-        </p>
-      </div>
-      <div class="content is-size-6" style="margin-top:1.5rem; line-height:1.7;">
-        <p><span class="stage-tag">1 · Understanding</span> parses the prompt and any images, classifies parts by importance, and retrieves standard-component specifications from NopSCADlib.</p>
-        <p><span class="stage-tag">2 · Planning</span> emits a JSON CAD plan that preserves <em>symbolic</em> parametric expressions, validated before any code is generated.</p>
-        <p><span class="stage-tag">3 · Compilation</span> translates the plan into OpenSCAD, keeping expressions and customizer parameter ranges intact.</p>
-        <p><span class="stage-tag">4 · Rendering</span> produces six orthographic views with timeout-aware simplification of expensive constructs.</p>
-        <p><span class="stage-tag">5 · VLM Self-Correction</span> compares the six-view render to the prompt and proposes targeted fixes for up to three rounds.</p>
-        <p><span class="stage-tag">6 · Component Verification</span> checks that expected parts are present using tiered confidence thresholds.</p>
-        <p>A <strong>five-layer recovery strategy</strong> (schema repair &rarr; SCAD auto-fix &rarr; VLM correction &rarr; component verification &rarr; manual hint) escalates repair under a shared retry budget.</p>
+        <img src="static/images/pipeline_v2.png" alt="The CRAFT pipeline">
       </div>
     </div>
   </section>
 
   <!-- ===================== PARAMETRIC EDITABILITY ===================== -->
-  <section class="section" style="padding-top:0;">
-    <div class="container" style="max-width:1000px;">
+  <section class="page-section">
+    <div class="page-container">
       <h2 class="title is-3 section-heading">Parametric Editability</h2>
       <div class="figure-card">
         <img src="static/images/parametric.png" alt="Single-parameter edits on a CRAFT-generated model">
         <p class="figure-caption">
-          Because CRAFT preserves symbolic parametric structure, individual parameters can be edited after generation
-          &mdash; changing dimensions, proportions, and appearance &mdash; while the program remains valid and re-renderable.
+          CRAFT preserves symbolic parametric structure, so individual parameters can be edited after generation while the
+          program remains valid and re-renderable.
         </p>
       </div>
-    </div>
-  </section>
-
-  <!-- ===================== QUALITATIVE: MULTI-VIEW ===================== -->
-  <section class="section" style="padding-top:0;">
-    <div class="container" style="max-width:1100px;">
-      <h2 class="title is-3 section-heading">Multi-View Results</h2>
-      <p class="is-size-6" style="margin-bottom:1.25rem;">
-        Each result is rendered from an isometric view plus six orthographic views (front, back, left, right, top, bottom),
-        the same views CRAFT uses internally for visual self-correction.
-      </p>
-      <div class="columns is-multiline view-grid">
-        <div class="column is-12"><img src="static/images/views/Cooling_fan.png" alt="40mm axial cooling fan"></div>
-        <div class="column is-12"><img src="static/images/views/Coffee_mug.png" alt="Parametric coffee mug"></div>
-        <div class="column is-12"><img src="static/images/views/Dc_motor.png" alt="DC motor"></div>
-        <div class="column is-12"><img src="static/images/views/RC_motor.png" alt="RC servo motor body"></div>
-        <div class="column is-12"><img src="static/images/views/sedan_car.png" alt="Parametric sedan"></div>
-        <div class="column is-12"><img src="static/images/views/Spur_gear.png" alt="Simple spur gear"></div>
+      <p class="section-sub" style="margin-top:1.1rem;">Live: the <em>same</em> CRAFT-generated spur gear program, re-compiled with edited customizer parameters. Every panel is rotatable.</p>
+      <div class="columns">
+        <div class="column is-3" style="display:flex; align-items:center;">
+          <div class="stl-card" style="width:100%; height:auto;">
+            <div class="stl-viewer" data-stl="static/stl/gear.stl"></div>
+            <div class="stl-prompt"><strong>Generated default</strong> (8 teeth)</div>
+          </div>
+        </div>
+        <div class="column is-9">
+          <div class="columns is-multiline is-variable is-1">
+            <div class="column is-4">
+              <div class="stl-card">
+                <div class="stl-viewer" data-stl="static/stl/gear_tooth20.stl"></div>
+                <div class="stl-prompt">Tooth count <strong>+12</strong></div>
+              </div>
+            </div>
+            <div class="column is-4">
+              <div class="stl-card">
+                <div class="stl-viewer" data-stl="static/stl/gear_toothH.stl"></div>
+                <div class="stl-prompt">Tooth height <strong>+4&nbsp;mm</strong>, tip width <strong>+3&nbsp;mm</strong></div>
+              </div>
+            </div>
+            <div class="column is-4">
+              <div class="stl-card">
+                <div class="stl-viewer" data-stl="static/stl/gear_bore.stl"></div>
+                <div class="stl-prompt">Bore diameter <strong>+8&nbsp;mm</strong></div>
+              </div>
+            </div>
+            <div class="column is-4">
+              <div class="stl-card">
+                <div class="stl-viewer" data-stl="static/stl/gear_thick.stl"></div>
+                <div class="stl-prompt">Gear thickness <strong>&minus;4&nbsp;mm</strong>, hub height <strong>+6&nbsp;mm</strong></div>
+              </div>
+            </div>
+            <div class="column is-4">
+              <div class="stl-card">
+                <div class="stl-viewer" data-stl="static/stl/gear_od60.stl"></div>
+                <div class="stl-prompt">Gear diameter <strong>+20&nbsp;mm</strong></div>
+              </div>
+            </div>
+            <div class="column is-4">
+              <div class="stl-card">
+                <div class="stl-viewer" data-stl="static/stl/gear.stl" data-overlays='[{"stl":"static/stl/gear_hub.stl","color":"#c53030"},{"stl":"static/stl/gear_screw.stl","color":"#2b6cb0"}]'></div>
+                <div class="stl-prompt"><span style="color:#c53030;font-weight:700;">Hub</span> and <span style="color:#2b6cb0;font-weight:700;">set-screw bore</span> highlighted</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ===================== QUANTITATIVE ===================== -->
-  <section class="section" style="padding-top:0;">
-    <div class="container" style="max-width:1000px;">
+  <!-- ===================== MULTI-VIEW RESULTS ===================== -->
+  <section class="page-section">
+    <div class="page-container">
+      <h2 class="title is-3 section-heading">Multi-View Results</h2>
+      <p class="section-sub">
+        Each model rendered from an isometric view plus the six orthographic views (front, back, left, right, top, bottom)
+        CRAFT uses internally for visual self-correction.
+      </p>
+
+      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;40mm axial cooling fan&rdquo;</p>
+        <div class="mv-grid">
+          <figure class="mv-iso"><img src="static/views/fan_iso.png" alt=""><figcaption>Isometric</figcaption></figure>
+          <figure><img src="static/views/fan_front.png" alt=""><figcaption>Front</figcaption></figure>
+          <figure><img src="static/views/fan_back.png" alt=""><figcaption>Back</figcaption></figure>
+          <figure><img src="static/views/fan_left.png" alt=""><figcaption>Left</figcaption></figure>
+          <figure><img src="static/views/fan_right.png" alt=""><figcaption>Right</figcaption></figure>
+          <figure><img src="static/views/fan_top.png" alt=""><figcaption>Top</figcaption></figure>
+          <figure><img src="static/views/fan_bottom.png" alt=""><figcaption>Bottom</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;Rectangular table with a flat top and four straight legs&rdquo;</p>
+        <div class="mv-grid">
+          <figure class="mv-iso"><img src="static/views/table_iso.png" alt=""><figcaption>Isometric</figcaption></figure>
+          <figure><img src="static/views/table_front.png" alt=""><figcaption>Front</figcaption></figure>
+          <figure><img src="static/views/table_back.png" alt=""><figcaption>Back</figcaption></figure>
+          <figure><img src="static/views/table_left.png" alt=""><figcaption>Left</figcaption></figure>
+          <figure><img src="static/views/table_right.png" alt=""><figcaption>Right</figcaption></figure>
+          <figure><img src="static/views/table_top.png" alt=""><figcaption>Top</figcaption></figure>
+          <figure><img src="static/views/table_bottom.png" alt=""><figcaption>Bottom</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;3D model of a DC motor with essential structural and functional components&rdquo;</p>
+        <div class="mv-grid">
+          <figure class="mv-iso"><img src="static/views/dc_motor_iso.png" alt=""><figcaption>Isometric</figcaption></figure>
+          <figure><img src="static/views/dc_motor_front.png" alt=""><figcaption>Front</figcaption></figure>
+          <figure><img src="static/views/dc_motor_back.png" alt=""><figcaption>Back</figcaption></figure>
+          <figure><img src="static/views/dc_motor_left.png" alt=""><figcaption>Left</figcaption></figure>
+          <figure><img src="static/views/dc_motor_right.png" alt=""><figcaption>Right</figcaption></figure>
+          <figure><img src="static/views/dc_motor_top.png" alt=""><figcaption>Top</figcaption></figure>
+          <figure><img src="static/views/dc_motor_bottom.png" alt=""><figcaption>Bottom</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;Standard RC servo motor body with housing, top cap, output shaft boss, and mounting ears&rdquo;</p>
+        <div class="mv-grid">
+          <figure class="mv-iso"><img src="static/views/servo_iso.png" alt=""><figcaption>Isometric</figcaption></figure>
+          <figure><img src="static/views/servo_front.png" alt=""><figcaption>Front</figcaption></figure>
+          <figure><img src="static/views/servo_back.png" alt=""><figcaption>Back</figcaption></figure>
+          <figure><img src="static/views/servo_left.png" alt=""><figcaption>Left</figcaption></figure>
+          <figure><img src="static/views/servo_right.png" alt=""><figcaption>Right</figcaption></figure>
+          <figure><img src="static/views/servo_top.png" alt=""><figcaption>Top</figcaption></figure>
+          <figure><img src="static/views/servo_bottom.png" alt=""><figcaption>Bottom</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;Simple spur gear&rdquo;</p>
+        <div class="mv-grid">
+          <figure class="mv-iso"><img src="static/views/gear_iso.png" alt=""><figcaption>Isometric</figcaption></figure>
+          <figure><img src="static/views/gear_front.png" alt=""><figcaption>Front</figcaption></figure>
+          <figure><img src="static/views/gear_back.png" alt=""><figcaption>Back</figcaption></figure>
+          <figure><img src="static/views/gear_left.png" alt=""><figcaption>Left</figcaption></figure>
+          <figure><img src="static/views/gear_right.png" alt=""><figcaption>Right</figcaption></figure>
+          <figure><img src="static/views/gear_top.png" alt=""><figcaption>Top</figcaption></figure>
+          <figure><img src="static/views/gear_bottom.png" alt=""><figcaption>Bottom</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;Simple chair with seat, four legs, and a backrest&rdquo;</p>
+        <div class="mv-grid">
+          <figure class="mv-iso"><img src="static/views/chair_iso.png" alt=""><figcaption>Isometric</figcaption></figure>
+          <figure><img src="static/views/chair_front.png" alt=""><figcaption>Front</figcaption></figure>
+          <figure><img src="static/views/chair_back.png" alt=""><figcaption>Back</figcaption></figure>
+          <figure><img src="static/views/chair_left.png" alt=""><figcaption>Left</figcaption></figure>
+          <figure><img src="static/views/chair_right.png" alt=""><figcaption>Right</figcaption></figure>
+          <figure><img src="static/views/chair_top.png" alt=""><figcaption>Top</figcaption></figure>
+          <figure><img src="static/views/chair_bottom.png" alt=""><figcaption>Bottom</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== COMPARISON ===================== -->
+  <section class="page-section">
+    <div class="page-container">
+      <h2 class="title is-3 section-heading">CRAFT vs. Direct Generation</h2>
+      <p class="section-sub">
+        Out-of-library ABC parts: ground truth alongside CRAFT, GPT-4o, and GPT-5.2 outputs for the same input.
+        CD = per-part aligned Chamfer distance (lower is better; green = best).
+      </p>
+
+      <div class="mv-card">
+        <p class="mv-prompt"><strong>ABC: cover plate</strong> (0012749)</p>
+        <div class="cmp-grid">
+          <figure><img src="static/cmp/0012749_gt.png" alt=""><figcaption>Ground truth</figcaption></figure>
+          <figure><img src="static/cmp/0012749_craft.png" alt=""><figcaption><strong>CRAFT</strong><span class="cd-chip best">CD 0.014</span></figcaption></figure>
+          <figure><img src="static/cmp/0012749_gpt4o.png" alt=""><figcaption>GPT-4o<span class="cd-chip">CD 0.144</span></figcaption></figure>
+          <figure><img src="static/cmp/0012749_gpt52.png" alt=""><figcaption>GPT-5.2<span class="cd-chip">CD 0.102</span></figcaption></figure>
+        </div>
+      </div>
+
+      <div class="mv-card">
+        <p class="mv-prompt"><strong>ABC: clamp block</strong> (0070304)</p>
+        <div class="cmp-grid">
+          <figure><img src="static/cmp/0070304_gt.png" alt=""><figcaption>Ground truth</figcaption></figure>
+          <figure><img src="static/cmp/0070304_craft.png" alt=""><figcaption><strong>CRAFT</strong><span class="cd-chip best">CD 0.053</span></figcaption></figure>
+          <figure><img src="static/cmp/0070304_gpt4o.png" alt=""><figcaption>GPT-4o<span class="cd-chip">CD 0.086</span></figcaption></figure>
+          <figure><img src="static/cmp/0070304_gpt52.png" alt=""><figcaption>GPT-5.2<span class="cd-chip">CD 0.121</span></figcaption></figure>
+        </div>
+      </div>
+
+      <div class="mv-card">
+        <p class="mv-prompt"><strong>ABC: cylindrical hub</strong> (0069012)</p>
+        <div class="cmp-grid">
+          <figure><img src="static/cmp/0069012_gt.png" alt=""><figcaption>Ground truth</figcaption></figure>
+          <figure><img src="static/cmp/0069012_craft.png" alt=""><figcaption><strong>CRAFT</strong><span class="cd-chip best">CD 0.059</span></figcaption></figure>
+          <figure><img src="static/cmp/0069012_gpt4o.png" alt=""><figcaption>GPT-4o<span class="cd-chip">CD 0.085</span></figcaption></figure>
+          <figure><img src="static/cmp/0069012_gpt52.png" alt=""><figcaption>GPT-5.2<span class="cd-chip">CD 0.097</span></figcaption></figure>
+        </div>
+      </div>
+
+      <p class="figure-caption" style="text-align:left;">
+        Per-part CD from the benchmark's aligned scorer (PCA + 24-rotation + ICP alignment); aggregate results across all
+        parts are in the tables below and in the paper.
+      </p>
+    </section>
+
+  <!-- ===================== RESULTS ===================== -->
+  <section class="page-section">
+    <div class="page-container">
       <h2 class="title is-3 section-heading">Results</h2>
 
       <div class="columns" style="margin-bottom:1rem;">
@@ -180,8 +403,29 @@
         <div class="column"><div class="stat-card"><div class="stat-num">95.11</div><div class="stat-label">FID (lowest = best)</div></div></div>
       </div>
 
-      <div class="figure-card">
-        <p class="has-text-weight-bold" style="margin-bottom:.5rem;">Geometric accuracy (CRAFT vs. direct generation)</p>
+      <div class="figure-card" style="margin-bottom:1.1rem;">
+        <p class="has-text-weight-bold" style="margin-bottom:.5rem;">Perceptual alignment on NopSCADlib</p>
+        <div class="table-container">
+          <table class="table is-fullwidth is-striped res">
+            <thead>
+              <tr><th>Metric</th><th>Split</th><th>CRAFT</th><th>GPT-4o</th><th>GPT-5.2</th><th>GT</th></tr>
+            </thead>
+            <tbody>
+              <tr><td rowspan="4">CLIP&nbsp;&uarr;</td><td>Overall</td><td><strong>0.2226</strong></td><td>0.2033</td><td>0.2145</td><td>0.2342</td></tr>
+              <tr><td>Simple</td><td><strong>0.2272</strong></td><td>0.2098</td><td>0.2174</td><td>0.2279</td></tr>
+              <tr><td>Medium</td><td>0.2132</td><td>0.2014</td><td><strong>0.2144</strong></td><td>0.2342</td></tr>
+              <tr><td>Complex</td><td><strong>0.2279</strong></td><td>0.1983</td><td>0.2116</td><td>0.2409</td></tr>
+              <tr><td rowspan="4">FID&nbsp;&darr;</td><td>Overall</td><td><strong>95.11</strong></td><td>119.42</td><td>106.22</td><td>&mdash;</td></tr>
+              <tr><td>Simple</td><td>152.37</td><td>144.38</td><td><strong>136.22</strong></td><td>&mdash;</td></tr>
+              <tr><td>Medium</td><td><strong>126.88</strong></td><td>159.56</td><td>147.95</td><td>&mdash;</td></tr>
+              <tr><td>Complex</td><td><strong>144.85</strong></td><td>184.39</td><td>160.51</td><td>&mdash;</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="figure-card" style="margin-bottom:1.1rem;">
+        <p class="has-text-weight-bold" style="margin-bottom:.5rem;">Geometric accuracy</p>
         <div class="table-container">
           <table class="table is-fullwidth is-striped res">
             <thead>
@@ -200,17 +444,32 @@
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div class="figure-card">
+        <p class="has-text-weight-bold" style="margin-bottom:.5rem;">Editability on NopSCADlib</p>
+        <div class="table-container">
+          <table class="table is-fullwidth is-striped res">
+            <thead>
+              <tr><th>Method</th><th># Params&nbsp;&uarr;</th><th>Symbolic&nbsp;&uarr;</th><th>Edit success&nbsp;&uarr;</th><th>Post-edit valid&nbsp;&uarr;</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>CRAFT</strong></td><td><strong>13.1</strong></td><td><strong>66.8%</strong></td><td>99.9%</td><td>99.1%</td></tr>
+              <tr><td>GPT-5.2</td><td>4.2</td><td>47.7%</td><td>99.2%</td><td>97.7%</td></tr>
+              <tr><td>GPT-4o</td><td>0.1</td><td>3.0%</td><td>95.0%</td><td>95.0%</td></tr>
+            </tbody>
+          </table>
+        </div>
         <p class="figure-caption" style="text-align:left;">
-          CRAFT leads on volumetric overlap and out-of-distribution geometry (ABC, Slice-100K) while remaining competitive
-          on in-distribution surface metrics. Full per-tier tables, the ablation, and recovery statistics are in the paper.
+          Full per-tier tables, the ablation, and recovery statistics are in the paper.
         </p>
       </div>
     </div>
   </section>
 
   <!-- ===================== BIBTEX ===================== -->
-  <section class="section bibtex" style="padding-top:0;">
-    <div class="container" style="max-width:1000px;">
+  <section class="page-section bibtex">
+    <div class="page-container">
       <h2 class="title is-3 section-heading">BibTeX</h2>
 <pre>@inproceedings{rafi2026craft,
   title     = {CRAFT: Corrective and Robust Multi-Agent Framework for Text-to-Parametric CAD},
@@ -235,6 +494,14 @@
       </p>
     </div>
   </footer>
+
+  <script type="importmap">
+  { "imports": {
+      "three": "./static/js/vendor/three.module.min.js",
+      "three/addons/": "./static/js/vendor/addons/"
+  } }
+  </script>
+  <script type="module" src="static/js/stlviewer.js"></script>
 
 </body>
 </html>
