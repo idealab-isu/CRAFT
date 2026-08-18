@@ -62,12 +62,7 @@
     /* ---- multi-view rows ---- */
     .mv-card { background:transparent; border:none; border-radius:0; padding:.35rem 0 1.4rem; margin-bottom:.2rem; box-shadow:none; }
     .mv-prompt { font-size:.92rem; margin-bottom:.6rem; }
-    .mv-grid { display:grid; grid-template-columns:1.45fr repeat(6,1fr); gap:.55rem; align-items:center; }
-    .mv-grid figure { margin:0; }
-    .mv-grid img { width:100%; display:block; }
-    .mv-grid .stl-viewer, .cmp-grid .stl-viewer { aspect-ratio:1/1; width:100%; }
-    .mv-grid figcaption { text-align:center; font-size:.78rem; color:#4a5568; font-style:italic; margin-top:.2rem; }
-    @media (max-width:760px){ .mv-grid { grid-template-columns:repeat(4,1fr); } .mv-grid figure.mv-iso { grid-column:span 4; } }
+    .cmp-grid .stl-viewer { aspect-ratio:1/1; width:100%; }
 
     /* ---- comparison rows ---- */
     .cmp-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem; }
@@ -113,20 +108,8 @@
     </div>
   </section>
 
-  <!-- ===================== TEASER ===================== -->
-  <section class="page-section" style="padding-top:2.2rem;">
-    <div class="page-container">
-      <div class="figure-card">
-        <img src="static/images/examples.png" alt="Examples of CRAFT-generated parametric CAD models">
-        <p class="figure-caption">
-          Natural language in, <strong>executable and editable parametric OpenSCAD programs</strong> out. No task-specific training.
-        </p>
-      </div>
-    </div>
-  </section>
-
   <!-- ===================== INTERACTIVE 3D ===================== -->
-  <section class="page-section">
+  <section class="page-section" style="padding-top:2.2rem;">
     <div class="page-container">
       <h2 class="title is-3 section-heading">Interactive Results</h2>
       <p class="section-sub">Six CRAFT-generated models, live in your browser. <strong>Drag to rotate</strong>, scroll to zoom. Amber surfaces are model interiors.</p>
@@ -196,6 +179,12 @@
     <div class="page-container">
       <h2 class="title is-3 section-heading">Method</h2>
       <div class="figure-card">
+        <img src="static/images/examples.png" alt="Examples of CRAFT-generated parametric CAD models">
+        <p class="figure-caption">
+          Natural language in, <strong>executable and editable parametric OpenSCAD programs</strong> out. No task-specific training.
+        </p>
+      </div>
+      <div class="figure-card" style="margin-top:1.4rem;">
         <img src="static/images/pipeline_v2.png" alt="The CRAFT pipeline">
       </div>
     </div>
@@ -252,89 +241,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== MULTI-VIEW RESULTS ===================== -->
-  <section class="page-section">
-    <div class="page-container">
-      <h2 class="title is-3 section-heading">Multi-View Results</h2>
-      <p class="section-sub">
-        Every view is live. The isometric rotates on its own; the six orthographic views start at their exact pose and
-        can be grabbed and spun.
-      </p>
-
-      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;40mm axial cooling fan&rdquo;</p>
-        <div class="mv-grid">
-          <figure class="mv-iso"><div class="stl-viewer" data-stl="static/stl/fan.stl" data-color="#4d7ea8"></div><figcaption>Isometric</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/fan.stl" data-color="#4d7ea8" data-view="front" data-proj="ortho" data-rotate="0"></div><figcaption>Front</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/fan.stl" data-color="#4d7ea8" data-view="back" data-proj="ortho" data-rotate="0"></div><figcaption>Back</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/fan.stl" data-color="#4d7ea8" data-view="left" data-proj="ortho" data-rotate="0"></div><figcaption>Left</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/fan.stl" data-color="#4d7ea8" data-view="right" data-proj="ortho" data-rotate="0"></div><figcaption>Right</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/fan.stl" data-color="#4d7ea8" data-view="top" data-proj="ortho" data-rotate="0"></div><figcaption>Top</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/fan.stl" data-color="#4d7ea8" data-view="bottom" data-proj="ortho" data-rotate="0"></div><figcaption>Bottom</figcaption></figure>
-        </div>
-      </div>
-
-      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;Rectangular table with a flat top and four straight legs&rdquo;</p>
-        <div class="mv-grid">
-          <figure class="mv-iso"><div class="stl-viewer" data-stl="static/stl/table.stl" data-color="#7d5a3c" data-back="none"></div><figcaption>Isometric</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/table.stl" data-color="#7d5a3c" data-back="none" data-view="front" data-proj="ortho" data-rotate="0"></div><figcaption>Front</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/table.stl" data-color="#7d5a3c" data-back="none" data-view="back" data-proj="ortho" data-rotate="0"></div><figcaption>Back</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/table.stl" data-color="#7d5a3c" data-back="none" data-view="left" data-proj="ortho" data-rotate="0"></div><figcaption>Left</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/table.stl" data-color="#7d5a3c" data-back="none" data-view="right" data-proj="ortho" data-rotate="0"></div><figcaption>Right</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/table.stl" data-color="#7d5a3c" data-back="none" data-view="top" data-proj="ortho" data-rotate="0"></div><figcaption>Top</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/table.stl" data-color="#7d5a3c" data-back="none" data-view="bottom" data-proj="ortho" data-rotate="0"></div><figcaption>Bottom</figcaption></figure>
-        </div>
-      </div>
-
-      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;3D model of a DC motor with essential structural and functional components&rdquo;</p>
-        <div class="mv-grid">
-          <figure class="mv-iso"><div class="stl-viewer" data-stl="static/stl/dc_motor.stl" data-color="#4d7ea8"></div><figcaption>Isometric</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/dc_motor.stl" data-color="#4d7ea8" data-view="front" data-proj="ortho" data-rotate="0"></div><figcaption>Front</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/dc_motor.stl" data-color="#4d7ea8" data-view="back" data-proj="ortho" data-rotate="0"></div><figcaption>Back</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/dc_motor.stl" data-color="#4d7ea8" data-view="left" data-proj="ortho" data-rotate="0"></div><figcaption>Left</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/dc_motor.stl" data-color="#4d7ea8" data-view="right" data-proj="ortho" data-rotate="0"></div><figcaption>Right</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/dc_motor.stl" data-color="#4d7ea8" data-view="top" data-proj="ortho" data-rotate="0"></div><figcaption>Top</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/dc_motor.stl" data-color="#4d7ea8" data-view="bottom" data-proj="ortho" data-rotate="0"></div><figcaption>Bottom</figcaption></figure>
-        </div>
-      </div>
-
-      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;Standard RC servo motor body with housing, top cap, output shaft boss, and mounting ears&rdquo;</p>
-        <div class="mv-grid">
-          <figure class="mv-iso"><div class="stl-viewer" data-stl="static/stl/servo.stl" data-color="#33415e" data-back="none"></div><figcaption>Isometric</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/servo.stl" data-color="#33415e" data-back="none" data-view="front" data-proj="ortho" data-rotate="0"></div><figcaption>Front</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/servo.stl" data-color="#33415e" data-back="none" data-view="back" data-proj="ortho" data-rotate="0"></div><figcaption>Back</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/servo.stl" data-color="#33415e" data-back="none" data-view="left" data-proj="ortho" data-rotate="0"></div><figcaption>Left</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/servo.stl" data-color="#33415e" data-back="none" data-view="right" data-proj="ortho" data-rotate="0"></div><figcaption>Right</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/servo.stl" data-color="#33415e" data-back="none" data-view="top" data-proj="ortho" data-rotate="0"></div><figcaption>Top</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/servo.stl" data-color="#33415e" data-back="none" data-view="bottom" data-proj="ortho" data-rotate="0"></div><figcaption>Bottom</figcaption></figure>
-        </div>
-      </div>
-
-      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;Simple spur gear&rdquo;</p>
-        <div class="mv-grid">
-          <figure class="mv-iso"><div class="stl-viewer" data-stl="static/stl/gear.stl" data-color="#b5bcc7" data-back="none"></div><figcaption>Isometric</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/gear.stl" data-color="#b5bcc7" data-back="none" data-view="front" data-proj="ortho" data-rotate="0"></div><figcaption>Front</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/gear.stl" data-color="#b5bcc7" data-back="none" data-view="back" data-proj="ortho" data-rotate="0"></div><figcaption>Back</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/gear.stl" data-color="#b5bcc7" data-back="none" data-view="left" data-proj="ortho" data-rotate="0"></div><figcaption>Left</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/gear.stl" data-color="#b5bcc7" data-back="none" data-view="right" data-proj="ortho" data-rotate="0"></div><figcaption>Right</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/gear.stl" data-color="#b5bcc7" data-back="none" data-view="top" data-proj="ortho" data-rotate="0"></div><figcaption>Top</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/gear.stl" data-color="#b5bcc7" data-back="none" data-view="bottom" data-proj="ortho" data-rotate="0"></div><figcaption>Bottom</figcaption></figure>
-        </div>
-      </div>
-
-      <div class="mv-card"><p class="mv-prompt"><strong>Prompt:</strong> &ldquo;Simple chair with seat, four legs, and a backrest&rdquo;</p>
-        <div class="mv-grid">
-          <figure class="mv-iso"><div class="stl-viewer" data-stl="static/stl/chair.stl" data-color="#8a6a4d" data-back="none"></div><figcaption>Isometric</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/chair.stl" data-color="#8a6a4d" data-back="none" data-view="front" data-proj="ortho" data-rotate="0"></div><figcaption>Front</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/chair.stl" data-color="#8a6a4d" data-back="none" data-view="back" data-proj="ortho" data-rotate="0"></div><figcaption>Back</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/chair.stl" data-color="#8a6a4d" data-back="none" data-view="left" data-proj="ortho" data-rotate="0"></div><figcaption>Left</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/chair.stl" data-color="#8a6a4d" data-back="none" data-view="right" data-proj="ortho" data-rotate="0"></div><figcaption>Right</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/chair.stl" data-color="#8a6a4d" data-back="none" data-view="top" data-proj="ortho" data-rotate="0"></div><figcaption>Top</figcaption></figure>
-          <figure><div class="stl-viewer" data-stl="static/stl/chair.stl" data-color="#8a6a4d" data-back="none" data-view="bottom" data-proj="ortho" data-rotate="0"></div><figcaption>Bottom</figcaption></figure>
         </div>
       </div>
     </div>
