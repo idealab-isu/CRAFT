@@ -1,5 +1,7 @@
 # CRAFT: Corrective and Robust Multi-Agent Framework for Text-to-Parametric CAD
 
+**Project page:** https://idealab-isu.github.io/CRAFT/
+
 CRAFT is a corrective and robust multi-agent framework for text-to-parametric CAD generation. It produces executable and editable OpenSCAD programs from natural language without task-specific training, through three core mechanisms: a JSON-based intermediate representation that preserves symbolic parametric expressions, multi-view visual feedback to detect and correct geometric errors, and a layered recovery strategy that handles failures at every stage of the pipeline.
 
 <p align="center">
